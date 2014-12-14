@@ -38,16 +38,16 @@ module Pather {
             if (interpolatedTime < 0) interpolatedTime = 0;
             if (interpolatedTime > 1) interpolatedTime = 1;
 
-            var _x = this.x;
-            var _y = this.y;
+            var _x = this.x|0;
+            var _y = this.y|0;
             if (this.animations.length > 0) {
                 var animationIndex = ((interpolatedTime * Constants.animationSteps) | 0);
                 var animation = this.animations[animationIndex];
                 if (animation) {
 
                     var interpolateStep = (interpolatedTime % (1 / Constants.animationSteps)) * Constants.animationSteps;
-                    _x = animation.fromX + (animation.x - animation.fromX) * interpolateStep;
-                    _y = animation.fromY + (animation.y - animation.fromY) * interpolateStep;
+                    _x = animation.fromX + (animation.x - animation.fromX) * interpolateStep|0;
+                    _y = animation.fromY + (animation.y - animation.fromY) * interpolateStep|0;
                 }
             }
 
@@ -64,8 +64,11 @@ module Pather {
 
 
 
+            context.lineWidth = 5;
+            context.strokeStyle = "yellow";
             context.fillStyle = "red";
-            context.fillRect((_x) - (Constants.squareSize / 2), (_y) - (Constants.squareSize / 2), (Constants.squareSize ), (Constants.squareSize ));
+            context.fillRect((_x) - (Constants.squareSize / 2), (_y) - (Constants.squareSize / 2), (Constants.squareSize), (Constants.squareSize));
+            context.strokeRect((_x) - (Constants.squareSize / 2), (_y) - (Constants.squareSize / 2), (Constants.squareSize ), (Constants.squareSize ));
             context.restore();
         }
 

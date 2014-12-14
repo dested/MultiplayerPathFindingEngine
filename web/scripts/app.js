@@ -58,15 +58,15 @@ var Pather;
                 interpolatedTime = 0;
             if (interpolatedTime > 1)
                 interpolatedTime = 1;
-            var _x = this.x;
-            var _y = this.y;
+            var _x = this.x | 0;
+            var _y = this.y | 0;
             if (this.animations.length > 0) {
                 var animationIndex = ((interpolatedTime * Pather.Constants.animationSteps) | 0);
                 var animation = this.animations[animationIndex];
                 if (animation) {
                     var interpolateStep = (interpolatedTime % (1 / Pather.Constants.animationSteps)) * Pather.Constants.animationSteps;
-                    _x = animation.fromX + (animation.x - animation.fromX) * interpolateStep;
-                    _y = animation.fromY + (animation.y - animation.fromY) * interpolateStep;
+                    _x = animation.fromX + (animation.x - animation.fromX) * interpolateStep | 0;
+                    _y = animation.fromY + (animation.y - animation.fromY) * interpolateStep | 0;
                 }
             }
             var result = this.path[0];
@@ -76,8 +76,11 @@ var Pather;
             }
             context.strokeStyle = "green";
             //            context.strokeRect(this.squareX * Constants.squareSize, this.squareY * Constants.squareSize, Constants.squareSize, Constants.squareSize);
+            context.lineWidth = 5;
+            context.strokeStyle = "yellow";
             context.fillStyle = "red";
             context.fillRect((_x) - (Pather.Constants.squareSize / 2), (_y) - (Pather.Constants.squareSize / 2), (Pather.Constants.squareSize), (Pather.Constants.squareSize));
+            context.strokeRect((_x) - (Pather.Constants.squareSize / 2), (_y) - (Pather.Constants.squareSize / 2), (Pather.Constants.squareSize), (Pather.Constants.squareSize));
             context.restore();
         };
         Person.prototype.rePathFind = function (squareX, squareY) {
@@ -147,7 +150,7 @@ var Pather;
             this.context = this.canvas.getContext("2d");
             this.canvas.onmousedown = function (ev) {
                 var person = _this.people[0];
-                person.rePathFind((ev.x / Pather.Constants.squareSize) | 0, (ev.y / Pather.Constants.squareSize) | 0);
+                person.rePathFind((ev.offsetX / Pather.Constants.squareSize) | 0, (ev.offsetY / Pather.Constants.squareSize) | 0);
             };
         }
         Game.prototype.constructGrid = function () {

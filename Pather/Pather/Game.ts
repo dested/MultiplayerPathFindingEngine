@@ -27,10 +27,9 @@ module Pather {
 
             this.canvas = <HTMLCanvasElement>document.getElementById("canvas");
             this.context = this.canvas.getContext("2d"); 
-
             this.canvas.onmousedown = (ev) => {
                 var person = this.people[0];
-                person.rePathFind((ev.x / Constants.squareSize) | 0, (ev.y / Constants.squareSize) | 0);
+                person.rePathFind((ev.offsetX / Constants.squareSize) | 0, (ev.offsetY / Constants.squareSize) | 0);
             };
 
         }
