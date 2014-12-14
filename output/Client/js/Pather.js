@@ -2,6 +2,7 @@
 	'use strict';
 	var $asm = {};
 	global.Pather = global.Pather || {};
+	global.Pather.Utils = global.Pather.Utils || {};
 	ss.initAssembly($asm, 'Pather');
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Program
@@ -12,17 +13,6 @@
 		var game = new $Pather_Game();
 		game.init();
 	};
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.AnimationPoint
-	var $Pather_AnimationPoint = function(fromX, fromY, x, y) {
-		this.$2$FromXField = 0;
-		this.$2$FromYField = 0;
-		$Pather_Point.call(this, x, y);
-		this.set_fromX(fromX);
-		this.set_fromY(fromY);
-	};
-	$Pather_AnimationPoint.__typeName = 'Pather.AnimationPoint';
-	global.Pather.AnimationPoint = $Pather_AnimationPoint;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Constants
 	var $Pather_Constants = function() {
@@ -136,44 +126,27 @@
 	$Pather_Person.__typeName = 'Pather.Person';
 	global.Pather.Person = $Pather_Person;
 	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Point
-	var $Pather_Point = function(x, y) {
+	// Pather.Utils.AnimationPoint
+	var $Pather_Utils_AnimationPoint = function(fromX, fromY, x, y) {
+		this.$2$FromXField = 0;
+		this.$2$FromYField = 0;
+		$Pather_Utils_Point.call(this, x, y);
+		this.set_fromX(fromX);
+		this.set_fromY(fromY);
+	};
+	$Pather_Utils_AnimationPoint.__typeName = 'Pather.Utils.AnimationPoint';
+	global.Pather.Utils.AnimationPoint = $Pather_Utils_AnimationPoint;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Utils.Point
+	var $Pather_Utils_Point = function(x, y) {
 		this.$1$XField = 0;
 		this.$1$YField = 0;
 		this.set_x(x);
 		this.set_y(y);
 	};
-	$Pather_Point.__typeName = 'Pather.Point';
-	global.Pather.Point = $Pather_Point;
+	$Pather_Utils_Point.__typeName = 'Pather.Utils.Point';
+	global.Pather.Utils.Point = $Pather_Utils_Point;
 	ss.initClass($Pather_$Program, $asm, {});
-	ss.initClass($Pather_Point, $asm, {
-		get_x: function() {
-			return this.$1$XField;
-		},
-		set_x: function(value) {
-			this.$1$XField = value;
-		},
-		get_y: function() {
-			return this.$1$YField;
-		},
-		set_y: function(value) {
-			this.$1$YField = value;
-		}
-	});
-	ss.initClass($Pather_AnimationPoint, $asm, {
-		get_fromX: function() {
-			return this.$2$FromXField;
-		},
-		set_fromX: function(value) {
-			this.$2$FromXField = value;
-		},
-		get_fromY: function() {
-			return this.$2$FromYField;
-		},
-		set_fromY: function(value) {
-			this.$2$FromYField = value;
-		}
-	}, $Pather_Point);
 	ss.initClass($Pather_Constants, $asm, {});
 	ss.initClass($Pather_Game, $asm, {
 		get_nextGameTick: function() {
@@ -214,10 +187,10 @@
 		},
 		constructGrid: function() {
 			this.set_grid(new Array($Pather_Constants.get_numberOfSquares()));
-			for (var i = 0; i < $Pather_Constants.get_numberOfSquares(); i++) {
-				this.get_grid()[i] = new Array($Pather_Constants.get_numberOfSquares());
-				for (var j = 0; j < $Pather_Constants.get_numberOfSquares(); j++) {
-					this.get_grid()[i][j] = !(Math.random() * 100 < 15);
+			for (var x = 0; x < $Pather_Constants.get_numberOfSquares(); x++) {
+				this.get_grid()[x] = new Array($Pather_Constants.get_numberOfSquares());
+				for (var y = 0; y < $Pather_Constants.get_numberOfSquares(); y++) {
+					this.get_grid()[x][y] = ((Math.random() * 100 < 15) ? 0 : 1);
 				}
 			}
 		},
@@ -253,7 +226,7 @@
 			this.get_context().restore();
 			for (var y = 0; y < $Pather_Constants.get_numberOfSquares(); y++) {
 				for (var x = 0; x < $Pather_Constants.get_numberOfSquares(); x++) {
-					if (this.get_grid()[x][y]) {
+					if (this.get_grid()[x][y] === 1) {
 						this.get_context().save();
 						this.get_context().lineWidth = 5;
 						this.get_context().strokeStyle = 'white';
@@ -264,7 +237,7 @@
 			}
 			for (var y1 = 0; y1 < $Pather_Constants.get_numberOfSquares(); y1++) {
 				for (var x1 = 0; x1 < $Pather_Constants.get_numberOfSquares(); x1++) {
-					if (!this.get_grid()[x1][y1]) {
+					if (this.get_grid()[x1][y1] === 0) {
 						this.get_context().save();
 						this.get_context().lineWidth = 5;
 						this.get_context().strokeStyle = 'blue';
@@ -344,7 +317,7 @@
 			this.set_animations([]);
 		},
 		rePathFind: function(SquareX, SquareY) {
-			this.set_rePathFindPosition(new $Pather_Point(SquareX, SquareY));
+			this.set_rePathFindPosition(new $Pather_Utils_Point(SquareX, SquareY));
 		},
 		draw: function(context, interpolatedTime) {
 			context.save();
@@ -416,10 +389,38 @@
 				}
 				this.set_x($Pather_Constants.moveTowards(this.get_x(), projectedX, this.get_speed() / $Pather_Constants.get_animationSteps()));
 				this.set_y($Pather_Constants.moveTowards(this.get_y(), projectedY, this.get_speed() / $Pather_Constants.get_animationSteps()));
-				this.get_animations().push(new $Pather_AnimationPoint(fromX, fromY, this.get_x(), this.get_y()));
+				this.get_animations().push(new $Pather_Utils_AnimationPoint(fromX, fromY, this.get_x(), this.get_y()));
 			}
 		}
 	});
+	ss.initClass($Pather_Utils_Point, $asm, {
+		get_x: function() {
+			return this.$1$XField;
+		},
+		set_x: function(value) {
+			this.$1$XField = value;
+		},
+		get_y: function() {
+			return this.$1$YField;
+		},
+		set_y: function(value) {
+			this.$1$YField = value;
+		}
+	});
+	ss.initClass($Pather_Utils_AnimationPoint, $asm, {
+		get_fromX: function() {
+			return this.$2$FromXField;
+		},
+		set_fromX: function(value) {
+			this.$2$FromXField = value;
+		},
+		get_fromY: function() {
+			return this.$2$FromYField;
+		},
+		set_fromY: function(value) {
+			this.$2$FromYField = value;
+		}
+	}, $Pather_Utils_Point);
 	(function() {
 		$Pather_Constants.$1$AnimationStepsField = 0;
 		$Pather_Constants.$1$GameFpsField = 0;

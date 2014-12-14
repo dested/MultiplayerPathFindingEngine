@@ -77,13 +77,12 @@ gulp.task('client.watch', function () {
 
 });
 gulp.task('client.ftp', function () {
-    return;
     return gulp.src('output/Client/js/**/*.*')
         .pipe(ftp({
             host: global.ftpDomain,
             user: global.ftpUsername,
             pass: global.ftpPassword,
-            remotePath: '/httpdocs/PathFinder/js'
+            remotePath: '/httpdocs/path/js'
         }));
 });
 
