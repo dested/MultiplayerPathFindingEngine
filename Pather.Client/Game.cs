@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Html;
 using System.Html.Media.Graphics;
 
-namespace Pather
+namespace Pather.Client
 {
     public class Game
     {

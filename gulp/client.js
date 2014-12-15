@@ -9,7 +9,8 @@ var watch = require('gulp-watch');
 var ftp = require('gulp-ftp');
 
 var codePaths = [
-    'Pather/bin/Debug/**/*.js',
+    'Pather.Common/bin/Debug/**/*.js',
+    'Pather.Client/bin/Debug/**/*.js',
 ];
 
 var libPaths = ['packages/Saltarelle.Runtime.2.6.2/mscorlib.js'];
@@ -77,6 +78,7 @@ gulp.task('client.watch', function () {
 
 });
 gulp.task('client.ftp', function () {
+    return;
     return gulp.src('output/Client/js/**/*.*')
         .pipe(ftp({
             host: global.ftpDomain,

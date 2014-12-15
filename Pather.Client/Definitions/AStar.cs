@@ -1,6 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
 
-namespace Pather.Definitions
+namespace Pather.Client.Definitions
 {
     [Imported()]
     [ScriptName("Graph")]

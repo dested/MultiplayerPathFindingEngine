@@ -9,33 +9,47 @@ var runSequence = require('run-sequence');
 
 
 gulp.task('default', function (callback) {
+    process.chdir('../');
 
-    runSequence(
-        [
-            'client', 
-            'server' 
-        ],
-        callback);
+    var c = 0;
+    var done=function() {
+        c++;
+        if (c == 2) {
+            callback();
+        }
+    }
+
+    runClient(done);
+    runServer(done);
+
+    
 });
 
 gulp.task('client', function (callback) {
     process.chdir('../');
-
-    runSequence(
-        [
-            'client.packageAssets',
-            'client.packageScripts',
-            'client.packageLibs'
-        ],
-        'client.watch',
-        'client.express',
-        'client.ftp',
-        callback);
+    runClient(callback);
 });
 
 gulp.task('server', function (callback) {
     process.chdir('../');
+    runServer(callback);
+});
 
+
+
+function runClient(callback) {
+    runSequence(
+    [
+        'client.packageAssets',
+        'client.packageScripts',
+        'client.packageLibs'
+    ],
+    'client.watch',
+    'client.express',
+    'client.ftp',
+    callback);
+}
+function runServer(callback) {
     runSequence(
         [
             'server.packageScripts',
@@ -43,4 +57,4 @@ gulp.task('server', function (callback) {
         ],
         'server.watch',
         callback);
-});
+}

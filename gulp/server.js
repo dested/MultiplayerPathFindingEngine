@@ -9,7 +9,8 @@ var insert = require('gulp-insert');
 var watch = require('gulp-watch');
 
 var codePaths = [
-//    'Pather/bin/Debug/**/*.js',
+    'Pather.Common/bin/Debug/**/*.js',
+    'Pather.Server/bin/Debug/**/*.js',
 ];
 
 var libPaths = ['packages/Saltarelle.Runtime.2.6.2/mscorlib.js'];

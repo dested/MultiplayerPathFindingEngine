@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 using System.Html.Media.Graphics;
-using Pather.Definitions;
-using Pather.Utils;
+using Pather.Client.Definitions;
+using Pather.Client.Utils;
 
-namespace Pather
+namespace Pather.Client
 {
     public class Person
     {

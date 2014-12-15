@@ -1,4 +1,4 @@
-namespace Pather.Utils
+namespace Pather.Client.Utils
 {
     public class Point
     {
