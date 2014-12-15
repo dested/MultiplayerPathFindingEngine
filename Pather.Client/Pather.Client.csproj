@@ -34,6 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ClientGame.cs" />
+    <Compile Include="Communicator.cs" />
     <Compile Include="Libraries\EventEmitter.cs" />
     <Compile Include="Libraries\SocketIOClient.cs" />
     <Compile Include="ClientPerson.cs" />

@@ -10,10 +10,11 @@ namespace Pather.Server.Libraries.NodeJS
         [IntrinsicProperty]
         [ScriptAlias("process")]
         public static Process Process { get; set; }
-        [ScriptAlias("console")]
-        [IntrinsicProperty]
-        public static Console Console { get; set; }
 
+        [IntrinsicProperty]
+        [ScriptAlias("console")]
+        public static Pather.Common.Libraries.Console Console { get; set; }
+        
 
         [ScriptAlias("require")]
         public static TModule Require<TModule>(string name) where TModule : NodeModule
@@ -29,18 +30,5 @@ namespace Pather.Server.Libraries.NodeJS
 
         [ScriptAlias("setTimeout")]
         public static void SetTimeout(Action pollGateways, int poll) { }
-    }
-    [IgnoreNamespace]
-    [Imported()]
-
-    public class Console
-    {
-        public void Log(object o) { }
-        public void Log(object o, object o2) { }
-        public void Log(object o, object o2, object o3) { }
-        public void Log(object o, object o2, object o3, object o4) { }
-        public void Log(object o, object o2, object o3, object o4, object o5) { }
-        public void Log(object o, object o2, object o3, object o4, object o5, object o6) { }
-        public void Log(Exception log) { }
     }
 }

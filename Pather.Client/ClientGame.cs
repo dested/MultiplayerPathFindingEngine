@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Html;
 using System.Html.Media.Graphics;
 using Pather.Common;
+using Pather.Common.Libraries;
+using Pather.Common.Models;
 
 namespace Pather.Client
 {
@@ -11,6 +13,8 @@ namespace Pather.Client
         public CanvasElement Canvas { get; set; }
         public CanvasRenderingContext2D Context { get; set; }
 
+
+        private Communicator communicator;
         public ClientGame()
         { 
             Canvas = (CanvasElement)Document.GetElementById("canvas");
@@ -20,7 +24,19 @@ namespace Pather.Client
             {
                 var person = People[0];
                 var @event = (dynamic)ev;
-                person.RePathFind(((int)@event.offsetX) / Constants.SquareSize, ((int)@event.offsetY) / Constants.SquareSize);
+                
+                var squareX = ((int)@event.offsetX) / Constants.SquareSize;
+                var squareY = ((int)@event.offsetY) / Constants.SquareSize;
+
+
+                communicator.SendMove(new MoveModel()
+                {
+                    Tick = TickNumber,
+                    X = squareX,
+                    Y = squareY
+                });
+
+                person.RePathFind(squareX, squareY);
             };
         }
          
@@ -28,12 +44,72 @@ namespace Pather.Client
         {
             base.Init();
 
+
+            Me = CreatePerson(Guid.NewGuid().ToString());
+            Me.Init(0,0);
+            People.Add(Me);
+
+
+
+            communicator = new Communicator();
+            communicator.Connect(Me.PlayerId);
+            communicator.OnConnected += (connectedModel) =>
+            {
+                TickNumber = connectedModel.TickNumber;
+                Grid = connectedModel.Grid;
+            };
+            communicator.OnNewPlayer += (newPlayerModel) =>
+            {
+                Global.Console.Log("New Player", newPlayerModel);
+                var person = CreatePerson(newPlayerModel.PlayerId);
+                person.Init(0, 0);
+                People.Add(person);
+            };
+            communicator.OnPlayerLeft += (playerLeftModel) =>
+            {
+                Global.Console.Log("playerLeft", playerLeftModel);
+                foreach (var person in People)
+                {
+                    if (person.PlayerId == playerLeftModel.PlayerId)
+                    {
+                        People.Remove(person);
+                        break;
+                    }
+                }
+            };
+            communicator.OnPlayerList += (playerListModel) =>
+            {
+                Global.Console.Log("playerList", playerListModel);
+
+
+                foreach (var playerModel in playerListModel.Players)
+                {
+                    var person = CreatePerson(playerModel.PlayerId);
+                    person.Init(playerModel.X, playerModel.Y);
+                    People.Add(person);
+                }
+            };
+            communicator.OnMove += (moveModel) =>
+            {
+                foreach (var person in People)
+                {
+                    if (person.PlayerId == moveModel.PlayerId)
+                    {
+                        Global.Console.Log("move found", moveModel);
+                        person.RePathFind(moveModel.X, moveModel.Y, moveModel.Tick);
+                        return;
+                    }
+                }
+            };
+
+
+
             Window.RequestAnimationFrame((a) => Draw());
         }
 
-        public override Person CreatePerson()
+        public override Person CreatePerson(string playerId)
         {
-            return new ClientPerson(this);
+            return new ClientPerson(this, playerId);
         }
 
         public void Draw()
@@ -60,7 +136,7 @@ namespace Pather.Client
             }
             Context.Restore();
 
-            var interpolatedTime = (((new DateTime()).GetTime() - NextGameTick) / (double)Constants.GameTicks);
+            var interpolatedTime = (((new DateTime()).GetTime() - NextGameTime) / (double)Constants.GameTicks);
 
 
             foreach (ClientPerson person in People)

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Html.Media.Graphics;
 using Pather.Client.Definitions;
@@ -10,8 +11,8 @@ namespace Pather.Client
     {
         private ClientGame ClientGame { get; set; }
 
-        public ClientPerson(ClientGame game)
-            : base(game)
+        public ClientPerson(ClientGame game,string playerId)
+            : base(game, playerId)
         {
             ClientGame = game;
 

@@ -5,5 +5,9 @@ namespace Pather.Server.Libraries.Socket.IO
 {
     [IgnoreNamespace]
     [Imported()]
-    public class SocketIOConnection : EventEmitter {}
+    public class SocketIOConnection : EventEmitter
+    {
+        [IntrinsicProperty]
+        public EventEmitter Broadcast { get; set; }
+    }
 }

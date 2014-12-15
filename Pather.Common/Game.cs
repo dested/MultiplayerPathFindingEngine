@@ -6,26 +6,26 @@ namespace Pather.Common
 {
     public class Game
     {
-        public long NextGameTick { get; set; }
+        public long NextGameTime { get; set; }
         public int[][] Grid { get; set; }
         public List<Person> People { get; set; }
-        public long CurTick { get; set; }
+        public long CurTime { get; set; }
+        public Person Me { get; set; }
+
+        public long TickNumber { get; set; }
         
         public Game()
         {
-            NextGameTick = new DateTime().GetTime();
+            NextGameTime = new DateTime().GetTime();
             ConstructGrid();
             People = new List<Person>();
-            var sal = CreatePerson();
-            People.Add(sal);
-
-            CurTick = new DateTime().GetTime();
 
         }
 
-        public virtual Person CreatePerson()
+
+        public virtual Person CreatePerson(string playerId)
         {
-            return new Person(this);
+            return new Person(this, playerId);
         }
 
         public void ConstructGrid()
@@ -43,10 +43,10 @@ namespace Pather.Common
 
         public virtual void Init()
         {
-            foreach (var person in People)
-            {
-                person.Init(0, 0);
-            }
+
+
+            CurTime = new DateTime().GetTime();
+
             Global.SetTimeout(Tick, Constants.GameTicks);
         }
 
@@ -54,9 +54,11 @@ namespace Pather.Common
         {
             Global.SetTimeout(Tick, Constants.GameTicks);
 
+            TickNumber++;
+
             var v = new DateTime().GetTime();
-            NextGameTick += v - CurTick;
-            CurTick = v;
+            NextGameTime += v - CurTime;
+            CurTime = v;
             foreach (var person in People)
             {
                 person.Tick();

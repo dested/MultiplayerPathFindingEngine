@@ -5,5 +5,7 @@ namespace Pather.Server.Libraries.Socket.IO
 {
     [IgnoreNamespace]
     [Imported()]
-    public class Socket : EventEmitter {}
+    public class Socket : EventEmitter
+    {
+    }
 }

@@ -5,6 +5,7 @@
 	global.Pather.Client = global.Pather.Client || {};
 	global.Pather.Client.Utils = global.Pather.Client.Utils || {};
 	global.Pather.Common = global.Pather.Common || {};
+	global.Pather.Common.Models = global.Pather.Common.Models || {};
 	global.Pather.Common.Utils = global.Pather.Common.Utils || {};
 	ss.initAssembly($asm, 'Pather.Common');
 	////////////////////////////////////////////////////////////////////////////////
@@ -94,32 +95,33 @@
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Game
 	var $Pather_Common_Game = function() {
-		this.$1$NextGameTickField = 0;
+		this.$1$NextGameTimeField = 0;
 		this.$1$GridField = null;
 		this.$1$PeopleField = null;
-		this.$1$CurTickField = 0;
-		this.set_nextGameTick((new Date()).getTime());
+		this.$1$CurTimeField = 0;
+		this.$1$MeField = null;
+		this.$1$TickNumberField = 0;
+		this.set_nextGameTime((new Date()).getTime());
 		this.constructGrid();
 		this.set_people([]);
-		var sal = this.createPerson();
-		this.get_people().push(sal);
-		this.set_curTick((new Date()).getTime());
 	};
 	$Pather_Common_Game.__typeName = 'Pather.Common.Game';
 	global.Pather.Common.Game = $Pather_Common_Game;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Person
-	var $Pather_Common_Person = function(game) {
+	var $Pather_Common_Person = function(game, playerId) {
 		this.$1$XField = 0;
 		this.$1$YField = 0;
 		this.$1$SquareXField = 0;
 		this.$1$SquareYField = 0;
 		this.$1$SpeedField = 0;
+		this.$1$PlayerIdField = null;
 		this.$1$PathField = null;
 		this.$1$RePathFindPositionField = null;
 		this.$1$AnimationsField = null;
 		this.$1$GameField = null;
 		this.set_$game(game);
+		this.set_playerId(playerId);
 		this.set_x(0);
 		this.set_y(0);
 		this.set_squareX(0);
@@ -127,9 +129,133 @@
 		this.set_speed(40);
 		this.set_path([]);
 		this.set_rePathFindPosition(null);
+		this.set_animations([]);
 	};
 	$Pather_Common_Person.__typeName = 'Pather.Common.Person';
 	global.Pather.Common.Person = $Pather_Common_Person;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.RePathFindModel
+	var $Pather_Common_RePathFindModel = function(x, y, tick) {
+		this.$2$TickField = 0;
+		$Pather_Client_Utils_Point.call(this, x, y);
+		this.set_tick(tick);
+	};
+	$Pather_Common_RePathFindModel.__typeName = 'Pather.Common.RePathFindModel';
+	global.Pather.Common.RePathFindModel = $Pather_Common_RePathFindModel;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.SocketChannels
+	var $Pather_Common_SocketChannels = function() {
+	};
+	$Pather_Common_SocketChannels.__typeName = 'Pather.Common.SocketChannels';
+	$Pather_Common_SocketChannels.clientChannel = function(c) {
+		return 'Client.' + c;
+	};
+	$Pather_Common_SocketChannels.serverChannel = function(c) {
+		return 'Server.' + c;
+	};
+	global.Pather.Common.SocketChannels = $Pather_Common_SocketChannels;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.SocketChannels.Client
+	var $Pather_Common_SocketChannels$Client = function() {
+	};
+	$Pather_Common_SocketChannels$Client.__typeName = 'Pather.Common.SocketChannels$Client';
+	global.Pather.Common.SocketChannels$Client = $Pather_Common_SocketChannels$Client;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.SocketChannels.Server
+	var $Pather_Common_SocketChannels$Server = function() {
+	};
+	$Pather_Common_SocketChannels$Server.__typeName = 'Pather.Common.SocketChannels$Server';
+	global.Pather.Common.SocketChannels$Server = $Pather_Common_SocketChannels$Server;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.ConnectedModel
+	var $Pather_Common_Models_ConnectedModel = function() {
+	};
+	$Pather_Common_Models_ConnectedModel.__typeName = 'Pather.Common.Models.ConnectedModel';
+	$Pather_Common_Models_ConnectedModel.createInstance = function() {
+		return $Pather_Common_Models_ConnectedModel.$ctor();
+	};
+	$Pather_Common_Models_ConnectedModel.$ctor = function() {
+		var $this = {};
+		$this.tickNumber = 0;
+		$this.grid = null;
+		return $this;
+	};
+	global.Pather.Common.Models.ConnectedModel = $Pather_Common_Models_ConnectedModel;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.MoveModel
+	var $Pather_Common_Models_MoveModel = function() {
+	};
+	$Pather_Common_Models_MoveModel.__typeName = 'Pather.Common.Models.MoveModel';
+	$Pather_Common_Models_MoveModel.createInstance = function() {
+		return $Pather_Common_Models_MoveModel.$ctor();
+	};
+	$Pather_Common_Models_MoveModel.$ctor = function() {
+		var $this = {};
+		$this.tick = 0;
+		$this.playerId = null;
+		$this.x = 0;
+		$this.y = 0;
+		return $this;
+	};
+	global.Pather.Common.Models.MoveModel = $Pather_Common_Models_MoveModel;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.NewPlayerModel
+	var $Pather_Common_Models_NewPlayerModel = function() {
+	};
+	$Pather_Common_Models_NewPlayerModel.__typeName = 'Pather.Common.Models.NewPlayerModel';
+	$Pather_Common_Models_NewPlayerModel.createInstance = function() {
+		return $Pather_Common_Models_NewPlayerModel.$ctor();
+	};
+	$Pather_Common_Models_NewPlayerModel.$ctor = function() {
+		var $this = {};
+		$this.playerId = null;
+		return $this;
+	};
+	global.Pather.Common.Models.NewPlayerModel = $Pather_Common_Models_NewPlayerModel;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.PlayerLeftModel
+	var $Pather_Common_Models_PlayerLeftModel = function() {
+	};
+	$Pather_Common_Models_PlayerLeftModel.__typeName = 'Pather.Common.Models.PlayerLeftModel';
+	$Pather_Common_Models_PlayerLeftModel.createInstance = function() {
+		return $Pather_Common_Models_PlayerLeftModel.$ctor();
+	};
+	$Pather_Common_Models_PlayerLeftModel.$ctor = function() {
+		var $this = {};
+		$this.playerId = null;
+		return $this;
+	};
+	global.Pather.Common.Models.PlayerLeftModel = $Pather_Common_Models_PlayerLeftModel;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.PlayerListModel
+	var $Pather_Common_Models_PlayerListModel = function() {
+	};
+	$Pather_Common_Models_PlayerListModel.__typeName = 'Pather.Common.Models.PlayerListModel';
+	$Pather_Common_Models_PlayerListModel.createInstance = function() {
+		return $Pather_Common_Models_PlayerListModel.$ctor();
+	};
+	$Pather_Common_Models_PlayerListModel.$ctor = function() {
+		var $this = {};
+		$this.players = null;
+		return $this;
+	};
+	global.Pather.Common.Models.PlayerListModel = $Pather_Common_Models_PlayerListModel;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.PlayerModel
+	var $Pather_Common_Models_PlayerModel = function() {
+	};
+	$Pather_Common_Models_PlayerModel.__typeName = 'Pather.Common.Models.PlayerModel';
+	$Pather_Common_Models_PlayerModel.createInstance = function() {
+		return $Pather_Common_Models_PlayerModel.$ctor();
+	};
+	$Pather_Common_Models_PlayerModel.$ctor = function() {
+		var $this = {};
+		$this.playerId = null;
+		$this.x = 0;
+		$this.y = 0;
+		return $this;
+	};
+	global.Pather.Common.Models.PlayerModel = $Pather_Common_Models_PlayerModel;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Utils.DataObject
 	var $Pather_Common_Utils_DataObject$1 = function(T) {
@@ -181,11 +307,11 @@
 	}, $Pather_Client_Utils_Point);
 	ss.initClass($Pather_Common_Constants, $asm, {});
 	ss.initClass($Pather_Common_Game, $asm, {
-		get_nextGameTick: function() {
-			return this.$1$NextGameTickField;
+		get_nextGameTime: function() {
+			return this.$1$NextGameTimeField;
 		},
-		set_nextGameTick: function(value) {
-			this.$1$NextGameTickField = value;
+		set_nextGameTime: function(value) {
+			this.$1$NextGameTimeField = value;
 		},
 		get_grid: function() {
 			return this.$1$GridField;
@@ -199,14 +325,26 @@
 		set_people: function(value) {
 			this.$1$PeopleField = value;
 		},
-		get_curTick: function() {
-			return this.$1$CurTickField;
+		get_curTime: function() {
+			return this.$1$CurTimeField;
 		},
-		set_curTick: function(value) {
-			this.$1$CurTickField = value;
+		set_curTime: function(value) {
+			this.$1$CurTimeField = value;
 		},
-		createPerson: function() {
-			return new $Pather_Common_Person(this);
+		get_me: function() {
+			return this.$1$MeField;
+		},
+		set_me: function(value) {
+			this.$1$MeField = value;
+		},
+		get_tickNumber: function() {
+			return this.$1$TickNumberField;
+		},
+		set_tickNumber: function(value) {
+			this.$1$TickNumberField = value;
+		},
+		createPerson: function(playerId) {
+			return new $Pather_Common_Person(this, playerId);
 		},
 		constructGrid: function() {
 			this.set_grid(new Array($Pather_Common_Constants.get_numberOfSquares()));
@@ -218,18 +356,15 @@
 			}
 		},
 		init: function() {
-			var $t1 = this.get_people();
-			for (var $t2 = 0; $t2 < $t1.length; $t2++) {
-				var person = $t1[$t2];
-				person.init(0, 0);
-			}
+			this.set_curTime((new Date()).getTime());
 			setTimeout(ss.mkdel(this, this.tick), $Pather_Common_Constants.get_gameTicks());
 		},
 		tick: function() {
 			setTimeout(ss.mkdel(this, this.tick), $Pather_Common_Constants.get_gameTicks());
+			this.set_tickNumber(this.get_tickNumber() + 1);
 			var v = (new Date()).getTime();
-			this.set_nextGameTick(this.get_nextGameTick() + (v - this.get_curTick()));
-			this.set_curTick(v);
+			this.set_nextGameTime(this.get_nextGameTime() + (v - this.get_curTime()));
+			this.set_curTime(v);
 			var $t1 = this.get_people();
 			for (var $t2 = 0; $t2 < $t1.length; $t2++) {
 				var person = $t1[$t2];
@@ -268,6 +403,12 @@
 		set_speed: function(value) {
 			this.$1$SpeedField = value;
 		},
+		get_playerId: function() {
+			return this.$1$PlayerIdField;
+		},
+		set_playerId: function(value) {
+			this.$1$PlayerIdField = value;
+		},
 		get_path: function() {
 			return this.$1$PathField;
 		},
@@ -292,19 +433,21 @@
 		set_$game: function(value) {
 			this.$1$GameField = value;
 		},
-		init: function(squareX, squareY) {
-			this.set_squareX(squareX);
-			this.set_squareY(squareY);
-			this.set_x(this.get_squareX() * $Pather_Common_Constants.get_squareSize());
-			this.set_y(this.get_squareY() * $Pather_Common_Constants.get_squareSize());
-			this.set_animations([]);
+		init: function(x, y) {
+			this.set_x(x);
+			this.set_y(y);
+			this.set_squareX(ss.Int32.trunc(this.get_x() / $Pather_Common_Constants.get_squareSize()));
+			this.set_squareY(ss.Int32.trunc(this.get_y() / $Pather_Common_Constants.get_squareSize()));
 		},
-		rePathFind: function(SquareX, SquareY) {
-			this.set_rePathFindPosition(new $Pather_Client_Utils_Point(SquareX, SquareY));
+		rePathFind: function(squareX, squareY, tickNumber) {
+			if (tickNumber === 0) {
+				tickNumber = this.get_$game().get_tickNumber() + 1;
+			}
+			this.set_rePathFindPosition(new $Pather_Common_RePathFindModel(squareX, squareY, tickNumber));
 		},
 		tick: function() {
 			//            console.log('ticked');
-			if (ss.isValue(this.get_rePathFindPosition())) {
+			if (ss.isValue(this.get_rePathFindPosition()) && (true || this.get_rePathFindPosition().get_tick() === this.get_$game().get_tickNumber())) {
 				var graph = new Graph(this.get_$game().get_grid());
 				var start = graph.grid[this.get_squareX()][this.get_squareY()];
 				var end = graph.grid[ss.Int32.trunc(this.get_rePathFindPosition().get_x())][ss.Int32.trunc(this.get_rePathFindPosition().get_y())];
@@ -341,6 +484,23 @@
 			}
 		}
 	});
+	ss.initClass($Pather_Common_RePathFindModel, $asm, {
+		get_tick: function() {
+			return this.$2$TickField;
+		},
+		set_tick: function(value) {
+			this.$2$TickField = value;
+		}
+	}, $Pather_Client_Utils_Point);
+	ss.initClass($Pather_Common_SocketChannels, $asm, {});
+	ss.initEnum($Pather_Common_SocketChannels$Client, $asm, { connect: 'connect', move: 'move' }, true);
+	ss.initEnum($Pather_Common_SocketChannels$Server, $asm, { connect: 'connect', newPlayer: 'newPlayer', move: 'move', playerLeft: 'playerLeft', playerList: 'playerList' }, true);
+	ss.initClass($Pather_Common_Models_ConnectedModel, $asm, {});
+	ss.initClass($Pather_Common_Models_MoveModel, $asm, {});
+	ss.initClass($Pather_Common_Models_NewPlayerModel, $asm, {});
+	ss.initClass($Pather_Common_Models_PlayerLeftModel, $asm, {});
+	ss.initClass($Pather_Common_Models_PlayerListModel, $asm, {});
+	ss.initClass($Pather_Common_Models_PlayerModel, $asm, {});
 	(function() {
 		$Pather_Common_Constants.$1$AnimationStepsField = 0;
 		$Pather_Common_Constants.$1$GameFpsField = 0;

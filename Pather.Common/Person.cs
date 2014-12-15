@@ -11,14 +11,16 @@ namespace Pather.Common
         public int SquareX { get; set; }
         public int SquareY { get; set; }
         public double Speed { get; set; }
+        public string PlayerId { get; set; }
         public List<AStarPath> Path { get; set; }
-        public Point RePathFindPosition { get; set; }
+        public RePathFindModel RePathFindPosition { get; set; }
         public List<AnimationPoint> Animations { get; set; }
         private Game Game { get; set; }
 
-        public Person(Game game)
+        public Person(Game game, string playerId)
         {
             Game = game;
+            PlayerId = playerId;
             X = 0;
             Y = 0;
             SquareX = 0;
@@ -26,21 +28,25 @@ namespace Pather.Common
             Speed = 40;
             Path = new List<AStarPath>();
             RePathFindPosition = null;
-
-        }
-
-        public void Init(int squareX, int squareY)
-        {
-            SquareX = squareX;
-            SquareY = squareY;
-            X = SquareX * Constants.SquareSize;
-            Y = SquareY * Constants.SquareSize;
             Animations = new List<AnimationPoint>();
         }
 
-        public void RePathFind(int SquareX, int SquareY)
+        public void Init(double x, double y)
         {
-            RePathFindPosition = new Point(SquareX, SquareY);
+            X = x;
+            Y = y;
+            SquareX = (int)((X) / Constants.SquareSize);
+            SquareY = (int)((Y) / Constants.SquareSize);
+        }
+
+        public void RePathFind(int squareX, int squareY, long tickNumber = 0)
+        {
+
+            if (tickNumber == 0)
+            {
+                tickNumber = Game.TickNumber + 1;
+            }
+            RePathFindPosition = new RePathFindModel(squareX, squareY, tickNumber);
         }
 
 
@@ -48,7 +54,7 @@ namespace Pather.Common
         {
             //            console.log('ticked');
 
-            if (RePathFindPosition != null)
+            if (RePathFindPosition != null && (true || RePathFindPosition.Tick == Game.TickNumber))
             {
                 var graph = new AStarGraph(Game.Grid);
                 var start = graph.Grid[SquareX][SquareY];
@@ -113,5 +119,16 @@ namespace Pather.Common
 
         }
 
+    }
+
+    public class RePathFindModel : Point
+    {
+        public long Tick { get; set; }
+
+        public RePathFindModel(double x, double y, long tick)
+            : base(x, y)
+        {
+            Tick = tick;
+        }
     }
 }
