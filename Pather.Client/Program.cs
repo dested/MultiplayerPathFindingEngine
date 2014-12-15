@@ -14,7 +14,7 @@ namespace Pather.Client
             client.On<DataObject<string>>("hello.ack",data => { Console.WriteLine(data.Data); });
 
 
-            var game = new Game();
+            var game = new ClientGame();
             game.Init();
         }
 

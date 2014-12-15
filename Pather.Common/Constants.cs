@@ -1,6 +1,6 @@
 using System;
 
-namespace Pather.Client
+namespace Pather.Common
 {
     public static class Constants
     {

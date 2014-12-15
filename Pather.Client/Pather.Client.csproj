@@ -33,16 +33,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Constants.cs" />
-    <Compile Include="Definitions\AStar.cs" />
-    <Compile Include="Game.cs" />
+    <Compile Include="ClientGame.cs" />
     <Compile Include="Libraries\EventEmitter.cs" />
     <Compile Include="Libraries\SocketIOClient.cs" />
-    <Compile Include="Person.cs" />
+    <Compile Include="ClientPerson.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utils\AnimationPoint.cs" />
-    <Compile Include="Utils\Point.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
