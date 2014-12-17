@@ -1,10 +1,10 @@
 using System;
-using System.Collections.Generic;
 using System.Html;
 using System.Html.Media.Graphics;
 using Pather.Common;
 using Pather.Common.Libraries;
 using Pather.Common.Models;
+using Pather.Common.StepManager;
 
 namespace Pather.Client
 {
@@ -14,29 +14,29 @@ namespace Pather.Client
         public CanvasRenderingContext2D Context { get; set; }
 
 
-        private Communicator communicator;
         public ClientGame()
-        { 
+        {
+
+            StepManagerClient stepManager = new StepManagerClient(this, new NetworkManager());
+
             Canvas = (CanvasElement)Document.GetElementById("canvas");
             Context = (CanvasRenderingContext2D)Canvas.GetContext(CanvasContextId.Render2D);
 
             Canvas.OnMousedown = (ev) =>
             {
-                var person = People[0];
+                
                 var @event = (dynamic)ev;
                 
                 var squareX = ((int)@event.offsetX) / Constants.SquareSize;
                 var squareY = ((int)@event.offsetY) / Constants.SquareSize;
 
-
-                communicator.SendMove(new MoveModel()
+                stepManager.SendActionClient(new MoveAction(new MoveModel()
                 {
-                    Tick = TickNumber,
                     X = squareX,
-                    Y = squareY
-                });
-
-                person.RePathFind(squareX, squareY);
+                    Y = squareY,
+                    PlayerId = Me.PlayerId
+                }, LockstepTickNumber + 1));
+                 
             };
         }
          
@@ -46,13 +46,13 @@ namespace Pather.Client
 
 
             Me = CreatePerson(Guid.NewGuid().ToString());
+          
             Me.Init(0,0);
             People.Add(Me);
 
 
+/*
 
-            communicator = new Communicator();
-            communicator.Connect(Me.PlayerId);
             communicator.OnConnected += (connectedModel) =>
             {
                 TickNumber = connectedModel.TickNumber;
@@ -96,11 +96,12 @@ namespace Pather.Client
                     if (person.PlayerId == moveModel.PlayerId)
                     {
                         Global.Console.Log("move found", moveModel);
-                        person.RePathFind(moveModel.X, moveModel.Y, moveModel.Tick);
+                        person.RePathFind(moveModel.X, moveModel.Y, moveModel.LockstepTick);
                         return;
                     }
                 }
             };
+*/
 
 
 

@@ -50,11 +50,11 @@ namespace Pather.Common
         }
 
 
-        public void Tick()
+        public void Tick(bool isLockstep)
         {
             //            console.log('ticked');
 
-            if (RePathFindPosition != null && (true || RePathFindPosition.Tick == Game.TickNumber))
+            if (isLockstep && RePathFindPosition != null && (RePathFindPosition.LockstepTick == Game.TickNumber))
             {
                 var graph = new AStarGraph(Game.Grid);
                 var start = graph.Grid[SquareX][SquareY];
@@ -74,7 +74,7 @@ namespace Pather.Common
 
             projectedSquareX = result == null ? SquareX : (result.X);
             projectedSquareY = result == null ? SquareY : (result.Y);
-
+             
 
 
 
@@ -123,12 +123,12 @@ namespace Pather.Common
 
     public class RePathFindModel : Point
     {
-        public long Tick { get; set; }
+        public long LockstepTick { get; set; }
 
-        public RePathFindModel(double x, double y, long tick)
+        public RePathFindModel(double x, double y, long lockstepTick)
             : base(x, y)
         {
-            Tick = tick;
+            LockstepTick = lockstepTick;
         }
     }
 }

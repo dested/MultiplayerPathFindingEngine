@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Pather.Common;
 using Pather.Common.Models;
+using Pather.Common.StepManager;
 using Pather.Common.Utils;
 using Pather.Server.Libraries.NodeJS;
 using Pather.Server.Libraries.Socket.IO;
@@ -81,7 +83,7 @@ namespace Pather.Server
                     }));
                 }));
 
-                socket.On(SocketChannels.ClientChannel(SocketChannels.Client.Move), new Action<DataObject<MoveModel>>((obj) =>
+                socket.On(SocketChannels.ClientChannel(SocketChannels.Client.PostAction), new Action<DataObject<MoveModel>>((obj) =>
                 {
                     var moveModel = obj.Data;
                     Global.Console.Log("player moved ", moveModel);
@@ -90,7 +92,7 @@ namespace Pather.Server
                     {
                         if (person.PlayerId == moveModel.PlayerId)
                         {
-                            person.RePathFind(moveModel.X, moveModel.Y, moveModel.Tick);
+//                            person.RePathFind(moveModel.X, moveModel.Y, moveModel.LockstepTick);
                             socket.Broadcast.Emit(SocketChannels.ServerChannel(SocketChannels.Server.Move), new DataObject<MoveModel>(moveModel));
                             return;
                         }
@@ -103,6 +105,28 @@ namespace Pather.Server
         public static void Main()
         {
             new Server();
+        }
+    }
+
+
+    public class StepManagerServer : StepManager
+    {
+        public StepManagerServer(Game game)
+            : base(game)
+        {
+        }
+
+        public void SendActionServer(IAction action)
+        {
+            SerializableAction serAction = new SerializableAction();
+            serAction.Data = action.Data;
+            serAction.LockstepTickNumber = action.LockstepTickNumber;
+            serAction.Type = action.Type;
+        }
+
+        public override List<NetworkPlayer> NetworkPlayers
+        {
+            get { throw new NotImplementedException(); }
         }
     }
 

@@ -6,6 +6,7 @@
 	global.Pather.Client.Utils = global.Pather.Client.Utils || {};
 	global.Pather.Common = global.Pather.Common || {};
 	global.Pather.Common.Models = global.Pather.Common.Models || {};
+	global.Pather.Common.StepManager = global.Pather.Common.StepManager || {};
 	global.Pather.Common.Utils = global.Pather.Common.Utils || {};
 	ss.initAssembly($asm, 'Pather.Common');
 	////////////////////////////////////////////////////////////////////////////////
@@ -101,6 +102,7 @@
 		this.$1$CurTimeField = 0;
 		this.$1$MeField = null;
 		this.$1$TickNumberField = 0;
+		this.$1$LockstepTickNumberField = 0;
 		this.set_nextGameTime((new Date()).getTime());
 		this.constructGrid();
 		this.set_people([]);
@@ -135,10 +137,10 @@
 	global.Pather.Common.Person = $Pather_Common_Person;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.RePathFindModel
-	var $Pather_Common_RePathFindModel = function(x, y, tick) {
-		this.$2$TickField = 0;
+	var $Pather_Common_RePathFindModel = function(x, y, lockstepTick) {
+		this.$2$LockstepTickField = 0;
 		$Pather_Client_Utils_Point.call(this, x, y);
-		this.set_tick(tick);
+		this.set_lockstepTick(lockstepTick);
 	};
 	$Pather_Common_RePathFindModel.__typeName = 'Pather.Common.RePathFindModel';
 	global.Pather.Common.RePathFindModel = $Pather_Common_RePathFindModel;
@@ -191,7 +193,6 @@
 	};
 	$Pather_Common_Models_MoveModel.$ctor = function() {
 		var $this = {};
-		$this.tick = 0;
 		$this.playerId = null;
 		$this.x = 0;
 		$this.y = 0;
@@ -256,6 +257,71 @@
 		return $this;
 	};
 	global.Pather.Common.Models.PlayerModel = $Pather_Common_Models_PlayerModel;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.StepManager.ActionType
+	var $Pather_Common_StepManager_ActionType = function() {
+	};
+	$Pather_Common_StepManager_ActionType.__typeName = 'Pather.Common.StepManager.ActionType';
+	global.Pather.Common.StepManager.ActionType = $Pather_Common_StepManager_ActionType;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.StepManager.IAction
+	var $Pather_Common_StepManager_IAction = function() {
+	};
+	$Pather_Common_StepManager_IAction.__typeName = 'Pather.Common.StepManager.IAction';
+	global.Pather.Common.StepManager.IAction = $Pather_Common_StepManager_IAction;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.StepManager.MoveAction
+	var $Pather_Common_StepManager_MoveAction = function(moveModel, lockstepTickNumber) {
+		this.$1$MoveModelField = null;
+		this.$1$LockstepTickNumberField = 0;
+		this.set_moveModel(moveModel);
+		this.set_lockstepTickNumber(lockstepTickNumber);
+	};
+	$Pather_Common_StepManager_MoveAction.__typeName = 'Pather.Common.StepManager.MoveAction';
+	global.Pather.Common.StepManager.MoveAction = $Pather_Common_StepManager_MoveAction;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.StepManager.NetworkPlayer
+	var $Pather_Common_StepManager_NetworkPlayer = function() {
+		this.$1$PlayerIdField = null;
+	};
+	$Pather_Common_StepManager_NetworkPlayer.__typeName = 'Pather.Common.StepManager.NetworkPlayer';
+	global.Pather.Common.StepManager.NetworkPlayer = $Pather_Common_StepManager_NetworkPlayer;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.StepManager.NoopAction
+	var $Pather_Common_StepManager_NoopAction = function(lockstepTickNumber) {
+		this.$1$LockstepTickNumberField = 0;
+		this.set_lockstepTickNumber(lockstepTickNumber);
+	};
+	$Pather_Common_StepManager_NoopAction.__typeName = 'Pather.Common.StepManager.NoopAction';
+	global.Pather.Common.StepManager.NoopAction = $Pather_Common_StepManager_NoopAction;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.StepManager.SerializableAction
+	var $Pather_Common_StepManager_SerializableAction = function() {
+	};
+	$Pather_Common_StepManager_SerializableAction.__typeName = 'Pather.Common.StepManager.SerializableAction';
+	$Pather_Common_StepManager_SerializableAction.createInstance = function() {
+		return $Pather_Common_StepManager_SerializableAction.$ctor();
+	};
+	$Pather_Common_StepManager_SerializableAction.$ctor = function() {
+		var $this = {};
+		$this.data = null;
+		$this.lockstepTickNumber = 0;
+		$this.type = 0;
+		return $this;
+	};
+	global.Pather.Common.StepManager.SerializableAction = $Pather_Common_StepManager_SerializableAction;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.StepManager.StepManager
+	var $Pather_Common_StepManager_StepManager = function(game) {
+		this.$1$LastTickProcessedField = 0;
+		this.$1$GameField = null;
+		this.stepActionsTicks = null;
+		this.set_game(game);
+		this.stepActionsTicks = new (ss.makeGenericType(ss.Dictionary$2, [ss.Int32, Array]))();
+		this.set_lastTickProcessed(0);
+	};
+	$Pather_Common_StepManager_StepManager.__typeName = 'Pather.Common.StepManager.StepManager';
+	global.Pather.Common.StepManager.StepManager = $Pather_Common_StepManager_StepManager;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Utils.DataObject
 	var $Pather_Common_Utils_DataObject$1 = function(T) {
@@ -343,6 +409,12 @@
 		set_tickNumber: function(value) {
 			this.$1$TickNumberField = value;
 		},
+		get_lockstepTickNumber: function() {
+			return this.$1$LockstepTickNumberField;
+		},
+		set_lockstepTickNumber: function(value) {
+			this.$1$LockstepTickNumberField = value;
+		},
 		createPerson: function(playerId) {
 			return new $Pather_Common_Person(this, playerId);
 		},
@@ -362,13 +434,18 @@
 		tick: function() {
 			setTimeout(ss.mkdel(this, this.tick), $Pather_Common_Constants.get_gameTicks());
 			this.set_tickNumber(this.get_tickNumber() + 1);
+			var isLockstep = false;
+			if (this.get_tickNumber() % 4 === 0) {
+				this.set_lockstepTickNumber(this.get_lockstepTickNumber() + 1);
+				isLockstep = true;
+			}
 			var v = (new Date()).getTime();
 			this.set_nextGameTime(this.get_nextGameTime() + (v - this.get_curTime()));
 			this.set_curTime(v);
 			var $t1 = this.get_people();
 			for (var $t2 = 0; $t2 < $t1.length; $t2++) {
 				var person = $t1[$t2];
-				person.tick();
+				person.tick(isLockstep);
 			}
 		}
 	});
@@ -445,9 +522,9 @@
 			}
 			this.set_rePathFindPosition(new $Pather_Common_RePathFindModel(squareX, squareY, tickNumber));
 		},
-		tick: function() {
+		tick: function(isLockstep) {
 			//            console.log('ticked');
-			if (ss.isValue(this.get_rePathFindPosition()) && (true || this.get_rePathFindPosition().get_tick() === this.get_$game().get_tickNumber())) {
+			if (isLockstep && ss.isValue(this.get_rePathFindPosition()) && this.get_rePathFindPosition().get_lockstepTick() === this.get_$game().get_tickNumber()) {
 				var graph = new Graph(this.get_$game().get_grid());
 				var start = graph.grid[this.get_squareX()][this.get_squareY()];
 				var end = graph.grid[ss.Int32.trunc(this.get_rePathFindPosition().get_x())][ss.Int32.trunc(this.get_rePathFindPosition().get_y())];
@@ -485,15 +562,15 @@
 		}
 	});
 	ss.initClass($Pather_Common_RePathFindModel, $asm, {
-		get_tick: function() {
-			return this.$2$TickField;
+		get_lockstepTick: function() {
+			return this.$2$LockstepTickField;
 		},
-		set_tick: function(value) {
-			this.$2$TickField = value;
+		set_lockstepTick: function(value) {
+			this.$2$LockstepTickField = value;
 		}
 	}, $Pather_Client_Utils_Point);
 	ss.initClass($Pather_Common_SocketChannels, $asm, {});
-	ss.initEnum($Pather_Common_SocketChannels$Client, $asm, { connect: 'connect', move: 'move' }, true);
+	ss.initEnum($Pather_Common_SocketChannels$Client, $asm, { connect: 'connect', postAction: 'postAction' }, true);
 	ss.initEnum($Pather_Common_SocketChannels$Server, $asm, { connect: 'connect', newPlayer: 'newPlayer', move: 'move', playerLeft: 'playerLeft', playerList: 'playerList' }, true);
 	ss.initClass($Pather_Common_Models_ConnectedModel, $asm, {});
 	ss.initClass($Pather_Common_Models_MoveModel, $asm, {});
@@ -501,6 +578,109 @@
 	ss.initClass($Pather_Common_Models_PlayerLeftModel, $asm, {});
 	ss.initClass($Pather_Common_Models_PlayerListModel, $asm, {});
 	ss.initClass($Pather_Common_Models_PlayerModel, $asm, {});
+	ss.initEnum($Pather_Common_StepManager_ActionType, $asm, { move: 0, noop: 1 });
+	ss.initInterface($Pather_Common_StepManager_IAction, $asm, { get_data: null, get_lockstepTickNumber: null, get_type: null, process: null });
+	ss.initClass($Pather_Common_StepManager_MoveAction, $asm, {
+		get_moveModel: function() {
+			return this.$1$MoveModelField;
+		},
+		set_moveModel: function(value) {
+			this.$1$MoveModelField = value;
+		},
+		get_data: function() {
+			return this.get_moveModel();
+		},
+		get_lockstepTickNumber: function() {
+			return this.$1$LockstepTickNumberField;
+		},
+		set_lockstepTickNumber: function(value) {
+			this.$1$LockstepTickNumberField = value;
+		},
+		process: function(game) {
+			var $t1 = game.get_people();
+			for (var $t2 = 0; $t2 < $t1.length; $t2++) {
+				var person = $t1[$t2];
+				if (ss.referenceEquals(person.get_playerId(), this.get_moveModel().playerId)) {
+					person.rePathFind(this.get_moveModel().x, this.get_moveModel().y, 0);
+				}
+			}
+		},
+		get_type: function() {
+			return 0;
+		}
+	}, null, [$Pather_Common_StepManager_IAction]);
+	ss.initClass($Pather_Common_StepManager_NetworkPlayer, $asm, {
+		get_playerId: function() {
+			return this.$1$PlayerIdField;
+		},
+		set_playerId: function(value) {
+			this.$1$PlayerIdField = value;
+		}
+	});
+	ss.initClass($Pather_Common_StepManager_NoopAction, $asm, {
+		get_data: function() {
+			return null;
+		},
+		get_lockstepTickNumber: function() {
+			return this.$1$LockstepTickNumberField;
+		},
+		set_lockstepTickNumber: function(value) {
+			this.$1$LockstepTickNumberField = value;
+		},
+		process: function(game) {
+		},
+		get_type: function() {
+			return 1;
+		}
+	}, null, [$Pather_Common_StepManager_IAction]);
+	ss.initClass($Pather_Common_StepManager_SerializableAction, $asm, {});
+	ss.initClass($Pather_Common_StepManager_StepManager, $asm, {
+		get_lastTickProcessed: function() {
+			return this.$1$LastTickProcessedField;
+		},
+		set_lastTickProcessed: function(value) {
+			this.$1$LastTickProcessedField = value;
+		},
+		get_game: function() {
+			return this.$1$GameField;
+		},
+		set_game: function(value) {
+			this.$1$GameField = value;
+		},
+		receiveAction: function(serAction) {
+			if (!this.stepActionsTicks.containsKey(serAction.lockstepTickNumber)) {
+				this.stepActionsTicks.set_item(serAction.lockstepTickNumber, []);
+			}
+			var action;
+			switch (serAction.type) {
+				case 0: {
+					action = new $Pather_Common_StepManager_MoveAction(serAction.data, serAction.lockstepTickNumber);
+					break;
+				}
+				case 1: {
+					action = new $Pather_Common_StepManager_NoopAction(serAction.lockstepTickNumber);
+					break;
+				}
+				default: {
+					throw new ss.ArgumentOutOfRangeException();
+				}
+			}
+			this.stepActionsTicks.get_item(serAction.lockstepTickNumber).push(action);
+		},
+		processAction: function(lockstepTickNumber) {
+			var stepActions = this.stepActionsTicks.get_item(lockstepTickNumber);
+			if (stepActions.length !== this.get_networkPlayers().length) {
+				throw new ss.Exception('Didnt get all actions for all players :-/');
+			}
+			for (var $t1 = 0; $t1 < stepActions.length; $t1++) {
+				var stepAction = stepActions[$t1];
+				stepAction.process(this.get_game());
+			}
+			this.set_lastTickProcessed(lockstepTickNumber);
+			this.stepActionsTicks.remove(lockstepTickNumber);
+		},
+		get_networkPlayers: null
+	});
 	(function() {
 		$Pather_Common_Constants.$1$AnimationStepsField = 0;
 		$Pather_Common_Constants.$1$GameFpsField = 0;
@@ -513,7 +693,7 @@
 		$Pather_Common_Constants.set_numberOfSquares(80);
 		$Pather_Common_Constants.set_drawFps(60);
 		$Pather_Common_Constants.set_drawTicks(ss.Int32.div(1000, $Pather_Common_Constants.get_drawFps()));
-		$Pather_Common_Constants.set_gameFps(10);
+		$Pather_Common_Constants.set_gameFps(5);
 		$Pather_Common_Constants.set_gameTicks(ss.Int32.div(1000, $Pather_Common_Constants.get_gameFps()));
 		$Pather_Common_Constants.set_animationSteps(5);
 	})();

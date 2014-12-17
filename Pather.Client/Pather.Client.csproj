@@ -38,8 +38,10 @@
     <Compile Include="Libraries\EventEmitter.cs" />
     <Compile Include="Libraries\SocketIOClient.cs" />
     <Compile Include="ClientPerson.cs" />
+    <Compile Include="NetworkManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StepManagerClient.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

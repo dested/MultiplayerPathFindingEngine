@@ -6,7 +6,6 @@ namespace Pather.Common.Models
     [Serializable]
     public class MoveModel
     {
-        public long Tick { get; set; }
         public string PlayerId { get; set; }
         public int X { get; set; }
         public int Y { get; set; }

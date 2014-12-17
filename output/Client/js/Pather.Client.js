@@ -18,23 +18,20 @@
 	var $Pather_Client_ClientGame = function() {
 		this.$2$CanvasField = null;
 		this.$2$ContextField = null;
-		this.$communicator = null;
 		Pather.Common.Game.call(this);
+		var stepManager = new $Pather_Client_StepManagerClient(this, new $Pather_Client_NetworkManager());
 		var $t1 = document.getElementById('canvas');
 		this.set_canvas(ss.cast($t1, ss.isValue($t1) && (ss.isInstanceOfType($t1, Element) && $t1.tagName === 'CANVAS')));
 		this.set_context(ss.cast(this.get_canvas().getContext('2d'), CanvasRenderingContext2D));
 		this.get_canvas().onmousedown = ss.mkdel(this, function(ev) {
-			var person = this.get_people()[0];
 			var event = ev;
 			var squareX = ss.Int32.div(ss.unbox(ss.cast(event.offsetX, ss.Int32)), Pather.Common.Constants.get_squareSize());
 			var squareY = ss.Int32.div(ss.unbox(ss.cast(event.offsetY, ss.Int32)), Pather.Common.Constants.get_squareSize());
-			var $t3 = this.$communicator;
 			var $t2 = Pather.Common.Models.MoveModel.$ctor();
-			$t2.tick = this.get_tickNumber();
 			$t2.x = squareX;
 			$t2.y = squareY;
-			$t3.sendMove($t2);
-			person.rePathFind(squareX, squareY, 0);
+			$t2.playerId = this.get_me().get_playerId();
+			stepManager.sendActionClient(new Pather.Common.StepManager.MoveAction($t2, this.get_lockstepTickNumber() + 1));
 		});
 	};
 	$Pather_Client_ClientGame.__typeName = 'Pather.Client.ClientGame';
@@ -52,16 +49,33 @@
 	// Pather.Client.Communicator
 	var $Pather_Client_Communicator = function() {
 		this.$1$SocketField = null;
-		this.$1$PlayerIdField = null;
-		this.$1$OnNewPlayerField = null;
-		this.$1$OnMoveField = null;
-		this.$1$OnConnectedField = null;
-		this.$1$OnPlayerLeftField = null;
-		this.$1$OnPlayerListField = null;
 		this.set_socket(io.connect('127.0.0.1:8998'));
+		this.get_socket().on('connect', ss.mkdel(this, this.connect));
 	};
 	$Pather_Client_Communicator.__typeName = 'Pather.Client.Communicator';
 	global.Pather.Client.Communicator = $Pather_Client_Communicator;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Client.NetworkManager
+	var $Pather_Client_NetworkManager = function() {
+		this.$1$CommunicatorField = null;
+		this.$1$NetworkPlayersField = null;
+		this.$1$OnReceiveActionField = null;
+		this.set_communicator(new $Pather_Client_Communicator());
+		this.set_networkPlayers([]);
+		this.get_communicator().connect();
+	};
+	$Pather_Client_NetworkManager.__typeName = 'Pather.Client.NetworkManager';
+	global.Pather.Client.NetworkManager = $Pather_Client_NetworkManager;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Client.StepManagerClient
+	var $Pather_Client_StepManagerClient = function(game, networkManager) {
+		this.$2$NetworkManagerField = null;
+		Pather.Common.StepManager.StepManager.call(this, game);
+		this.set_networkManager(networkManager);
+		this.get_networkManager().set_onReceiveAction(ss.mkdel(this, this.receiveAction));
+	};
+	$Pather_Client_StepManagerClient.__typeName = 'Pather.Client.StepManagerClient';
+	global.Pather.Client.StepManagerClient = $Pather_Client_StepManagerClient;
 	ss.initClass($Pather_Client_$Program, $asm, {});
 	ss.initClass($Pather_Client_ClientGame, $asm, {
 		get_canvas: function() {
@@ -81,49 +95,150 @@
 			this.set_me(this.createPerson(ss.Guid.newGuid().toString()));
 			this.get_me().init(0, 0);
 			this.get_people().push(this.get_me());
-			this.$communicator = new $Pather_Client_Communicator();
-			this.$communicator.connect(this.get_me().get_playerId());
-			this.$communicator.set_onConnected(ss.delegateCombine(this.$communicator.get_onConnected(), ss.mkdel(this, function(connectedModel) {
-				this.set_tickNumber(connectedModel.tickNumber);
-				this.set_grid(connectedModel.grid);
-			})));
-			this.$communicator.set_onNewPlayer(ss.delegateCombine(this.$communicator.get_onNewPlayer(), ss.mkdel(this, function(newPlayerModel) {
-				console.log('New Player', newPlayerModel);
-				var person = this.createPerson(newPlayerModel.playerId);
-				person.init(0, 0);
-				this.get_people().push(person);
-			})));
-			this.$communicator.set_onPlayerLeft(ss.delegateCombine(this.$communicator.get_onPlayerLeft(), ss.mkdel(this, function(playerLeftModel) {
-				console.log('playerLeft', playerLeftModel);
-				var $t1 = this.get_people();
-				for (var $t2 = 0; $t2 < $t1.length; $t2++) {
-					var person1 = $t1[$t2];
-					if (ss.referenceEquals(person1.get_playerId(), playerLeftModel.playerId)) {
-						ss.remove(this.get_people(), person1);
-						break;
-					}
-				}
-			})));
-			this.$communicator.set_onPlayerList(ss.delegateCombine(this.$communicator.get_onPlayerList(), ss.mkdel(this, function(playerListModel) {
-				console.log('playerList', playerListModel);
-				for (var $t3 = 0; $t3 < playerListModel.players.length; $t3++) {
-					var playerModel = playerListModel.players[$t3];
-					var person2 = this.createPerson(playerModel.playerId);
-					person2.init(playerModel.x, playerModel.y);
-					this.get_people().push(person2);
-				}
-			})));
-			this.$communicator.set_onMove(ss.delegateCombine(this.$communicator.get_onMove(), ss.mkdel(this, function(moveModel) {
-				var $t4 = this.get_people();
-				for (var $t5 = 0; $t5 < $t4.length; $t5++) {
-					var person3 = $t4[$t5];
-					if (ss.referenceEquals(person3.get_playerId(), moveModel.playerId)) {
-						console.log('move found', moveModel);
-						person3.rePathFind(moveModel.x, moveModel.y, moveModel.tick);
-						return;
-					}
-				}
-			})));
+			//
+			//
+			//            communicator.OnConnected += (connectedModel) =>
+			//
+			//
+			//            {
+			//
+			//
+			//            TickNumber = connectedModel.TickNumber;
+			//
+			//
+			//            Grid = connectedModel.Grid;
+			//
+			//
+			//            };
+			//
+			//
+			//            communicator.OnNewPlayer += (newPlayerModel) =>
+			//
+			//
+			//            {
+			//
+			//
+			//            Global.Console.Log("New Player", newPlayerModel);
+			//
+			//
+			//            var person = CreatePerson(newPlayerModel.PlayerId);
+			//
+			//
+			//            person.Init(0, 0);
+			//
+			//
+			//            People.Add(person);
+			//
+			//
+			//            };
+			//
+			//
+			//            communicator.OnPlayerLeft += (playerLeftModel) =>
+			//
+			//
+			//            {
+			//
+			//
+			//            Global.Console.Log("playerLeft", playerLeftModel);
+			//
+			//
+			//            foreach (var person in People)
+			//
+			//
+			//            {
+			//
+			//
+			//            if (person.PlayerId == playerLeftModel.PlayerId)
+			//
+			//
+			//            {
+			//
+			//
+			//            People.Remove(person);
+			//
+			//
+			//            break;
+			//
+			//
+			//            }
+			//
+			//
+			//            }
+			//
+			//
+			//            };
+			//
+			//
+			//            communicator.OnPlayerList += (playerListModel) =>
+			//
+			//
+			//            {
+			//
+			//
+			//            Global.Console.Log("playerList", playerListModel);
+			//
+			//
+			//            
+			//
+			//
+			//            
+			//
+			//
+			//            foreach (var playerModel in playerListModel.Players)
+			//
+			//
+			//            {
+			//
+			//
+			//            var person = CreatePerson(playerModel.PlayerId);
+			//
+			//
+			//            person.Init(playerModel.X, playerModel.Y);
+			//
+			//
+			//            People.Add(person);
+			//
+			//
+			//            }
+			//
+			//
+			//            };
+			//
+			//
+			//            communicator.OnMove += (moveModel) =>
+			//
+			//
+			//            {
+			//
+			//
+			//            foreach (var person in People)
+			//
+			//
+			//            {
+			//
+			//
+			//            if (person.PlayerId == moveModel.PlayerId)
+			//
+			//
+			//            {
+			//
+			//
+			//            Global.Console.Log("move found", moveModel);
+			//
+			//
+			//            person.RePathFind(moveModel.X, moveModel.Y, moveModel.LockstepTick);
+			//
+			//
+			//            return;
+			//
+			//
+			//            }
+			//
+			//
+			//            }
+			//
+			//
+			//            };
 			window.requestAnimationFrame(ss.mkdel(this, function(a) {
 				this.draw();
 			}));
@@ -208,83 +323,64 @@
 		set_socket: function(value) {
 			this.$1$SocketField = value;
 		},
-		get_playerId: function() {
-			return this.$1$PlayerIdField;
+		connect: function() {
+			//            Socket.On<DataObject<ConnectedModel>>(SocketChannels.ServerChannel(SocketChannels.Server.Connect), OnConnectedCallback); 
 		},
-		set_playerId: function(value) {
-			this.$1$PlayerIdField = value;
+		listenOnChannel: function(T) {
+			return function(channel, callback) {
+				this.get_socket().on(channel, function(obj) {
+					callback(obj.data);
+				});
+			};
 		},
-		get_onNewPlayer: function() {
-			return this.$1$OnNewPlayerField;
-		},
-		set_onNewPlayer: function(value) {
-			this.$1$OnNewPlayerField = value;
-		},
-		get_onMove: function() {
-			return this.$1$OnMoveField;
-		},
-		set_onMove: function(value) {
-			this.$1$OnMoveField = value;
-		},
-		get_onConnected: function() {
-			return this.$1$OnConnectedField;
-		},
-		set_onConnected: function(value) {
-			this.$1$OnConnectedField = value;
-		},
-		get_onPlayerLeft: function() {
-			return this.$1$OnPlayerLeftField;
-		},
-		set_onPlayerLeft: function(value) {
-			this.$1$OnPlayerLeftField = value;
-		},
-		get_onPlayerList: function() {
-			return this.$1$OnPlayerListField;
-		},
-		set_onPlayerList: function(value) {
-			this.$1$OnPlayerListField = value;
-		},
-		connect: function(playerId) {
-			this.set_playerId(playerId);
-			this.get_socket().on(Pather.Common.SocketChannels.serverChannel('connect'), ss.mkdel(this, this.$onConnectedCallback));
-			this.get_socket().on(Pather.Common.SocketChannels.serverChannel('newPlayer'), ss.mkdel(this, this.$onNewPlayerCallback));
-			this.get_socket().on(Pather.Common.SocketChannels.serverChannel('move'), ss.mkdel(this, this.$onMoveCallback));
-			this.get_socket().on(Pather.Common.SocketChannels.serverChannel('playerLeft'), ss.mkdel(this, this.$onPlayerLeftCallback));
-			this.get_socket().on(Pather.Common.SocketChannels.serverChannel('playerList'), ss.mkdel(this, this.$onPlayerListCallback));
-			this.get_socket().emit(Pather.Common.SocketChannels.clientChannel('connect'), ss.makeGenericType(Pather.Common.Utils.DataObject$1, [String]).$ctor(playerId));
-		},
-		$onPlayerListCallback: function(obj) {
-			if (!ss.staticEquals(this.get_onPlayerList(), null)) {
-				this.get_onPlayerList()(obj.data);
-			}
-		},
-		$onPlayerLeftCallback: function(obj) {
-			if (!ss.staticEquals(this.get_onPlayerLeft(), null)) {
-				this.get_onPlayerLeft()(obj.data);
-			}
-		},
-		$onMoveCallback: function(obj) {
-			if (!ss.staticEquals(this.get_onMove(), null)) {
-				this.get_onMove()(obj.data);
-			}
-		},
-		$onNewPlayerCallback: function(obj) {
-			if (ss.referenceEquals(obj.data.playerId, this.get_playerId())) {
-				return;
-			}
-			if (!ss.staticEquals(this.get_onNewPlayer(), null)) {
-				this.get_onNewPlayer()(obj.data);
-			}
-		},
-		$onConnectedCallback: function(obj) {
-			if (!ss.staticEquals(this.get_onConnected(), null)) {
-				this.get_onConnected()(obj.data);
-			}
-		},
-		sendMove: function(moveModel) {
-			moveModel.playerId = this.get_playerId();
-			this.get_socket().emit(Pather.Common.SocketChannels.clientChannel('move'), ss.makeGenericType(Pather.Common.Utils.DataObject$1, [Pather.Common.Models.MoveModel]).$ctor(moveModel));
+		sendMessage: function(channel, obj) {
+			this.get_socket().emit(channel, ss.makeGenericType(Pather.Common.Utils.DataObject$1, [Object]).$ctor(obj));
 		}
 	});
+	ss.initClass($Pather_Client_NetworkManager, $asm, {
+		get_communicator: function() {
+			return this.$1$CommunicatorField;
+		},
+		set_communicator: function(value) {
+			this.$1$CommunicatorField = value;
+		},
+		get_networkPlayers: function() {
+			return this.$1$NetworkPlayersField;
+		},
+		set_networkPlayers: function(value) {
+			this.$1$NetworkPlayersField = value;
+		},
+		get_onReceiveAction: function() {
+			return this.$1$OnReceiveActionField;
+		},
+		set_onReceiveAction: function(value) {
+			this.$1$OnReceiveActionField = value;
+		},
+		sendAction: function(serAction) {
+			this.get_communicator().sendMessage(Pather.Common.SocketChannels.clientChannel('postAction'), serAction);
+		},
+		receiveAction: function(serAction) {
+			this.get_onReceiveAction()(serAction);
+		}
+	});
+	ss.initClass($Pather_Client_StepManagerClient, $asm, {
+		get_networkManager: function() {
+			return this.$2$NetworkManagerField;
+		},
+		set_networkManager: function(value) {
+			this.$2$NetworkManagerField = value;
+		},
+		get_networkPlayers: function() {
+			return this.get_networkManager().get_networkPlayers();
+		},
+		sendActionClient: function(action) {
+			var $t1 = Pather.Common.StepManager.SerializableAction.$ctor();
+			$t1.data = action.get_data();
+			$t1.lockstepTickNumber = action.get_lockstepTickNumber();
+			$t1.type = action.get_type();
+			var serAction = $t1;
+			this.get_networkManager().sendAction(serAction);
+		}
+	}, Pather.Common.StepManager.StepManager);
 	$Pather_Client_$Program.$main();
 })();

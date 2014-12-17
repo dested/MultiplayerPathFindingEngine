@@ -68,14 +68,14 @@ var $Pather_Server_Server = function() {
 			$t12.playerId = playerId;
 			$t14.emit($t15, $t13.$ctor($t12));
 		});
-		socket.on(Pather.Common.SocketChannels.clientChannel('move'), function(obj1) {
+		socket.on(Pather.Common.SocketChannels.clientChannel('postAction'), function(obj1) {
 			var moveModel = obj1.data;
 			console.log('player moved ', moveModel);
 			var $t16 = game.get_people();
 			for (var $t17 = 0; $t17 < $t16.length; $t17++) {
 				var person1 = $t16[$t17];
 				if (ss.referenceEquals(person1.get_playerId(), moveModel.playerId)) {
-					person1.rePathFind(moveModel.x, moveModel.y, moveModel.tick);
+					//                            person.RePathFind(moveModel.X, moveModel.Y, moveModel.LockstepTick);
 					socket.broadcast.emit(Pather.Common.SocketChannels.serverChannel('move'), ss.makeGenericType(Pather.Common.Utils.DataObject$1, [Pather.Common.Models.MoveModel]).$ctor(moveModel));
 					return;
 				}
@@ -88,5 +88,23 @@ $Pather_Server_Server.main = function() {
 	new $Pather_Server_Server();
 };
 global.Pather.Server.Server = $Pather_Server_Server;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Server.StepManagerServer
+var $Pather_Server_StepManagerServer = function(game) {
+	Pather.Common.StepManager.StepManager.call(this, game);
+};
+$Pather_Server_StepManagerServer.__typeName = 'Pather.Server.StepManagerServer';
+global.Pather.Server.StepManagerServer = $Pather_Server_StepManagerServer;
 ss.initClass($Pather_Server_Server, $asm, {});
+ss.initClass($Pather_Server_StepManagerServer, $asm, {
+	sendActionServer: function(action) {
+		var serAction = Pather.Common.StepManager.SerializableAction.$ctor();
+		serAction.data = action.get_data();
+		serAction.lockstepTickNumber = action.get_lockstepTickNumber();
+		serAction.type = action.get_type();
+	},
+	get_networkPlayers: function() {
+		throw new ss.NotImplementedException();
+	}
+}, Pather.Common.StepManager.StepManager);
 $Pather_Server_Server.main();

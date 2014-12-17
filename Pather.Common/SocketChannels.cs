@@ -16,7 +16,7 @@ namespace Pather.Common
         public enum Client
         {
             Connect,
-            Move
+            PostAction
         }
         [NamedValues]
         public enum Server

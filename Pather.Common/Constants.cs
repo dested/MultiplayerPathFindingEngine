@@ -1,4 +1,5 @@
 using System;
+using System.Linq.Expressions;
 
 namespace Pather.Common
 {
@@ -10,7 +11,7 @@ namespace Pather.Common
             NumberOfSquares = 80;
             DrawFps = 60;
             DrawTicks = 1000 / DrawFps;
-            GameFps = 10;
+            GameFps = 5;
             GameTicks = 1000 / GameFps;
             AnimationSteps = 5;
 

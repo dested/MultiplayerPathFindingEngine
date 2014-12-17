@@ -13,6 +13,7 @@ namespace Pather.Common
         public Person Me { get; set; }
 
         public long TickNumber { get; set; }
+        public long LockstepTickNumber { get; set; }
         
         public Game()
         {
@@ -55,13 +56,18 @@ namespace Pather.Common
             Global.SetTimeout(Tick, Constants.GameTicks);
 
             TickNumber++;
-
+            bool isLockstep = false;
+            if (TickNumber%4 == 0)
+            {
+                LockstepTickNumber++;
+                isLockstep = true;
+            }
             var v = new DateTime().GetTime();
             NextGameTime += v - CurTime;
             CurTime = v;
             foreach (var person in People)
             {
-                person.Tick();
+                person.Tick(isLockstep);
             }
         }
 
