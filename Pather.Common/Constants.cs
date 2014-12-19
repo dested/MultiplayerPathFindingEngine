@@ -14,7 +14,7 @@ namespace Pather.Common
             GameFps = 10;
             GameTicks = 1000 / GameFps;
             LockstepFps = 2;
-            LockstepTicks = 1000 / GameFps;
+            LockstepTicks = 1000 / LockstepFps;
             AnimationSteps = 5;
 
         }

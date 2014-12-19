@@ -6,7 +6,6 @@ namespace Pather.Common
 {
     public class Game
     {
-        public long NextGameTime { get; set; }
         public int[][] Grid { get; set; }
         public List<Entity> Players { get; set; }
         public long CurTime { get; set; }
@@ -18,10 +17,10 @@ namespace Pather.Common
 
         public Game()
         {
-            NextGameTime = new DateTime().GetTime();
             ConstructGrid();
             Players = new List<Entity>();
 
+            NextGameTime = new DateTime().GetTime();
         }
 
 
@@ -48,40 +47,53 @@ namespace Pather.Common
 
 
             CurTime = new DateTime().GetTime();
+            LastExecutedTick = 0;
+            LastExecutedLockstep = 0;
 
-            Global.SetTimeout(Tick, Constants.GameTicks);
+            Global.SetTimeout(Tick, 1);
         }
 
+        private long LastExecutedTick = 0;
+        private long LastExecutedLockstep = 0;
+        public long NextGameTime { get; set; }
         public virtual void Tick()
         {
-            Global.SetTimeout(Tick, Constants.GameTicks);
-
-            TickNumber++;
-            bool isLockstep = false;
-            if (TickNumber % 5 == 0)
-            {
-                LockstepTickNumber++;
-                isLockstep = true;
-            }
-
-
+            Global.SetTimeout(Tick, 1);
             if (!Ready) return;
 
-            if (isLockstep)
-            {
-                Global.Console.Log("Lockstep", LockstepTickNumber);
-                StepManager.ProcessAction(LockstepTickNumber);
-            }
+            var vc = new DateTime().GetTime();
+            var nextTickTime = (vc - CurTime) / Constants.GameTicks;
+            var nextLockstepTime = (vc - CurTime) / Constants.LockstepTicks;
 
 
-
+            
             var v = new DateTime().GetTime();
             NextGameTime += v - CurTime;
             CurTime = v;
-            foreach (var person in Players)
+
+
+            while (nextLockstepTime > LastExecutedLockstep)
             {
-                person.Tick(isLockstep);
+                LastExecutedLockstep++;
+                LockstepTickNumber++;
+                Global.Console.Log("Lockstep", LockstepTickNumber);
+                StepManager.ProcessAction(LockstepTickNumber);
+
             }
+
+
+            while (nextTickTime > LastExecutedTick)
+            {
+                LastExecutedTick++;
+                TickNumber++;
+                foreach (var person in Players)
+                {
+                    person.Tick();
+                }
+
+            }
+
+
         }
 
     }

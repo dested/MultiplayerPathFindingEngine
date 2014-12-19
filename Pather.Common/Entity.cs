@@ -50,11 +50,11 @@ namespace Pather.Common
         }
 
 
-        public void Tick(bool isLockstep)
+        public void Tick()
         {
             //            console.log('ticked');
 
-            if (isLockstep && RePathFindPosition != null && (RePathFindPosition.LockstepTick == Game.TickNumber))
+            if (RePathFindPosition != null && (RePathFindPosition.LockstepTick == Game.TickNumber))
             {
                 var graph = new AStarGraph(Game.Grid);
                 var start = graph.Grid[SquareX][SquareY];

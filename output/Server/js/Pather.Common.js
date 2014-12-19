@@ -139,7 +139,6 @@
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Game
 	var $Pather_Common_Game = function() {
-		this.$1$NextGameTimeField = 0;
 		this.$1$GridField = null;
 		this.$1$PlayersField = null;
 		this.$1$CurTimeField = 0;
@@ -147,9 +146,12 @@
 		this.$1$TickNumberField = 0;
 		this.$1$LockstepTickNumberField = 0;
 		this.$1$ReadyField = false;
-		this.set_nextGameTime((new Date()).getTime());
+		this.$lastExecutedTick = 0;
+		this.$lastExecutedLockstep = 0;
+		this.$1$NextGameTimeField = 0;
 		this.constructGrid();
 		this.set_players([]);
+		this.set_nextGameTime((new Date()).getTime());
 	};
 	$Pather_Common_Game.__typeName = 'Pather.Common.Game';
 	global.Pather.Common.Game = $Pather_Common_Game;
@@ -438,9 +440,9 @@
 			}
 			this.set_rePathFindPosition(new $Pather_Common_RePathFindModel(squareX, squareY, tickNumber));
 		},
-		tick: function(isLockstep) {
+		tick: function() {
 			//            console.log('ticked');
-			if (isLockstep && ss.isValue(this.get_rePathFindPosition()) && this.get_rePathFindPosition().get_lockstepTick() === this.get_$game().get_tickNumber()) {
+			if (ss.isValue(this.get_rePathFindPosition()) && this.get_rePathFindPosition().get_lockstepTick() === this.get_$game().get_tickNumber()) {
 				var graph = new Graph(this.get_$game().get_grid());
 				var start = graph.grid[this.get_squareX()][this.get_squareY()];
 				var end = graph.grid[ss.Int32.trunc(this.get_rePathFindPosition().get_x())][ss.Int32.trunc(this.get_rePathFindPosition().get_y())];
@@ -478,12 +480,6 @@
 		}
 	});
 	ss.initClass($Pather_Common_Game, $asm, {
-		get_nextGameTime: function() {
-			return this.$1$NextGameTimeField;
-		},
-		set_nextGameTime: function(value) {
-			this.$1$NextGameTimeField = value;
-		},
 		get_grid: function() {
 			return this.$1$GridField;
 		},
@@ -540,30 +536,41 @@
 		},
 		init: function() {
 			this.set_curTime((new Date()).getTime());
-			setTimeout(ss.mkdel(this, this.tick), $Pather_Common_Constants.get_gameTicks());
+			this.$lastExecutedTick = 0;
+			this.$lastExecutedLockstep = 0;
+			setTimeout(ss.mkdel(this, this.tick), 1);
+		},
+		get_nextGameTime: function() {
+			return this.$1$NextGameTimeField;
+		},
+		set_nextGameTime: function(value) {
+			this.$1$NextGameTimeField = value;
 		},
 		tick: function() {
-			setTimeout(ss.mkdel(this, this.tick), $Pather_Common_Constants.get_gameTicks());
-			this.set_tickNumber(this.get_tickNumber() + 1);
-			var isLockstep = false;
-			if (this.get_tickNumber() % 5 === 0) {
-				this.set_lockstepTickNumber(this.get_lockstepTickNumber() + 1);
-				isLockstep = true;
-			}
+			setTimeout(ss.mkdel(this, this.tick), 1);
 			if (!this.get_ready()) {
 				return;
 			}
-			if (isLockstep) {
-				console.log('Lockstep', this.get_lockstepTickNumber());
-				this.get_stepManager().processAction(this.get_lockstepTickNumber());
-			}
+			var vc = (new Date()).getTime();
+			var nextTickTime = ss.Int32.div(vc - this.get_curTime(), $Pather_Common_Constants.get_gameTicks());
+			var nextLockstepTime = ss.Int32.div(vc - this.get_curTime(), $Pather_Common_Constants.get_lockstepTicks());
 			var v = (new Date()).getTime();
 			this.set_nextGameTime(this.get_nextGameTime() + (v - this.get_curTime()));
 			this.set_curTime(v);
-			var $t1 = this.get_players();
-			for (var $t2 = 0; $t2 < $t1.length; $t2++) {
-				var person = $t1[$t2];
-				person.tick(isLockstep);
+			while (nextLockstepTime > this.$lastExecutedLockstep) {
+				this.$lastExecutedLockstep++;
+				this.set_lockstepTickNumber(this.get_lockstepTickNumber() + 1);
+				console.log('Lockstep', this.get_lockstepTickNumber());
+				this.get_stepManager().processAction(this.get_lockstepTickNumber());
+			}
+			while (nextTickTime > this.$lastExecutedTick) {
+				this.$lastExecutedTick++;
+				this.set_tickNumber(this.get_tickNumber() + 1);
+				var $t1 = this.get_players();
+				for (var $t2 = 0; $t2 < $t1.length; $t2++) {
+					var person = $t1[$t2];
+					person.tick();
+				}
 			}
 		}
 	});
@@ -700,7 +707,7 @@
 		$Pather_Common_Constants.set_gameFps(10);
 		$Pather_Common_Constants.set_gameTicks(ss.Int32.div(1000, $Pather_Common_Constants.get_gameFps()));
 		$Pather_Common_Constants.set_lockstepFps(2);
-		$Pather_Common_Constants.set_lockstepTicks(ss.Int32.div(1000, $Pather_Common_Constants.get_gameFps()));
+		$Pather_Common_Constants.set_lockstepTicks(ss.Int32.div(1000, $Pather_Common_Constants.get_lockstepFps()));
 		$Pather_Common_Constants.set_animationSteps(5);
 	})();
 })();
