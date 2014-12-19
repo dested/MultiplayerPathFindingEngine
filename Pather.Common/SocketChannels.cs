@@ -15,17 +15,15 @@ namespace Pather.Common
         [NamedValues]
         public enum Client
         {
-            Connect,
-            PostAction
+            PostAction,
+            JoinPlayer
         }
         [NamedValues]
         public enum Server
         {
             Connect,
-            NewPlayer,
-            Move,
-            PlayerLeft,
-            PlayerList
+            PostAction,
+            PlayerSync,
         }
     }
 }

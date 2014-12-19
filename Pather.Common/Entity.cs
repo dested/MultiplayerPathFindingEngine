@@ -4,7 +4,7 @@ using Pather.Client.Utils;
 
 namespace Pather.Common
 {
-    public class Person
+    public class Entity
     {
         public double X { get; set; }
         public double Y { get; set; }
@@ -17,7 +17,7 @@ namespace Pather.Common
         public List<AnimationPoint> Animations { get; set; }
         private Game Game { get; set; }
 
-        public Person(Game game, string playerId)
+        public Entity(Game game, string playerId)
         {
             Game = game;
             PlayerId = playerId;

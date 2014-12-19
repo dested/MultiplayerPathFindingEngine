@@ -13,31 +13,27 @@ namespace Pather.Common.Models
     [Serializable]
     public class ConnectedModel
     {
-        public long TickNumber { get; set; }
+        public long LockstepTickNumber { get; set; }
         public int[][] Grid { get; set; }
     }
     [Serializable]
-    public class NewPlayerModel
+    public class PlayerSyncModel
     {
-        public string PlayerId { get; set; }
-    }
-    [Serializable]
-    public class PlayerLeftModel
-    {
-        public string PlayerId { get; set; }
-    }
+        public List<PlayerModel> JoinedPlayers { get; set; }
+        public List<PlayerModel> LeftPlayers { get; set; }
 
+    } 
     [Serializable]
-    public class PlayerListModel
-    {
-        public List<PlayerModel> Players { get; set; }
-    }
-    [Serializable]
-
     public class PlayerModel
     {
         public string PlayerId { get; set; }
         public double X { get; set; }
         public double Y { get; set; }
+    }
+
+    [Serializable]
+    public class PlayerJoinModel
+    {
+        public string PlayerId { get; set; }
     }
 }

@@ -44,10 +44,10 @@
     <Compile Include="Game.cs" />
     <Compile Include="Libraries\Global.cs" />
     <Compile Include="Models\MoveModel.cs" />
-    <Compile Include="Person.cs" />
+    <Compile Include="Entity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SocketChannels.cs" />
-    <Compile Include="StepManager\StepManager.cs" />
+    <Compile Include="StepManager.cs" />
     <Compile Include="Utils\AnimationPoint.cs" />
     <Compile Include="Utils\DataObject.cs" />
     <Compile Include="Utils\Point.cs" />

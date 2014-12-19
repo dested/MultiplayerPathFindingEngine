@@ -7,11 +7,11 @@ using Pather.Common;
 
 namespace Pather.Client
 {
-    public class ClientPerson:Person
+    public class ClientEntity:Entity
     {
         private ClientGame ClientGame { get; set; }
 
-        public ClientPerson(ClientGame game,string playerId)
+        public ClientEntity(ClientGame game,string playerId)
             : base(game, playerId)
         {
             ClientGame = game;

@@ -8,25 +8,26 @@ namespace Pather.Common
     {
         public long NextGameTime { get; set; }
         public int[][] Grid { get; set; }
-        public List<Person> People { get; set; }
+        public List<Entity> Players { get; set; }
         public long CurTime { get; set; }
-        public Person Me { get; set; }
+        public StepManager StepManager { get; set; }
 
         public long TickNumber { get; set; }
         public long LockstepTickNumber { get; set; }
-        
+        public bool Ready { get; set; }
+
         public Game()
         {
             NextGameTime = new DateTime().GetTime();
             ConstructGrid();
-            People = new List<Person>();
+            Players = new List<Entity>();
 
         }
 
 
-        public virtual Person CreatePerson(string playerId)
+        public virtual Entity CreatePlayer(string playerId)
         {
-            return new Person(this, playerId);
+            return new Entity(this, playerId);
         }
 
         public void ConstructGrid()
@@ -37,7 +38,7 @@ namespace Pather.Common
                 Grid[x] = new int[Constants.NumberOfSquares];
                 for (int y = 0; y < Constants.NumberOfSquares; y++)
                 {
-                    Grid[x][y] = (Math.Random() * 100 < 15)?0:1;
+                    Grid[x][y] = (Math.Random() * 100 < 15) ? 0 : 1;
                 }
             }
         }
@@ -57,15 +58,27 @@ namespace Pather.Common
 
             TickNumber++;
             bool isLockstep = false;
-            if (TickNumber%4 == 0)
+            if (TickNumber % 5 == 0)
             {
                 LockstepTickNumber++;
                 isLockstep = true;
             }
+
+
+            if (!Ready) return;
+
+            if (isLockstep)
+            {
+                Global.Console.Log("Lockstep", LockstepTickNumber);
+                StepManager.ProcessAction(LockstepTickNumber);
+            }
+
+
+
             var v = new DateTime().GetTime();
             NextGameTime += v - CurTime;
             CurTime = v;
-            foreach (var person in People)
+            foreach (var person in Players)
             {
                 person.Tick(isLockstep);
             }

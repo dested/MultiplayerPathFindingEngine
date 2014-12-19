@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using Pather.Common.Libraries;
 using Pather.Common.Models;
+using Console = System.Console;
 
-namespace Pather.Common.StepManager
+namespace Pather.Common
 {
     public abstract class StepManager
     {
@@ -19,7 +21,7 @@ namespace Pather.Common.StepManager
         public Game Game { get; set; }
         public Dictionary<long, List<IAction>> StepActionsTicks ;
 
-        public void ReceiveAction(SerializableAction serAction)
+        public virtual void ReceiveAction(SerializableAction serAction)
         {
             if (!StepActionsTicks.ContainsKey(serAction.LockstepTickNumber))
             {
@@ -42,9 +44,16 @@ namespace Pather.Common.StepManager
 
         public void ProcessAction(long lockstepTickNumber)
         {
-            var stepActions = StepActionsTicks[lockstepTickNumber];
-            if (stepActions.Count != NetworkPlayers.Count)
+            if (!StepActionsTicks.ContainsKey(lockstepTickNumber))
             {
+                Global.Console.Log("Didnt get any actions :-/");
+                return;
+            }
+            var stepActions = StepActionsTicks[lockstepTickNumber];
+            if (stepActions.Count != NetworkPlayers)
+            {
+                Global.Console.Log("Didnt get all actions for all players :-/", stepActions.Count,NetworkPlayers);
+                return;
                 throw new Exception("Didnt get all actions for all players :-/");
             }
 
@@ -56,11 +65,7 @@ namespace Pather.Common.StepManager
             StepActionsTicks.Remove(lockstepTickNumber);
         }
 
-        public abstract List<NetworkPlayer> NetworkPlayers { get; }
-    }
-    public class NetworkPlayer
-    {
-        public string PlayerId { get; set; }
+        public abstract int NetworkPlayers { get; }
     }
 
     [Serializable]
@@ -98,7 +103,7 @@ namespace Pather.Common.StepManager
 
         public void Process(Game game)
         {
-            foreach (var person in game.People)
+            foreach (var person in game.Players)
             {
                 if (person.PlayerId == MoveModel.PlayerId)
                 {
