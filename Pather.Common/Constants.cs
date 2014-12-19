@@ -19,15 +19,15 @@ namespace Pather.Common
 
         }
 
-        public static int AnimationSteps { get; set; }
-        public static int GameFps { get; set; }
-        public static int DrawTicks { get; set; }
-        public static int DrawFps { get; set; }
-        public static int LockstepTicks { get; set; }
-        public static int LockstepFps { get; set; }
-        public static int SquareSize { get; set; }
-        public static int NumberOfSquares { get; set; }
-        public static int GameTicks { get; set; }
+        public static int AnimationSteps ;
+        public static int GameFps ;
+        public static int DrawTicks ;
+        public static int DrawFps ;
+        public static int LockstepTicks ;
+        public static int LockstepFps ;
+        public static int SquareSize ;
+        public static int NumberOfSquares ;
+        public static int GameTicks ;
 
         public static double Lerp(double start, double end, double duration)
         {

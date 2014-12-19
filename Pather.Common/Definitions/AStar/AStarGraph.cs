@@ -11,7 +11,6 @@ namespace Pather.Client.Definitions
         {
         }
 
-        [IntrinsicProperty]
-        public AStarGridPoint[][] Grid { get; set; } 
+        public AStarGridPoint[][] Grid ; 
     }
 }

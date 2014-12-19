@@ -6,16 +6,15 @@ namespace Pather.Common
 {
     public class Entity
     {
-        public double X { get; set; }
-        public double Y { get; set; }
-        public int SquareX { get; set; }
-        public int SquareY { get; set; }
-        public double Speed { get; set; }
-        public string PlayerId { get; set; }
-        public List<AStarPath> Path { get; set; }
-        public RePathFindModel RePathFindPosition { get; set; }
-        public List<AnimationPoint> Animations { get; set; }
-        private Game Game { get; set; }
+        public double X ;
+        public double Y ;
+        public int SquareX ;
+        public int SquareY ;
+        public double Speed ;
+        public string PlayerId ;
+        public List<AStarPath> Path ;
+        public List<AnimationPoint> Animations ;
+        private Game Game ;
 
         public Entity(Game game, string playerId)
         {
@@ -27,7 +26,6 @@ namespace Pather.Common
             SquareY = 0;
             Speed = 40;
             Path = new List<AStarPath>();
-            RePathFindPosition = null;
             Animations = new List<AnimationPoint>();
         }
 
@@ -39,29 +37,18 @@ namespace Pather.Common
             SquareY = (int)((Y) / Constants.SquareSize);
         }
 
-        public void RePathFind(int squareX, int squareY, long tickNumber = 0)
+        public void RePathFind(int squareX, int squareY)
         {
-
-            if (tickNumber == 0)
-            {
-                tickNumber = Game.TickNumber + 1;
-            }
-            RePathFindPosition = new RePathFindModel(squareX, squareY, tickNumber);
+            var graph = new AStarGraph(Game.Grid);
+            var start = graph.Grid[SquareX][SquareY];
+            var end = graph.Grid[squareX][squareY];
+            Path = new List<AStarPath>(AStar.Search(graph, start, end));
         }
 
 
         public void Tick()
         {
-            //            console.log('ticked');
-
-            if (RePathFindPosition != null && (RePathFindPosition.LockstepTick == Game.TickNumber))
-            {
-                var graph = new AStarGraph(Game.Grid);
-                var start = graph.Grid[SquareX][SquareY];
-                var end = graph.Grid[(int)RePathFindPosition.X][(int)RePathFindPosition.Y];
-                Path = new List<AStarPath>(AStar.Search(graph, start, end));
-                RePathFindPosition = null;
-            }
+        
 
 
             var result = Path[0];
@@ -121,14 +108,4 @@ namespace Pather.Common
 
     }
 
-    public class RePathFindModel : Point
-    {
-        public long LockstepTick { get; set; }
-
-        public RePathFindModel(double x, double y, long lockstepTick)
-            : base(x, y)
-        {
-            LockstepTick = lockstepTick;
-        }
-    }
 }

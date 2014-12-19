@@ -9,7 +9,7 @@ namespace Pather.Client
 {
     public class ClientEntity:Entity
     {
-        private ClientGame ClientGame { get; set; }
+        private ClientGame ClientGame;
 
         public ClientEntity(ClientGame game,string playerId)
             : base(game, playerId)

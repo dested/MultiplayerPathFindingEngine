@@ -9,11 +9,12 @@ namespace Pather.Client
 {
     public class ClientGame:Game
     { 
-        public CanvasElement Canvas { get; set; }
-        public CanvasRenderingContext2D Context { get; set; }
-        public string MyPlayerId { get; set; }
-        public Entity MyPlayer { get; set; }
+        public CanvasElement Canvas ;
+        public CanvasRenderingContext2D Context ;
+        public string MyPlayerId ;
+        public Entity MyPlayer ;
 
+        private bool sentMovementForThisLockstep = false;
         public ClientGame()
         {
             MyPlayerId = Guid.NewGuid().ToString();
@@ -26,21 +27,39 @@ namespace Pather.Client
 
             Canvas.OnMousedown = (ev) =>
             {
+
+                if (sentMovementForThisLockstep) return;
                 
+                sentMovementForThisLockstep = true;
                 var @event = (dynamic)ev;
                 
                 var squareX = ((int)@event.offsetX) / Constants.SquareSize;
                 var squareY = ((int)@event.offsetY) / Constants.SquareSize;
+
+
+                var lockstepNumber = LockstepTickNumber;
+
+                if (PercentCompletedWithLockStep > .5)
+                {
+                    lockstepNumber += 2;
+                }
+                else
+                {
+                    lockstepNumber += 1;
+                }
+
 
                 ((ClientStepManager)StepManager).SendActionClient(new MoveAction(new MoveModel()
                 {
                     X = squareX,
                     Y = squareY,
                     PlayerId = MyPlayer.PlayerId
-                }, LockstepTickNumber + 1));
+                }, lockstepNumber));
                  
             };
         }
+
+
 
 
         public override void Init()
@@ -94,10 +113,19 @@ namespace Pather.Client
             }
         }
 
+        public override TickResult Tick()
+        {
+            var tickResult=base.Tick();
+            if (tickResult == TickResult.Lockstep || tickResult == TickResult.Both)
+            {
+                sentMovementForThisLockstep = false;
+            }
+            return tickResult;
+        }
+
         public void LocalPlayerJoined(Entity player)
         {
             MyPlayer = player;
-            Ready = true;
         }
     }
 }

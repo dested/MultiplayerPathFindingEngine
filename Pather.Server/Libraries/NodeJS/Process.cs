@@ -9,14 +9,11 @@ namespace Pather.Server.Libraries.NodeJS
     public class Process : EventEmitter
     {
         [ScriptName("stdin")]
-        [IntrinsicProperty]
-        public STDIn STDIn { get; set; }
+        public STDIn STDIn ;
         [ScriptName("stdout")]
-        [IntrinsicProperty]
-        public STDOut STDOut { get; set; }
+        public STDOut STDOut ;
         [ScriptName("stderr")]
-        [IntrinsicProperty]
-        public STDError STDError { get; set; }
+        public STDError STDError ;
 
         [ScriptName("exit")]
         public void Exit() {}

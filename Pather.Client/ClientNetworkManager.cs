@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Html;
 using Pather.Common;
 using Pather.Common.Libraries;
 using Pather.Common.Models;
@@ -8,15 +9,17 @@ namespace Pather.Client
 {
     public class ClientNetworkManager
     {
-        public ClientCommunicator ClientCommunicator { get; set; }
-        public int NetworkPlayers { get; set; }
+        public ClientCommunicator ClientCommunicator ;
+        public int NetworkPlayers ;
 
-        public Action<SerializableAction> OnReceiveAction { get; set; }
-        public Action<ConnectedModel> OnConnected { get; set; }
-        public Action<PlayerSyncModel> OnPlayerSync { get; set; }
+        public Action<SerializableAction> OnReceiveAction ;
+        public Action<ConnectedModel> OnConnected ;
+        public Action<PlayerSyncModel> OnPlayerSync ;
+        public Action<SyncLockstepModel> OnSetLockStep ;
+        public Action<int> OnSetLatency ;
 
 
-
+        private List<long> pingSent;
 
         public ClientNetworkManager()
         {
@@ -27,6 +30,8 @@ namespace Pather.Client
                 (model) =>
                 {
                     OnConnected(model);
+                    TriggerPingTest();
+                    Window.SetInterval(TriggerPingTest, 1000*60);
                 });
 
             ClientCommunicator.ListenOnChannel<PlayerSyncModel>(
@@ -41,6 +46,42 @@ namespace Pather.Client
                 });
 
 
+            ClientCommunicator.ListenOnChannel<PingPongModel>(
+                SocketChannels.ServerChannel(SocketChannels.Server.Pong),
+                (model) =>
+                {
+
+                    pingSent.Add(new DateTime().GetTime());
+
+                    if (pingSent.Count < 6)
+                    {
+                        ClientCommunicator.SendMessage(SocketChannels.ClientChannel(SocketChannels.Client.Ping), new PingPongModel());
+                    }
+                    else
+                    {
+                        var average = 0L;
+
+                        for (int index = 0; index < pingSent.Count - 1; index++)
+                        {
+                            average += pingSent[index+1] - pingSent[index];
+                        }
+
+
+                        OnSetLatency((int)((double)average / (double)(pingSent.Count - 1)) / 2);
+                        pingSent = null;
+                    }
+                });
+
+
+            ClientCommunicator.ListenOnChannel<SyncLockstepModel>(
+                SocketChannels.ServerChannel(SocketChannels.Server.SyncLockstep),
+                (model) =>
+                {
+                    OnSetLockStep(model);
+                });
+
+
+
             ClientCommunicator.ListenOnChannel<SerializableAction>(
                 SocketChannels.ServerChannel(SocketChannels.Server.PostAction),
                 (model) =>
@@ -50,6 +91,14 @@ namespace Pather.Client
 
 
 
+        }
+
+        private void TriggerPingTest()
+        {
+
+            pingSent = new List<long>();
+            pingSent.Add(new DateTime().GetTime());
+            ClientCommunicator.SendMessage(SocketChannels.ClientChannel(SocketChannels.Client.Ping), new PingPongModel());
         }
 
         public void SendAction(SerializableAction serAction)
@@ -70,4 +119,5 @@ namespace Pather.Client
 
         }
     }
+
 }

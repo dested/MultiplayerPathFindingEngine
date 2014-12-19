@@ -6,34 +6,47 @@ namespace Pather.Common.Models
     [Serializable]
     public class MoveModel
     {
-        public string PlayerId { get; set; }
-        public int X { get; set; }
-        public int Y { get; set; }
+        public string PlayerId ;
+        public int X ;
+        public int Y ;
     }
     [Serializable]
     public class ConnectedModel
     {
-        public long LockstepTickNumber { get; set; }
-        public int[][] Grid { get; set; }
+        public int[][] Grid ;
     }
+
+    [Serializable]
+    public class SyncLockstepModel
+    {
+        public long LockstepTickNumber ;
+    }
+        
+
+
     [Serializable]
     public class PlayerSyncModel
     {
-        public List<PlayerModel> JoinedPlayers { get; set; }
-        public List<PlayerModel> LeftPlayers { get; set; }
+        public List<PlayerModel> JoinedPlayers ;
+        public List<PlayerModel> LeftPlayers ;
 
     } 
     [Serializable]
     public class PlayerModel
     {
-        public string PlayerId { get; set; }
-        public double X { get; set; }
-        public double Y { get; set; }
+        public string PlayerId ;
+        public double X ;
+        public double Y ;
     }
 
     [Serializable]
     public class PlayerJoinModel
     {
-        public string PlayerId { get; set; }
+        public string PlayerId ;
     }
+    [Serializable]
+    public class PingPongModel
+    {
+    }
+
 }

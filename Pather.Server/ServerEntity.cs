@@ -5,7 +5,7 @@ namespace Pather.Server
 {
     public class ServerEntity:Entity
     {
-        public SocketIOConnection Socket { get; set; }
+        public SocketIOConnection Socket ;
         public ServerEntity(Game game,string playerId) : base(game, playerId)
         {
         }

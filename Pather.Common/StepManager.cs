@@ -16,17 +16,14 @@ namespace Pather.Common
             LastTickProcessed = 0;
         }
 
-        public long LastTickProcessed { get; set; }
+        public long LastTickProcessed ;
 
-        public Game Game { get; set; }
+        public Game Game ;
         public Dictionary<long, List<IAction>> StepActionsTicks ;
+        private int misprocess;
 
         public virtual void ReceiveAction(SerializableAction serAction)
         {
-            if (!StepActionsTicks.ContainsKey(serAction.LockstepTickNumber))
-            {
-                StepActionsTicks[serAction.LockstepTickNumber] = new List<IAction>();
-            }
             IAction action;
             switch (serAction.Type)
             {
@@ -39,6 +36,19 @@ namespace Pather.Common
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+
+            
+            if (!StepActionsTicks.ContainsKey(serAction.LockstepTickNumber))
+            {
+                if (serAction.LockstepTickNumber <= Game.LockstepTickNumber)
+                {
+                    action.Process(Game);
+                    Global.Console.Log("Misprocess of action count",++misprocess);
+                    return;
+                }
+                StepActionsTicks[serAction.LockstepTickNumber] = new List<IAction>();
+            }
             StepActionsTicks[serAction.LockstepTickNumber].Add(action);
         }
 
@@ -46,17 +56,13 @@ namespace Pather.Common
         {
             if (!StepActionsTicks.ContainsKey(lockstepTickNumber))
             {
-                Global.Console.Log("Didnt get any actions :-/");
                 return;
             }
             var stepActions = StepActionsTicks[lockstepTickNumber];
-            if (stepActions.Count != NetworkPlayers)
-            {
-                Global.Console.Log("Didnt get all actions for all players :-/", stepActions.Count,NetworkPlayers);
-                return;
-                throw new Exception("Didnt get all actions for all players :-/");
-            }
 
+
+            Global.Console.Log("Actions for", stepActions.Count, "Players");
+            
             foreach (var stepAction in stepActions)
             {
                 stepAction.Process(Game);
@@ -71,9 +77,9 @@ namespace Pather.Common
     [Serializable]
     public class SerializableAction
     {
-        public object Data { get; set; }
-        public long LockstepTickNumber { get; set; }
-        public ActionType Type { get; set; }
+        public object Data ;
+        public long LockstepTickNumber ;
+        public ActionType Type ;
     }
     public interface IAction
     {
@@ -90,7 +96,7 @@ namespace Pather.Common
 
     public class MoveAction : IAction
     {
-        public MoveModel MoveModel { get; set; }
+        public MoveModel MoveModel ;
         public object Data { get { return MoveModel; } }
 
         public long LockstepTickNumber { get; private set; }

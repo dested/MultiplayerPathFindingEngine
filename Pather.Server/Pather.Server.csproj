@@ -56,8 +56,11 @@
     <Compile Include="Libraries\Socket.IO\SocketIOConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Server.cs" />
+    <Compile Include="ServerCommunicator.cs" />
     <Compile Include="ServerEntity.cs" />
     <Compile Include="ServerGame.cs" />
+    <Compile Include="ServerNetworkManager.cs" />
+    <Compile Include="ServerStepManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

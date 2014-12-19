@@ -7,8 +7,7 @@ namespace Pather.Server.Libraries.NodeJS
     [Imported()]
     public class ChildProcess : NodeModule
     {
-        [IntrinsicProperty]
         [ScriptName("exec")]
-        public Func<string, Process> Exec { get; set; }
+        public Func<string, Process> Exec ;
     }
 }

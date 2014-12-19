@@ -16,7 +16,8 @@ namespace Pather.Common
         public enum Client
         {
             PostAction,
-            JoinPlayer
+            JoinPlayer,
+            Ping
         }
         [NamedValues]
         public enum Server
@@ -24,6 +25,8 @@ namespace Pather.Common
             Connect,
             PostAction,
             PlayerSync,
+            Pong,
+            SyncLockstep
         }
     }
 }

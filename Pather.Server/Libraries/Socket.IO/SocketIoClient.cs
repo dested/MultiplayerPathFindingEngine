@@ -6,10 +6,8 @@ namespace Pather.Server.Libraries.Socket.IO
     [Imported()]
     public class SocketIOClient
     {
-        [IntrinsicProperty]
-        public Socket Sockets { get; set; }
+        public Socket Sockets ;
 
-        [ScriptName("set")]
         public void Set(string option, int value) {}
     }
 }

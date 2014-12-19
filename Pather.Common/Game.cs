@@ -6,18 +6,18 @@ namespace Pather.Common
 {
     public class Game
     {
-        public int[][] Grid { get; set; }
-        public List<Entity> Players { get; set; }
-        public long CurTime { get; set; }
-        public StepManager StepManager { get; set; }
+        public int[][] Grid ;
+        public List<Entity> Players ;
+        public long CurLockstepTime ;
+        public long CurTickTime ;
+        public StepManager StepManager ;
 
-        public long TickNumber { get; set; }
-        public long LockstepTickNumber { get; set; }
-        public bool Ready { get; set; }
+        public long TickNumber ;
+        public long LockstepTickNumber ;
+        public bool Ready ;
 
         public Game()
         {
-            ConstructGrid();
             Players = new List<Entity>();
 
             NextGameTime = new DateTime().GetTime();
@@ -46,55 +46,84 @@ namespace Pather.Common
         {
 
 
-            CurTime = new DateTime().GetTime();
-            LastExecutedTick = 0;
-            LastExecutedLockstep = 0;
+            CurGameTime = new DateTime().GetTime();
+            CurLockstepTime = new DateTime().GetTime();
+            CurTickTime = new DateTime().GetTime();
 
-            Global.SetTimeout(Tick, 1);
+            Global.SetTimeout(() => Tick(), 1);
         }
 
-        private long LastExecutedTick = 0;
-        private long LastExecutedLockstep = 0;
-        public long NextGameTime { get; set; }
-        public virtual void Tick()
+        public long CurGameTime ;
+
+        public long NextGameTime ;
+        public int ServerLatency ;
+        public long TrackTickNumber ;
+        public long TrackLockstepTickNumber ;
+
+
+        public int PercentCompletedWithLockStep
         {
-            Global.SetTimeout(Tick, 1);
-            if (!Ready) return;
+            get
+            {
+                var vc = new DateTime().GetTime();
+                var l = (vc - CurLockstepTime);
+
+                var timeTillNextLockstepTick = (int)(l % Constants.LockstepTicks);
+                return timeTillNextLockstepTick / Constants.LockstepTicks;
+            }
+        }
+
+        public virtual TickResult Tick()
+        {
+            Global.SetTimeout(() => Tick(), 1);
+
+            var tickResult = TickResult.None;
+            if (!Ready) return tickResult;
 
             var vc = new DateTime().GetTime();
-            var nextTickTime = (vc - CurTime) / Constants.GameTicks;
-            var nextLockstepTime = (vc - CurTime) / Constants.LockstepTicks;
+            var l = (vc - CurLockstepTime);
 
-
-            
-            var v = new DateTime().GetTime();
-            NextGameTime += v - CurTime;
-            CurTime = v;
-
-
-            while (nextLockstepTime > LastExecutedLockstep)
+            while (l > Constants.LockstepTicks)
             {
-                LastExecutedLockstep++;
+                l -= Constants.LockstepTicks;
+                CurLockstepTime += Constants.LockstepTicks;
                 LockstepTickNumber++;
                 Global.Console.Log("Lockstep", LockstepTickNumber);
                 StepManager.ProcessAction(LockstepTickNumber);
+                tickResult = TickResult.Lockstep;
 
             }
 
 
-            while (nextTickTime > LastExecutedTick)
+            var l2 = (vc - CurTickTime);
+            var nextTickTime = l2 / Constants.GameTicks;
+            while (nextTickTime > TrackTickNumber)
             {
-                LastExecutedTick++;
+                TrackTickNumber++;
                 TickNumber++;
                 foreach (var person in Players)
                 {
                     person.Tick();
                 }
 
+                tickResult = tickResult == TickResult.Lockstep ? TickResult.Both : TickResult.Game;
+
+                //todo probably should only happen once?
+                var v = new DateTime().GetTime();
+                NextGameTime += v - CurGameTime;
+                CurGameTime = v;
             }
 
-
+            return tickResult;
         }
 
+    }
+
+    public enum TickResult
+    {
+        None = 0,
+        Game = 1,
+        Lockstep = 2,
+        Both = 3
     }
 }
