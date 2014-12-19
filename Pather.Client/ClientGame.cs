@@ -25,6 +25,7 @@ namespace Pather.Client
             Canvas = (CanvasElement)Document.GetElementById("canvas");
             Context = (CanvasRenderingContext2D)Canvas.GetContext(CanvasContextId.Render2D);
 
+            randomMoveMeTo();
             Canvas.OnMousedown = (ev) =>
             {
 
@@ -36,30 +37,47 @@ namespace Pather.Client
                 var squareX = ((int)@event.offsetX) / Constants.SquareSize;
                 var squareY = ((int)@event.offsetY) / Constants.SquareSize;
 
-
-                var lockstepNumber = LockstepTickNumber;
-
-                if (PercentCompletedWithLockStep > .5)
+                if (squareX < Constants.NumberOfSquares && squareY < Constants.NumberOfSquares)
                 {
-                    lockstepNumber += 2;
+
+                    moveMeTo(squareX, squareY);
                 }
-                else
-                {
-                    lockstepNumber += 1;
-                }
-
-
-                ((ClientStepManager)StepManager).SendActionClient(new MoveAction(new MoveModel()
-                {
-                    X = squareX,
-                    Y = squareY,
-                    PlayerId = MyPlayer.PlayerId
-                }, lockstepNumber));
-                 
             };
         }
 
+        private void randomMoveMeTo()
+        {
+            Window.SetTimeout(() =>
+            {
+                randomMoveMeTo();
 
+                moveMeTo(Math.Min((int)(Math.Random() * Constants.NumberOfSquares), Constants.NumberOfSquares - 1), Math.Min((int)(Math.Random() * Constants.NumberOfSquares), Constants.NumberOfSquares - 1));
+
+            }, (int)(Math.Random() * 5000+500));
+
+        }
+
+        private void moveMeTo(int squareX, int squareY)
+        {
+            var lockstepNumber = LockstepTickNumber;
+
+            if (PercentCompletedWithLockStep > .5)
+            {
+                lockstepNumber += 2;
+            }
+            else
+            {
+                lockstepNumber += 1;
+            }
+
+
+            ((ClientStepManager) StepManager).SendActionClient(new MoveAction(new MoveModel()
+            {
+                X = squareX,
+                Y = squareY,
+                PlayerId = MyPlayer.PlayerId
+            }, lockstepNumber));
+        }
 
 
         public override void Init()

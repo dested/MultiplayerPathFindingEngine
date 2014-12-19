@@ -25,7 +25,7 @@ namespace Pather.Server
         private void OnSyncLockstep(long lockStepTick)
         {
 
-            if (lockStepTick % 10 == 0 || forceSyncNextLockstep.Count > 0)
+            if (lockStepTick % 30 == 0 || forceSyncNextLockstep.Count > 0)
             {
 
                 foreach (var socketIoConnection in forceSyncNextLockstep)

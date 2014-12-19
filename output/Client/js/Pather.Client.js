@@ -18,6 +18,7 @@
 	var $Pather_Client_ClientCommunicator = function() {
 		this.socket = null;
 		this.socket = io.connect('198.211.107.101:8991');
+		//            Socket = SocketIOClient.Connect("127.0.0.1:8991");
 	};
 	$Pather_Client_ClientCommunicator.__typeName = 'Pather.Client.ClientCommunicator';
 	global.Pather.Client.ClientCommunicator = $Pather_Client_ClientCommunicator;
@@ -40,10 +41,11 @@
 		this.$sentMovementForThisLockstep = false;
 		Pather.Common.Game.call(this);
 		this.myPlayerId = ss.Guid.newGuid().toString();
-		this.stepManager = new $Pather_Client_ClientStepManager(this, new $Pather_Client_ClientNetworkManager());
+		this.set_stepManager(new $Pather_Client_ClientStepManager(this, new $Pather_Client_ClientNetworkManager()));
 		var $t1 = document.getElementById('canvas');
 		this.canvas = ss.cast($t1, ss.isValue($t1) && (ss.isInstanceOfType($t1, Element) && $t1.tagName === 'CANVAS'));
 		this.context = ss.cast(this.canvas.getContext('2d'), CanvasRenderingContext2D);
+		this.$randomMoveMeTo();
 		this.canvas.onmousedown = ss.mkdel(this, function(ev) {
 			if (this.$sentMovementForThisLockstep) {
 				return;
@@ -52,19 +54,9 @@
 			var event = ev;
 			var squareX = ss.Int32.div(ss.unbox(ss.cast(event.offsetX, ss.Int32)), Pather.Common.Constants.squareSize);
 			var squareY = ss.Int32.div(ss.unbox(ss.cast(event.offsetY, ss.Int32)), Pather.Common.Constants.squareSize);
-			var lockstepNumber = this.lockstepTickNumber;
-			if (this.get_percentCompletedWithLockStep() > 0.5) {
-				lockstepNumber += 2;
+			if (squareX < Pather.Common.Constants.numberOfSquares && squareY < Pather.Common.Constants.numberOfSquares) {
+				this.$moveMeTo(squareX, squareY);
 			}
-			else {
-				lockstepNumber += 1;
-			}
-			var $t3 = ss.cast(this.stepManager, $Pather_Client_ClientStepManager);
-			var $t2 = Pather.Common.Models.MoveModel.$ctor();
-			$t2.x = squareX;
-			$t2.y = squareY;
-			$t2.playerId = this.myPlayer.playerId;
-			$t3.sendActionClient(new Pather.Common.MoveAction($t2, lockstepNumber));
 		});
 	};
 	$Pather_Client_ClientGame.__typeName = 'Pather.Client.ClientGame';
@@ -79,6 +71,7 @@
 		this.onPlayerSync = null;
 		this.onSetLockStep = null;
 		this.onSetLatency = null;
+		this.$lastPing = 0;
 		this.$pingSent = null;
 		this.clientCommunicator = new $Pather_Client_ClientCommunicator();
 		this.networkPlayers = 0;
@@ -97,16 +90,19 @@
 			this.onPlayerSync(model1);
 		}));
 		this.clientCommunicator.listenOnChannel(Pather.Common.Models.PingPongModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('pong'), ss.mkdel(this, function(model2) {
-			this.$pingSent.push((new Date()).getTime());
+			var cur = (new Date()).getTime();
+			this.$pingSent.push(cur - this.$lastPing);
+			this.$lastPing = cur;
 			if (this.$pingSent.length < 6) {
 				this.clientCommunicator.sendMessage(Pather.Common.SocketChannels.clientChannel('ping'), Pather.Common.Models.PingPongModel.$ctor());
 			}
 			else {
 				var average = 0;
-				for (var index = 0; index < this.$pingSent.length - 1; index++) {
-					average += this.$pingSent[index + 1] - this.$pingSent[index];
+				for (var $t1 = 0; $t1 < this.$pingSent.length; $t1++) {
+					var l = this.$pingSent[$t1];
+					average += l;
 				}
-				this.onSetLatency(ss.Int32.div(ss.Int32.trunc(average / (this.$pingSent.length - 1)), 2));
+				this.onSetLatency(ss.Int32.div(ss.Int32.trunc(average / this.$pingSent.length), 2));
 				this.$pingSent = null;
 			}
 		}));
@@ -184,6 +180,27 @@
 		}
 	}, Pather.Common.Entity);
 	ss.initClass($Pather_Client_ClientGame, $asm, {
+		$randomMoveMeTo: function() {
+			window.setTimeout(ss.mkdel(this, function() {
+				this.$randomMoveMeTo();
+				this.$moveMeTo(Math.min(ss.Int32.trunc(Math.random() * Pather.Common.Constants.numberOfSquares), Pather.Common.Constants.numberOfSquares - 1), Math.min(ss.Int32.trunc(Math.random() * Pather.Common.Constants.numberOfSquares), Pather.Common.Constants.numberOfSquares - 1));
+			}), ss.Int32.trunc(Math.random() * 5000 + 500));
+		},
+		$moveMeTo: function(squareX, squareY) {
+			var lockstepNumber = this.get_lockstepTickNumber();
+			if (this.get_percentCompletedWithLockStep() > 0.5) {
+				lockstepNumber += 2;
+			}
+			else {
+				lockstepNumber += 1;
+			}
+			var $t2 = ss.cast(this.get_stepManager(), $Pather_Client_ClientStepManager);
+			var $t1 = Pather.Common.Models.MoveModel.$ctor();
+			$t1.x = squareX;
+			$t1.y = squareY;
+			$t1.playerId = this.myPlayer.playerId;
+			$t2.sendActionClient(new Pather.Common.MoveAction($t1, lockstepNumber));
+		},
 		init: function() {
 			Pather.Common.Game.prototype.init.call(this);
 			window.requestAnimationFrame(ss.mkdel(this, function(a) {
@@ -201,7 +218,7 @@
 			this.context.fillStyle = 'black';
 			this.context.fillRect(0, 0, 1200, 1200);
 			this.context.restore();
-			if (!this.ready) {
+			if (!this.get_ready()) {
 				this.context.fillText('Syncing with server!', 100, 100);
 				return;
 			}
@@ -209,15 +226,16 @@
 			this.context.fillStyle = 'blue';
 			for (var y = 0; y < Pather.Common.Constants.numberOfSquares; y++) {
 				for (var x = 0; x < Pather.Common.Constants.numberOfSquares; x++) {
-					if (this.grid[x][y] === 0) {
+					if (this.get_grid()[x][y] === 0) {
 						this.context.fillRect(x * Pather.Common.Constants.squareSize, y * Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
 					}
 				}
 			}
 			this.context.restore();
-			var interpolatedTime = ((new Date()).getTime() - this.nextGameTime) / Pather.Common.Constants.gameTicks;
-			for (var $t1 = 0; $t1 < this.players.length; $t1++) {
-				var person = this.players[$t1];
+			var interpolatedTime = ((new Date()).getTime() - this.get_nextGameTime()) / Pather.Common.Constants.gameTicks;
+			var $t1 = this.get_players();
+			for (var $t2 = 0; $t2 < $t1.length; $t2++) {
+				var person = $t1[$t2];
 				person.draw(this.context, interpolatedTime);
 			}
 		},
@@ -235,7 +253,7 @@
 	ss.initClass($Pather_Client_ClientNetworkManager, $asm, {
 		$triggerPingTest: function() {
 			this.$pingSent = [];
-			this.$pingSent.push((new Date()).getTime());
+			this.$lastPing = (new Date()).getTime();
 			this.clientCommunicator.sendMessage(Pather.Common.SocketChannels.clientChannel('ping'), Pather.Common.Models.PingPongModel.$ctor());
 		},
 		sendAction: function(serAction) {
@@ -257,28 +275,28 @@
 			return this.clientNetworkManager.networkPlayers;
 		},
 		$onSetLatency: function(latency) {
-			this.game.serverLatency = latency;
+			this.game.set_serverLatency(latency);
 			console.log('Latency:', latency);
 		},
 		$onSetLockstep: function(model) {
 			//            Global.Console.Log("Tick Number ", model.LockstepTickNumber, "Happened ", Game.ServerLatency, "Ago");
 			//todo this should happen at the same time as setlat3ency 
-			this.game.curLockstepTime = (new Date()).getTime() + this.game.serverLatency;
-			if (this.game.lockstepTickNumber === 0) {
-				this.game.ready = true;
-				this.game.lockstepTickNumber = model.lockstepTickNumber;
+			this.game.set_curLockstepTime((new Date()).getTime() - this.game.get_serverLatency());
+			if (this.game.get_lockstepTickNumber() === 0) {
+				this.game.set_ready(true);
+				this.game.set_lockstepTickNumber(model.lockstepTickNumber);
 			}
 			else {
-				while (this.game.lockstepTickNumber < model.lockstepTickNumber) {
-					this.game.lockstepTickNumber++;
-					console.log('Force Lockstep', this.game.lockstepTickNumber);
-					this.game.stepManager.processAction(this.game.lockstepTickNumber);
+				while (this.game.get_lockstepTickNumber() < model.lockstepTickNumber) {
+					this.game.set_lockstepTickNumber(this.game.get_lockstepTickNumber() + 1);
+					console.log('Force Lockstep', this.game.get_lockstepTickNumber());
+					this.game.get_stepManager().processAction(this.game.get_lockstepTickNumber());
 				}
 			}
 		},
 		$connected: function(model) {
-			this.game.grid = model.grid;
-			this.game.players = [];
+			this.game.set_grid(model.grid);
+			this.game.set_players([]);
 			this.clientNetworkManager.joinPlayer(ss.cast(this.game, $Pather_Client_ClientGame).myPlayerId);
 		},
 		$playerSync: function(model) {
@@ -287,7 +305,7 @@
 					var playerModel = model.joinedPlayers[$t1];
 					var player = this.game.createPlayer(playerModel.playerId);
 					player.init(playerModel.x, playerModel.y);
-					this.game.players.push(player);
+					this.game.get_players().push(player);
 					if (ss.referenceEquals(ss.cast(this.game, $Pather_Client_ClientGame).myPlayerId, playerModel.playerId)) {
 						ss.cast(this.game, $Pather_Client_ClientGame).localPlayerJoined(player);
 					}
@@ -296,10 +314,11 @@
 			if (ss.isValue(model.leftPlayers)) {
 				for (var $t2 = 0; $t2 < model.leftPlayers.length; $t2++) {
 					var playerModel1 = model.leftPlayers[$t2];
-					for (var $t3 = 0; $t3 < this.game.players.length; $t3++) {
-						var person = this.game.players[$t3];
+					var $t3 = this.game.get_players();
+					for (var $t4 = 0; $t4 < $t3.length; $t4++) {
+						var person = $t3[$t4];
 						if (ss.referenceEquals(person.playerId, playerModel1.playerId)) {
-							ss.remove(this.game.players, person);
+							ss.remove(this.game.get_players(), person);
 							break;
 						}
 					}

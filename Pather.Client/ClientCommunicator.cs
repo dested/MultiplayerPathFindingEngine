@@ -13,6 +13,7 @@ namespace Pather.Client
         public ClientCommunicator()
         {
             Socket = SocketIOClient.Connect("198.211.107.101:8991");
+//            Socket = SocketIOClient.Connect("127.0.0.1:8991");
         }
         
         public void ListenOnChannel<T>(string channel,Action<T> callback)

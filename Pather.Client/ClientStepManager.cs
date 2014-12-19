@@ -37,7 +37,7 @@ namespace Pather.Client
         {
 //            Global.Console.Log("Tick Number ", model.LockstepTickNumber, "Happened ", Game.ServerLatency, "Ago");
             //todo this should happen at the same time as setlat3ency 
-            Game.CurLockstepTime = new DateTime().GetTime() + Game.ServerLatency;
+            Game.CurLockstepTime = new DateTime().GetTime() - Game.ServerLatency;
 
             if (Game.LockstepTickNumber == 0)
             {

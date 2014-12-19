@@ -18,7 +18,7 @@ namespace Pather.Client
         public Action<SyncLockstepModel> OnSetLockStep ;
         public Action<int> OnSetLatency ;
 
-
+        private long lastPing=0;
         private List<long> pingSent;
 
         public ClientNetworkManager()
@@ -51,7 +51,9 @@ namespace Pather.Client
                 (model) =>
                 {
 
-                    pingSent.Add(new DateTime().GetTime());
+                    var cur= new DateTime().GetTime();
+                    pingSent.Add(cur - lastPing);
+                    lastPing = cur;
 
                     if (pingSent.Count < 6)
                     {
@@ -61,13 +63,13 @@ namespace Pather.Client
                     {
                         var average = 0L;
 
-                        for (int index = 0; index < pingSent.Count - 1; index++)
+                        foreach (var l in pingSent)
                         {
-                            average += pingSent[index+1] - pingSent[index];
+                            average += l;
                         }
 
 
-                        OnSetLatency((int)((double)average / (double)(pingSent.Count - 1)) / 2);
+                        OnSetLatency((int)((double)average / (double)(pingSent.Count)) / 2);
                         pingSent = null;
                     }
                 });
@@ -97,7 +99,7 @@ namespace Pather.Client
         {
 
             pingSent = new List<long>();
-            pingSent.Add(new DateTime().GetTime());
+            lastPing = new DateTime().GetTime();
             ClientCommunicator.SendMessage(SocketChannels.ClientChannel(SocketChannels.Client.Ping), new PingPongModel());
         }
 
