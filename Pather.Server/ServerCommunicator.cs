@@ -30,7 +30,7 @@ namespace Pather.Server
 
             io.Sockets.On("connection", (SocketIOConnection socket) =>
             {
-                Global.Console.Log("new connection");
+//                Global.Console.Log("new connection");
                 OnNewConnection(socket);
                 socket.On("disconnect", () =>
                 {

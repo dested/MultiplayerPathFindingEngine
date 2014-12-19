@@ -21,28 +21,29 @@ namespace Pather.Client
 
 
             StepManager = new ClientStepManager(this, new ClientNetworkManager());
-
-            Canvas = (CanvasElement)Document.GetElementById("canvas");
-            Context = (CanvasRenderingContext2D)Canvas.GetContext(CanvasContextId.Render2D);
-
             randomMoveMeTo();
-            Canvas.OnMousedown = (ev) =>
+            if (!Constants.TestServer)
             {
-
-                if (sentMovementForThisLockstep) return;
-                
-                sentMovementForThisLockstep = true;
-                var @event = (dynamic)ev;
-                
-                var squareX = ((int)@event.offsetX) / Constants.SquareSize;
-                var squareY = ((int)@event.offsetY) / Constants.SquareSize;
-
-                if (squareX < Constants.NumberOfSquares && squareY < Constants.NumberOfSquares)
+                Canvas = (CanvasElement) Document.GetElementById("canvas");
+                Context = (CanvasRenderingContext2D) Canvas.GetContext(CanvasContextId.Render2D);
+                Canvas.OnMousedown = (ev) =>
                 {
 
-                    moveMeTo(squareX, squareY);
-                }
-            };
+                    if (sentMovementForThisLockstep) return;
+
+                    sentMovementForThisLockstep = true;
+                    var @event = (dynamic) ev;
+
+                    var squareX = ((int) @event.offsetX)/Constants.SquareSize;
+                    var squareY = ((int) @event.offsetY)/Constants.SquareSize;
+
+                    if (squareX < Constants.NumberOfSquares && squareY < Constants.NumberOfSquares)
+                    {
+
+                        moveMeTo(squareX, squareY);
+                    }
+                };
+            }
         }
 
         private void randomMoveMeTo()
@@ -85,7 +86,10 @@ namespace Pather.Client
             base.Init();
 
 
-            Window.RequestAnimationFrame((a) => Draw());
+            if (!Constants.TestServer)
+            {
+                Window.RequestAnimationFrame((a) => Draw());
+            }
         }
 
         public override Entity CreatePlayer(string playerId)
@@ -95,39 +99,42 @@ namespace Pather.Client
 
         public void Draw()
         {
-            Window.RequestAnimationFrame((a) => Draw());
-
-
-            Context.Save();
-            Context.FillStyle = "black";
-            Context.FillRect(0, 0, 1200, 1200);
-            Context.Restore();
-            if (!Ready)
+            if (!Constants.TestServer)
             {
-                Context.FillText("Syncing with server!", 100, 100);
-                return;
-            }
+                Window.RequestAnimationFrame((a) => Draw());
 
-            Context.Save();
-            Context.FillStyle = "blue";
-            for (var y = 0; y < Constants.NumberOfSquares; y++)
-            {
-                for (var x = 0; x < Constants.NumberOfSquares; x++)
+
+                Context.Save();
+                Context.FillStyle = "black";
+                Context.FillRect(0, 0, 1200, 1200);
+                Context.Restore();
+                if (!Ready)
                 {
-                    if (Grid[x][y]==0)
+                    Context.FillText("Syncing with server!", 100, 100);
+                    return;
+                }
+
+                Context.Save();
+                Context.FillStyle = "blue";
+                for (var y = 0; y < Constants.NumberOfSquares; y++)
+                {
+                    for (var x = 0; x < Constants.NumberOfSquares; x++)
                     {
-                        Context.FillRect(x * Constants.SquareSize, y * Constants.SquareSize, Constants.SquareSize, Constants.SquareSize);
+                        if (Grid[x][y] == 0)
+                        {
+                            Context.FillRect(x*Constants.SquareSize, y*Constants.SquareSize, Constants.SquareSize, Constants.SquareSize);
+                        }
                     }
                 }
-            }
-            Context.Restore();
+                Context.Restore();
 
-            var interpolatedTime = (((new DateTime()).GetTime() - NextGameTime) / (double)Constants.GameTicks);
+                var interpolatedTime = (((new DateTime()).GetTime() - NextGameTime)/(double) Constants.GameTicks);
 
 
-            foreach (ClientEntity person in Players)
-            {
-                person.Draw(Context, interpolatedTime);
+                foreach (ClientEntity person in Players)
+                {
+                    person.Draw(Context, interpolatedTime);
+                }
             }
         }
 

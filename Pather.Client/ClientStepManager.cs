@@ -47,6 +47,12 @@ namespace Pather.Client
             else
             {
 
+                if (Game.LockstepTickNumber > model.LockstepTickNumber)
+                {
+                    Game.LockstepTickNumber = model.LockstepTickNumber;
+                    Global.Console.Log("Force Lockstep", Game.LockstepTickNumber);
+                    Game.StepManager.ProcessAction(Game.LockstepTickNumber);
+                }
                 while (Game.LockstepTickNumber < model.LockstepTickNumber)
                 {
                     Game.LockstepTickNumber++;

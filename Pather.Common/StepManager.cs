@@ -61,7 +61,7 @@ namespace Pather.Common
             var stepActions = StepActionsTicks[lockstepTickNumber];
 
 
-            Global.Console.Log("Actions for", stepActions.Count, "Players");
+//            Global.Console.Log("Actions for", stepActions.Count, "Players");
             
             foreach (var stepAction in stepActions)
             {

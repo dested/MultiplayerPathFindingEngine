@@ -25,7 +25,7 @@ namespace Pather.Server
         private void OnSyncLockstep(long lockStepTick)
         {
 
-            if (lockStepTick % 30 == 0 || forceSyncNextLockstep.Count > 0)
+            if (lockStepTick % 15 == 0 || forceSyncNextLockstep.Count > 0)
             {
 
                 foreach (var socketIoConnection in forceSyncNextLockstep)
@@ -119,7 +119,7 @@ namespace Pather.Server
 
         private void PostAction(SocketIOConnection socket, SerializableAction action)
         {
-            Global.Console.Log("player action ", action);
+//            Global.Console.Log("player action ", action);
             OnRecieveAction(action);
 
         }

@@ -1,4 +1,5 @@
 using System;
+using System.Html;
 using System.Linq.Expressions;
 
 namespace Pather.Common
@@ -28,6 +29,11 @@ namespace Pather.Common
         public static int SquareSize ;
         public static int NumberOfSquares ;
         public static int GameTicks ;
+
+        public static bool TestServer
+        {
+            get { return ((dynamic)Window.Instance).TestServer; }
+        }
 
         public static double Lerp(double start, double end, double duration)
         {

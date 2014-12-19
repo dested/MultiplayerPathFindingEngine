@@ -15,7 +15,12 @@ namespace Pather.Common.Libraries
         [ScriptAlias("console")]
         [IntrinsicProperty]
         public static Console Console { get; set; }
-      
+
+        [ScriptAlias("require")]
+        public static TModule Require<TModule>(string name) 
+        {
+            return default(TModule);
+        }
     }
     [IgnoreNamespace]
     [Imported()]

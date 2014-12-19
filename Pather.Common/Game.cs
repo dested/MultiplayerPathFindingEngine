@@ -6,15 +6,15 @@ namespace Pather.Common
 {
     public class Game
     {
-        public int[][] Grid { get; set; }
-        public List<Entity> Players { get; set; }
-        public long CurLockstepTime { get; set; }
-        public long CurTickTime { get; set; }
-        public StepManager StepManager { get; set; }
+        public int[][] Grid ;
+        public List<Entity> Players ;
+        public long CurLockstepTime ;
+        public long CurTickTime ;
+        public StepManager StepManager ;
 
-        public long TickNumber { get; set; }
-        public long LockstepTickNumber { get; set; }
-        public bool Ready { get; set; }
+        public long TickNumber ;
+        public long LockstepTickNumber ;
+        public bool Ready ;
 
         public Game()
         {
@@ -53,12 +53,12 @@ namespace Pather.Common
             Global.SetTimeout(() => Tick(), 1);
         }
 
-        public long CurGameTime { get; set; }
+        public long CurGameTime ;
 
-        public long NextGameTime { get; set; }
-        public int ServerLatency { get; set; }
-        public long TrackTickNumber { get; set; }
-        public long TrackLockstepTickNumber { get; set; }
+        public long NextGameTime ;
+        public int ServerLatency ;
+        public long TrackTickNumber ;
+        public long TrackLockstepTickNumber ;
 
 
         public double PercentCompletedWithLockStep
