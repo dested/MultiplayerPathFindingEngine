@@ -49,7 +49,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "output(5)", "http://localho
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pather.Common", "Pather.Common\Pather.Common.csproj", "{5574C74A-E8F7-4B4F-85D2-8A6CFC1F824B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pather.GameServer", "Pather.GameServer\Pather.GameServer.csproj", "{0A604FF9-6A9C-452D-A4FA-4B263FB0E798}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Pather.ServerManager", "Pather.ServerManager\Pather.ServerManager.csproj", "{0A604FF9-6A9C-452D-A4FA-4B263FB0E798}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

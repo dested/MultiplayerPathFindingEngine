@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Html.Media.Graphics;
-using Pather.Client.Definitions;
-using Pather.Client.Utils;
 using Pather.Common;
 
 namespace Pather.Client

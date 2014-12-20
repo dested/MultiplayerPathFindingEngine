@@ -35,7 +35,6 @@
   <ItemGroup>
     <Compile Include="ClientGame.cs" />
     <Compile Include="ClientCommunicator.cs" />
-    <Compile Include="Libraries\EventEmitter.cs" />
     <Compile Include="Libraries\SocketIOClient.cs" />
     <Compile Include="ClientEntity.cs" />
     <Compile Include="ClientNetworkManager.cs" />

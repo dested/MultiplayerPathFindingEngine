@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using Pather.Client.Definitions;
-using Pather.Client.Utils;
+using Pather.Common.Definitions.AStar;
+using Pather.Common.Utils;
 
 namespace Pather.Common
 {
