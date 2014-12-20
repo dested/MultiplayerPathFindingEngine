@@ -59,7 +59,7 @@
     *          astar.heuristics).
 */
         search: function(graph, start, end, options) {
-        // astar.init(graph);
+            // astar.init(graph);
 
             options = options || {};
             var heuristic = options.heuristic || astar.heuristics.manhattan,
@@ -71,15 +71,17 @@
             start.h = heuristic(start, end);
 
             openHeap.push(start);
+            var tries = 0;
 
             var cleaner = [];
+
             while (openHeap.size() > 0) {
 
                 // Grab the lowest f(x) to process next.  Heap keeps this sorted for us.
                 var currentNode = openHeap.pop();
 
                 // End case -- result has been found, return the traced path.
-                if (currentNode === end) { 
+                if (tries++ > 100 || currentNode === end) {
                     var m = pathTo(currentNode);
 
                     for (var i = 0; i < cleaner.length; i++) {
@@ -106,14 +108,10 @@
                 for (var i = 0, il = neighbors.length; i < il; ++i) {
                     var neighbor = neighbors[i];
 
-                    if (neighbor.closed || neighbor.isWall()) {
-                        // Not a valid node to process, skip to next neighbor.
-                        continue;
-                    }
 
                     // The g score is the shortest distance from start to current node.
                     // We need to check if the path we have arrived at this neighbor is the shortest one we have seen yet.
-                    var gScore = currentNode.g + neighbor.getCost(currentNode),
+                    var gScore = currentNode.g + neighbor.weight,
                         beenVisited = neighbor.visited;
 
                     if (!beenVisited || gScore < neighbor.g) {
@@ -124,7 +122,6 @@
                         neighbor.h = neighbor.h || heuristic(neighbor, end);
                         neighbor.g = gScore;
                         neighbor.f = neighbor.g + neighbor.h;
-
                         cleaner.push(neighbor);
                         if (closest) {
                             // If the neighbour is closer than the current closestNode or if it's equally close but has
@@ -189,8 +186,8 @@
                 this.nodes.push(node);
             }
         }
-        astar.init(this);
 
+        astar.init(this);
     }
 
     Graph.prototype.neighbors = function(node) {
@@ -199,47 +196,49 @@
             y = node.y,
             grid = this.grid;
 
+        var n = grid[x - 1];
         // West
-        if (grid[x - 1] && grid[x - 1][y]) {
-            ret.push(grid[x - 1][y]);
+        if (n) {
+            n = n[y]
+            if (n) {
+                if (!n.closed && n.weight > 0) {
+                    ret.push(n);
+                }
+            }
         }
 
+
+        var n = grid[x + 1];
         // East
-        if (grid[x + 1] && grid[x + 1][y]) {
-            ret.push(grid[x + 1][y]);
-        }
-
-        // South
-        if (grid[x] && grid[x][y - 1]) {
-            ret.push(grid[x][y - 1]);
-        }
-
-        // North
-        if (grid[x] && grid[x][y + 1]) {
-            ret.push(grid[x][y + 1]);
-        }
-
-        if (this.diagonal) {
-            // Southwest
-            if (grid[x - 1] && grid[x - 1][y - 1]) {
-                ret.push(grid[x - 1][y - 1]);
-            }
-
-            // Southeast
-            if (grid[x + 1] && grid[x + 1][y - 1]) {
-                ret.push(grid[x + 1][y - 1]);
-            }
-
-            // Northwest
-            if (grid[x - 1] && grid[x - 1][y + 1]) {
-                ret.push(grid[x - 1][y + 1]);
-            }
-
-            // Northeast
-            if (grid[x + 1] && grid[x + 1][y + 1]) {
-                ret.push(grid[x + 1][y + 1]);
+        if (n) {
+            n = n[y]
+            if (n) {
+                if (!n.closed && n.weight > 0) {
+                    ret.push(n);
+                }
             }
         }
+
+
+        var m = grid[x]; 
+        if (m) {
+ 
+
+            n = m[y-1]
+            if (n) {
+                if (!n.closed && n.weight > 0) {
+                    ret.push(n);
+                }
+            }
+
+            n = m[y+1]
+            if (n) {
+                if (!n.closed && n.weight > 0) {
+                    ret.push(n);
+                }
+            }
+        }
+ 
 
         return ret;
     };
@@ -267,14 +266,6 @@
 
     GridNode.prototype.toString = function() {
         return "[" + this.x + " " + this.y + "]";
-    };
-
-    GridNode.prototype.getCost = function() {
-        return this.weight;
-    };
-
-    GridNode.prototype.isWall = function() {
-        return this.weight === 0;
     };
 
     function BinaryHeap(scoreFunction) {

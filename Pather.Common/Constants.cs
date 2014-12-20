@@ -8,13 +8,13 @@ namespace Pather.Common
     {
         static Constants()
         {
-            SquareSize = 16;
-            NumberOfSquares = 30;
+            SquareSize = 8;
+            NumberOfSquares = 150;
             DrawFps = 60;
             DrawTicks = 1000 / DrawFps;
             GameFps = 10;
             GameTicks = 1000 / GameFps;
-            LockstepFps = 5;
+            LockstepFps = 2;
             LockstepTicks = 1000 / LockstepFps;
             AnimationSteps = 5;
 

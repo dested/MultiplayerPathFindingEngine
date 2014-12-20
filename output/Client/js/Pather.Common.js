@@ -99,6 +99,7 @@
 		this.serverLatency = 0;
 		this.trackTickNumber = 0;
 		this.trackLockstepTickNumber = 0;
+		this.aStarGraph = null;
 		this.players = [];
 		this.nextGameTime = (new Date()).getTime();
 	};
@@ -322,7 +323,7 @@
 			this.squareY = ss.Int32.trunc(this.y / $Pather_Common_Constants.squareSize);
 		},
 		rePathFind: function(squareX, squareY) {
-			var graph = new Graph(this.$game.grid);
+			var graph = this.$game.aStarGraph;
 			var start = graph.grid[this.squareX][this.squareY];
 			var end = graph.grid[squareX][squareY];
 			this.path = ss.arrayClone(astar.search(graph, start, end));
@@ -370,6 +371,7 @@
 					this.grid[x][y] = ((Math.random() * 100 < 15) ? 0 : 1);
 				}
 			}
+			this.aStarGraph = new Graph(this.grid);
 		},
 		init: function() {
 			this.curGameTime = (new Date()).getTime();
@@ -482,7 +484,7 @@
 			if (!this.stepActionsTicks.containsKey(serAction.lockstepTickNumber)) {
 				if (serAction.lockstepTickNumber <= this.game.lockstepTickNumber) {
 					action.process(this.game);
-					console.log('Misprocess of action count', ++this.$misprocess);
+					console.log('Misprocess of action count', ++this.$misprocess, this.game.lockstepTickNumber - serAction.lockstepTickNumber);
 					return;
 				}
 				this.stepActionsTicks.set_item(serAction.lockstepTickNumber, []);
@@ -522,13 +524,13 @@
 		$Pather_Common_Constants.squareSize = 0;
 		$Pather_Common_Constants.numberOfSquares = 0;
 		$Pather_Common_Constants.gameTicks = 0;
-		$Pather_Common_Constants.squareSize = 16;
-		$Pather_Common_Constants.numberOfSquares = 30;
+		$Pather_Common_Constants.squareSize = 8;
+		$Pather_Common_Constants.numberOfSquares = 150;
 		$Pather_Common_Constants.drawFps = 60;
 		$Pather_Common_Constants.drawTicks = ss.Int32.div(1000, $Pather_Common_Constants.drawFps);
 		$Pather_Common_Constants.gameFps = 10;
 		$Pather_Common_Constants.gameTicks = ss.Int32.div(1000, $Pather_Common_Constants.gameFps);
-		$Pather_Common_Constants.lockstepFps = 5;
+		$Pather_Common_Constants.lockstepFps = 2;
 		$Pather_Common_Constants.lockstepTicks = ss.Int32.div(1000, $Pather_Common_Constants.lockstepFps);
 		$Pather_Common_Constants.animationSteps = 5;
 	})();

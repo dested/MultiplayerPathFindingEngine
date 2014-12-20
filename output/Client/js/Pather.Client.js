@@ -45,16 +45,22 @@
 	var $Pather_Client_ClientGame = function() {
 		this.canvas = null;
 		this.context = null;
+		this.backCanvas = null;
+		this.backContext = null;
 		this.myPlayerId = null;
 		this.myPlayer = null;
 		this.$sentMovementForThisLockstep = false;
+		this.$hasGrid = false;
 		Pather.Common.Game.call(this);
 		this.myPlayerId = ss.Guid.newGuid().toString();
 		this.stepManager = new $Pather_Client_ClientStepManager(this, new $Pather_Client_ClientNetworkManager());
 		this.$randomMoveMeTo();
 		if (!Pather.Common.Constants.get_testServer()) {
-			var $t1 = document.getElementById('canvas');
-			this.canvas = ss.cast($t1, ss.isValue($t1) && (ss.isInstanceOfType($t1, Element) && $t1.tagName === 'CANVAS'));
+			var $t1 = document.getElementById('backCanvas');
+			this.backCanvas = ss.cast($t1, ss.isValue($t1) && (ss.isInstanceOfType($t1, Element) && $t1.tagName === 'CANVAS'));
+			this.backContext = ss.cast(this.backCanvas.getContext('2d'), CanvasRenderingContext2D);
+			var $t2 = document.getElementById('canvas');
+			this.canvas = ss.cast($t2, ss.isValue($t2) && (ss.isInstanceOfType($t2, Element) && $t2.tagName === 'CANVAS'));
 			this.context = ss.cast(this.canvas.getContext('2d'), CanvasRenderingContext2D);
 			this.canvas.onmousedown = ss.mkdel(this, function(ev) {
 				if (this.$sentMovementForThisLockstep) {
@@ -194,8 +200,14 @@
 		$randomMoveMeTo: function() {
 			window.setTimeout(ss.mkdel(this, function() {
 				this.$randomMoveMeTo();
-				this.$moveMeTo(Math.min(ss.Int32.trunc(Math.random() * Pather.Common.Constants.numberOfSquares), Pather.Common.Constants.numberOfSquares - 1), Math.min(ss.Int32.trunc(Math.random() * Pather.Common.Constants.numberOfSquares), Pather.Common.Constants.numberOfSquares - 1));
-			}), ss.Int32.trunc(Math.random() * 5000 + 500));
+				var x = ss.Int32.trunc(Math.random() * Pather.Common.Constants.numberOfSquares);
+				var y = ss.Int32.trunc(Math.random() * Pather.Common.Constants.numberOfSquares);
+				x = Math.max(x, 0);
+				y = Math.max(y, 0);
+				x = Math.min(x, Pather.Common.Constants.numberOfSquares - 1);
+				y = Math.min(y, Pather.Common.Constants.numberOfSquares - 1);
+				this.$moveMeTo(x, y);
+			}), ss.Int32.trunc(Math.random() * 2500 + 500));
 		},
 		$moveMeTo: function(squareX, squareY) {
 			var lockstepNumber = this.lockstepTickNumber;
@@ -223,29 +235,34 @@
 		createPlayer: function(playerId) {
 			return new $Pather_Client_ClientEntity(this, playerId);
 		},
+		drawBack: function() {
+			this.backContext.save();
+			this.backContext.fillStyle = 'black';
+			this.backContext.fillRect(0, 0, 1200, 1200);
+			this.backContext.fillStyle = 'blue';
+			for (var y = 0; y < Pather.Common.Constants.numberOfSquares; y++) {
+				for (var x = 0; x < Pather.Common.Constants.numberOfSquares; x++) {
+					if (this.grid[x][y] === 0) {
+						this.backContext.fillRect(x * Pather.Common.Constants.squareSize, y * Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
+					}
+				}
+			}
+			this.backContext.restore();
+		},
 		draw: function() {
 			if (!Pather.Common.Constants.get_testServer()) {
 				window.requestAnimationFrame(ss.mkdel(this, function(a) {
 					this.draw();
 				}));
-				this.context.save();
-				this.context.fillStyle = 'black';
-				this.context.fillRect(0, 0, 1200, 1200);
-				this.context.restore();
+				if (!this.$hasGrid && ss.isValue(this.grid)) {
+					this.$hasGrid = true;
+					this.drawBack();
+				}
+				this.context.clearRect(0, 0, 1200, 1200);
 				if (!this.ready) {
 					this.context.fillText('Syncing with server!', 100, 100);
 					return;
 				}
-				this.context.save();
-				this.context.fillStyle = 'blue';
-				for (var y = 0; y < Pather.Common.Constants.numberOfSquares; y++) {
-					for (var x = 0; x < Pather.Common.Constants.numberOfSquares; x++) {
-						if (this.grid[x][y] === 0) {
-							this.context.fillRect(x * Pather.Common.Constants.squareSize, y * Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
-						}
-					}
-				}
-				this.context.restore();
 				var interpolatedTime = ((new Date()).getTime() - this.nextGameTime) / Pather.Common.Constants.gameTicks;
 				for (var $t1 = 0; $t1 < this.players.length; $t1++) {
 					var person = this.players[$t1];
@@ -315,6 +332,7 @@
 		},
 		$connected: function(model) {
 			this.game.grid = model.grid;
+			this.game.aStarGraph = new Graph(this.game.grid);
 			this.game.players = [];
 			this.clientNetworkManager.joinPlayer(ss.cast(this.game, $Pather_Client_ClientGame).myPlayerId);
 		},

@@ -6,15 +6,24 @@ namespace Pather.Common.Libraries
     [IgnoreNamespace]
     [Imported()]
     public static class Global
-    { 
+    {
         [ScriptAlias("setInterval")]
-        public static void SetInterval(Action pollGateways, int poll) { }
+        public static int SetInterval(Action pollGateways, int poll)
+        {
+            return 0;
+        }
+        [ScriptAlias("clearInterval")]
+        public static void ClearTimeout(int id) { }
 
         [ScriptAlias("setTimeout")]
-        public static void SetTimeout(Action pollGateways, int poll) { }
+        public static int SetTimeout(Action pollGateways, int poll)
+        {
+            return 0;
+        }
         [ScriptAlias("console")]
         [IntrinsicProperty]
         public static Console Console { get; set; }
+         
 
         [ScriptAlias("require")]
         public static TModule Require<TModule>(string name) 

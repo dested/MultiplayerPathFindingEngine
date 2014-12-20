@@ -182,10 +182,12 @@ ss.initClass($Pather_Server_ServerNetworkManager, $asm, {
 		}
 	},
 	$joinPlayer: function(socket, model) {
-		console.log('new player ' + model.playerId);
 		var player = ss.cast(this.game.createPlayer$1(model.playerId), $Pather_Server_ServerEntity);
 		player.socket = socket;
-		player.init(0, 0);
+		var x = Math.min(ss.Int32.trunc(Math.random() * Pather.Common.Constants.numberOfSquares), Pather.Common.Constants.numberOfSquares - 1);
+		var y = Math.min(ss.Int32.trunc(Math.random() * Pather.Common.Constants.numberOfSquares), Pather.Common.Constants.numberOfSquares - 1);
+		console.log('new player ', this.game.players.length);
+		player.init(x * Pather.Common.Constants.squareSize, y * Pather.Common.Constants.squareSize);
 		this.game.players.push(player);
 		for (var $t1 = 0; $t1 < this.game.players.length; $t1++) {
 			var entity = this.game.players[$t1];

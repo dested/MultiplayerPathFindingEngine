@@ -11,6 +11,7 @@ namespace Pather.Client.Definitions
         {
         }
 
-        public AStarGridPoint[][] Grid ; 
+        public AStarGridPoint[][] Grid ;
+
     }
 }

@@ -44,7 +44,7 @@ namespace Pather.Common
                 if (serAction.LockstepTickNumber <= Game.LockstepTickNumber)
                 {
                     action.Process(Game);
-                    Global.Console.Log("Misprocess of action count",++misprocess);
+                    Global.Console.Log("Misprocess of action count", ++misprocess, Game.LockstepTickNumber - serAction.LockstepTickNumber);
                     return;
                 }
                 StepActionsTicks[serAction.LockstepTickNumber] = new List<IAction>();

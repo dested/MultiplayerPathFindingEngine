@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Pather.Client.Definitions;
 using Pather.Common.Libraries;
 
 namespace Pather.Common
@@ -40,6 +41,7 @@ namespace Pather.Common
                     Grid[x][y] = (Math.Random() * 100 < 15) ? 0 : 1;
                 }
             }
+            AStarGraph = new AStarGraph(Grid);
         }
 
         public virtual void Init()
@@ -71,6 +73,8 @@ namespace Pather.Common
                 return l /(double) Constants.LockstepTicks;
             }
         }
+
+        public AStarGraph AStarGraph;
 
         public virtual TickResult Tick()
         {

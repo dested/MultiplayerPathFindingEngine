@@ -59,7 +59,7 @@
     *          astar.heuristics).
 */
         search: function(graph, start, end, options) {
-        // astar.init(graph);
+            astar.init(graph);
 
             options = options || {};
             var heuristic = options.heuristic || astar.heuristics.manhattan,
@@ -71,30 +71,14 @@
             start.h = heuristic(start, end);
 
             openHeap.push(start);
-
-            var cleaner = [];
             while (openHeap.size() > 0) {
 
                 // Grab the lowest f(x) to process next.  Heap keeps this sorted for us.
                 var currentNode = openHeap.pop();
 
                 // End case -- result has been found, return the traced path.
-                if (currentNode === end) { 
-                    var m = pathTo(currentNode);
-
-                    for (var i = 0; i < cleaner.length; i++) {
-
-                        var node = cleaner[i];
-                        node.f = 0;
-                        node.g = 0;
-                        node.h = 0;
-                        node.visited = false;
-                        node.closed = false;
-                        node.parent = null;
-                    };
-
-
-                    return m;
+                if (currentNode === end) {
+                    return pathTo(currentNode);
                 }
 
                 // Normal case -- move currentNode from open to closed, process each of its neighbors.
@@ -125,7 +109,6 @@
                         neighbor.g = gScore;
                         neighbor.f = neighbor.g + neighbor.h;
 
-                        cleaner.push(neighbor);
                         if (closest) {
                             // If the neighbour is closer than the current closestNode or if it's equally close but has
                             // a cheaper path than the current closest node then it becomes the closest node
@@ -179,44 +162,94 @@
         options = options || {};
         this.nodes = [];
         this.diagonal = !!options.diagonal;
-        this.grid = [];
-        for (var x = 0; x < gridIn.length; x++) {
-            this.grid[x] = [];
+        this.smallLen = 50;
 
+        this.grids = [];
+        for (var i = 0; i < gridIn.length / this.smallLen; i++) {
+
+            var m = []
+            for (var c = 0; c < this.smallLen; c++) {
+                var j = m[c] = [];
+                for (var c2 = 0; c2 < this.smallLen; c2++) {
+                    j[c2] = [];
+                };
+
+            };
+
+
+            this.grids[i] = m;
+        };
+        for (var x = 0; x < gridIn.length; x++) {
             for (var y = 0, row = gridIn[x]; y < row.length; y++) {
                 var node = new GridNode(x, y, row[y]);
-                this.grid[x][y] = node;
+                var g = this.getGridItem(x, y);
+                g[x % this.smallLen][y % this.smallLen] = node;
                 this.nodes.push(node);
             }
         }
-        astar.init(this);
+    }
+
+    Graph.prototype.getGridItem = function(x, y) {
+
+        // console.log(x,y,(x / this.smallLen) | 0, (y / this.smallLen) | 0);
+
+        return this.grids[(x / this.smallLen) | 0][(y / this.smallLen) | 0];
+    }
+
+    Graph.prototype.getItem = function(x, y) {
+        // console.log((x / this.smallLen) | 0,(y / this.smallLen) | 0)
+        var mc=this.grids[(x / this.smallLen) | 0];
+        if(!mc){
+            return undefined;
+        }
+        var g = mc[(y / this.smallLen) | 0];
+        
+        if(!g){
+            return undefined;
+        }
+
+        var c=g[x % this.smallLen];
+
+        if(c){
+            var d=c[y % this.smallLen];
+            if(d){
+                return d;
+            }
+        }
+
+        return undefined;
 
     }
 
     Graph.prototype.neighbors = function(node) {
         var ret = [],
             x = node.x,
-            y = node.y,
-            grid = this.grid;
+            y = node.y;
+
+        var g = this.getItem(x - 1, y);
 
         // West
-        if (grid[x - 1] && grid[x - 1][y]) {
-            ret.push(grid[x - 1][y]);
+        if (g) {
+            ret.push(g);
         }
+
+        g = this.getItem(x + 1, y);
 
         // East
-        if (grid[x + 1] && grid[x + 1][y]) {
-            ret.push(grid[x + 1][y]);
+        if (g) {
+            ret.push(g);
         }
+        g = this.getItem(x, y - 1);
 
         // South
-        if (grid[x] && grid[x][y - 1]) {
-            ret.push(grid[x][y - 1]);
+        if (g) {
+            ret.push(g);
         }
+        g = this.getItem(x, y + 1);
 
         // North
-        if (grid[x] && grid[x][y + 1]) {
-            ret.push(grid[x][y + 1]);
+        if (g) {
+            ret.push(g);
         }
 
         if (this.diagonal) {
@@ -240,24 +273,9 @@
                 ret.push(grid[x + 1][y + 1]);
             }
         }
-
         return ret;
     };
 
-    Graph.prototype.toString = function() {
-        var graphString = [],
-            nodes = this.grid, // when using grid
-            rowDebug, row, y, l;
-        for (var x = 0, len = nodes.length; x < len; x++) {
-            rowDebug = [];
-            row = nodes[x];
-            for (y = 0, l = row.length; y < l; y++) {
-                rowDebug.push(row[y].weight);
-            }
-            graphString.push(rowDebug.join(" "));
-        }
-        return graphString.join("\n");
-    };
 
     function GridNode(x, y, weight) {
         this.x = x;

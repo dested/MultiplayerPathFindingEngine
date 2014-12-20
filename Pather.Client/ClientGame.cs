@@ -8,9 +8,11 @@ using Pather.Common.Models;
 namespace Pather.Client
 {
     public class ClientGame:Game
-    { 
-        public CanvasElement Canvas ;
-        public CanvasRenderingContext2D Context ;
+    {
+        public CanvasElement Canvas;
+        public CanvasRenderingContext2D Context;
+        public CanvasElement BackCanvas;
+        public CanvasRenderingContext2D BackContext;
         public string MyPlayerId ;
         public Entity MyPlayer ;
 
@@ -24,8 +26,10 @@ namespace Pather.Client
             randomMoveMeTo();
             if (!Constants.TestServer)
             {
-                Canvas = (CanvasElement) Document.GetElementById("canvas");
-                Context = (CanvasRenderingContext2D) Canvas.GetContext(CanvasContextId.Render2D);
+                BackCanvas = (CanvasElement)Document.GetElementById("backCanvas");
+                BackContext = (CanvasRenderingContext2D)BackCanvas.GetContext(CanvasContextId.Render2D);
+                Canvas = (CanvasElement)Document.GetElementById("canvas");
+                Context = (CanvasRenderingContext2D)Canvas.GetContext(CanvasContextId.Render2D);
                 Canvas.OnMousedown = (ev) =>
                 {
 
@@ -52,9 +56,18 @@ namespace Pather.Client
             {
                 randomMoveMeTo();
 
-                moveMeTo(Math.Min((int)(Math.Random() * Constants.NumberOfSquares), Constants.NumberOfSquares - 1), Math.Min((int)(Math.Random() * Constants.NumberOfSquares), Constants.NumberOfSquares - 1));
+                var x =  (int)(Math.Random() * Constants.NumberOfSquares) ;
+                var y =  (int)(Math.Random() * Constants.NumberOfSquares) ;
 
-            }, (int)(Math.Random() * 5000+500));
+                x = Math.Max(x, 0);
+                y = Math.Max(y, 0);
+
+                x = Math.Min(x, Constants.NumberOfSquares - 1);
+                y = Math.Min(y, Constants.NumberOfSquares - 1);
+
+                moveMeTo(x, y);
+
+            }, (int)(Math.Random() * 2500+500));
 
         }
 
@@ -89,6 +102,7 @@ namespace Pather.Client
             if (!Constants.TestServer)
             {
                 Window.RequestAnimationFrame((a) => Draw());
+                
             }
         }
 
@@ -97,37 +111,49 @@ namespace Pather.Client
             return new ClientEntity(this, playerId);
         }
 
+        public void DrawBack()
+        {
+            BackContext.Save();
+            BackContext.FillStyle = "black";
+            BackContext.FillRect(0, 0, 1200, 1200);
+
+            BackContext.FillStyle = "blue";
+            for (var y = 0; y < Constants.NumberOfSquares; y++)
+            {
+                for (var x = 0; x < Constants.NumberOfSquares; x++)
+                {
+                    if (Grid[x][y] == 0)
+                    {
+                        BackContext.FillRect(x * Constants.SquareSize, y * Constants.SquareSize, Constants.SquareSize, Constants.SquareSize);
+                    }
+                }
+            }
+            BackContext.Restore();
+        }
+
+        private bool hasGrid = false;
+
         public void Draw()
         {
             if (!Constants.TestServer)
             {
                 Window.RequestAnimationFrame((a) => Draw());
 
+                if (!hasGrid && Grid != null)
+                {
+                    hasGrid = true;
+                    DrawBack();
+                }
 
-                Context.Save();
-                Context.FillStyle = "black";
-                Context.FillRect(0, 0, 1200, 1200);
-                Context.Restore();
+                 
+                Context.ClearRect(0, 0, 1200, 1200); 
                 if (!Ready)
                 {
                     Context.FillText("Syncing with server!", 100, 100);
                     return;
                 }
 
-                Context.Save();
-                Context.FillStyle = "blue";
-                for (var y = 0; y < Constants.NumberOfSquares; y++)
-                {
-                    for (var x = 0; x < Constants.NumberOfSquares; x++)
-                    {
-                        if (Grid[x][y] == 0)
-                        {
-                            Context.FillRect(x*Constants.SquareSize, y*Constants.SquareSize, Constants.SquareSize, Constants.SquareSize);
-                        }
-                    }
-                }
-                Context.Restore();
-
+           
                 var interpolatedTime = (((new DateTime()).GetTime() - NextGameTime)/(double) Constants.GameTicks);
 
 

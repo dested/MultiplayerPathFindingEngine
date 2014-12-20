@@ -39,7 +39,8 @@ namespace Pather.Common
 
         public void RePathFind(int squareX, int squareY)
         {
-            var graph = new AStarGraph(Game.Grid);
+            var graph = Game.AStarGraph;
+
             var start = graph.Grid[SquareX][SquareY];
             var end = graph.Grid[squareX][squareY];
             Path = new List<AStarPath>(AStar.Search(graph, start, end));

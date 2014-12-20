@@ -134,11 +134,14 @@ namespace Pather.Server
         private void JoinPlayer(SocketIOConnection socket, PlayerJoinModel model)
         {
 
-            Global.Console.Log("new player " + model.PlayerId);
 
             var player = (ServerEntity)Game.CreatePlayer(model.PlayerId);
             player.Socket = socket;
-            player.Init(0, 0);
+            var x = Math.Min((int)(Math.Random() * Constants.NumberOfSquares), Constants.NumberOfSquares - 1);
+            var y = Math.Min((int)(Math.Random() * Constants.NumberOfSquares), Constants.NumberOfSquares - 1);
+            Global.Console.Log("new player ", Game.Players.Count);
+            player.Init(x * Constants.SquareSize, y * Constants.SquareSize);
+
             Game.Players.Add(player);
 
             foreach (ServerEntity entity in Game.Players)

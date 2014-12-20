@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Pather.Client.Definitions;
 using Pather.Common;
 using Pather.Common.Libraries;
 using Pather.Common.Models;
@@ -66,6 +67,8 @@ namespace Pather.Client
         private void Connected(ConnectedModel model)
         {
             Game.Grid = model.Grid;
+            Game.AStarGraph = new AStarGraph(Game.Grid);
+
             Game.Players = new List<Entity>();
             ClientNetworkManager.JoinPlayer(((ClientGame)Game).MyPlayerId);
         }
