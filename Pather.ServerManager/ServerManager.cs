@@ -3,6 +3,7 @@ using Pather.Common.Libraries.NodeJS;
 using Pather.Common.TestFramework;
 using Pather.ServerManager.Common;
 using Pather.ServerManager.Database;
+using Pather.ServerManager.GatewayServer;
 
 namespace Pather.ServerManager
 {
@@ -33,7 +34,7 @@ namespace Pather.ServerManager
                 {
                     case "gt":
                     case "gateway":
-                        new GatewayServer.GatewayServer(new PubSub());
+                        new GatewayServer.GatewayServer(new PubSub(),new SocketIOManager());
                         break;
                     case "au":
                     case "auth":

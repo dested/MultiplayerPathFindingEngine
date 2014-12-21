@@ -11,6 +11,7 @@ global.Pather.ServerManager.GameServer = global.Pather.ServerManager.GameServer 
 global.Pather.ServerManager.GameWorldServer = global.Pather.ServerManager.GameWorldServer || {};
 global.Pather.ServerManager.GameWorldServer.Tests = global.Pather.ServerManager.GameWorldServer.Tests || {};
 global.Pather.ServerManager.GatewayServer = global.Pather.ServerManager.GatewayServer || {};
+global.Pather.ServerManager.GatewayServer.Tests = global.Pather.ServerManager.GatewayServer.Tests || {};
 global.Pather.ServerManager.TickServer = global.Pather.ServerManager.TickServer || {};
 global.Pather.ServerManager.Utils = global.Pather.ServerManager.Utils || {};
 ss.initAssembly($asm, 'Pather.ServerManager');
@@ -33,7 +34,7 @@ $Pather_ServerManager_ServerManager.main = function() {
 		switch (arg) {
 			case 'gt':
 			case 'gateway': {
-				new $Pather_ServerManager_GatewayServer_GatewayServer(new $Pather_ServerManager_Common_PubSub());
+				new $Pather_ServerManager_GatewayServer_GatewayServer(new $Pather_ServerManager_Common_PubSub(), new $Pather_ServerManager_GatewayServer_SocketIOManager());
 				break;
 			}
 			case 'au':
@@ -286,28 +287,52 @@ $Pather_ServerManager_GameWorldServer_Tests_GameWorldServerTests.__typeName = 'P
 global.Pather.ServerManager.GameWorldServer.Tests.GameWorldServerTests = $Pather_ServerManager_GameWorldServer_Tests_GameWorldServerTests;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.ServerManager.GatewayServer.GatewayServer
-var $Pather_ServerManager_GatewayServer_GatewayServer = function(pubsub) {
-	this.$io = null;
-	this.$gatewayName = null;
-	this.$gatewayName = 'Gateway ' + ss.Guid.newGuid();
-	console.log(this.$gatewayName);
-	var http = require('http');
-	var app = http.createServer(function(req, res) {
-		res.end();
-	});
-	this.$io = socketio.listen(app);
+var $Pather_ServerManager_GatewayServer_GatewayServer = function(pubsub, socketManager) {
+	this.$1$SocketManagerField = null;
+	this.gatewayName = null;
+	this.set_socketManager(socketManager);
+	this.gatewayName = 'Gateway ' + ss.Guid.newGuid();
+	console.log(this.gatewayName);
 	var port = 1800 + (Math.random() * 4000 | 0);
 	port = 1800;
-	var networkIPs = $Pather_ServerManager_Utils_ServerHelper.getNetworkIPs();
-	var currentIP = networkIPs[0] + ':' + port;
-	var url;
-	url = ss.formatString('http://{0}', currentIP);
-	console.log('Server URL', url);
-	app.listen(port);
+	socketManager.init(port);
 	pubsub.init(ss.mkdel(this, this.$pubsubReady));
 };
 $Pather_ServerManager_GatewayServer_GatewayServer.__typeName = 'Pather.ServerManager.GatewayServer.GatewayServer';
 global.Pather.ServerManager.GatewayServer.GatewayServer = $Pather_ServerManager_GatewayServer_GatewayServer;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.ServerManager.GatewayServer.ISocket
+var $Pather_ServerManager_GatewayServer_ISocket = function() {
+};
+$Pather_ServerManager_GatewayServer_ISocket.__typeName = 'Pather.ServerManager.GatewayServer.ISocket';
+global.Pather.ServerManager.GatewayServer.ISocket = $Pather_ServerManager_GatewayServer_ISocket;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.ServerManager.GatewayServer.ISocketManager
+var $Pather_ServerManager_GatewayServer_ISocketManager = function() {
+};
+$Pather_ServerManager_GatewayServer_ISocketManager.__typeName = 'Pather.ServerManager.GatewayServer.ISocketManager';
+global.Pather.ServerManager.GatewayServer.ISocketManager = $Pather_ServerManager_GatewayServer_ISocketManager;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.ServerManager.GatewayServer.SocketIOManager
+var $Pather_ServerManager_GatewayServer_SocketIOManager = function() {
+	this.$io = null;
+};
+$Pather_ServerManager_GatewayServer_SocketIOManager.__typeName = 'Pather.ServerManager.GatewayServer.SocketIOManager';
+global.Pather.ServerManager.GatewayServer.SocketIOManager = $Pather_ServerManager_GatewayServer_SocketIOManager;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.ServerManager.GatewayServer.SocketIOSocket
+var $Pather_ServerManager_GatewayServer_SocketIOSocket = function(socket) {
+	this.$1$SocketField = null;
+	this.set_socket(socket);
+};
+$Pather_ServerManager_GatewayServer_SocketIOSocket.__typeName = 'Pather.ServerManager.GatewayServer.SocketIOSocket';
+global.Pather.ServerManager.GatewayServer.SocketIOSocket = $Pather_ServerManager_GatewayServer_SocketIOSocket;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.ServerManager.GatewayServer.Tests.GatewayServerTests
+var $Pather_ServerManager_GatewayServer_Tests_GatewayServerTests = function() {
+};
+$Pather_ServerManager_GatewayServer_Tests_GatewayServerTests.__typeName = 'Pather.ServerManager.GatewayServer.Tests.GatewayServerTests';
+global.Pather.ServerManager.GatewayServer.Tests.GatewayServerTests = $Pather_ServerManager_GatewayServer_Tests_GatewayServerTests;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.ServerManager.TickServer.TickServer
 var $Pather_ServerManager_TickServer_TickServer = function() {
@@ -351,7 +376,7 @@ global.Pather.ServerManager.Utils.ServerHelper = $Pather_ServerManager_Utils_Ser
 ss.initClass($Pather_ServerManager_ServerManager, $asm, {});
 ss.initClass($Pather_ServerManager_AuthServer_AuthServer, $asm, {});
 ss.initClass($Pather_ServerManager_Common_ConnectionConstants, $asm, {});
-ss.initInterface($Pather_ServerManager_Common_IPubSub, $asm, { publish: null, publish$1: null, subscribe: null, init: null });
+ss.initInterface($Pather_ServerManager_Common_IPubSub, $asm, { publish: null, publish$1: null, subscribe: null, init: null, recievedMessage: null });
 ss.initClass($Pather_ServerManager_Common_PubSub, $asm, {
 	init: function(ready) {
 		this.$subbed = {};
@@ -366,9 +391,7 @@ ss.initClass($Pather_ServerManager_Common_PubSub, $asm, {
 			Pather.Common.Logger.log('unsubscribed: ' + channel1 + ' ' + count1, 'information');
 		});
 		this.$subClient.on('message', ss.mkdel(this, function(channel2, message) {
-			if (!ss.staticEquals(this.$subbed[channel2], null)) {
-				this.$subbed[channel2](message);
-			}
+			this.recievedMessage(channel2, message);
 		}));
 		this.$subClient.on('ready', ss.mkdel(this, function() {
 			this.$sready = true;
@@ -382,6 +405,11 @@ ss.initClass($Pather_ServerManager_Common_PubSub, $asm, {
 				ready(this);
 			}
 		}));
+	},
+	recievedMessage: function(channel, message) {
+		if (!ss.staticEquals(this.$subbed[channel], null)) {
+			this.$subbed[channel](message);
+		}
 	},
 	publish: function(channel, content) {
 		this.$pubClient.publish(channel, content);
@@ -592,7 +620,6 @@ ss.initClass($Pather_ServerManager_GameWorldServer_GameWorld, $asm, {
 		}
 		closestGameSegment.addUserToSegment(gwUser);
 		this.users.push(gwUser);
-		debugger;
 		console.log('Gameworld has added a new user to game segment', closestGameSegment.gameServerId, 'bring the total number of players to', this.users.length, '. The game segment has', closestGameSegment.users.length, 'users.');
 		defer.resolve(gwUser);
 		return defer.promise;
@@ -706,28 +733,28 @@ ss.initClass($Pather_ServerManager_GameWorldServer_Tests_GameWorldServerTests, $
 	}
 });
 ss.initClass($Pather_ServerManager_GatewayServer_GatewayServer, $asm, {
+	get_socketManager: function() {
+		return this.$1$SocketManagerField;
+	},
+	set_socketManager: function(value) {
+		this.$1$SocketManagerField = value;
+	},
 	$pubsubReady: function(pubsub) {
 		console.log('pubsub ready');
-		pubsub.subscribe(this.$gatewayName, ss.mkdel(this, this.$gatewayMessage));
-		var $t2 = $Pather_ServerManager_Common_PubSubChannels.gameWorld;
-		var $t1 = Pather.Common.Models.GameWorld.UserJoinedGameWorldPubSubMessage.$ctor();
-		$t1.type = 0;
-		$t1.gatewayChannel = this.$gatewayName;
-		$t1.userToken = 'abcdefgh';
-		pubsub.publish$1($t2, $t1);
-		this.$io.sockets.on('connection', ss.mkdel(this, function(socket) {
+		pubsub.subscribe(this.gatewayName, ss.mkdel(this, this.$gatewayMessage));
+		this.get_socketManager().connections(ss.mkdel(this, function(socket) {
 			socket.on('Gateway.Message', function(data) {
 				console.log('Socket message ', data);
 			});
 			socket.on('Gateway.Join', ss.mkdel(this, function(data1) {
-				var $t4 = $Pather_ServerManager_Common_PubSubChannels.gameWorld;
-				var $t3 = Pather.Common.Models.GameWorld.UserJoinedGameWorldPubSubMessage.$ctor();
-				$t3.type = 0;
-				$t3.gatewayChannel = this.$gatewayName;
-				$t3.userToken = data1.get_userToken();
-				pubsub.publish$1($t4, $t3);
+				var $t2 = $Pather_ServerManager_Common_PubSubChannels.gameWorld;
+				var $t1 = Pather.Common.Models.GameWorld.UserJoinedGameWorldPubSubMessage.$ctor();
+				$t1.type = 0;
+				$t1.gatewayChannel = this.gatewayName;
+				$t1.userToken = data1.get_userToken();
+				pubsub.publish$1($t2, $t1);
 			}));
-			socket.on('disconnect', function(data2) {
+			socket.disconnect(function() {
 			});
 		}));
 	},
@@ -735,9 +762,121 @@ ss.initClass($Pather_ServerManager_GatewayServer_GatewayServer, $asm, {
 		console.log('message:', message);
 	}
 });
+ss.initInterface($Pather_ServerManager_GatewayServer_ISocket, $asm, { on: null, disconnect: null });
+ss.initInterface($Pather_ServerManager_GatewayServer_ISocketManager, $asm, { init: null, connections: null });
+ss.initClass($Pather_ServerManager_GatewayServer_SocketIOManager, $asm, {
+	init: function(port) {
+		var http = require('http');
+		var app = http.createServer(function(req, res) {
+			res.end();
+		});
+		this.$io = socketio.listen(app);
+		var networkIPs = $Pather_ServerManager_Utils_ServerHelper.getNetworkIPs();
+		var currentIP = networkIPs[0] + ':' + port;
+		var url;
+		url = ss.formatString('http://{0}', currentIP);
+		console.log('Server URL', url);
+		app.listen(port);
+	},
+	connections: function(action) {
+		this.$io.sockets.on('connection', function(socket) {
+			action(new $Pather_ServerManager_GatewayServer_SocketIOSocket(socket));
+		});
+	}
+}, null, [$Pather_ServerManager_GatewayServer_ISocketManager]);
+ss.initClass($Pather_ServerManager_GatewayServer_SocketIOSocket, $asm, {
+	get_socket: function() {
+		return this.$1$SocketField;
+	},
+	set_socket: function(value) {
+		this.$1$SocketField = value;
+	},
+	on: function(channel, callback) {
+		this.get_socket().on(channel, callback);
+	},
+	disconnect: function(callback) {
+		this.get_socket().on('disconnect', callback);
+	}
+}, null, [$Pather_ServerManager_GatewayServer_ISocket]);
+ss.initClass($Pather_ServerManager_GatewayServer_Tests_GatewayServerTests, $asm, {
+	userShouldJoin: function(testDeferred) {
+		var userToken = 'abcdef';
+		var publishData = null;
+		var sendMessageToGameWorld = null;
+		var socketManager = global.$instantiateInterface$($Pather_ServerManager_GatewayServer_ISocketManager);
+		global.$overwiteMethodCallForMocker$(ss.mkdel(socketManager, socketManager.init), function() {
+		});
+		global.$overwiteMethodCallForMocker$(ss.mkdel(socketManager, socketManager.connections), function(callback) {
+			var socket = global.$instantiateInterface$($Pather_ServerManager_GatewayServer_ISocket);
+			global.$overwiteMethodCallForMocker$(ss.mkdel(socket, socket.disconnect), function() {
+			});
+			global.$overwiteMethodCallForMocker$(ss.mkdel(socket, socket.on), function(channel, onCallback) {
+				if (channel === 'Gateway.Join') {
+					setTimeout(function() {
+						//user logged in via socketio
+						var $t1 = new Pather.Common.Models.Gateway.GatewayJoinModel();
+						$t1.set_userToken(userToken);
+						onCallback($t1);
+					}, 1);
+				}
+			});
+			callback(socket);
+		});
+		var pubSub = global.$instantiateInterface$($Pather_ServerManager_Common_IPubSub);
+		global.$overwiteMethodCallForMocker$(ss.mkdel(pubSub, pubSub.init), function(a) {
+			a(pubSub);
+		});
+		global.$overwiteMethodCallForMocker$(ss.mkdel(pubSub, pubSub.subscribe), function(channel1, callback1) {
+			publishData = ss.delegateCombine(publishData, function(pchannel, pmessage) {
+				pubSub.recievedMessage(channel1, JSON.stringify(pmessage));
+			});
+		});
+		global.$overwiteMethodCallForMocker$(ss.mkdel(pubSub, pubSub.publish$1), function(channel2, data) {
+			if (ss.referenceEquals(channel2, $Pather_ServerManager_Common_PubSubChannels.gameWorld)) {
+				sendMessageToGameWorld(data);
+			}
+		});
+		var gatewayName = null;
+		global.$overwiteMethodCallForMocker$(ss.mkdel(pubSub, pubSub.recievedMessage), function(channel3, message) {
+			if (ss.referenceEquals(channel3, gatewayName)) {
+				var userJoined = JSON.parse(message);
+				Pather.Common.TestFramework.DeferredAssert.that(testDeferred, userJoined.userId).get_does().equal(userToken);
+				testDeferred.resolve();
+			}
+		});
+		var gts = new $Pather_ServerManager_GatewayServer_GatewayServer(pubSub, socketManager);
+		gatewayName = gts.gatewayName;
+		var pubSubTest = global.$instantiateInterface$($Pather_ServerManager_Common_IPubSub);
+		var databaseQueriesTest = global.$instantiateInterface$($Pather_ServerManager_Database_IDatabaseQueries);
+		global.$overwiteMethodCallForMocker$(ss.mkdel(databaseQueriesTest, databaseQueriesTest.getUserByToken), function(utoken) {
+			var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_ServerManager_Database_DBUser, $Pather_ServerManager_Database_DatabaseError).call(null);
+			var $t2 = $Pather_ServerManager_Database_DBUser.$ctor();
+			$t2.token = utoken;
+			$t2.userId = userToken;
+			$t2.x = 400;
+			$t2.y = 400;
+			deferred.resolve($t2);
+			return deferred.promise;
+		});
+		global.$overwiteMethodCallForMocker$(ss.mkdel(pubSubTest, pubSubTest.init), function(a1) {
+			a1(pubSubTest);
+		});
+		global.$overwiteMethodCallForMocker$(ss.mkdel(pubSubTest, pubSubTest.subscribe), function(channel4, callback2) {
+			sendMessageToGameWorld = ss.delegateCombine(sendMessageToGameWorld, function(data1) {
+				callback2(JSON.stringify(data1));
+			});
+		});
+		global.$overwiteMethodCallForMocker$(ss.mkdel(pubSubTest, pubSubTest.publish$1), function(channel5, data2) {
+			Pather.Common.TestFramework.DeferredAssert.that(testDeferred, data2.userId).get_does().equal(userToken);
+			publishData(channel5, data2);
+		});
+		var gws = new $Pather_ServerManager_GameWorldServer_GameWorldServer(pubSubTest, databaseQueriesTest);
+	}
+});
 ss.initClass($Pather_ServerManager_TickServer_TickServer, $asm, {});
 ss.initClass($Pather_ServerManager_Utils_ServerHelper, $asm, {});
 ss.setMetadata($Pather_ServerManager_GameWorldServer_Tests_GameWorldServerTests, { attr: [new Pather.Common.TestFramework.TestClassAttribute()], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'UserShouldJoin', type: 8, sname: 'userShouldJoin', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
+ss.setMetadata($Pather_ServerManager_GatewayServer_Tests_GatewayServerTests, { attr: [new Pather.Common.TestFramework.TestClassAttribute()], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'UserShouldJoin', type: 8, sname: 'userShouldJoin', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
 (function() {
 	$Pather_ServerManager_Common_PubSubChannels.gameWorld = 'gameworld';
 })();

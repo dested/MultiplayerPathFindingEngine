@@ -46,8 +46,9 @@
     <Compile Include="GameWorldServer\GameSegment.cs" />
     <Compile Include="GameWorldServer\GameWorld.cs" />
     <Compile Include="GameWorldServer\GameWorldUser.cs" />
-    <Compile Include="GameWorldServer\Tests\GameWorldServerTests.cs" />
+    <Compile Include="GatewayServer\Tests\GatewayServerTests.cs" />
     <Compile Include="GameWorldServer\UserJoinError.cs" />
+    <Compile Include="GameWorldServer\Tests\GameWorldServerTests.cs" />
     <Compile Include="TickServer\TickServer.cs" />
     <Compile Include="GameWorldServer\GameWorldServer.cs" />
     <Compile Include="GatewayServer\GatewayServer.cs" />

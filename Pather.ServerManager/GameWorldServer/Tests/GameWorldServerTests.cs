@@ -9,7 +9,6 @@ using Pather.Common.TestFramework;
 using Pather.Common.Utils.Promises;
 using Pather.ServerManager.Common;
 using Pather.ServerManager.Database;
-using Console = System.Console;
 
 namespace Pather.ServerManager.GameWorldServer.Tests
 {
@@ -28,7 +27,7 @@ namespace Pather.ServerManager.GameWorldServer.Tests
 
             var userId = "user id";
 
-            Mocker.OnMethodCall(databaseQueriesTest.GetUserByToken, (Func<string, Promise<DBUser, DatabaseError>>)((userToken) =>
+            Mocker.StubMethodCall<string, Promise<DBUser, DatabaseError>>(databaseQueriesTest.GetUserByToken, ((userToken) =>
             {
                 var deferred = Q.Defer<DBUser, DatabaseError>();
                 deferred.Resolve(new DBUser()
@@ -42,9 +41,9 @@ namespace Pather.ServerManager.GameWorldServer.Tests
             }));
 
 
-            Mocker.OnMethodCall(pubSubTest.Init, (Action<Action<IPubSub>>)(a => a(pubSubTest)));
+            Mocker.StubMethodCall<Action<IPubSub>>(pubSubTest.Init, (a => a(pubSubTest)));
 
-            Mocker.OnMethodCall(pubSubTest.Subscribe, (Action<string, Action<string>>)((channel, callback) =>
+            Mocker.StubMethodCall<string, Action<string>>(pubSubTest.Subscribe, ((channel, callback) =>
             {
                 DeferredAssert.That(testDeferred,channel).Does.Equal(PubSubChannels.GameWorld);
                 var userJoinedGameWorldPubSubMessage = new UserJoinedGameWorldPubSubMessage();
@@ -54,7 +53,7 @@ namespace Pather.ServerManager.GameWorldServer.Tests
                 callback(Json.Stringify(userJoinedGameWorldPubSubMessage));
             }));
 
-            Mocker.OnMethodCall(pubSubTest.Publish, (Action<string, GatewayPubSubMessage>)((channel, data) =>
+            Mocker.StubMethodCall<string, GatewayPubSubMessage>(pubSubTest.Publish, ((channel, data) =>
             {
                 DeferredAssert.That(testDeferred, ((UserJoinedGatewayPubSubMessage)data).UserId).Does.Equal(userId);
                 testDeferred.Resolve();

@@ -43,8 +43,7 @@ namespace Pather.ServerManager.GameWorldServer
             }
             closestGameSegment.AddUserToSegment(gwUser);
 
-            Users.Add(gwUser);
-            Global.Debugger();
+            Users.Add(gwUser); 
             Global.Console.Log("Gameworld has added a new user to game segment", closestGameSegment.GameServerId, "bring the total number of players to", Users.Count, ". The game segment has", closestGameSegment.Users.Count, "users.");
 
             defer.Resolve(gwUser);

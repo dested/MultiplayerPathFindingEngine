@@ -171,6 +171,7 @@ namespace Pather.Common.TestFramework
             Q.All(testClassesPromises.ToArray()).Then(() =>
             {
                 Global.Console.Log("Done running tests.");
+                Global.Process.Exit();
             });
 
 

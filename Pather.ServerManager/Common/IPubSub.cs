@@ -10,5 +10,6 @@ namespace Pather.ServerManager.Common
         void Publish<T>(string channel, T content);
         void Subscribe(string channel, Action<string> callback);
         void Init(Action<IPubSub> pubsubReady);
+        void RecievedMessage(string channel, string message);
     }
 }

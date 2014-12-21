@@ -38,10 +38,6 @@ namespace Pather.Common.Libraries.NodeJS
         [ScriptAlias("setTimeout")]
         public static int SetTimeout(Action callback, int poll) { return 0; }
 
-
-        [InlineCode("debugger")]
-        public static void Debugger()
-        {
-        }
+         
     }
 }

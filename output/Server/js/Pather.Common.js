@@ -613,6 +613,7 @@
 		}
 		$Pather_Common_Utils_Promises_Q.all(Array.prototype.slice.call(testClassesPromises)).then(function() {
 			console.log('Done running tests.');
+			process.exit();
 		});
 	};
 	global.Pather.Common.TestFramework.TestFramework = $Pather_Common_TestFramework_TestFramework;

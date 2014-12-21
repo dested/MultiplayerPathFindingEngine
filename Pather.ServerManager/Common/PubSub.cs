@@ -33,8 +33,7 @@ namespace Pather.ServerManager.Common
             subClient.On("message",
                 (string channel, string message) =>
                 {
-                    if (subbed[channel] != null)
-                        subbed[channel](message);
+                    RecievedMessage(channel, message);
                 });
             subClient.On("ready",
                 () =>
@@ -50,6 +49,12 @@ namespace Pather.ServerManager.Common
                     if (sready && pready)
                         ready(this);
                 });
+        }
+
+        public void RecievedMessage(string channel, string message)
+        {
+            if (subbed[channel] != null)
+                subbed[channel](message);
         }
 
 
