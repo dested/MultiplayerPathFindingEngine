@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Pather.Common;
+using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Utils.Promises;
 using Pather.ServerManager.Database;
 
@@ -9,12 +10,12 @@ namespace Pather.ServerManager.GameWorldServer
     public class GameWorld
     {
         public List<GameWorldUser> Users;
-        public List<GameServer> GameServers;
+        public List<GameSegment> GameServers;
 
         public GameWorld()
         {
             Users = new List<GameWorldUser>();
-            GameServers = new List<GameServer>();
+            GameServers = new List<GameSegment>();
 
         }
 
@@ -30,27 +31,29 @@ namespace Pather.ServerManager.GameWorldServer
             gwUser.Neighbors = new List<GameWorldUser>();
             gwUser.GatewayServer = gatewayChannel;
 
-            GameServer closestGameServer;
+            GameSegment closestGameSegment;
             if (Users.Count == 0)
             {
-                closestGameServer = CreateGameServer();
+                closestGameSegment = CreateGameServer();
             }
             else
             {
                 var closestUser = DetermineNeighbors(gwUser);
-                closestGameServer = closestUser.GameServer;
+                closestGameSegment = closestUser.GameSegment;
             }
-            gwUser.GameServer = closestGameServer;
-
+            closestGameSegment.AddUserToSegment(gwUser);
 
             Users.Add(gwUser);
+            Global.Debugger();
+            Global.Console.Log("Gameworld has added a new user to game segment", closestGameSegment.GameServerId, "bring the total number of players to", Users.Count, ". The game segment has", closestGameSegment.Users.Count, "users.");
+
             defer.Resolve(gwUser);
             return defer.Promise;
         }
 
-        public GameServer CreateGameServer()
+        public GameSegment CreateGameServer()
         {
-            var gs = new GameServer();
+            var gs = new GameSegment();
             gs.GameServerId = Pather.Common.Common.UniqueId();
             //todo idk :=/
 

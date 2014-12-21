@@ -20,12 +20,17 @@ var $Pather_ServerManager_ServerManager = function() {
 };
 $Pather_ServerManager_ServerManager.__typeName = 'Pather.ServerManager.ServerManager';
 $Pather_ServerManager_ServerManager.main = function() {
-	if (process.argv[2].toLowerCase() === 'test') {
+	var arg = process.argv[2];
+	if (ss.isNullOrEmptyString(arg)) {
+		throw new ss.Exception('Server argument not supplied');
+	}
+	arg = arg.toLowerCase();
+	if (arg === 'test') {
 		Pather.Common.TestFramework.TestFramework.runTests();
 		return;
 	}
 	try {
-		switch (process.argv[2].toLowerCase()) {
+		switch (arg) {
 			case 'gt':
 			case 'gateway': {
 				new $Pather_ServerManager_GatewayServer_GatewayServer(new $Pather_ServerManager_Common_PubSub());
@@ -215,13 +220,14 @@ var $Pather_ServerManager_GameServer_ServerStepManager = function(game, serverNe
 $Pather_ServerManager_GameServer_ServerStepManager.__typeName = 'Pather.ServerManager.GameServer.ServerStepManager';
 global.Pather.ServerManager.GameServer.ServerStepManager = $Pather_ServerManager_GameServer_ServerStepManager;
 ////////////////////////////////////////////////////////////////////////////////
-// Pather.ServerManager.GameWorldServer.GameServer
-var $Pather_ServerManager_GameWorldServer_GameServer = function() {
+// Pather.ServerManager.GameWorldServer.GameSegment
+var $Pather_ServerManager_GameWorldServer_GameSegment = function() {
 	this.users = null;
 	this.gameServerId = null;
+	this.users = [];
 };
-$Pather_ServerManager_GameWorldServer_GameServer.__typeName = 'Pather.ServerManager.GameWorldServer.GameServer';
-global.Pather.ServerManager.GameWorldServer.GameServer = $Pather_ServerManager_GameWorldServer_GameServer;
+$Pather_ServerManager_GameWorldServer_GameSegment.__typeName = 'Pather.ServerManager.GameWorldServer.GameSegment';
+global.Pather.ServerManager.GameWorldServer.GameSegment = $Pather_ServerManager_GameWorldServer_GameSegment;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.ServerManager.GameWorldServer.GameWorld
 var $Pather_ServerManager_GameWorldServer_GameWorld = function() {
@@ -261,7 +267,7 @@ var $Pather_ServerManager_GameWorldServer_GameWorldUser = function() {
 	this.x = 0;
 	this.y = 0;
 	this.gatewayServer = null;
-	this.gameServer = null;
+	this.gameSegment = null;
 	this.$1$NeighborsField = null;
 };
 $Pather_ServerManager_GameWorldServer_GameWorldUser.__typeName = 'Pather.ServerManager.GameWorldServer.GameWorldUser';
@@ -396,6 +402,7 @@ ss.initClass($Pather_ServerManager_Database_DatabaseQueries, $asm, {
 		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_ServerManager_Database_DBUser, $Pather_ServerManager_Database_DatabaseError).call(null);
 		setTimeout(function() {
 			var $t1 = $Pather_ServerManager_Database_DBUser.$ctor();
+			$t1.userId = token;
 			$t1.token = token;
 			$t1.x = ss.Int32.trunc(Math.random() * 500);
 			$t1.y = ss.Int32.trunc(Math.random() * 500);
@@ -560,7 +567,12 @@ ss.initClass($Pather_ServerManager_GameServer_ServerStepManager, $asm, {
 		return this.game.players.length;
 	}
 }, Pather.Common.StepManager);
-ss.initClass($Pather_ServerManager_GameWorldServer_GameServer, $asm, {});
+ss.initClass($Pather_ServerManager_GameWorldServer_GameSegment, $asm, {
+	addUserToSegment: function(gwUser) {
+		this.users.push(gwUser);
+		gwUser.gameSegment = this;
+	}
+});
 ss.initClass($Pather_ServerManager_GameWorldServer_GameWorld, $asm, {
 	userJoined: function(gatewayChannel, dbUser) {
 		var defer = Pather.Common.Utils.Promises.Q.defer$2($Pather_ServerManager_GameWorldServer_GameWorldUser, $Pather_ServerManager_GameWorldServer_UserJoinError).call(null);
@@ -570,21 +582,23 @@ ss.initClass($Pather_ServerManager_GameWorldServer_GameWorld, $asm, {
 		gwUser.y = dbUser.y;
 		gwUser.set_neighbors([]);
 		gwUser.gatewayServer = gatewayChannel;
-		var closestGameServer;
+		var closestGameSegment;
 		if (this.users.length === 0) {
-			closestGameServer = this.createGameServer();
+			closestGameSegment = this.createGameServer();
 		}
 		else {
 			var closestUser = this.$determineNeighbors(gwUser, 0);
-			closestGameServer = closestUser.gameServer;
+			closestGameSegment = closestUser.gameSegment;
 		}
-		gwUser.gameServer = closestGameServer;
+		closestGameSegment.addUserToSegment(gwUser);
 		this.users.push(gwUser);
+		debugger;
+		console.log('Gameworld has added a new user to game segment', closestGameSegment.gameServerId, 'bring the total number of players to', this.users.length, '. The game segment has', closestGameSegment.users.length, 'users.');
 		defer.resolve(gwUser);
 		return defer.promise;
 	},
 	createGameServer: function() {
-		var gs = new $Pather_ServerManager_GameWorldServer_GameServer();
+		var gs = new $Pather_ServerManager_GameWorldServer_GameSegment();
 		gs.gameServerId = Pather.Common.Common.uniqueId();
 		//todo idk :=/
 		this.gameServers.push(gs);
@@ -630,7 +644,7 @@ ss.initClass($Pather_ServerManager_GameWorldServer_GameWorldServer, $asm, {
 					var $t2 = this.$pubSub;
 					var $t3 = gwUser.gatewayServer;
 					var $t1 = Pather.Common.Models.Gateway.UserJoinedGatewayPubSubMessage.$ctor();
-					$t1.gameServerId = gwUser.gameServer.gameServerId;
+					$t1.gameServerId = gwUser.gameSegment.gameServerId;
 					$t1.userId = gwUser.userId;
 					$t2.publish$1($t3, $t1);
 				}));
@@ -695,16 +709,27 @@ ss.initClass($Pather_ServerManager_GatewayServer_GatewayServer, $asm, {
 	$pubsubReady: function(pubsub) {
 		console.log('pubsub ready');
 		pubsub.subscribe(this.$gatewayName, ss.mkdel(this, this.$gatewayMessage));
-		this.$io.sockets.on('connection', function(socket) {
+		var $t2 = $Pather_ServerManager_Common_PubSubChannels.gameWorld;
+		var $t1 = Pather.Common.Models.GameWorld.UserJoinedGameWorldPubSubMessage.$ctor();
+		$t1.type = 0;
+		$t1.gatewayChannel = this.$gatewayName;
+		$t1.userToken = 'abcdefgh';
+		pubsub.publish$1($t2, $t1);
+		this.$io.sockets.on('connection', ss.mkdel(this, function(socket) {
 			socket.on('Gateway.Message', function(data) {
 				console.log('Socket message ', data);
 			});
-			socket.on('Gateway.Join', function(data1) {
-				var f = data1.get_userName();
-			});
+			socket.on('Gateway.Join', ss.mkdel(this, function(data1) {
+				var $t4 = $Pather_ServerManager_Common_PubSubChannels.gameWorld;
+				var $t3 = Pather.Common.Models.GameWorld.UserJoinedGameWorldPubSubMessage.$ctor();
+				$t3.type = 0;
+				$t3.gatewayChannel = this.$gatewayName;
+				$t3.userToken = data1.get_userToken();
+				pubsub.publish$1($t4, $t3);
+			}));
 			socket.on('disconnect', function(data2) {
 			});
-		});
+		}));
 	},
 	$gatewayMessage: function(message) {
 		console.log('message:', message);
@@ -714,9 +739,9 @@ ss.initClass($Pather_ServerManager_TickServer_TickServer, $asm, {});
 ss.initClass($Pather_ServerManager_Utils_ServerHelper, $asm, {});
 ss.setMetadata($Pather_ServerManager_GameWorldServer_Tests_GameWorldServerTests, { attr: [new Pather.Common.TestFramework.TestClassAttribute()], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'UserShouldJoin', type: 8, sname: 'userShouldJoin', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
 (function() {
-	$Pather_ServerManager_Common_ConnectionConstants.redisIP = '127.0.0.1';
+	$Pather_ServerManager_Common_PubSubChannels.gameWorld = 'gameworld';
 })();
 (function() {
-	$Pather_ServerManager_Common_PubSubChannels.gameWorld = 'gameworld';
+	$Pather_ServerManager_Common_ConnectionConstants.redisIP = '127.0.0.1';
 })();
 $Pather_ServerManager_ServerManager.main();

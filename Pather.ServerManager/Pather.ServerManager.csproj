@@ -43,7 +43,7 @@
     <Compile Include="Database\DBUser.cs" />
     <Compile Include="Database\IDatabaseQueries.cs" />
     <Compile Include="GameServer\GameServerUser.cs" />
-    <Compile Include="GameWorldServer\GameServer.cs" />
+    <Compile Include="GameWorldServer\GameSegment.cs" />
     <Compile Include="GameWorldServer\GameWorld.cs" />
     <Compile Include="GameWorldServer\GameWorldUser.cs" />
     <Compile Include="GameWorldServer\Tests\GameWorldServerTests.cs" />

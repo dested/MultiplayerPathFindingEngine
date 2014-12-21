@@ -17,6 +17,7 @@ namespace Pather.ServerManager.Database
             {
                 deferred.Resolve(new DBUser()
                 {
+                    UserId = token,
                     Token = token,
                     X = (int)(Math.Random() * 500),
                     Y = (int)(Math.Random() * 500),

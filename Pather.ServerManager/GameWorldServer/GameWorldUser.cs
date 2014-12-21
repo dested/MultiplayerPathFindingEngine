@@ -8,7 +8,7 @@ namespace Pather.ServerManager.GameWorldServer
         public int X;
         public int Y;
         public string GatewayServer;
-        public GameServer GameServer;
+        public GameSegment GameSegment;
         public List<GameWorldUser> Neighbors { get; set; }
     }
 }

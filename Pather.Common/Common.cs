@@ -40,11 +40,5 @@ namespace Pather.Common
             return Guid.NewGuid().ToString();
         }
 
-        [InlineCode("debugger")]
-        public static void Debugger()
-        {
-            
-
-        }
     }
 }

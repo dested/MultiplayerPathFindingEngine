@@ -38,7 +38,7 @@ namespace Pather.ServerManager.GameWorldServer
                     {
                         pubSub.Publish(gwUser.GatewayServer, new UserJoinedGatewayPubSubMessage()
                         {
-                            GameServerId = gwUser.GameServer.GameServerId,
+                            GameServerId = gwUser.GameSegment.GameServerId,
                             UserId = gwUser.UserId,
                         });
                     });

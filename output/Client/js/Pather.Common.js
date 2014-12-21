@@ -398,7 +398,7 @@
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.Gateway.GatewayJoinModel
 	var $Pather_Common_Models_Gateway_GatewayJoinModel = function() {
-		this.$1$UserNameField = null;
+		this.$1$UserTokenField = null;
 	};
 	$Pather_Common_Models_Gateway_GatewayJoinModel.__typeName = 'Pather.Common.Models.Gateway.GatewayJoinModel';
 	global.Pather.Common.Models.Gateway.GatewayJoinModel = $Pather_Common_Models_Gateway_GatewayJoinModel;
@@ -1073,11 +1073,11 @@
 	ss.initClass($Pather_Common_Models_GameWorld_GameWorldPubSubMessage, $asm, {});
 	ss.initClass($Pather_Common_Models_GameWorld_UserJoinedGameWorldPubSubMessage, $asm, {}, $Pather_Common_Models_GameWorld_GameWorldPubSubMessage);
 	ss.initClass($Pather_Common_Models_Gateway_GatewayJoinModel, $asm, {
-		get_userName: function() {
-			return this.$1$UserNameField;
+		get_userToken: function() {
+			return this.$1$UserTokenField;
 		},
-		set_userName: function(value) {
-			this.$1$UserNameField = value;
+		set_userToken: function(value) {
+			this.$1$UserTokenField = value;
 		}
 	});
 	ss.initEnum($Pather_Common_Models_Gateway_GatewayMessageType, $asm, { userJoined: 0 });

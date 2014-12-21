@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.GameWorld;
 using Pather.Common.Models.Gateway;
 using Pather.ServerManager.Common;
 using Pather.ServerManager.Libraries.Socket.IO;
@@ -46,6 +47,12 @@ namespace Pather.ServerManager.GatewayServer
             Global.Console.Log("pubsub ready");
 
             pubsub.Subscribe(gatewayName,gatewayMessage);
+            pubsub.Publish(PubSubChannels.GameWorld, new UserJoinedGameWorldPubSubMessage()
+            {
+                Type = GameWorldMessageType.UserJoined,
+                GatewayChannel = gatewayName,
+                UserToken = "abcdefgh"
+            });
 
             io.Sockets.On("connection",(SocketIOConnection socket) =>
                           {
@@ -58,7 +65,12 @@ namespace Pather.ServerManager.GatewayServer
                               socket.On("Gateway.Join",
                                         (GatewayJoinModel data) =>
                                         {
-                                            var f=data.UserName;
+                                            pubsub.Publish(PubSubChannels.GameWorld,new UserJoinedGameWorldPubSubMessage()
+                                            {
+                                             Type=GameWorldMessageType.UserJoined,
+                                             GatewayChannel=gatewayName,
+                                             UserToken = data.UserToken
+                                            });
                                         });
                               socket.On("disconnect",
                                         (string data) =>

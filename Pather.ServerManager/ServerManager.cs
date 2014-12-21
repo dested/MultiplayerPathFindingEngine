@@ -10,8 +10,17 @@ namespace Pather.ServerManager
     {
         public static void Main()
         {
+            string arg = Global.Process.Arguments[2];
 
-            if (Global.Process.Arguments[2].ToLower() == "test")
+
+            if (string.IsNullOrEmpty(arg))
+            {
+                throw new Exception("Server argument not supplied");
+            }
+
+            arg = arg.ToLower();
+
+            if (arg == "test")
             {
                 TestFramework.RunTests();
                 return;
@@ -20,7 +29,7 @@ namespace Pather.ServerManager
 
             try
             {
-                switch (Global.Process.Arguments[2].ToLower())
+                switch (arg)
                 {
                     case "gt":
                     case "gateway":

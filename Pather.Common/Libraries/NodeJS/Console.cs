@@ -14,6 +14,8 @@ namespace Pather.Common.Libraries.NodeJS
         public void Log(object o, object o2, object o3, object o4) { }
         public void Log(object o, object o2, object o3, object o4, object o5) { }
         public void Log(object o, object o2, object o3, object o4, object o5, object o6) { }
+        public void Log(object o, object o2, object o3, object o4, object o5, object o6, object o7) { }
+        public void Log(object o, object o2, object o3, object o4, object o5, object o6, object o7, object o8) { }
         public void Log(Exception log) { }
     }
 }
