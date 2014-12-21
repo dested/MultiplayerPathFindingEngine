@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Pather.ServerManager.Libraries.MongoDB
+namespace Pather.ServerManager.Libraries.Mongo
 {
     [IgnoreNamespace]
     [Imported()]

@@ -1,4 +1,3 @@
-using System;
 using System.Html;
 using System.Linq.Expressions;
 
@@ -18,6 +17,8 @@ namespace Pather.Common
             LockstepTicks = 1000 / LockstepFps;
             AnimationSteps = 5;
 
+            NeighborDistance = 20;
+
         }
 
         public static int AnimationSteps ;
@@ -29,25 +30,12 @@ namespace Pather.Common
         public static int SquareSize ;
         public static int NumberOfSquares ;
         public static int GameTicks ;
+        public static int NeighborDistance;
+
 
         public static bool TestServer
         {
             get { return ((dynamic)Window.Instance).TestServer; }
-        }
-
-        public static double Lerp(double start, double end, double duration)
-        {
-            return start + (end - start) * duration;
-        }
-        public static double MoveTowards(double start, double end, double amount)
-        {
-            if (Math.Abs(start - end) < amount)
-                return end;
-            if (start < end)
-                return start + amount;
-            if (start > end)
-                return start - amount;
-            return start;
         }
     }
 }

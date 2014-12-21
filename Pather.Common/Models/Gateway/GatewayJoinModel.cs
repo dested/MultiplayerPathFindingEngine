@@ -3,5 +3,6 @@
 
     public class GatewayJoinModel
     {
+        public string UserName { get; set; }
     }
 }

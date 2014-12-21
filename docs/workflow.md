@@ -1,9 +1,8 @@
 user authorizes using regular auth means
 user hits gateway with player token 
-gateway hits database to determine user xy
-
 gateway registers user to gameworld 
-gameworld determines which player is closest to our new user, and adds him to that game server, so as not to reorganize on every new join
+gameworld determines which player is closest to our new user, 
+	and adds him to that game server, so as not to reorg on every new join
 
 gameworld tells gateway which game server to send user to 
 

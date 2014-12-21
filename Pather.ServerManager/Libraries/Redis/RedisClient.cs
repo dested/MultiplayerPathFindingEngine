@@ -4,6 +4,8 @@ using Pather.Common.Libraries.NodeJS;
 
 namespace Pather.ServerManager.Libraries.Redis
 {
+    [Imported]
+    [IgnoreNamespace]
     public class RedisClient : EventEmitter
     {
         public void Publish(string channel, object content)

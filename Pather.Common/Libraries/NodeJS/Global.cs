@@ -28,7 +28,7 @@ namespace Pather.Common.Libraries.NodeJS
         public static void Require(string name) {}
 
         [ScriptAlias("setInterval")]
-        public static int SetInterval(Action pollGateways, int poll)
+        public static int SetInterval(Action callback, int poll)
         {
             return 0;
         }
@@ -36,6 +36,6 @@ namespace Pather.Common.Libraries.NodeJS
         public static void ClearTimeout(int poll) { }
 
         [ScriptAlias("setTimeout")]
-        public static int SetTimeout(Action pollGateways, int poll) { return 0; }
+        public static int SetTimeout(Action callback, int poll) { return 0; }
     }
 }

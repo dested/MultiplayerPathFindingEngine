@@ -3,6 +3,7 @@
 	var $asm = {};
 	global.Pather = global.Pather || {};
 	global.Pather.Client = global.Pather.Client || {};
+	global.Pather.Client.Tests = global.Pather.Client.Tests || {};
 	ss.initAssembly($asm, 'Pather.Client');
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Client.Program
@@ -10,6 +11,10 @@
 	};
 	$Pather_Client_$Program.__typeName = 'Pather.Client.$Program';
 	$Pather_Client_$Program.$main = function() {
+		if (window.location.hash === '#test') {
+			Pather.Common.TestFramework.TestFramework.runTests();
+			return;
+		}
 		var game = new $Pather_Client_ClientGame();
 		game.init();
 	};
@@ -92,12 +97,12 @@
 		this.$pingSent = null;
 		this.clientCommunicator = new $Pather_Client_ClientCommunicator();
 		this.networkPlayers = 0;
-		this.clientCommunicator.listenOnChannel(Pather.Common.Models.ConnectedModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('connect'), ss.mkdel(this, function(model) {
+		this.clientCommunicator.listenOnChannel(Pather.Common.Models.Game.ConnectedModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('connect'), ss.mkdel(this, function(model) {
 			this.onConnected(model);
 			this.$triggerPingTest();
 			window.setInterval(ss.mkdel(this, this.$triggerPingTest), 60000);
 		}));
-		this.clientCommunicator.listenOnChannel(Pather.Common.Models.PlayerSyncModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('playerSync'), ss.mkdel(this, function(model1) {
+		this.clientCommunicator.listenOnChannel(Pather.Common.Models.Game.PlayerSyncModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('playerSync'), ss.mkdel(this, function(model1) {
 			if (ss.isValue(model1.joinedPlayers)) {
 				this.networkPlayers += model1.joinedPlayers.length;
 			}
@@ -106,12 +111,12 @@
 			}
 			this.onPlayerSync(model1);
 		}));
-		this.clientCommunicator.listenOnChannel(Pather.Common.Models.PingPongModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('pong'), ss.mkdel(this, function(model2) {
+		this.clientCommunicator.listenOnChannel(Pather.Common.Models.Game.PingPongModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('pong'), ss.mkdel(this, function(model2) {
 			var cur = (new Date()).getTime();
 			this.$pingSent.push(cur - this.$lastPing);
 			this.$lastPing = cur;
 			if (this.$pingSent.length < 6) {
-				this.clientCommunicator.sendMessage(Pather.Common.SocketChannels.clientChannel('ping'), Pather.Common.Models.PingPongModel.$ctor());
+				this.clientCommunicator.sendMessage(Pather.Common.SocketChannels.clientChannel('ping'), Pather.Common.Models.Game.PingPongModel.$ctor());
 			}
 			else {
 				var average = 0;
@@ -123,7 +128,7 @@
 				this.$pingSent = null;
 			}
 		}));
-		this.clientCommunicator.listenOnChannel(Pather.Common.Models.SyncLockstepModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('syncLockstep'), ss.mkdel(this, function(model3) {
+		this.clientCommunicator.listenOnChannel(Pather.Common.Models.Game.SyncLockstepModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('syncLockstep'), ss.mkdel(this, function(model3) {
 			this.onSetLockStep(model3);
 		}));
 		this.clientCommunicator.listenOnChannel(Pather.Common.SerializableAction).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('postAction'), ss.mkdel(this, function(model4) {
@@ -146,6 +151,18 @@
 	};
 	$Pather_Client_ClientStepManager.__typeName = 'Pather.Client.ClientStepManager';
 	global.Pather.Client.ClientStepManager = $Pather_Client_ClientStepManager;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Client.Tests.Test
+	var $Pather_Client_Tests_Test = function() {
+	};
+	$Pather_Client_Tests_Test.__typeName = 'Pather.Client.Tests.Test';
+	global.Pather.Client.Tests.Test = $Pather_Client_Tests_Test;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Client.Tests.Test22
+	var $Pather_Client_Tests_Test22 = function() {
+	};
+	$Pather_Client_Tests_Test22.__typeName = 'Pather.Client.Tests.Test22';
+	global.Pather.Client.Tests.Test22 = $Pather_Client_Tests_Test22;
 	ss.initClass($Pather_Client_$Program, $asm, {});
 	ss.initClass($Pather_Client_ClientCommunicator, $asm, {
 		listenOnChannel: function(T) {
@@ -218,7 +235,7 @@
 				lockstepNumber += 1;
 			}
 			var $t2 = ss.cast(this.stepManager, $Pather_Client_ClientStepManager);
-			var $t1 = Pather.Common.Models.MoveModel.$ctor();
+			var $t1 = Pather.Common.Models.Game.MoveModel.$ctor();
 			$t1.x = squareX;
 			$t1.y = squareY;
 			$t1.playerId = this.myPlayer.playerId;
@@ -285,7 +302,7 @@
 		$triggerPingTest: function() {
 			this.$pingSent = [];
 			this.$lastPing = (new Date()).getTime();
-			this.clientCommunicator.sendMessage(Pather.Common.SocketChannels.clientChannel('ping'), Pather.Common.Models.PingPongModel.$ctor());
+			this.clientCommunicator.sendMessage(Pather.Common.SocketChannels.clientChannel('ping'), Pather.Common.Models.Game.PingPongModel.$ctor());
 		},
 		sendAction: function(serAction) {
 			this.clientCommunicator.sendMessage(Pather.Common.SocketChannels.clientChannel('postAction'), serAction);
@@ -296,7 +313,7 @@
 		joinPlayer: function(myPlayerId) {
 			var $t2 = this.clientCommunicator;
 			var $t3 = Pather.Common.SocketChannels.clientChannel('joinPlayer');
-			var $t1 = Pather.Common.Models.PlayerJoinModel.$ctor();
+			var $t1 = Pather.Common.Models.Game.PlayerJoinModel.$ctor();
 			$t1.playerId = myPlayerId;
 			$t2.sendMessage($t3, $t1);
 		}
@@ -370,5 +387,43 @@
 			this.clientNetworkManager.sendAction(serAction);
 		}
 	}, Pather.Common.StepManager);
+	ss.initClass($Pather_Client_Tests_Test, $asm, {
+		test2: function() {
+			Pather.Common.TestFramework.Assert.that(12).get_does().equal(12);
+		},
+		test1: function(defer) {
+			setTimeout(function() {
+				defer.resolve();
+			}, 1000);
+			Pather.Common.TestFramework.DeferredAssert.that(defer, 12).get_does().equal(12);
+		},
+		test3: function() {
+			Pather.Common.TestFramework.Assert.that(12).get_does().equal(12);
+		},
+		test4: function() {
+			Pather.Common.TestFramework.Assert.that(12).get_does().equal(12);
+			Pather.Common.TestFramework.Assert.that(12).get_does().equal(12);
+		}
+	});
+	ss.initClass($Pather_Client_Tests_Test22, $asm, {
+		test2: function() {
+			Pather.Common.TestFramework.Assert.that(12).get_does().equal(12);
+		},
+		test1: function(defer) {
+			setTimeout(function() {
+				defer.resolve();
+			}, 4000);
+			Pather.Common.TestFramework.DeferredAssert.that(defer, 12).get_does().equal(12);
+		},
+		test3: function() {
+			Pather.Common.TestFramework.Assert.that(12).get_does().equal(12);
+		},
+		test4: function() {
+			Pather.Common.TestFramework.Assert.that(12).get_does().equal(12);
+			Pather.Common.TestFramework.Assert.that(12).get_does().equal(12);
+		}
+	});
+	ss.setMetadata($Pather_Client_Tests_Test, { attr: [new Pather.Common.TestFramework.TestClassAttribute()], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'Test1', type: 8, sname: 'test1', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'Test2', type: 8, sname: 'test2', returnType: Object, params: [] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'Test3', type: 8, sname: 'test3', returnType: Object, params: [] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'Test4', type: 8, sname: 'test4', returnType: Object, params: [] }] });
+	ss.setMetadata($Pather_Client_Tests_Test22, { attr: [new Pather.Common.TestFramework.TestClassAttribute()], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'Test1', type: 8, sname: 'test1', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'Test2', type: 8, sname: 'test2', returnType: Object, params: [] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'Test3', type: 8, sname: 'test3', returnType: Object, params: [] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'Test4', type: 8, sname: 'test4', returnType: Object, params: [] }] });
 	$Pather_Client_$Program.$main();
 })();

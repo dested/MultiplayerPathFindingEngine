@@ -9,6 +9,7 @@
   "author": "",
   "license": "BSD",
   "dependencies": {
+    "redis": "^0.12.1",
     "socket.io": "^1.2.1"
   }
 }

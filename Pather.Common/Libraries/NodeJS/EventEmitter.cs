@@ -5,7 +5,6 @@ namespace Pather.Common.Libraries.NodeJS
 {
     [IgnoreNamespace]
     [Imported]
-
     public class EventEmitter
     {
         [ScriptName("emit")]

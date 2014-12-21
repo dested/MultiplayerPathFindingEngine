@@ -36,12 +36,16 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ActionType.cs" />
+    <Compile Include="Common.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Definitions\AStar\AStar.cs" />
     <Compile Include="Definitions\AStar\AStarGraph.cs" />
     <Compile Include="Definitions\AStar\AStarGridPoint.cs" />
     <Compile Include="Definitions\AStar\AStarPath.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="IAction.cs" />
+    <Compile Include="Lerper.cs" />
     <Compile Include="Libraries\NodeJS\Agent.cs" />
     <Compile Include="Libraries\NodeJS\Buffer.cs" />
     <Compile Include="Libraries\NodeJS\ChildProcess.cs" />
@@ -72,6 +76,11 @@
     <Compile Include="Libraries\NodeJS\STDOut.cs" />
     <Compile Include="Libraries\NodeJS\Util.cs" />
     <Compile Include="Libraries\NodeJS\WritableStream.cs" />
+    <Compile Include="Logger.cs" />
+    <Compile Include="LogLevel.cs" />
+    <Compile Include="Models\GameWorld\GameWorldPubSubMessage.cs" />
+    <Compile Include="Models\GameWorld\GameWorldMessageType.cs" />
+    <Compile Include="Models\GameWorld\UserJoinedGameWorldPubSubMessage.cs" />
     <Compile Include="Models\Game\ConnectedModel.cs" />
     <Compile Include="Models\Game\PingPongModel.cs" />
     <Compile Include="Models\Game\PlayerJoinModel.cs" />
@@ -81,13 +90,30 @@
     <Compile Include="Models\Gateway\GatewayJoinModel.cs" />
     <Compile Include="Models\Game\MoveModel.cs" />
     <Compile Include="Entity.cs" />
-    <Compile Include="Models\Gateway\GatewayMessageModel.cs" />
+    <Compile Include="Models\Gateway\GatewayMessageType.cs" />
+    <Compile Include="Models\Gateway\GatewayPubSubMessage.cs" />
+    <Compile Include="Models\Gateway\GatewaySocketMessageModel.cs" />
+    <Compile Include="Models\Gateway\UserJoinedGatewayPubSubMessage.cs" />
+    <Compile Include="MoveAction.cs" />
+    <Compile Include="NoopAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SerializableAction.cs" />
     <Compile Include="SocketChannels.cs" />
     <Compile Include="StepManager.cs" />
+    <Compile Include="TestFramework\Assert.cs" />
+    <Compile Include="TestFramework\AssertException.cs" />
+    <Compile Include="TestFramework\Mocker.cs" />
+    <Compile Include="TestFramework\TestMethodAttribute.cs" />
+    <Compile Include="TestFramework\TestClassAttribute.cs" />
+    <Compile Include="TestFramework\TestConstructorAttribute.cs" />
+    <Compile Include="TestFramework\TestFramework.cs" />
+    <Compile Include="TickResult.cs" />
     <Compile Include="Utils\AnimationPoint.cs" />
     <Compile Include="Utils\DataObject.cs" />
     <Compile Include="Utils\Point.cs" />
+    <Compile Include="Utils\Promises\Q.cs" />
+    <Compile Include="Utils\Promises\Deferred.cs" />
+    <Compile Include="Utils\Promises\Promise.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -97,8 +97,8 @@ namespace Pather.Common
                     return;
                 }
 
-                X = Constants.MoveTowards(X, projectedX, (Speed / Constants.AnimationSteps));
-                Y = Constants.MoveTowards(Y, projectedY, (Speed / Constants.AnimationSteps));
+                X = Lerper.MoveTowards(X, projectedX, (Speed / Constants.AnimationSteps));
+                Y = Lerper.MoveTowards(Y, projectedY, (Speed / Constants.AnimationSteps));
 
 
                 Animations.Add(new AnimationPoint(fromX, fromY, X, Y));
