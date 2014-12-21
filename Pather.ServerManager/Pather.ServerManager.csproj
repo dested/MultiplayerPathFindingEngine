@@ -7,8 +7,8 @@
     <ProjectGuid>{0A604FF9-6A9C-452D-A4FA-4B263FB0E798}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Pather.Server</RootNamespace>
-    <AssemblyName>Pather.Server</AssemblyName>
+    <RootNamespace>Pather.ServerManager</RootNamespace>
+    <AssemblyName>Pather.ServerManager</AssemblyName>
     <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NoStdLib>True</NoStdLib>
@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="GameWorldServer\GameWorldServer.cs" />
     <Compile Include="GatewayServer\GatewayServer.cs" />
     <Compile Include="Libraries\MongoDB\MongoCollection.cs" />
     <Compile Include="Libraries\MongoDB\MongoConnection.cs" />
@@ -53,6 +54,7 @@
     <Compile Include="GameServer\ServerNetworkManager.cs" />
     <Compile Include="GameServer\ServerStepManager.cs" />
     <Compile Include="ServerManager.cs" />
+    <Compile Include="Utils\ServerManager.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

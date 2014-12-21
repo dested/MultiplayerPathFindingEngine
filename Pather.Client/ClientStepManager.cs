@@ -5,6 +5,7 @@ using Pather.Common.Definitions.AStar;
 using Pather.Common.Libraries;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models;
+using Pather.Common.Models.Game;
 
 namespace Pather.Client
 {

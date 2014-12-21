@@ -1,4 +1,4 @@
-﻿namespace Pather.Server.GameServer
+﻿namespace Pather.ServerManager.GameServer
 {
     public class GameServer
     {

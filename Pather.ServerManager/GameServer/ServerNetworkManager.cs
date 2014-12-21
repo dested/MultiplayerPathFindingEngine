@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models;
-using Pather.Server.Libraries.Socket.IO;
+using Pather.Common.Models.Game;
+using Pather.ServerManager.Libraries.Socket.IO;
 
-namespace Pather.Server.GameServer
+namespace Pather.ServerManager.GameServer
 {
     public class ServerNetworkManager
     {

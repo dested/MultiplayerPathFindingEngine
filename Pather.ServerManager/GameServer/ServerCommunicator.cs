@@ -1,9 +1,9 @@
 using System;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Utils;
-using Pather.Server.Libraries.Socket.IO;
+using Pather.ServerManager.Libraries.Socket.IO;
 
-namespace Pather.Server.GameServer
+namespace Pather.ServerManager.GameServer
 {
     public class ServerCommunicator
     {
@@ -38,5 +38,11 @@ namespace Pather.Server.GameServer
                 });
             });
         }
+    }
+
+    public class GameServerUser
+    {
+        public string GatewayServer;
+
     }
 }

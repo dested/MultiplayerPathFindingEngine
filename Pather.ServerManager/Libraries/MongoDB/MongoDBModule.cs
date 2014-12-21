@@ -2,7 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using Pather.Common.Libraries.NodeJS;
 
-namespace Pather.Server.Libraries.MongoDB
+namespace Pather.ServerManager.Libraries.MongoDB
 {
     [IgnoreNamespace]
     [Imported()]

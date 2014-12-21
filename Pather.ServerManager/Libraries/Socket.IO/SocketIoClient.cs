@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Pather.Server.Libraries.Socket.IO
+namespace Pather.ServerManager.Libraries.Socket.IO
 {
     [IgnoreNamespace]
     [Imported()]

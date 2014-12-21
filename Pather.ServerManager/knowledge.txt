@@ -1,3 +1,0 @@
-﻿any client can send a command for any playerid
-you dont verify that the move is valid before you send it out
-you dont finish moving twoards point when a new person joins

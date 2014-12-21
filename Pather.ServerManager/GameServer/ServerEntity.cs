@@ -1,7 +1,7 @@
 ﻿using Pather.Common;
-using Pather.Server.Libraries.Socket.IO;
+using Pather.ServerManager.Libraries.Socket.IO;
 
-namespace Pather.Server.GameServer
+namespace Pather.ServerManager.GameServer
 {
     public class ServerEntity:Entity
     {

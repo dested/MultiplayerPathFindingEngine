@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using Pather.Common.Libraries.NodeJS;
 
-namespace Pather.Server.Libraries.Socket.IO
+namespace Pather.ServerManager.Libraries.Socket.IO
 {
     [IgnoreNamespace]
     [Imported()]

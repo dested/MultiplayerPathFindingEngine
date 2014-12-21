@@ -4,6 +4,7 @@ using System.Html.Media.Graphics;
 using Pather.Common;
 using Pather.Common.Libraries;
 using Pather.Common.Models;
+using Pather.Common.Models.Game;
 
 namespace Pather.Client
 {

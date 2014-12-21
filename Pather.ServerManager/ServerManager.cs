@@ -1,8 +1,7 @@
 ﻿using System;
-using Pather.Common.Libraries;
 using Pather.Common.Libraries.NodeJS;
 
-namespace Pather.Server
+namespace Pather.ServerManager
 {
     public class ServerManager
     {
@@ -12,13 +11,17 @@ namespace Pather.Server
             {
                 switch (Global.Process.Arguments[2].ToLower())
                 {
-                    case "gw":
+                    case "gt":
                     case "gateway":
                         new GatewayServer.GatewayServer();
                         break;
                     case "g":
                     case "game":
                         new GameServer.GameServer();
+                        break;
+                    case "gw":
+                    case "gameworld":
+                        new GameWorldServer.GameWorldServer();
                         break;
                     default:
                         Global.Console.Log("Failed to load: ", Global.Process.Arguments[2]);

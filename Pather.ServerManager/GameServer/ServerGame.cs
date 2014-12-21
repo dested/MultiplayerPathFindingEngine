@@ -1,7 +1,7 @@
 ﻿using System;
 using Pather.Common;
 
-namespace Pather.Server.GameServer
+namespace Pather.ServerManager.GameServer
 {
     public class ServerGame : Game
     {
@@ -11,7 +11,6 @@ namespace Pather.Server.GameServer
             StepManager = new ServerStepManager(this, new ServerNetworkManager(this));
             ConstructGrid();
             Ready = true;
-
         }
 
         public Action<long> SyncLockstep ;

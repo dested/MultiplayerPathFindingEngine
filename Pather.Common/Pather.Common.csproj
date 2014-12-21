@@ -72,8 +72,16 @@
     <Compile Include="Libraries\NodeJS\STDOut.cs" />
     <Compile Include="Libraries\NodeJS\Util.cs" />
     <Compile Include="Libraries\NodeJS\WritableStream.cs" />
-    <Compile Include="Models\MoveModel.cs" />
+    <Compile Include="Models\Game\ConnectedModel.cs" />
+    <Compile Include="Models\Game\PingPongModel.cs" />
+    <Compile Include="Models\Game\PlayerJoinModel.cs" />
+    <Compile Include="Models\Game\PlayerModel.cs" />
+    <Compile Include="Models\Game\PlayerSyncModel.cs" />
+    <Compile Include="Models\Game\SyncLockstepModel.cs" />
+    <Compile Include="Models\Gateway\GatewayJoinModel.cs" />
+    <Compile Include="Models\Game\MoveModel.cs" />
     <Compile Include="Entity.cs" />
+    <Compile Include="Models\Gateway\GatewayMessageModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SocketChannels.cs" />
     <Compile Include="StepManager.cs" />
@@ -93,6 +101,7 @@
       <HintPath>..\packages\Saltarelle.Web.3.1.0\lib\Saltarelle.Web.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" Condition="!Exists('$(SolutionDir)packages\Saltarelle.Compiler.2.6.2\tools\Saltarelle.Compiler.targets')" />
   <Import Project="$(SolutionDir)packages\Saltarelle.Compiler.2.6.2\tools\Saltarelle.Compiler.targets" Condition="Exists('$(SolutionDir)packages\Saltarelle.Compiler.2.6.2\tools\Saltarelle.Compiler.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

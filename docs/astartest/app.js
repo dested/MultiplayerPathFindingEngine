@@ -1,4 +1,4 @@
-var astar = require('./astar')
+var astar = require('./astar3.js')
 
 
 var size = 500;
@@ -8,7 +8,7 @@ var grid = [];
 for (var x = 0; x < size; x++) {
     grid.push([])
     for (var y = 0; y < size; y++) {
-        grid[x][y] = (Math.random() * 100 < 15) ? 0 : 1
+        grid[x][y] = 1;
     }
 }
 
@@ -16,7 +16,7 @@ var maxSway = 100;
 var graph = new astar.Graph(grid);
 
 
-for (var j = 0; j < 5; j++) {
+for (var j = 0; j < 1; j++) {
     console.log(j);
     var time = process.hrtime();
     for (var i = 0; i < 5000; i++) {

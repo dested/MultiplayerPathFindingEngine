@@ -1,7 +1,7 @@
 using System.Runtime.CompilerServices;
 using Pather.Common.Libraries.NodeJS;
 
-namespace Pather.Server.Libraries.Redis
+namespace Pather.ServerManager.Libraries.Redis
 {
     [Imported]
     [IgnoreNamespace]
