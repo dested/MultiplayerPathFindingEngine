@@ -120,6 +120,7 @@ $Pather_ServerManager_Database_DBUser.createInstance = function() {
 };
 $Pather_ServerManager_Database_DBUser.$ctor = function() {
 	var $this = {};
+	$this.userId = null;
 	$this.token = null;
 	$this.x = 0;
 	$this.y = 0;
@@ -561,13 +562,15 @@ ss.initClass($Pather_ServerManager_GameServer_ServerStepManager, $asm, {
 }, Pather.Common.StepManager);
 ss.initClass($Pather_ServerManager_GameWorldServer_GameServer, $asm, {});
 ss.initClass($Pather_ServerManager_GameWorldServer_GameWorld, $asm, {
-	userJoined: function(dbUser) {
+	userJoined: function(gatewayChannel, dbUser) {
 		var defer = Pather.Common.Utils.Promises.Q.defer$2($Pather_ServerManager_GameWorldServer_GameWorldUser, $Pather_ServerManager_GameWorldServer_UserJoinError).call(null);
 		var gwUser = new $Pather_ServerManager_GameWorldServer_GameWorldUser();
+		gwUser.userId = dbUser.userId;
 		gwUser.x = dbUser.x;
 		gwUser.y = dbUser.y;
 		gwUser.set_neighbors([]);
-		var closestGameServer = null;
+		gwUser.gatewayServer = gatewayChannel;
+		var closestGameServer;
 		if (this.users.length === 0) {
 			closestGameServer = this.createGameServer();
 		}
@@ -577,7 +580,7 @@ ss.initClass($Pather_ServerManager_GameWorldServer_GameWorld, $asm, {
 		}
 		gwUser.gameServer = closestGameServer;
 		this.users.push(gwUser);
-		defer.resolveInATick(gwUser);
+		defer.resolve(gwUser);
 		return defer.promise;
 	},
 	createGameServer: function() {
@@ -641,7 +644,7 @@ ss.initClass($Pather_ServerManager_GameWorldServer_GameWorldServer, $asm, {
 	$userJoined: function(userJoinedMessage) {
 		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_ServerManager_GameWorldServer_GameWorldUser, $Pather_ServerManager_GameWorldServer_UserJoinError).call(null);
 		this.$databaseQueries.getUserByToken(userJoinedMessage.userToken).then(ss.mkdel(this, function(dbUser) {
-			deferred.passThrough(this.gameWorld.userJoined(dbUser));
+			deferred.passPromiseThrough(this.gameWorld.userJoined(userJoinedMessage.gatewayChannel, dbUser));
 		}));
 		return deferred.promise;
 	}
@@ -656,34 +659,36 @@ ss.initClass($Pather_ServerManager_GameWorldServer_GameWorldUser, $asm, {
 });
 ss.initClass($Pather_ServerManager_GameWorldServer_UserJoinError, $asm, {});
 ss.initClass($Pather_ServerManager_GameWorldServer_Tests_GameWorldServerTests, $asm, {
-	userShouldJoin: function() {
+	userShouldJoin: function(testDeferred) {
 		var pubSubTest = global.$instantiateInterface$($Pather_ServerManager_Common_IPubSub);
 		var databaseQueriesTest = global.$instantiateInterface$($Pather_ServerManager_Database_IDatabaseQueries);
+		var userId = 'user id';
 		global.$overwiteMethodCallForMocker$(ss.mkdel(databaseQueriesTest, databaseQueriesTest.getUserByToken), function(userToken) {
 			var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_ServerManager_Database_DBUser, $Pather_ServerManager_Database_DatabaseError).call(null);
 			var $t1 = $Pather_ServerManager_Database_DBUser.$ctor();
 			$t1.token = userToken;
+			$t1.userId = userId;
 			$t1.x = ss.Int32.trunc(Math.random() * 500);
 			$t1.y = ss.Int32.trunc(Math.random() * 500);
-			deferred.resolveInATick($t1);
+			deferred.resolve($t1);
 			return deferred.promise;
 		});
-		global.$overwiteMethodCallForMocker$(ss.mkdel(pubSubTest, pubSubTest.publish$1), function(channel, data) {
+		global.$overwiteMethodCallForMocker$(ss.mkdel(pubSubTest, pubSubTest.init), function(a) {
+			a(pubSubTest);
 		});
-		global.$overwiteMethodCallForMocker$(ss.mkdel(pubSubTest, pubSubTest.subscribe), function(channel1, callback) {
-			ss.staticEquals(channel1, $Pather_ServerManager_Common_PubSubChannels.gameWorld);
-			debugger;
+		global.$overwiteMethodCallForMocker$(ss.mkdel(pubSubTest, pubSubTest.subscribe), function(channel, callback) {
+			Pather.Common.TestFramework.DeferredAssert.that(testDeferred, channel).get_does().equal($Pather_ServerManager_Common_PubSubChannels.gameWorld);
 			var userJoinedGameWorldPubSubMessage = Pather.Common.Models.GameWorld.UserJoinedGameWorldPubSubMessage.$ctor();
 			userJoinedGameWorldPubSubMessage.type = 0;
 			userJoinedGameWorldPubSubMessage.userToken = 'abcd';
 			userJoinedGameWorldPubSubMessage.gatewayChannel = 'Gateway 1';
 			callback(JSON.stringify(userJoinedGameWorldPubSubMessage));
 		});
-		global.$overwiteMethodCallForMocker$(ss.mkdel(pubSubTest, pubSubTest.init), function(a) {
-			a(pubSubTest);
+		global.$overwiteMethodCallForMocker$(ss.mkdel(pubSubTest, pubSubTest.publish$1), function(channel1, data) {
+			Pather.Common.TestFramework.DeferredAssert.that(testDeferred, data.userId).get_does().equal(userId);
+			testDeferred.resolve();
 		});
 		var gws = new $Pather_ServerManager_GameWorldServer_GameWorldServer(pubSubTest, databaseQueriesTest);
-		Pather.Common.TestFramework.Assert.that(1).get_does().equal(1);
 	}
 });
 ss.initClass($Pather_ServerManager_GatewayServer_GatewayServer, $asm, {
@@ -707,7 +712,7 @@ ss.initClass($Pather_ServerManager_GatewayServer_GatewayServer, $asm, {
 });
 ss.initClass($Pather_ServerManager_TickServer_TickServer, $asm, {});
 ss.initClass($Pather_ServerManager_Utils_ServerHelper, $asm, {});
-ss.setMetadata($Pather_ServerManager_GameWorldServer_Tests_GameWorldServerTests, { attr: [new Pather.Common.TestFramework.TestClassAttribute()], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'UserShouldJoin', type: 8, sname: 'userShouldJoin', returnType: Object, params: [] }] });
+ss.setMetadata($Pather_ServerManager_GameWorldServer_Tests_GameWorldServerTests, { attr: [new Pather.Common.TestFramework.TestClassAttribute()], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'UserShouldJoin', type: 8, sname: 'userShouldJoin', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
 (function() {
 	$Pather_ServerManager_Common_ConnectionConstants.redisIP = '127.0.0.1';
 })();

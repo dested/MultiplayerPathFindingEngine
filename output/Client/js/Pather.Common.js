@@ -456,8 +456,10 @@
 	global.Pather.Common.TestFramework.Assert = $Pather_Common_TestFramework_Assert;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.TestFramework.AssertException
-	var $Pather_Common_TestFramework_AssertException = function() {
+	var $Pather_Common_TestFramework_AssertException = function(failedAssertion) {
+		this.$2$FailedAssertionField = null;
 		ss.Exception.call(this);
+		this.set_failedAssertion(failedAssertion);
 	};
 	$Pather_Common_TestFramework_AssertException.__typeName = 'Pather.Common.TestFramework.AssertException';
 	global.Pather.Common.TestFramework.AssertException = $Pather_Common_TestFramework_AssertException;
@@ -546,18 +548,26 @@
 			if (ss.referenceEquals(firstParam, $Pather_Common_Utils_Promises_Deferred)) {
 				d.promise.then(function() {
 					progress.$passedCount++;
-					console.log('Running test:', testMethod.name, 'Passed');
+					console.log('', 'Running test:', testMethod.name, 'Passed');
 				}).error(function() {
 					progress.$failedCount++;
 				});
 				try {
-					ss.midel(testMethod, testObject)(d);
 					console.log('Deferring test:', testMethod.name);
+					ss.midel(testMethod, testObject)(d);
 				}
 				catch ($t1) {
-					var ex = ss.Exception.wrap($t1);
-					console.log('Running test:', testMethod.name, 'Failed:', ex.get_message());
-					d.reject();
+					$t1 = ss.Exception.wrap($t1);
+					if (ss.isInstanceOfType($t1, $Pather_Common_TestFramework_AssertException)) {
+						var ex = ss.cast($t1, $Pather_Common_TestFramework_AssertException);
+						console.log('', 'Assert Failed', testMethod.name, 'Failed:', ex.get_failedAssertion());
+						d.reject();
+					}
+					else {
+						var ex1 = $t1;
+						console.log('', 'Exception', 'Test:', testMethod.name, 'Failed:', ex1.get_message());
+						d.reject();
+					}
 				}
 			}
 			else {
@@ -566,13 +576,22 @@
 		}
 		else {
 			try {
-				ss.midel(testMethod, testObject)();
 				console.log('Running test:', testMethod.name, 'Passed');
+				ss.midel(testMethod, testObject)();
+				console.log('', 'Test:', testMethod.name, 'Passed');
 			}
 			catch ($t2) {
-				var ex1 = ss.Exception.wrap($t2);
-				console.log('Running test:', testMethod.name, 'Failed:', ex1.get_message());
-				progress.$failedCount++;
+				$t2 = ss.Exception.wrap($t2);
+				if (ss.isInstanceOfType($t2, $Pather_Common_TestFramework_AssertException)) {
+					var ex2 = ss.cast($t2, $Pather_Common_TestFramework_AssertException);
+					console.log('', 'Assert Failed', testMethod.name, 'Failed:', ex2.get_failedAssertion());
+					d.reject();
+				}
+				else {
+					var ex3 = $t2;
+					console.log('', 'Exception', 'Test:', testMethod.name, 'Failed:', ex3.get_message());
+					progress.$failedCount++;
+				}
 			}
 			progress.$passedCount++;
 			d.resolve();
@@ -677,13 +696,7 @@
 			reject: function(item) {
 				this.promise.$reject(item);
 			},
-			resolveInATick: function(item) {
-				//todo basically a testmethod
-				setTimeout(ss.mkdel(this, function() {
-					this.promise.$resolve(item);
-				}), 0);
-			},
-			passThrough: function(passThrough) {
+			passPromiseThrough: function(passThrough) {
 				return passThrough.then(ss.mkdel(this.promise, this.promise.$resolve)).$error(ss.mkdel(this.promise, this.promise.$reject));
 			}
 		}, function() {
@@ -702,8 +715,8 @@
 		this.$resolves = [];
 		this.$rejects = [];
 		this.$finallys = [];
-		this.$isResolved = false;
-		this.$isRejected = false;
+		this.isResolved = false;
+		this.isRejected = false;
 		//            promsiedResolves = new List<Func<TResolve, Promise<TResolve, TError>>>();
 		this.$resolves = [];
 		this.$rejects = [];
@@ -718,8 +731,8 @@
 			this.$resolves = [];
 			this.$rejects = [];
 			this.$finallys = [];
-			this.$isResolved = false;
-			this.$isRejected = false;
+			this.isResolved = false;
+			this.isRejected = false;
 			this.$resolvedValue = ss.getDefaultValue(TResolve);
 			this.$rejectedValue = ss.getDefaultValue(TError);
 			//            promsiedResolves = new List<Func<TResolve, Promise<TResolve, TError>>>();
@@ -729,7 +742,10 @@
 		};
 		ss.registerGenericClassInstance($type, $Pather_Common_Utils_Promises_Promise$2, [TResolve, TError], {
 			$resolve: function(item) {
-				this.$isResolved = true;
+				if (this.isResolved || this.isRejected) {
+					throw new ss.Exception('Can only resolve promise once.');
+				}
+				this.isResolved = true;
 				this.$resolvedValue = item;
 				for (var $t1 = 0; $t1 < this.$resolves.length; $t1++) {
 					var resolve = this.$resolves[$t1];
@@ -741,7 +757,10 @@
 				//      }
 			},
 			$reject: function(item) {
-				this.$isRejected = true;
+				if (this.isResolved || this.isRejected) {
+					throw new ss.Exception('Can only resolve promise once.');
+				}
+				this.isRejected = true;
 				this.$rejectedValue = item;
 				for (var $t1 = 0; $t1 < this.$rejects.length; $t1++) {
 					var reject = this.$rejects[$t1];
@@ -753,7 +772,7 @@
 				}
 			},
 			$error: function(error) {
-				if (this.$isRejected) {
+				if (this.isRejected) {
 					error(this.$rejectedValue);
 				}
 				else {
@@ -762,7 +781,7 @@
 				return this;
 			},
 			$finally: function(finally1) {
-				if (this.$isRejected || this.$isResolved) {
+				if (this.isRejected || this.isResolved) {
 					finally1();
 				}
 				else {
@@ -771,7 +790,7 @@
 				return this;
 			},
 			then: function(resolve) {
-				if (this.$isRejected) {
+				if (this.isResolved) {
 					resolve(this.$resolvedValue);
 				}
 				else {
@@ -1079,27 +1098,34 @@
 	});
 	ss.initClass($Pather_Common_Models_Gateway_UserJoinedGatewayPubSubMessage, $asm, {}, $Pather_Common_Models_Gateway_GatewayPubSubMessage);
 	ss.initClass($Pather_Common_TestFramework_Assert, $asm, {});
-	ss.initClass($Pather_Common_TestFramework_AssertException, $asm, {}, ss.Exception);
+	ss.initClass($Pather_Common_TestFramework_AssertException, $asm, {
+		get_failedAssertion: function() {
+			return this.$2$FailedAssertionField;
+		},
+		set_failedAssertion: function(value) {
+			this.$2$FailedAssertionField = value;
+		}
+	}, ss.Exception);
 	ss.initClass($Pather_Common_TestFramework_DeferredAssert, $asm, {});
 	ss.initClass($Pather_Common_TestFramework_Mocker, $asm, {});
 	ss.initClass($Pather_Common_TestFramework_RightObject, $asm, {
 		true$1: function() {
 			if (!ss.unbox(ss.cast(this.$that.$that, Boolean))) {
-				this.$fail();
+				this.$fail(ss.formatString('{0} is not true', this.$that.$that));
 			}
 		},
 		equal: function(right) {
 			if (!ss.referenceEquals(this.$that.$that, right)) {
-				this.$fail();
+				this.$fail(ss.formatString('{0} does not equal {1}', this.$that.$that, right));
 			}
 		},
-		$fail: function() {
-			if (ss.isValue(this.$that.$deferred)) {
-				this.$that.$deferred.reject();
+		ofType: function(type) {
+			if (!ss.referenceEquals(ss.getInstanceType(this.$that.$that), type)) {
+				this.$fail(ss.formatString('{0} type is not {1}', ss.getTypeFullName(ss.getInstanceType(this.$that.$that)), ss.getTypeFullName(type)));
 			}
-			else {
-				throw new $Pather_Common_TestFramework_AssertException();
-			}
+		},
+		$fail: function(error) {
+			throw new $Pather_Common_TestFramework_AssertException(error);
 		}
 	});
 	ss.initClass($Pather_Common_TestFramework_TestClassAttribute, $asm, {});
@@ -1135,7 +1161,10 @@
 	});
 	ss.initClass($Pather_Common_Utils_Promises_Promise, $asm, {
 		resolve: function() {
-			this.$isResolved = true;
+			if (this.isResolved || this.isRejected) {
+				throw new ss.Exception('Can only resolve promise once.');
+			}
+			this.isResolved = true;
 			for (var $t1 = 0; $t1 < this.$resolves.length; $t1++) {
 				var resolve = this.$resolves[$t1];
 				resolve();
@@ -1146,7 +1175,10 @@
 			//      }
 		},
 		reject: function() {
-			this.$isRejected = true;
+			if (this.isResolved || this.isRejected) {
+				throw new ss.Exception('Can only resolve promise once.');
+			}
+			this.isRejected = true;
 			for (var $t1 = 0; $t1 < this.$rejects.length; $t1++) {
 				var reject = this.$rejects[$t1];
 				reject();
@@ -1157,7 +1189,7 @@
 			}
 		},
 		error: function(error) {
-			if (this.$isRejected || this.$isResolved) {
+			if (this.isRejected) {
 				error();
 			}
 			else {
@@ -1166,7 +1198,7 @@
 			return this;
 		},
 		finally$1: function(finally1) {
-			if (this.$isResolved) {
+			if (this.isRejected || this.isResolved) {
 				finally1();
 			}
 			else {
@@ -1175,7 +1207,7 @@
 			return this;
 		},
 		then: function(resolve) {
-			if (this.$isResolved) {
+			if (this.isResolved) {
 				resolve();
 			}
 			else {

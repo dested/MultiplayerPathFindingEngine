@@ -53,7 +53,7 @@ namespace Pather.ServerManager.GameWorldServer
             var deferred = Q.Defer<GameWorldUser, UserJoinError>();
             DatabaseQueries.GetUserByToken(userJoinedMessage.UserToken).Then(dbUser =>
             {
-                deferred.PassThrough(GameWorld.UserJoined(dbUser));
+                deferred.PassPromiseThrough(GameWorld.UserJoined(userJoinedMessage.GatewayChannel,dbUser));
             });
             return deferred.Promise;
         }

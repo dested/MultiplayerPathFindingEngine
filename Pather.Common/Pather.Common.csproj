@@ -102,11 +102,14 @@
     <Compile Include="StepManager.cs" />
     <Compile Include="TestFramework\Assert.cs" />
     <Compile Include="TestFramework\AssertException.cs" />
+    <Compile Include="TestFramework\DeferredAssert.cs" />
     <Compile Include="TestFramework\Mocker.cs" />
+    <Compile Include="TestFramework\RightObject.cs" />
     <Compile Include="TestFramework\TestMethodAttribute.cs" />
     <Compile Include="TestFramework\TestClassAttribute.cs" />
     <Compile Include="TestFramework\TestConstructorAttribute.cs" />
     <Compile Include="TestFramework\TestFramework.cs" />
+    <Compile Include="TestFramework\ThatObject.cs" />
     <Compile Include="TickResult.cs" />
     <Compile Include="Utils\AnimationPoint.cs" />
     <Compile Include="Utils\DataObject.cs" />

@@ -18,17 +18,19 @@ namespace Pather.ServerManager.GameWorldServer
 
         }
 
-        public Promise<GameWorldUser, UserJoinError> UserJoined(DBUser dbUser)
+        public Promise<GameWorldUser, UserJoinError> UserJoined(string gatewayChannel, DBUser dbUser)
         {
 
             var defer = Q.Defer<GameWorldUser, UserJoinError>();
 
             var gwUser = new GameWorldUser();
+            gwUser.UserId = dbUser.UserId;
             gwUser.X = dbUser.X;
             gwUser.Y = dbUser.Y;
             gwUser.Neighbors = new List<GameWorldUser>();
+            gwUser.GatewayServer = gatewayChannel;
 
-            GameServer closestGameServer = null;
+            GameServer closestGameServer;
             if (Users.Count == 0)
             {
                 closestGameServer = CreateGameServer();
@@ -38,13 +40,11 @@ namespace Pather.ServerManager.GameWorldServer
                 var closestUser = DetermineNeighbors(gwUser);
                 closestGameServer = closestUser.GameServer;
             }
-
             gwUser.GameServer = closestGameServer;
 
+
             Users.Add(gwUser);
-
-            defer.ResolveInATick(gwUser);
-
+            defer.Resolve(gwUser);
             return defer.Promise;
         }
 

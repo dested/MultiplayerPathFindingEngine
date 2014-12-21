@@ -92,7 +92,7 @@ namespace Pather.Common.TestFramework
                     d.Promise.Then(() =>
                     {
                         progress.PassedCount++;
-                        Global.Console.Log("Running test:", testMethod.Name, "Passed");
+                        Global.Console.Log("","Running test:", testMethod.Name, "Passed");
                     }).Error(() =>
                     {
                         progress.FailedCount++;
@@ -100,12 +100,17 @@ namespace Pather.Common.TestFramework
 
                     try
                     {
-                        testMethod.Invoke(testObject, d);
                         Global.Console.Log("Deferring test:", testMethod.Name);
+                        testMethod.Invoke(testObject, d);
+                    }
+                    catch (AssertException ex)
+                    {
+                        Global.Console.Log("", "Assert Failed", testMethod.Name, "Failed:", ex.FailedAssertion);
+                        d.Reject();
                     }
                     catch (Exception ex)
                     {
-                        Global.Console.Log("Running test:", testMethod.Name, "Failed:", ex.Message);
+                        Global.Console.Log("", "Exception", "Test:", testMethod.Name, "Failed:", ex.Message);
                         d.Reject();
                     }
 
@@ -120,12 +125,18 @@ namespace Pather.Common.TestFramework
             {
                 try
                 {
-                    testMethod.Invoke(testObject);
                     Global.Console.Log("Running test:", testMethod.Name, "Passed");
+                    testMethod.Invoke(testObject);
+                    Global.Console.Log("","Test:", testMethod.Name, "Passed");
+                }
+                catch (AssertException ex)
+                {
+                    Global.Console.Log("", "Assert Failed", testMethod.Name, "Failed:", ex.FailedAssertion);
+                    d.Reject();
                 }
                 catch (Exception ex)
                 {
-                    Global.Console.Log("Running test:", testMethod.Name, "Failed:", ex.Message);
+                    Global.Console.Log("", "Exception", "Test:", testMethod.Name, "Failed:", ex.Message);
                     progress.FailedCount++;
                 }
 

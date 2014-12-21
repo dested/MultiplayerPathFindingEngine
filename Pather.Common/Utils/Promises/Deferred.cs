@@ -14,8 +14,6 @@ namespace Pather.Common.Utils.Promises
             Promise.Resolve(item);
         }
 
-
-
         public void Reject(TError item)
         {
             Promise.Reject(item);
@@ -23,13 +21,7 @@ namespace Pather.Common.Utils.Promises
 
         public Promise<TResolve, TError> Promise;
 
-        public void ResolveInATick(TResolve item)
-        {
-            //todo basically a testmethod
-            Global.SetTimeout(() => Promise.Resolve(item), 0);
-        }
-
-        public Promise<TResolve, TError> PassThrough(Promise<TResolve, TError> passThrough)
+        public Promise<TResolve, TError> PassPromiseThrough(Promise<TResolve, TError> passThrough)
         {
             return passThrough.Then(Promise.Resolve).Error(Promise.Reject);
         }
@@ -42,13 +34,11 @@ namespace Pather.Common.Utils.Promises
             Promise = new Promise ();
         }
 
+
         public void Resolve()
         {
             Promise.Resolve( );
         }
-
-
-
         public void Reject()
         {
             Promise.Reject();

@@ -18,14 +18,19 @@ namespace Pather.Common.Utils.Promises
             finallys = new List<Action>();
         }
 
-        private bool isResolved ;
-        private bool isRejected ;
+        public bool IsResolved ;
+        public bool IsRejected ;
 
         private TResolve resolvedValue ;
         private TError rejectedValue;
         internal void Resolve(TResolve item)
         {
-            isResolved = true;
+            if (IsResolved || IsRejected)
+            {
+                throw new Exception("Can only resolve promise once.");
+            } 
+            
+            IsResolved = true;
             resolvedValue = item;
             foreach (var resolve in resolves)
             {
@@ -38,7 +43,12 @@ namespace Pather.Common.Utils.Promises
         }
         internal void Reject(TError item)
         {
-            isRejected = true;
+            if (IsResolved || IsRejected)
+            {
+                throw new Exception("Can only resolve promise once.");
+            } 
+            
+            IsRejected = true;
             rejectedValue = item;
 
             foreach (var reject in rejects)
@@ -54,7 +64,7 @@ namespace Pather.Common.Utils.Promises
 
         internal Promise<TResolve, TError> Error(Action<TError> error)
         {
-            if (isRejected)
+            if (IsRejected)
             {
                 error(rejectedValue);
             }
@@ -66,7 +76,7 @@ namespace Pather.Common.Utils.Promises
         }
         internal Promise<TResolve, TError> Finally(Action @finally)
         {
-            if (isRejected || isResolved)
+            if (IsRejected || IsResolved)
             {
                 @finally();
             }
@@ -78,7 +88,7 @@ namespace Pather.Common.Utils.Promises
         }
         public Promise<TResolve, TError> Then(Action<TResolve> resolve)
         {
-            if (isRejected)
+            if (IsResolved)
             {
                 resolve(resolvedValue);
             }
@@ -116,12 +126,16 @@ namespace Pather.Common.Utils.Promises
             finallys = new List<Action>();
         }
 
-        private bool isResolved  ;
-        private bool isRejected  ;
+        public bool IsResolved  ;
+        public bool IsRejected  ;
 
         protected internal void Resolve()
         {
-            isResolved = true;
+            if (IsResolved || IsRejected)
+            {
+                throw new Exception("Can only resolve promise once.");
+            }
+            IsResolved = true;
             foreach (var resolve in resolves)
             {
                 resolve( );
@@ -133,7 +147,12 @@ namespace Pather.Common.Utils.Promises
         }
         protected internal void Reject()
         {
-            isRejected = true;
+            if (IsResolved || IsRejected)
+            {
+                throw new Exception("Can only resolve promise once.");
+            } 
+            
+            IsRejected = true;
             foreach (var reject in rejects)
             {
                 reject( );
@@ -147,7 +166,7 @@ namespace Pather.Common.Utils.Promises
 
         public Promise Error(Action error)
         {
-            if (isRejected || isResolved)
+            if (IsRejected)
             {
                 error();
             }
@@ -160,7 +179,7 @@ namespace Pather.Common.Utils.Promises
         }
         public Promise Finally(Action @finally)
         {
-            if (isResolved)
+            if (IsRejected || IsResolved)
             {
                 @finally();
             }
@@ -173,7 +192,7 @@ namespace Pather.Common.Utils.Promises
         }
         public Promise Then(Action resolve)
         {
-            if (isResolved)
+            if (IsResolved)
             {
                 resolve();
             }

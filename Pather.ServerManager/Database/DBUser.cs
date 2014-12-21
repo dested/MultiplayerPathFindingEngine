@@ -6,6 +6,7 @@ namespace Pather.ServerManager.Database
     public class DBUser
     {
 
+        public string UserId;
         public string Token;
         public int X;
         public int Y;

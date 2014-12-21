@@ -1,11 +1,11 @@
-﻿using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Libraries.NodeJS;
 using Pather.Common.TestFramework;
 using Pather.Common.Utils.Promises;
 
 namespace Pather.Client.Tests
 {
     [TestClass]
-    public class Test
+    public class Test22
     {
         [TestMethod]
         public void Test2()
@@ -18,7 +18,7 @@ namespace Pather.Client.Tests
             Global.SetTimeout(() =>
             {
                 defer.Resolve();
-            }, 1000);
+            },4000);
 
             DeferredAssert.That(defer, 12).Does.Equal(12);
         }

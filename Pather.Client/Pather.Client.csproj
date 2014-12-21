@@ -43,6 +43,7 @@
     <Compile Include="ClientStepManager.cs" />
     <Compile Include="ServerSlammer.cs" />
     <Compile Include="Tests\Test.cs" />
+    <Compile Include="Tests\Test22.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
