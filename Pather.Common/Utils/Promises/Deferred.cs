@@ -28,24 +28,25 @@ namespace Pather.Common.Utils.Promises
         }
     }
 
-    public class Deferred 
+    public class Deferred
     {
         public Deferred()
         {
-            Promise = new Promise ();
+            Promise = new Promise();
         }
 
 
         public void Resolve()
         {
-            Promise.Resolve( );
+            Promise.Resolve();
         }
+
         public void Reject()
         {
             Promise.Reject();
         }
 
-        public Promise  Promise;
+        public Promise Promise;
 
         public void ResolveInATick()
         {
@@ -58,5 +59,4 @@ namespace Pather.Common.Utils.Promises
             return passThrough.Then(Promise.Resolve).Error(Promise.Reject);
         }
     }
-
 }

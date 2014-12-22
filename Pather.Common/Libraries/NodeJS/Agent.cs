@@ -7,7 +7,9 @@ namespace Pather.Common.Libraries.NodeJS
     [IgnoreNamespace]
     public class Agent
     {
-        private Agent() { }
+        private Agent()
+        {
+        }
 
         public int MaxSockets { get; set; }
     }

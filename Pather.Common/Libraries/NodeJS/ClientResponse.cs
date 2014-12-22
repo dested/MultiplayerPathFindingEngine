@@ -8,7 +8,9 @@ namespace Pather.Common.Libraries.NodeJS
     [IgnoreNamespace]
     public class ClientResponse : ReadableStream
     {
-        private ClientResponse() { }
+        private ClientResponse()
+        {
+        }
 
         [IntrinsicProperty]
         public int StatusCode { get; private set; }

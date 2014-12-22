@@ -1,9 +1,6 @@
 using System;
-using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Utils;
 using Pather.ServerManager.Common.SocketManager;
-using Pather.ServerManager.GatewayServer;
-using Pather.ServerManager.Libraries.Socket.IO;
 
 namespace Pather.ServerManager.Common
 {
@@ -11,7 +8,7 @@ namespace Pather.ServerManager.Common
     {
         private readonly ISocketManager socketManager;
         public Action<ISocket> OnNewConnection;
-        public Action<ISocket> OnDisconnectConnection ;
+        public Action<ISocket> OnDisconnectConnection;
 
         public void ListenOnChannel<T>(ISocket socket, string channel, Action<ISocket, T> callback)
         {
@@ -23,7 +20,7 @@ namespace Pather.ServerManager.Common
             socket.Emit(channel, new DataObject<object>(obj));
         }
 
-        public ServerCommunicator(ISocketManager socketManager,int port)
+        public ServerCommunicator(ISocketManager socketManager, int port)
         {
             this.socketManager = socketManager;
 
@@ -40,10 +37,8 @@ namespace Pather.ServerManager.Common
                     {
                         OnDisconnectConnection(socket);
                     }
-
                 });
             });
- 
         }
     }
 }

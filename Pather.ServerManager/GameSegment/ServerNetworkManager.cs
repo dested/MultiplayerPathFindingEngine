@@ -10,31 +10,31 @@ namespace Pather.ServerManager.GameSegment
 {
     public class ServerNetworkManager
     {
-        public ServerGame Game ;
-        public ServerCommunicator ServerCommunicator ;
-        public Action<SerializableAction> OnRecieveAction ;
+        public ServerGame Game;
+        public ServerCommunicator ServerCommunicator;
+        public Action<SerializableAction> OnRecieveAction;
 
-        public ServerNetworkManager(ServerGame game,ISocketManager socketManager)
+        public ServerNetworkManager(ServerGame game, ISocketManager socketManager)
         {
             Game = game;
             Game.SyncLockstep += OnSyncLockstep;
-            ServerCommunicator = new ServerCommunicator(socketManager,8991);
+            ServerCommunicator = new ServerCommunicator(socketManager, 8991);
             ServerCommunicator.OnNewConnection += OnNewConnection;
             ServerCommunicator.OnDisconnectConnection += OnDisconnectConnection;
         }
 
         private void OnSyncLockstep(long lockStepTick)
         {
-
-            if (lockStepTick % 15 == 0 || forceSyncNextLockstep.Count > 0)
+            if (lockStepTick%15 == 0 || forceSyncNextLockstep.Count > 0)
             {
-
                 foreach (var socketIoConnection in forceSyncNextLockstep)
                 {
                     ServerCommunicator.SendMessage(socketIoConnection,
                         SocketChannels.ServerChannel(SocketChannels.Server.SyncLockstep),
-                        new SyncLockstepModel() { LockstepTickNumber = lockStepTick });
-
+                        new SyncLockstepModel()
+                        {
+                            LockstepTickNumber = lockStepTick
+                        });
                 }
 
                 foreach (ServerEntity player in Game.Players)
@@ -43,18 +43,21 @@ namespace Pather.ServerManager.GameSegment
                     {
                         ServerCommunicator.SendMessage(player.Socket,
                             SocketChannels.ServerChannel(SocketChannels.Server.SyncLockstep),
-                            new SyncLockstepModel() { LockstepTickNumber = lockStepTick });
+                            new SyncLockstepModel()
+                            {
+                                LockstepTickNumber = lockStepTick
+                            });
                     }
                 }
 
                 forceSyncNextLockstep.Clear();
             }
         }
-        private List<ISocket> forceSyncNextLockstep = new List<ISocket>();
+
+        private readonly List<ISocket> forceSyncNextLockstep = new List<ISocket>();
 
         private void OnNewConnection(ISocket socketIoConnection)
         {
-
             ServerCommunicator.SendMessage(socketIoConnection,
                 SocketChannels.ServerChannel(SocketChannels.Server.Connect), new ConnectedModel()
                 {
@@ -80,7 +83,6 @@ namespace Pather.ServerManager.GameSegment
 
         private void OnDisconnectConnection(ISocket socketIoConnection)
         {
-
             Entity player = null;
 
             foreach (ServerEntity entity in Game.Players)
@@ -114,7 +116,6 @@ namespace Pather.ServerManager.GameSegment
             {
                 ServerCommunicator.SendMessage(entity.Socket, SocketChannels.ServerChannel(SocketChannels.Server.PlayerSync), playerSyncModel);
             }
-
         }
 
 
@@ -122,8 +123,8 @@ namespace Pather.ServerManager.GameSegment
         {
 //            Global.Console.Log("player action ", action);
             OnRecieveAction(action);
-
         }
+
         public void SendAction(SerializableAction action)
         {
             foreach (ServerEntity player in Game.Players)
@@ -134,14 +135,12 @@ namespace Pather.ServerManager.GameSegment
 
         private void JoinPlayer(ISocket socket, PlayerJoinModel model)
         {
-
-
-            var player = (ServerEntity)Game.CreatePlayer(model.PlayerId);
+            var player = (ServerEntity) Game.CreatePlayer(model.PlayerId);
             player.Socket = socket;
-            var x = Math.Min((int)(Math.Random() * Constants.NumberOfSquares), Constants.NumberOfSquares - 1);
-            var y = Math.Min((int)(Math.Random() * Constants.NumberOfSquares), Constants.NumberOfSquares - 1);
+            var x = Math.Min((int) (Math.Random()*Constants.NumberOfSquares), Constants.NumberOfSquares - 1);
+            var y = Math.Min((int) (Math.Random()*Constants.NumberOfSquares), Constants.NumberOfSquares - 1);
             Global.Console.Log("new player ", Game.Players.Count);
-            player.Init(x * Constants.SquareSize, y * Constants.SquareSize);
+            player.Init(x*Constants.SquareSize, y*Constants.SquareSize);
 
             Game.Players.Add(player);
 
@@ -149,7 +148,6 @@ namespace Pather.ServerManager.GameSegment
             {
                 if (entity.PlayerId != player.PlayerId)
                 {
-
                     ServerCommunicator.SendMessage(entity.Socket, SocketChannels.ServerChannel(SocketChannels.Server.PlayerSync),
                         new PlayerSyncModel()
                         {
@@ -166,7 +164,6 @@ namespace Pather.ServerManager.GameSegment
                 }
                 else
                 {
-
                     ServerCommunicator.SendMessage(socket, SocketChannels.ServerChannel(SocketChannels.Server.PlayerSync),
                         new PlayerSyncModel()
                         {
@@ -177,9 +174,7 @@ namespace Pather.ServerManager.GameSegment
                                 Y = p.Y,
                             })
                         });
-                     
                 }
-
             }
         }
     }

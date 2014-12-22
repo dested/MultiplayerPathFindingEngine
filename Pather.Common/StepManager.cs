@@ -1,16 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Pather.Common.Libraries;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models;
 using Pather.Common.Models.Game;
-using Console = System.Console;
 
 namespace Pather.Common
 {
     public abstract class StepManager
     {
-
         public StepManager(Game game)
         {
             Game = game;
@@ -18,10 +14,10 @@ namespace Pather.Common
             LastTickProcessed = 0;
         }
 
-        public long LastTickProcessed ;
+        public long LastTickProcessed;
 
-        public Game Game ;
-        public Dictionary<long, List<IAction>> StepActionsTicks ;
+        public Game Game;
+        public Dictionary<long, List<IAction>> StepActionsTicks;
         private int misprocess;
 
         public virtual void ReceiveAction(SerializableAction serAction)
@@ -30,7 +26,7 @@ namespace Pather.Common
             switch (serAction.Type)
             {
                 case ActionType.Move:
-                    action = new MoveAction((MoveModel)serAction.Data, serAction.LockstepTickNumber);
+                    action = new MoveAction((MoveModel) serAction.Data, serAction.LockstepTickNumber);
                     break;
                 case ActionType.Noop:
                     action = new NoopAction(serAction.LockstepTickNumber);
@@ -40,7 +36,6 @@ namespace Pather.Common
             }
 
 
-            
             if (!StepActionsTicks.ContainsKey(serAction.LockstepTickNumber))
             {
                 if (serAction.LockstepTickNumber <= Game.LockstepTickNumber)
@@ -64,7 +59,7 @@ namespace Pather.Common
 
 
 //            Global.Console.Log("Actions for", stepActions.Count, "Players");
-            
+
             foreach (var stepAction in stepActions)
             {
                 stepAction.Process(Game);

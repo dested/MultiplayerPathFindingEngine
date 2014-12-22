@@ -24,8 +24,6 @@ namespace Pather.ServerManager.GameSegment
 
 
             pushPop.Init().Then(ready);
-
-
         }
 
         private void ready()
@@ -33,7 +31,4 @@ namespace Pather.ServerManager.GameSegment
             PushPop.Push(GameServerName, 1);
         }
     }
-
-
-
 }

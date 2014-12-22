@@ -4,5 +4,7 @@ namespace Pather.ServerManager.Libraries.Mongo
 {
     [IgnoreNamespace]
     [Imported()]
-    public class MongoConnection {}
+    public class MongoConnection
+    {
+    }
 }

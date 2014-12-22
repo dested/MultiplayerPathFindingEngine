@@ -8,6 +8,7 @@ namespace Pather.ServerManager.Common.SocketManager
     {
         [IncludeGenericArguments(false)]
         void On<T>(string channel, Action<T> callback);
+
         void Disconnect(Action callback);
         void Emit<T>(string channel, DataObject<T> dataObject);
     }

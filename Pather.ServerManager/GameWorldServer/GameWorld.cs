@@ -5,7 +5,6 @@ using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameSegmentCluster;
 using Pather.Common.Models.GameWorld;
 using Pather.Common.Utils.Promises;
-using Pather.ServerManager.Common.PubSub;
 using Pather.ServerManager.Database;
 
 namespace Pather.ServerManager.GameWorldServer
@@ -21,7 +20,6 @@ namespace Pather.ServerManager.GameWorldServer
             GameWorldPubSub = gameWorldPubSub;
             Users = new List<GameWorldUser>();
             GameServers = new List<GameSegment>();
-
         }
 
         public Promise<GameWorldUser, UserJoinError> UserJoined(string gatewayChannel, DBUser dbUser)
@@ -43,6 +41,8 @@ namespace Pather.ServerManager.GameWorldServer
                         .Then(() =>
                         {
                             Users.Add(gwUser);
+                            Global.Console.Log("Gameworld has added a new user to game segment", gameSegment.GameSegmentId, "bring the total number of players to", Users.Count, ". The game segment has", gameSegment.Users.Count, "users.");
+
                             defer.Resolve(gwUser);
                         });
                 });
@@ -65,7 +65,6 @@ namespace Pather.ServerManager.GameWorldServer
             }
             else
             {
-
                 deferred.PassPromiseThrough(FindBestGameSegment(gwUser));
             }
 
@@ -74,11 +73,10 @@ namespace Pather.ServerManager.GameWorldServer
 
         private Promise<GameSegment, UndefinedPromiseError> FindBestGameSegment(GameWorldUser gwUser)
         {
-
             var deferred = Q.Defer<GameSegment, UndefinedPromiseError>();
             var neighbor = DetermineClosestNeighbor(gwUser);
 
-            GameSegment neighborGameSegment = neighbor.User.GameSegment;
+            var neighborGameSegment = neighbor.User.GameSegment;
             if (CanAcceptNewUsers(neighborGameSegment))
             {
                 deferred.Resolve(neighborGameSegment);
@@ -98,11 +96,9 @@ namespace Pather.ServerManager.GameWorldServer
 
         private Promise AddUserToSegment(GameWorldUser gwUser, GameSegment gameSegment)
         {
-
             var deferred = Q.Defer();
             gameSegment.AddUserToSegment(gwUser);
 
-            Global.Console.Log("Gameworld has added a new user to game segment", gameSegment.GameSegmentId, "bring the total number of players to", Users.Count, ". The game segment has", gameSegment.Users.Count, "users.");
 
             deferred.Resolve();
 
@@ -137,17 +133,18 @@ namespace Pather.ServerManager.GameWorldServer
 
         public void BuildNeighbors()
         {
-            int count = Users.Count;
-            for (int i = 0; i < count; i++)
+            var count = Users.Count;
+            for (var i = 0; i < count; i++)
             {
                 var pUser = Users[i];
                 pUser.Neighbors.Clear();
                 BuildNeighbors(pUser, i);
             }
         }
+
         private GameWorldNeighbor DetermineClosestNeighbor(GameWorldUser pUser)
         {
-            GameWorldNeighbor closestNeighbor = pUser.ClosestNeighbor();
+            var closestNeighbor = pUser.ClosestNeighbor();
 
             if (closestNeighbor != null)
             {
@@ -155,10 +152,10 @@ namespace Pather.ServerManager.GameWorldServer
             }
 
 
-            int count = Users.Count;
+            var count = Users.Count;
             var closestDistance = double.MaxValue;
 
-            for (int c = 0; c < count; c++)
+            for (var c = 0; c < count; c++)
             {
                 var cUser = Users[c];
                 var distance = PointDistance(pUser, cUser);
@@ -167,7 +164,6 @@ namespace Pather.ServerManager.GameWorldServer
                     closestNeighbor = new GameWorldNeighbor(cUser, distance);
                     closestDistance = distance;
                 }
-
             }
             return closestNeighbor;
         }
@@ -175,9 +171,9 @@ namespace Pather.ServerManager.GameWorldServer
 
         private void BuildNeighbors(GameWorldUser pUser, int i = 0)
         {
-            int count = Users.Count;
+            var count = Users.Count;
 
-            for (int c = i; c < count; c++)
+            for (var c = i; c < count; c++)
             {
                 var cUser = Users[c];
                 var distance = PointDistance(pUser, cUser);
@@ -200,10 +196,8 @@ namespace Pather.ServerManager.GameWorldServer
             var _x = (cx - mx);
             var _y = (cy - my);
 
-            var dis = Math.Sqrt((_x * _x) + (_y * _y));
+            var dis = Math.Sqrt((_x*_x) + (_y*_y));
             return dis;
-
         }
     }
-
 }

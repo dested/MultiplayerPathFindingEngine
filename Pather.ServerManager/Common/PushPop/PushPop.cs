@@ -10,6 +10,7 @@ namespace Pather.ServerManager.Common.PushPop
         private RedisClient pushClient;
         private bool popReady;
         private RedisClient popClient;
+
         public PushPop()
         {
         }
@@ -44,10 +45,14 @@ namespace Pather.ServerManager.Common.PushPop
         {
             pushClient.RPush(channel, content);
         }
-        public Promise<string,string> BlockingPop(string channel,int timeout)
+
+        public Promise<string, string> BlockingPop(string channel, int timeout)
         {
             var d = Q.Defer<string, string>();
-            popClient.BLPop(new object[] { channel, timeout }, (caller, dtj) =>
+            popClient.BLPop(new object[]
+            {
+                channel, timeout
+            }, (caller, dtj) =>
             {
                 if (dtj != null)
                 {

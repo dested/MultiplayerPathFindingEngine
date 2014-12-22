@@ -6,6 +6,8 @@ namespace Pather.Common.Libraries.NodeJS
     [Imported]
     public class STDOut : EventEmitter
     {
-        public void Write(string question) {}
+        public void Write(string question)
+        {
+        }
     }
 }

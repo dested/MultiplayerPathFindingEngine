@@ -14,12 +14,13 @@ namespace Pather.Common.TestFramework
             public int PassedCount;
             public int FailedCount;
         }
+
         public static Promise RunTests(Type type)
         {
             var deferred = Q.Defer();
 
             var methods = type.GetMethods();
-            object testObject = type.Assembly.CreateInstance(type.FullName);
+            var testObject = type.Assembly.CreateInstance(type.FullName);
 
             Global.Console.Log("Running tests for:", type.FullName);
 
@@ -27,7 +28,7 @@ namespace Pather.Common.TestFramework
 
             foreach (var methodInfo in methods)
             {
-                if (methodInfo.GetCustomAttributes(typeof(TestMethodAttribute)).Length > 0)
+                if (methodInfo.GetCustomAttributes(typeof (TestMethodAttribute)).Length > 0)
                 {
                     testMethods.Add(methodInfo);
                 }
@@ -50,7 +51,6 @@ namespace Pather.Common.TestFramework
 
 
             return deferred.Promise;
-
         }
 
         private static Promise<TestProgressCounter, object> ProcessTestMethods(object testObject, List<MethodInfo> testMethods)
@@ -60,7 +60,7 @@ namespace Pather.Common.TestFramework
             var deferred = Q.Defer<TestProgressCounter, object>();
 
 
-            List<Promise> promises = new List<Promise>();
+            var promises = new List<Promise>();
 
             foreach (var testMethod in testMethods)
             {
@@ -70,7 +70,6 @@ namespace Pather.Common.TestFramework
             {
                 deferred.Resolve(progress);
             });
-          
 
 
             return deferred.Promise;
@@ -78,21 +77,18 @@ namespace Pather.Common.TestFramework
 
         private static Promise ProcessTestMethod(object testObject, TestProgressCounter progress, MethodInfo testMethod)
         {
-
-
             var d = Q.Defer();
 
 
             if (testMethod.ParameterTypes.Length > 0)
             {
                 var firstParam = testMethod.ParameterTypes[0];
-                if (firstParam == typeof(Deferred))
+                if (firstParam == typeof (Deferred))
                 {
-
                     d.Promise.Then(() =>
                     {
                         progress.PassedCount++;
-                        Global.Console.Log("","Running test:", testMethod.Name, "Passed");
+                        Global.Console.Log("", "Running test:", testMethod.Name, "Passed");
                     }).Error(() =>
                     {
                         progress.FailedCount++;
@@ -113,8 +109,6 @@ namespace Pather.Common.TestFramework
                         Global.Console.Log("", "Exception", "Test:", testMethod.Name, "Failed:", ex.Message);
                         d.Reject();
                     }
-
-
                 }
                 else
                 {
@@ -127,7 +121,7 @@ namespace Pather.Common.TestFramework
                 {
                     Global.Console.Log("Running test:", testMethod.Name, "Passed");
                     testMethod.Invoke(testObject);
-                    Global.Console.Log("","Test:", testMethod.Name, "Passed");
+                    Global.Console.Log("", "Test:", testMethod.Name, "Passed");
                 }
                 catch (AssertException ex)
                 {
@@ -145,20 +139,19 @@ namespace Pather.Common.TestFramework
             }
 
             return d.Promise;
-
         }
 
 
         public static void RunTests(string testClass)
         {
-            Assembly[] allAssemblies = GetAllAssemblies();
-            List<Promise> testClassesPromises = new List<Promise>();
+            var allAssemblies = GetAllAssemblies();
+            var testClassesPromises = new List<Promise>();
 
             foreach (var assembly in allAssemblies)
             {
                 foreach (var type in assembly.GetTypes())
                 {
-                    if (type.GetCustomAttributes(typeof(TestClassAttribute), true).Length > 0)
+                    if (type.GetCustomAttributes(typeof (TestClassAttribute), true).Length > 0)
                     {
                         if (string.IsNullOrEmpty(testClass) || type.Name == testClass)
                         {
@@ -169,8 +162,6 @@ namespace Pather.Common.TestFramework
             }
 
 
-
-
             Q.All(testClassesPromises.ToArray()).Then(() =>
             {
                 Global.Console.Log("Done running tests.");
@@ -179,14 +170,12 @@ namespace Pather.Common.TestFramework
                     Global.Process.Exit();
                 }
             });
-
-
         }
+
         [InlineCode("{$System.Script}.getAssemblies()")]
         public static Assembly[] GetAllAssemblies()
         {
-            return (Assembly[])null;
+            return (Assembly[]) null;
         }
-
     }
 }

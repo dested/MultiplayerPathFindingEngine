@@ -1,19 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
 using Pather.Common.Libraries.NodeJS;
 using Pather.ServerManager.Libraries.Socket.IO;
 using Pather.ServerManager.Utils;
 
 namespace Pather.ServerManager.Common.SocketManager
 {
-
     public class SocketIOManager : ISocketManager
     {
         private SocketIOClient io;
 
         public void Init(int port)
         {
-
             var http = Global.Require<Http>("http");
 
             var app = http.CreateServer((req, res) => res.End());
@@ -21,14 +18,13 @@ namespace Pather.ServerManager.Common.SocketManager
             io = SocketIO.Listen(app);
 
 
-            List<string> networkIPs = ServerHelper.GetNetworkIPs();
-            string currentIP = networkIPs[0] + ":" + port;
+            var networkIPs = ServerHelper.GetNetworkIPs();
+            var currentIP = networkIPs[0] + ":" + port;
             string url;
             url = string.Format("http://{0}", currentIP);
 
             Global.Console.Log("Server URL", url);
             app.Listen(port);
-
         }
 
         public void Connections(Action<ISocket> action)
@@ -37,7 +33,6 @@ namespace Pather.ServerManager.Common.SocketManager
             {
                 action(new SocketIOSocket(socket));
             });
-
         }
     }
 }

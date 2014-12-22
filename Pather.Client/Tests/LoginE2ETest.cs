@@ -11,22 +11,18 @@ namespace Pather.Client.Tests
         [TestMethod]
         public void Test1(Deferred defer)
         {
-
             var clientCommunicator = new ClientCommunicator("http://127.0.0.1:1800");
             clientCommunicator.ListenOnChannel<string>("Gateway.Join.Success", (item) =>
             {
                 Global.Console.Log(item);
 
                 defer.Resolve();
-
             });
 
             clientCommunicator.SendMessage("Gateway.Join", new GatewayJoinModel()
             {
                 UserToken = "salvatore"
             });
-
         }
-
     }
 }

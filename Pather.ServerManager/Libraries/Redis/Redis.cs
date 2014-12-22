@@ -7,7 +7,8 @@ namespace Pather.ServerManager.Libraries.Redis
     [IgnoreNamespace]
     public class Redis : NodeModule
     {
-        [ScriptName("debug_mode")] public bool DebugMode;
+        [ScriptName("debug_mode")]
+        public bool DebugMode;
 
         public RedisClient CreateClient(int port, string ip)
         {

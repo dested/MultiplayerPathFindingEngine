@@ -3,7 +3,7 @@
 namespace Pather.Common.Definitions.AStar
 {
     [Imported()]
-    public  class AStarGridPoint
+    public class AStarGridPoint
     {
     }
 }

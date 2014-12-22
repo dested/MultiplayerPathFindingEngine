@@ -5,7 +5,7 @@ namespace Pather.Common.Definitions.AStar
     [Imported()]
     public class AStarPath
     {
-        public  int X ;
-        public int Y ;
+        public int X;
+        public int Y;
     }
 }

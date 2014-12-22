@@ -2,24 +2,22 @@ using System;
 using System.Collections.Generic;
 using System.Html;
 using Pather.Common;
-using Pather.Common.Libraries;
-using Pather.Common.Models;
 using Pather.Common.Models.Game;
 
 namespace Pather.Client
 {
     public class ClientNetworkManager
     {
-        public ClientCommunicator ClientCommunicator ;
-        public int NetworkPlayers ;
+        public ClientCommunicator ClientCommunicator;
+        public int NetworkPlayers;
 
-        public Action<SerializableAction> OnReceiveAction ;
-        public Action<ConnectedModel> OnConnected ;
-        public Action<PlayerSyncModel> OnPlayerSync ;
-        public Action<SyncLockstepModel> OnSetLockStep ;
-        public Action<int> OnSetLatency ;
+        public Action<SerializableAction> OnReceiveAction;
+        public Action<ConnectedModel> OnConnected;
+        public Action<PlayerSyncModel> OnPlayerSync;
+        public Action<SyncLockstepModel> OnSetLockStep;
+        public Action<int> OnSetLatency;
 
-        private long lastPing=0;
+        private long lastPing = 0;
         private List<long> pingSent;
 
         public ClientNetworkManager()
@@ -51,8 +49,7 @@ namespace Pather.Client
                 SocketChannels.ServerChannel(SocketChannels.Server.Pong),
                 (model) =>
                 {
-
-                    var cur= new DateTime().GetTime();
+                    var cur = new DateTime().GetTime();
                     pingSent.Add(cur - lastPing);
                     lastPing = cur;
 
@@ -70,7 +67,7 @@ namespace Pather.Client
                         }
 
 
-                        OnSetLatency((int)((double)average / (double)(pingSent.Count)) / 2);
+                        OnSetLatency((int) ((double) average/(double) (pingSent.Count))/2);
                         pingSent = null;
                     }
                 });
@@ -84,21 +81,16 @@ namespace Pather.Client
                 });
 
 
-
             ClientCommunicator.ListenOnChannel<SerializableAction>(
                 SocketChannels.ServerChannel(SocketChannels.Server.PostAction),
                 (model) =>
                 {
                     ReceiveAction(model);
                 });
-
-
-
         }
 
         private void TriggerPingTest()
         {
-
             pingSent = new List<long>();
             lastPing = new DateTime().GetTime();
             ClientCommunicator.SendMessage(SocketChannels.ClientChannel(SocketChannels.Client.Ping), new PingPongModel());
@@ -117,10 +109,11 @@ namespace Pather.Client
         public void JoinPlayer(string myPlayerId)
         {
             ClientCommunicator.SendMessage(SocketChannels.ClientChannel(SocketChannels.Client.JoinPlayer),
-                new PlayerJoinModel() { PlayerId = myPlayerId }
+                new PlayerJoinModel()
+                {
+                    PlayerId = myPlayerId
+                }
                 );
-
         }
     }
-
 }

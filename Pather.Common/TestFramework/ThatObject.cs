@@ -7,12 +7,20 @@ namespace Pather.Common.TestFramework
         internal readonly object That;
         internal readonly Deferred Deferred;
 
-        public ThatObject(object that, Deferred deferred=null)
+        public ThatObject(object that, Deferred deferred = null)
         {
-            this.That = that;
-            this.Deferred = deferred;
+            That = that;
+            Deferred = deferred;
         }
-        public RightObject Is { get { return new RightObject(this); } }
-        public RightObject Does { get { return new RightObject(this); } }
+
+        public RightObject Is
+        {
+            get { return new RightObject(this); }
+        }
+
+        public RightObject Does
+        {
+            get { return new RightObject(this); }
+        }
     }
 }

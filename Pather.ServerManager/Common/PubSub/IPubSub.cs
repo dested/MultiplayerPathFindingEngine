@@ -7,8 +7,10 @@ namespace Pather.ServerManager.Common.PubSub
     public interface IPubSub
     {
         void Publish(string channel, string content);
+
         [IncludeGenericArguments(false)]
         void Publish<T>(string channel, T content);
+
         void Subscribe(string channel, Action<string> callback);
         Promise Init();
         void ReceivedMessage(string channel, string message);

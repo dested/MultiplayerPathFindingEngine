@@ -1,9 +1,7 @@
 ﻿using System;
 using Pather.Client.Libraries;
 using Pather.Common;
-using Pather.Common.Libraries;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models;
 using Pather.Common.Utils;
 
 namespace Pather.Client
@@ -12,7 +10,7 @@ namespace Pather.Client
     {
         public SocketIOClient Socket;
 
-        public ClientCommunicator(string url=null)
+        public ClientCommunicator(string url = null)
         {
 //            var url = "http://198.211.107.101:8991";
             url = url ?? "http://127.0.0.1:8991";
@@ -24,7 +22,6 @@ namespace Pather.Client
                 {
                     Global.Console.Log("hi");
                 });
-
             }
             else
             {

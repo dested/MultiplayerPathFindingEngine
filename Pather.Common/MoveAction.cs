@@ -4,8 +4,12 @@ namespace Pather.Common
 {
     public class MoveAction : IAction
     {
-        public MoveModel MoveModel ;
-        public object Data { get { return MoveModel; } }
+        public MoveModel MoveModel;
+
+        public object Data
+        {
+            get { return MoveModel; }
+        }
 
         public long LockstepTickNumber { get; private set; }
 
@@ -25,6 +29,7 @@ namespace Pather.Common
                 }
             }
         }
+
         public ActionType Type
         {
             get { return ActionType.Move; }

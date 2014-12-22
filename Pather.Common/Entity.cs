@@ -6,15 +6,15 @@ namespace Pather.Common
 {
     public class Entity
     {
-        public double X ;
-        public double Y ;
-        public int SquareX ;
-        public int SquareY ;
-        public double Speed ;
-        public string PlayerId ;
-        public List<AStarPath> Path ;
-        public List<AnimationPoint> Animations ;
-        private Game Game ;
+        public double X;
+        public double Y;
+        public int SquareX;
+        public int SquareY;
+        public double Speed;
+        public string PlayerId;
+        public List<AStarPath> Path;
+        public List<AnimationPoint> Animations;
+        private readonly Game Game;
 
         public Entity(Game game, string playerId)
         {
@@ -33,8 +33,8 @@ namespace Pather.Common
         {
             X = x;
             Y = y;
-            SquareX = (int)((X) / Constants.SquareSize);
-            SquareY = (int)((Y) / Constants.SquareSize);
+            SquareX = (int) ((X)/Constants.SquareSize);
+            SquareY = (int) ((Y)/Constants.SquareSize);
         }
 
         public void RePathFind(int squareX, int squareY)
@@ -49,9 +49,6 @@ namespace Pather.Common
 
         public void Tick()
         {
-        
-
-
             var result = Path[0];
             Animations = new List<AnimationPoint>();
 
@@ -62,17 +59,12 @@ namespace Pather.Common
 
             projectedSquareX = result == null ? SquareX : (result.X);
             projectedSquareY = result == null ? SquareY : (result.Y);
-             
-
 
 
             for (var i = 0; i < Constants.AnimationSteps; i++)
             {
-
-
-
-                SquareX = (int)((X) / Constants.SquareSize);
-                SquareY = (int)((Y) / Constants.SquareSize);
+                SquareX = (int) ((X)/Constants.SquareSize);
+                SquareY = (int) ((Y)/Constants.SquareSize);
                 var fromX = X;
                 var fromY = Y;
 
@@ -87,26 +79,21 @@ namespace Pather.Common
                 }
 
 
+                projectedX = projectedSquareX*Constants.SquareSize + Constants.SquareSize/2;
+                projectedY = projectedSquareY*Constants.SquareSize + Constants.SquareSize/2;
 
-                projectedX = projectedSquareX * Constants.SquareSize + Constants.SquareSize / 2;
-                projectedY = projectedSquareY * Constants.SquareSize + Constants.SquareSize / 2;
 
-
-                if (((int)projectedX) == ((int)X) && ((int)projectedY) == ((int)Y))
+                if (((int) projectedX) == ((int) X) && ((int) projectedY) == ((int) Y))
                 {
                     return;
                 }
 
-                X = Lerper.MoveTowards(X, projectedX, (Speed / Constants.AnimationSteps));
-                Y = Lerper.MoveTowards(Y, projectedY, (Speed / Constants.AnimationSteps));
+                X = Lerper.MoveTowards(X, projectedX, (Speed/Constants.AnimationSteps));
+                Y = Lerper.MoveTowards(Y, projectedY, (Speed/Constants.AnimationSteps));
 
 
                 Animations.Add(new AnimationPoint(fromX, fromY, X, Y));
             }
-
-
         }
-
     }
-
 }

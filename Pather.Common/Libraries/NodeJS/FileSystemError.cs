@@ -4,5 +4,7 @@ namespace Pather.Common.Libraries.NodeJS
 {
     [IgnoreNamespace]
     [Imported]
-    public class FileSystemError {}
+    public class FileSystemError
+    {
+    }
 }

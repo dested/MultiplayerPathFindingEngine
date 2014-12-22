@@ -32,8 +32,6 @@ namespace Pather.ServerManager.GameWorldServer
 
                 if (!Script.IsUndefined(possibleMessageReqRes.MessageId))
                 {
-
-
                     if (gameWorldPubSubMessage.Type == GameWorldMessageType.CreateGameServerResponse)
                     {
                         if (!deferredMessages.ContainsKey(possibleMessageReqRes.MessageId))
@@ -54,6 +52,7 @@ namespace Pather.ServerManager.GameWorldServer
         {
             PubSub.Publish(PubSubChannels.GameSegmentCluster + 1, message);
         }
+
         public Promise<T, UndefinedPromiseError> PublishToGameSegmentWithCallback<T>(IPubSubReqResMessage message)
         {
             var deferred = Q.Defer<T, UndefinedPromiseError>();

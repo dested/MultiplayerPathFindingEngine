@@ -2,13 +2,10 @@
 using System.Diagnostics;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.TestFramework;
-using Pather.ServerManager.Common;
 using Pather.ServerManager.Common.PubSub;
 using Pather.ServerManager.Common.PushPop;
 using Pather.ServerManager.Common.SocketManager;
 using Pather.ServerManager.Database;
-using Pather.ServerManager.GatewayServer;
-using Pather.ServerManager.Libraries.Redis;
 
 namespace Pather.ServerManager
 {
@@ -17,7 +14,7 @@ namespace Pather.ServerManager
         public static void Main()
         {
             Debugger.Break();
-            string arg = Global.Process.Arguments[2];
+            var arg = Global.Process.Arguments[2];
 
             if (string.IsNullOrEmpty(arg))
             {
@@ -29,14 +26,13 @@ namespace Pather.ServerManager
 
             if (arg == "test")
             {
-
                 string testClass = null;
 
                 if (!string.IsNullOrEmpty(Global.Process.Arguments[3]))
                 {
                     testClass = Global.Process.Arguments[3];
                 }
-                
+
                 TestFramework.RunTests(testClass);
                 return;
             }
@@ -48,7 +44,7 @@ namespace Pather.ServerManager
                 {
                     case "gt":
                     case "gateway":
-                        new GatewayServer.GatewayServer(new PubSub(),new SocketIOManager());
+                        new GatewayServer.GatewayServer(new PubSub(), new SocketIOManager());
                         break;
                     case "au":
                     case "auth":
@@ -80,6 +76,5 @@ namespace Pather.ServerManager
                 Global.Console.Log("CRITICAL FAILURE: ", exc);
             }
         }
-
     }
 }

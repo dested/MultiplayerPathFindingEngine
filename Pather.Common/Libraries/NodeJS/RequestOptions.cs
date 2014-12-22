@@ -27,7 +27,7 @@ namespace Pather.Common.Libraries.NodeJS
         public string Auth { get; set; }
 
         /// <summary>
-        /// Possible values are: Script.Undefined, an Agent, or 'false'
+        ///     Possible values are: Script.Undefined, an Agent, or 'false'
         /// </summary>
         public TypeOption<object, Agent, bool> Agent { get; set; }
     }

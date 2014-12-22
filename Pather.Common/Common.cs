@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.CompilerServices;
 
 namespace Pather.Common
 {
@@ -7,7 +6,7 @@ namespace Pather.Common
     {
         public static string ShortDate()
         {
-            string sb = "";
+            var sb = "";
 
             var dt = DateTime.Now;
             /*
@@ -19,9 +18,10 @@ namespace Pather.Common
             sb += dt.Second;
             return sb;
         }
+
         public static string LongDate()
         {
-            string sb = "";
+            var sb = "";
 
             var dt = DateTime.Now;
 
@@ -36,9 +36,7 @@ namespace Pather.Common
 
         public static string UniqueId()
         {
-
             return Guid.NewGuid().ToString();
         }
-
     }
 }

@@ -5,6 +5,6 @@ namespace Pather.Common.Models.Game
     [Serializable]
     public class PlayerJoinModel
     {
-        public string PlayerId ;
+        public string PlayerId;
     }
 }

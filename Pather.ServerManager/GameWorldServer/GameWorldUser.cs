@@ -11,14 +11,13 @@ namespace Pather.ServerManager.GameWorldServer
         public GameSegment GameSegment;
         public List<GameWorldNeighbor> Neighbors { get; set; }
 
-         
 
         public GameWorldNeighbor ClosestNeighbor()
         {
             GameWorldNeighbor closestNeighbor = null;
             foreach (var gameWorldNeighbor in Neighbors)
             {
-                if (closestNeighbor==null ||gameWorldNeighbor.Distance < closestNeighbor.Distance)
+                if (closestNeighbor == null || gameWorldNeighbor.Distance < closestNeighbor.Distance)
                 {
                     closestNeighbor = gameWorldNeighbor;
                 }

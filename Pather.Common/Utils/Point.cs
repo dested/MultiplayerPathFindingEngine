@@ -2,8 +2,8 @@ namespace Pather.Common.Utils
 {
     public class Point
     {
-        public double X ;
-        public double Y ;
+        public double X;
+        public double Y;
 
         public Point(double x, double y)
         {

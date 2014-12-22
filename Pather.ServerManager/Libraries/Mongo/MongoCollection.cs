@@ -7,6 +7,8 @@ namespace Pather.ServerManager.Libraries.Mongo
     public class MongoCollection
     {
         [ScriptName("insert")]
-        public void Insert(object gmo) {}
+        public void Insert(object gmo)
+        {
+        }
     }
 }

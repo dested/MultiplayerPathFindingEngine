@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Serialization;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameWorld;
@@ -8,8 +7,6 @@ using Pather.Common.Models.Gateway;
 using Pather.ServerManager.Common;
 using Pather.ServerManager.Common.PubSub;
 using Pather.ServerManager.Common.SocketManager;
-using Pather.ServerManager.Libraries.Socket.IO;
-using Pather.ServerManager.Utils;
 
 namespace Pather.ServerManager.GatewayServer
 {
@@ -25,7 +22,7 @@ namespace Pather.ServerManager.GatewayServer
             GatewayName = "Gateway " + Guid.NewGuid();
             Global.Console.Log(GatewayName);
 
-            var port = 1800 + Math.Truncate((Math.Random() * 4000d));
+            var port = 1800 + Math.Truncate((Math.Random()*4000d));
             port = 1800;
 
             ServerCommunicator = new ServerCommunicator(socketManager, port);
@@ -35,7 +32,7 @@ namespace Pather.ServerManager.GatewayServer
         }
 
 
-        private List<GatewayUser> Users = new List<GatewayUser>();
+        private readonly List<GatewayUser> Users = new List<GatewayUser>();
 
 
         private void pubsubReady()
@@ -55,13 +52,15 @@ namespace Pather.ServerManager.GatewayServer
                         break;
                     }
                 }
-
             };
 
 
             ServerCommunicator.OnNewConnection += (socket) =>
             {
-                GatewayUser user = new GatewayUser() { Socket = socket };
+                var user = new GatewayUser()
+                {
+                    Socket = socket
+                };
                 Users.Add(user);
                 ServerCommunicator.ListenOnChannel(socket, "Gateway.Message",
                     (ISocket cSocket, GatewaySocketMessageModel data) =>
@@ -80,10 +79,7 @@ namespace Pather.ServerManager.GatewayServer
                             UserToken = data.UserToken
                         });
                     });
-
             };
-
-
         }
 
         private void gatewayMessage(string message)
@@ -94,7 +90,7 @@ namespace Pather.ServerManager.GatewayServer
             switch (gMessage.Type)
             {
                 case GatewayMessageType.UserJoined:
-                    var userJoinedMessage = (UserJoinedGatewayPubSubMessage)gMessage;
+                    var userJoinedMessage = (UserJoinedGatewayPubSubMessage) gMessage;
 
 
                     foreach (var gatewayUser in Users)

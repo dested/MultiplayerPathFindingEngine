@@ -17,7 +17,7 @@ namespace Pather.ServerManager.GameSegmentCluster.Tests
             throw new NotImplementedException();
         }
 
-        private Dictionary<string, Action<string>> channels = new Dictionary<string, Action<string>>();
+        private readonly Dictionary<string, Action<string>> channels = new Dictionary<string, Action<string>>();
 
         public void Subscribe(string channel, Action<string> callback)
         {

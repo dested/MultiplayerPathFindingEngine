@@ -4,7 +4,7 @@ using Pather.Common.Models.GameSegmentCluster;
 namespace Pather.Common.Models.GameWorld
 {
     [Serializable]
-    public class CreateGameServerResponseGameWorldPubSubMessage : GameWorldPubSubMessage,IPubSubReqResMessage
+    public class CreateGameServerResponseGameWorldPubSubMessage : GameWorldPubSubMessage, IPubSubReqResMessage
     {
         public CreateGameServerResponseGameWorldPubSubMessage()
         {

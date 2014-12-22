@@ -9,9 +9,13 @@ namespace Pather.ServerManager.Libraries.Mongo
     public class MongoDB : NodeModule
     {
         [ScriptName("open")]
-        public void Open(Action<object, object> action) {}
+        public void Open(Action<object, object> action)
+        {
+        }
 
         [ScriptName("collection")]
-        public void Collection(string testInsert, Action<string, MongoCollection> test) {}
+        public void Collection(string testInsert, Action<string, MongoCollection> test)
+        {
+        }
     }
 }

@@ -26,12 +26,11 @@ namespace Pather.ServerManager.Common.SocketManager
                 Global.Console.Log("Disconnectesion");
                 callback();
             });
-
         }
 
         public void Emit<T>(string channel, DataObject<T> dataObject)
         {
-            Socket.Emit(channel,dataObject);
+            Socket.Emit(channel, dataObject);
         }
     }
 }

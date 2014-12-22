@@ -26,107 +26,87 @@ global.$instantiateInterface$=function ($type$) {
     return obj;
 }");
         }
+
         [InlineCode("global.$overwiteMethodCallForMocker$({call},{overwrite})")]
         public static void StubMethodCall(Action call, Action overwrite)
         {
-
         }
 
         [InlineCode("global.$overwiteMethodCallForMocker$({call},{overwrite})")]
         public static void StubMethodCall<T>(Action<T> call, Action<T> overwrite)
         {
-
         }
 
         [InlineCode("global.$overwiteMethodCallForMocker$({call},{overwrite})")]
         public static void StubMethodCall<T, T2>(Action<T, T2> call, Action<T, T2> overwrite)
         {
-
         }
 
         [InlineCode("global.$overwiteMethodCallForMocker$({call},{overwrite})")]
         public static void StubMethodCall<T, T2, T3>(Action<T, T2, T3> call, Action<T, T2, T3> overwrite)
         {
-
         }
 
         [InlineCode("global.$overwiteMethodCallForMocker$({call},function(){})")]
         public static void StubMethodCall(Action call)
         {
-
         }
 
         [InlineCode("global.$overwiteMethodCallForMocker$({call},function(){})")]
         public static void StubMethodCall<T>(Action<T> call)
         {
-
         }
 
         [InlineCode("global.$overwiteMethodCallForMocker$({call},function(){})")]
         public static void StubMethodCall<T, T2>(Action<T, T2> call)
         {
-
         }
 
         [InlineCode("global.$overwiteMethodCallForMocker$({call},function(){})")]
         public static void StubMethodCall<T, T2, T3>(Action<T, T2, T3> call)
         {
-
         }
-
-
 
 
         [InlineCode("global.$overwiteMethodCallForMocker$({call},{overwrite})")]
         public static void StubMethodCall<TReturn>(Func<TReturn> call, Func<TReturn> overwrite)
         {
-
         }
 
         [InlineCode("global.$overwiteMethodCallForMocker$({call},{overwrite})")]
         public static void StubMethodCall<T, TReturn>(Func<T, TReturn> call, Func<T, TReturn> overwrite)
         {
-
         }
 
         [InlineCode("global.$overwiteMethodCallForMocker$({call},{overwrite})")]
         public static void StubMethodCall<T, T2, TReturn>(Func<T, T2, TReturn> call, Func<T, T2, TReturn> overwrite)
         {
-
         }
 
         [InlineCode("global.$overwiteMethodCallForMocker$({call},{overwrite})")]
         public static void StubMethodCall<T, T2, T3, TReturn>(Func<T, T2, T3, TReturn> call, Func<T, T2, T3, TReturn> overwrite)
         {
-
         }
-
-
-
 
 
         [InlineCode("global.$overwiteMethodCallForMocker$({call},function(){{return {overwrite};}})")]
         public static void StubMethodCall<TReturn>(Func<TReturn> call, TReturn overwrite)
         {
-
         }
 
         [InlineCode("global.$overwiteMethodCallForMocker$({call},function(){{return {overwrite};}})")]
         public static void StubMethodCall<T, TReturn>(Func<T, TReturn> call, TReturn overwrite)
         {
-
         }
 
         [InlineCode("global.$overwiteMethodCallForMocker$({call},function(){{return {overwrite};}})")]
         public static void StubMethodCall<T, T2, TReturn>(Func<T, T2, TReturn> call, TReturn overwrite)
         {
-
         }
 
         [InlineCode("global.$overwiteMethodCallForMocker$({call},function(){{return {overwrite};}})")]
         public static void StubMethodCall<T, T2, T3, TReturn>(Func<T, T2, T3, TReturn> call, TReturn overwrite)
         {
-
         }
 
         [InlineCode("global.$instantiateInterface$({T})")]
@@ -134,6 +114,5 @@ global.$instantiateInterface$=function ($type$) {
         {
             return default(T);
         }
-      
     }
 }

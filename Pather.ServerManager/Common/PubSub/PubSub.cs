@@ -56,8 +56,8 @@ namespace Pather.ServerManager.Common.PubSub
 
         public void ReceivedMessage(string channel, string message)
         {
-            Global.Console.Log("Pubsub Message Received",channel,message);
-            Action<string> channelCallback = subbed[channel];
+            Global.Console.Log("Pubsub Message Received", channel, message);
+            var channelCallback = subbed[channel];
             if (channelCallback != null)
                 channelCallback(message);
         }
@@ -68,9 +68,10 @@ namespace Pather.ServerManager.Common.PubSub
             Global.Console.Log("Pubsub Message Sent", channel, message);
             pubClient.Publish(channel, message);
         }
+
         public void Publish<T>(string channel, T message)
         {
-            string stringMessage = Json.Stringify(message);
+            var stringMessage = Json.Stringify(message);
             Global.Console.Log("Pubsub Message Sent", channel, stringMessage);
             pubClient.Publish(channel, stringMessage);
         }

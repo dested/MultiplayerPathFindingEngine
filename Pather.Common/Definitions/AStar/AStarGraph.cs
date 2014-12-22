@@ -11,7 +11,6 @@ namespace Pather.Common.Definitions.AStar
         {
         }
 
-        public AStarGridPoint[][] Grid ;
-
+        public AStarGridPoint[][] Grid;
     }
 }

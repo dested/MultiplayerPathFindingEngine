@@ -5,10 +5,10 @@ namespace Pather.Common.Utils.Promises
 {
     public class Promise<TResolve, TError>
     {
-        private List<Action<TResolve>> resolves = new List<Action<TResolve>>();
+        private readonly List<Action<TResolve>> resolves = new List<Action<TResolve>>();
         //        private List<Func<TResolve, Promise<TResolve, TError>>> promsiedResolves = new List<Func<TResolve, Promise<TResolve, TError>>>();
-        private List<Action<TError>> rejects = new List<Action<TError>>();
-        private List<Action> finallys = new List<Action>();
+        private readonly List<Action<TError>> rejects = new List<Action<TError>>();
+        private readonly List<Action> finallys = new List<Action>();
 
         public Promise()
         {
@@ -18,18 +18,19 @@ namespace Pather.Common.Utils.Promises
             finallys = new List<Action>();
         }
 
-        public bool IsResolved ;
-        public bool IsRejected ;
+        public bool IsResolved;
+        public bool IsRejected;
 
-        private TResolve resolvedValue ;
+        private TResolve resolvedValue;
         private TError rejectedValue;
+
         internal void Resolve(TResolve item)
         {
             if (IsResolved || IsRejected)
             {
                 throw new Exception("Can only resolve promise once.");
-            } 
-            
+            }
+
             IsResolved = true;
             resolvedValue = item;
             foreach (var resolve in resolves)
@@ -41,13 +42,14 @@ namespace Pather.Common.Utils.Promises
                       resolve(item).
                   }*/
         }
+
         internal void Reject(TError item)
         {
             if (IsResolved || IsRejected)
             {
                 throw new Exception("Can only resolve promise once.");
-            } 
-            
+            }
+
             IsRejected = true;
             rejectedValue = item;
 
@@ -74,6 +76,7 @@ namespace Pather.Common.Utils.Promises
             }
             return this;
         }
+
         internal Promise<TResolve, TError> Finally(Action @finally)
         {
             if (IsRejected || IsResolved)
@@ -86,6 +89,7 @@ namespace Pather.Common.Utils.Promises
             }
             return this;
         }
+
         public Promise<TResolve, TError> Then(Action<TResolve> resolve)
         {
             if (IsResolved)
@@ -100,6 +104,7 @@ namespace Pather.Common.Utils.Promises
 
             return this;
         }
+
         /*
                 public Promise<TResolve, TError> Then(Func<TResolve,Promise<TResolve, TError>> resolve)
                 {
@@ -112,10 +117,10 @@ namespace Pather.Common.Utils.Promises
 
     public class Promise
     {
-        private List<Action> resolves = new List<Action>();
+        private readonly List<Action> resolves = new List<Action>();
         //        private List<Func<Promise>> promsiedResolves = new List<Func<Promise>>();
-        private List<Action> rejects = new List<Action>();
-        private List<Action> finallys = new List<Action>();
+        private readonly List<Action> rejects = new List<Action>();
+        private readonly List<Action> finallys = new List<Action>();
 
         public Promise()
         {
@@ -125,8 +130,8 @@ namespace Pather.Common.Utils.Promises
             finallys = new List<Action>();
         }
 
-        public bool IsResolved  ;
-        public bool IsRejected  ;
+        public bool IsResolved;
+        public bool IsRejected;
 
         protected internal void Resolve()
         {
@@ -137,24 +142,25 @@ namespace Pather.Common.Utils.Promises
             IsResolved = true;
             foreach (var resolve in resolves)
             {
-                resolve( );
+                resolve();
             }
             /*      foreach (var resolve in promsiedResolves)
                   {
                       resolve(item).
                   }*/
         }
+
         protected internal void Reject()
         {
             if (IsResolved || IsRejected)
             {
                 throw new Exception("Can only resolve promise once.");
-            } 
-            
+            }
+
             IsRejected = true;
             foreach (var reject in rejects)
             {
-                reject( );
+                reject();
             }
 
             foreach (var @finally in finallys)
@@ -176,6 +182,7 @@ namespace Pather.Common.Utils.Promises
 
             return this;
         }
+
         public Promise Finally(Action @finally)
         {
             if (IsRejected || IsResolved)
@@ -186,9 +193,10 @@ namespace Pather.Common.Utils.Promises
             {
                 finallys.Add(@finally);
             }
-            
+
             return this;
         }
+
         public Promise Then(Action resolve)
         {
             if (IsResolved)
@@ -201,6 +209,7 @@ namespace Pather.Common.Utils.Promises
             }
             return this;
         }
+
         /*
                 public Promise Then(Func<Promise> resolve)
                 {

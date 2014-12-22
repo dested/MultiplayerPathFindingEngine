@@ -7,6 +7,8 @@ namespace Pather.Common.Libraries.NodeJS
     [ScriptName("util")]
     public class Util : NodeModule
     {
-        public void Print(string s) {}
+        public void Print(string s)
+        {
+        }
     }
 }

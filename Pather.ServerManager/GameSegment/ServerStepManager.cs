@@ -4,7 +4,7 @@ namespace Pather.ServerManager.GameSegment
 {
     public class ServerStepManager : StepManager
     {
-        public ServerNetworkManager ServerNetworkManager ;
+        public ServerNetworkManager ServerNetworkManager;
 
         public ServerStepManager(Game game, ServerNetworkManager serverNetworkManager)
             : base(game)
@@ -15,7 +15,7 @@ namespace Pather.ServerManager.GameSegment
 
         public void SendActionServer(IAction action)
         {
-            SerializableAction serAction = new SerializableAction();
+            var serAction = new SerializableAction();
             serAction.Data = action.Data;
             serAction.LockstepTickNumber = action.LockstepTickNumber;
             serAction.Type = action.Type;

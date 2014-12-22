@@ -11,6 +11,6 @@ namespace Pather.Common.Libraries.NodeJS
         public Func<string, Process> Exec { get; set; }
 
         [IntrinsicProperty]
-        public Func<string,string[],object, Process> Spawn { get; set; }
+        public Func<string, string[], object, Process> Spawn { get; set; }
     }
 }

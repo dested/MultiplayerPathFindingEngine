@@ -5,12 +5,11 @@ namespace Pather.ServerManager.Utils
 {
     public class ServerHelper
     {
-
         public static List<string> GetNetworkIPs()
         {
             var os = Global.Require<dynamic>("os");
 
-            var interfaces = ((JsDictionary<string, JsDictionary<string, string>>)os.networkInterfaces());
+            var interfaces = ((JsDictionary<string, JsDictionary<string, string>>) os.networkInterfaces());
             var addresses = new List<string>();
             foreach (var k in interfaces)
             {
@@ -25,10 +24,6 @@ namespace Pather.ServerManager.Utils
             }
 
             return addresses;
-
         }
-
-
-
     }
 }

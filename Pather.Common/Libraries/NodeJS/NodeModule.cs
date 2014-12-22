@@ -4,5 +4,7 @@ namespace Pather.Common.Libraries.NodeJS
 {
     [IgnoreNamespace]
     [Imported]
-    public interface   NodeModule {}
+    public interface NodeModule
+    {
+    }
 }

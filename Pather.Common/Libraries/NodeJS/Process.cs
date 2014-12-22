@@ -10,21 +10,26 @@ namespace Pather.Common.Libraries.NodeJS
         [ScriptName("stdin")]
         [IntrinsicProperty]
         public STDIn STDIn { get; set; }
+
         [ScriptName("stdout")]
         [IntrinsicProperty]
         public STDOut STDOut { get; set; }
+
         [ScriptName("stderr")]
         [IntrinsicProperty]
         public STDError STDError { get; set; }
+
         [ScriptName("argv")]
         [IntrinsicProperty]
         public string[] Arguments { get; set; }
-        public void Exit() {}
+
+        public void Exit()
+        {
+        }
 
         [ScriptName("unref")]
         public void Unref()
         {
-            
         }
     }
 }

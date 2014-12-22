@@ -11,12 +11,12 @@ namespace Pather.ServerManager.GameSegment
             : base()
         {
             Global.Console.Log(gameServerName + " Has come online");
-            StepManager = new ServerStepManager(this, new ServerNetworkManager(this,socketManager));
+            StepManager = new ServerStepManager(this, new ServerNetworkManager(this, socketManager));
             ConstructGrid();
             Ready = true;
         }
 
-        public Action<long> SyncLockstep ;
+        public Action<long> SyncLockstep;
 
         public override Entity CreatePlayer(string playerId)
         {

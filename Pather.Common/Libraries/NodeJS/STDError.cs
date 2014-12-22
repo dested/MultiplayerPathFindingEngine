@@ -7,6 +7,8 @@ namespace Pather.Common.Libraries.NodeJS
     [ScriptName("STDErr")]
     public class STDError : EventEmitter
     {
-        public void Write(string question) {}
+        public void Write(string question)
+        {
+        }
     }
 }

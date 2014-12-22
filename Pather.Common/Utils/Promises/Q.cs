@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Pather.Common.Utils.Promises
 {
@@ -10,6 +9,7 @@ namespace Pather.Common.Utils.Promises
         {
             return new Deferred<TResolve, TError>();
         }
+
         public static Deferred<TResolve, object> Defer<TResolve>()
         {
             return new Deferred<TResolve, object>();
@@ -24,10 +24,10 @@ namespace Pather.Common.Utils.Promises
         {
             var deferred = Defer<TResolve[], TError>();
             var count = 0;
-            
-            List<TResolve> resolves = new List<TResolve>();
 
-            var resolveCallback = (Action<TResolve>)((resolve) =>
+            var resolves = new List<TResolve>();
+
+            var resolveCallback = (Action<TResolve>) ((resolve) =>
             {
                 count++;
                 resolves.Add(resolve);
@@ -37,7 +37,7 @@ namespace Pather.Common.Utils.Promises
                 }
             });
 
-            var rejectCallback = (Action<TError>)(deferred.Reject);
+            var rejectCallback = (Action<TError>) (deferred.Reject);
             foreach (var promise in promises)
             {
                 promise.Then(resolveCallback).Error(rejectCallback);
@@ -46,12 +46,11 @@ namespace Pather.Common.Utils.Promises
         }
 
 
-
         public static Promise All(params Promise[] promises)
         {
             var deferred = Defer();
             var count = 0;
-            var resolveCallback = (Action)(() =>
+            var resolveCallback = (Action) (() =>
             {
                 count++;
                 if (count == promises.Length)
@@ -60,7 +59,7 @@ namespace Pather.Common.Utils.Promises
                 }
             });
 
-            var rejectCallback = (Action)(deferred.Reject);
+            var rejectCallback = (Action) (deferred.Reject);
             foreach (var promise in promises)
             {
                 promise.Then(resolveCallback).Error(rejectCallback);
@@ -74,6 +73,7 @@ namespace Pather.Common.Utils.Promises
             deferred.Resolve();
             return deferred.Promise;
         }
+
         public static Promise<TResolve, TError> ResolvedPromise<TResolve, TError>(TResolve resolve)
         {
             var deferred = Defer<TResolve, TError>();
@@ -87,6 +87,7 @@ namespace Pather.Common.Utils.Promises
             deferred.Resolve();
             return deferred.Promise;
         }
+
         public static Promise<TResolve, TError> RejectedPromise<TResolve, TError>(TError error)
         {
             var deferred = Defer<TResolve, TError>();

@@ -2,22 +2,21 @@ using System;
 using System.Html;
 using System.Html.Media.Graphics;
 using Pather.Common;
-using Pather.Common.Libraries;
-using Pather.Common.Models;
 using Pather.Common.Models.Game;
 
 namespace Pather.Client
 {
-    public class ClientGame:Game
+    public class ClientGame : Game
     {
         public CanvasElement Canvas;
         public CanvasRenderingContext2D Context;
         public CanvasElement BackCanvas;
         public CanvasRenderingContext2D BackContext;
-        public string MyPlayerId ;
-        public Entity MyPlayer ;
+        public string MyPlayerId;
+        public Entity MyPlayer;
 
         private bool sentMovementForThisLockstep = false;
+
         public ClientGame()
         {
             MyPlayerId = Guid.NewGuid().ToString();
@@ -27,13 +26,12 @@ namespace Pather.Client
             randomMoveMeTo();
             if (!Constants.TestServer)
             {
-                BackCanvas = (CanvasElement)Document.GetElementById("backCanvas");
-                BackContext = (CanvasRenderingContext2D)BackCanvas.GetContext(CanvasContextId.Render2D);
-                Canvas = (CanvasElement)Document.GetElementById("canvas");
-                Context = (CanvasRenderingContext2D)Canvas.GetContext(CanvasContextId.Render2D);
+                BackCanvas = (CanvasElement) Document.GetElementById("backCanvas");
+                BackContext = (CanvasRenderingContext2D) BackCanvas.GetContext(CanvasContextId.Render2D);
+                Canvas = (CanvasElement) Document.GetElementById("canvas");
+                Context = (CanvasRenderingContext2D) Canvas.GetContext(CanvasContextId.Render2D);
                 Canvas.OnMousedown = (ev) =>
                 {
-
                     if (sentMovementForThisLockstep) return;
 
                     sentMovementForThisLockstep = true;
@@ -44,7 +42,6 @@ namespace Pather.Client
 
                     if (squareX < Constants.NumberOfSquares && squareY < Constants.NumberOfSquares)
                     {
-
                         moveMeTo(squareX, squareY);
                     }
                 };
@@ -57,8 +54,8 @@ namespace Pather.Client
             {
                 randomMoveMeTo();
 
-                var x =  (int)(Math.Random() * Constants.NumberOfSquares) ;
-                var y =  (int)(Math.Random() * Constants.NumberOfSquares) ;
+                var x = (int) (Math.Random()*Constants.NumberOfSquares);
+                var y = (int) (Math.Random()*Constants.NumberOfSquares);
 
                 x = Math.Max(x, 0);
                 y = Math.Max(y, 0);
@@ -67,9 +64,7 @@ namespace Pather.Client
                 y = Math.Min(y, Constants.NumberOfSquares - 1);
 
                 moveMeTo(x, y);
-
-            }, (int)(Math.Random() * 2500+500));
-
+            }, (int) (Math.Random()*2500 + 500));
         }
 
         private void moveMeTo(int squareX, int squareY)
@@ -103,7 +98,6 @@ namespace Pather.Client
             if (!Constants.TestServer)
             {
                 Window.RequestAnimationFrame((a) => Draw());
-                
             }
         }
 
@@ -125,7 +119,7 @@ namespace Pather.Client
                 {
                     if (Grid[x][y] == 0)
                     {
-                        BackContext.FillRect(x * Constants.SquareSize, y * Constants.SquareSize, Constants.SquareSize, Constants.SquareSize);
+                        BackContext.FillRect(x*Constants.SquareSize, y*Constants.SquareSize, Constants.SquareSize, Constants.SquareSize);
                     }
                 }
             }
@@ -146,15 +140,15 @@ namespace Pather.Client
                     DrawBack();
                 }
 
-                 
-                Context.ClearRect(0, 0, 1200, 1200); 
+
+                Context.ClearRect(0, 0, 1200, 1200);
                 if (!Ready)
                 {
                     Context.FillText("Syncing with server!", 100, 100);
                     return;
                 }
 
-           
+
                 var interpolatedTime = (((new DateTime()).GetTime() - NextGameTime)/(double) Constants.GameTicks);
 
 
@@ -167,7 +161,7 @@ namespace Pather.Client
 
         public override TickResult Tick()
         {
-            var tickResult=base.Tick();
+            var tickResult = base.Tick();
             if (tickResult == TickResult.Lockstep || tickResult == TickResult.Both)
             {
                 sentMovementForThisLockstep = false;

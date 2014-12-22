@@ -2,7 +2,6 @@
 using Pather.Common.Models.GameWorld;
 using Pather.Common.Models.Gateway;
 using Pather.Common.Utils.Promises;
-using Pather.ServerManager.Common;
 using Pather.ServerManager.Common.PubSub;
 using Pather.ServerManager.Database;
 
@@ -10,8 +9,8 @@ namespace Pather.ServerManager.GameWorldServer
 {
     public class GameWorldServer
     {
-        private IPubSub pubSub;
-        private IDatabaseQueries DatabaseQueries;
+        private readonly IPubSub pubSub;
+        private readonly IDatabaseQueries DatabaseQueries;
         public GameWorld GameWorld;
 
         public GameWorldServer(IPubSub pubSub, IDatabaseQueries dbQueries)
@@ -24,13 +23,11 @@ namespace Pather.ServerManager.GameWorldServer
 
         private void pubsubReady()
         {
-
             var gameSegmentClusterPubSub = new GameWorldPubSub(pubSub);
             gameSegmentClusterPubSub.Init();
             gameSegmentClusterPubSub.Message += gameWorldMessage;
 
             GameWorld = new GameWorld(gameSegmentClusterPubSub);
-
         }
 
         private void gameWorldMessage(GameWorldPubSubMessage gameworldMessage)
@@ -38,7 +35,7 @@ namespace Pather.ServerManager.GameWorldServer
             switch (gameworldMessage.Type)
             {
                 case GameWorldMessageType.UserJoined:
-                    UserJoined((UserJoinedGameWorldPubSubMessage)gameworldMessage).Then(gwUser =>
+                    UserJoined((UserJoinedGameWorldPubSubMessage) gameworldMessage).Then(gwUser =>
                     {
                         pubSub.Publish(gwUser.GatewayServer, new UserJoinedGatewayPubSubMessage()
                         {

@@ -6,8 +6,7 @@ namespace Pather.Common.Models.Game
     [Serializable]
     public class PlayerSyncModel
     {
-        public List<PlayerModel> JoinedPlayers ;
-        public List<PlayerModel> LeftPlayers ;
-
+        public List<PlayerModel> JoinedPlayers;
+        public List<PlayerModel> LeftPlayers;
     }
 }

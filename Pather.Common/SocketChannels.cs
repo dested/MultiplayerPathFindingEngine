@@ -8,10 +8,12 @@ namespace Pather.Common
         {
             return "Client." + c;
         }
+
         public static string ServerChannel(Server c)
         {
             return "Server." + c;
         }
+
         [NamedValues]
         public enum Client
         {
@@ -19,6 +21,7 @@ namespace Pather.Common
             JoinPlayer,
             Ping
         }
+
         [NamedValues]
         public enum Server
         {

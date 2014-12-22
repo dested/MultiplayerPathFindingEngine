@@ -2,16 +2,14 @@ using System;
 using System.Collections.Generic;
 using Pather.Common;
 using Pather.Common.Definitions.AStar;
-using Pather.Common.Libraries;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models;
 using Pather.Common.Models.Game;
 
 namespace Pather.Client
 {
     public class ClientStepManager : StepManager
     {
-        public ClientNetworkManager ClientNetworkManager ;
+        public ClientNetworkManager ClientNetworkManager;
 
         public override int NetworkPlayers
         {
@@ -33,7 +31,7 @@ namespace Pather.Client
         private void OnSetLatency(int latency)
         {
             Game.ServerLatency = latency;
-            Global.Console.Log("Latency:",latency);
+            Global.Console.Log("Latency:", latency);
         }
 
         private void OnSetLockstep(SyncLockstepModel model)
@@ -49,7 +47,6 @@ namespace Pather.Client
             }
             else
             {
-
                 if (Game.LockstepTickNumber > model.LockstepTickNumber)
                 {
                     Game.LockstepTickNumber = model.LockstepTickNumber;
@@ -63,7 +60,6 @@ namespace Pather.Client
                     Game.StepManager.ProcessAction(Game.LockstepTickNumber);
                 }
             }
-
         }
 
         private void Connected(ConnectedModel model)
@@ -72,7 +68,7 @@ namespace Pather.Client
             Game.AStarGraph = new AStarGraph(Game.Grid);
 
             Game.Players = new List<Entity>();
-            ClientNetworkManager.JoinPlayer(((ClientGame)Game).MyPlayerId);
+            ClientNetworkManager.JoinPlayer(((ClientGame) Game).MyPlayerId);
         }
 
         private void PlayerSync(PlayerSyncModel model)
@@ -84,9 +80,9 @@ namespace Pather.Client
                     var player = Game.CreatePlayer(playerModel.PlayerId);
                     player.Init(playerModel.X, playerModel.Y);
                     Game.Players.Add(player);
-                    if (((ClientGame)Game).MyPlayerId == playerModel.PlayerId)
+                    if (((ClientGame) Game).MyPlayerId == playerModel.PlayerId)
                     {
-                        ((ClientGame)Game).LocalPlayerJoined(player);
+                        ((ClientGame) Game).LocalPlayerJoined(player);
                     }
                 }
             }
@@ -109,7 +105,7 @@ namespace Pather.Client
 
         public void SendActionClient(IAction action)
         {
-            SerializableAction serAction = new SerializableAction
+            var serAction = new SerializableAction
             {
                 Data = action.Data,
                 LockstepTickNumber = action.LockstepTickNumber,
@@ -117,7 +113,5 @@ namespace Pather.Client
             };
             ClientNetworkManager.SendAction(serAction);
         }
-
     }
-
 }

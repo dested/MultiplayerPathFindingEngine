@@ -6,8 +6,10 @@ namespace Pather.ServerManager.Libraries.Socket.IO
     [Imported()]
     public class SocketIOClient
     {
-        public Socket Sockets ;
+        public Socket Sockets;
 
-        public void Set(string option, int value) {}
+        public void Set(string option, int value)
+        {
+        }
     }
 }

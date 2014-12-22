@@ -2,8 +2,8 @@ namespace Pather.Common.Utils
 {
     public class AnimationPoint : Point
     {
-        public double FromX ;
-        public double FromY ;
+        public double FromX;
+        public double FromY;
 
         public AnimationPoint(double fromX, double fromY, double x, double y)
             : base(x, y)

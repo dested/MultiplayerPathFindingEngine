@@ -13,7 +13,7 @@ namespace Pather.Common.TestFramework
 
         public void True()
         {
-            if (!(bool)that.That)
+            if (!(bool) that.That)
             {
                 fail(string.Format("{0} is not true", that.That));
             }
@@ -21,14 +21,14 @@ namespace Pather.Common.TestFramework
 
         public void Equal(object right)
         {
-
             if (that.That != right)
             {
-                fail(string.Format("{0} does not equal {1}", that.That,right));
+                fail(string.Format("{0} does not equal {1}", that.That, right));
             }
         }
+
         public void OfType(Type type)
-        { 
+        {
             if (that.That.GetType() != type)
             {
                 fail(string.Format("{0} type is not {1}", that.That.GetType().FullName, type.FullName));
@@ -40,6 +40,5 @@ namespace Pather.Common.TestFramework
         {
             throw new AssertException(error);
         }
-
     }
 }

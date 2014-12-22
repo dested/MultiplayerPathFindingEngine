@@ -7,7 +7,12 @@ namespace Pather.Common.Libraries.NodeJS
     [Imported]
     public class STDIn : EventEmitter
     {
-        public void Resume() {}
-        public void Once(string data, Action<string> function) {}
+        public void Resume()
+        {
+        }
+
+        public void Once(string data, Action<string> function)
+        {
+        }
     }
 }
