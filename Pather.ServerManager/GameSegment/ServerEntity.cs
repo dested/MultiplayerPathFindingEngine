@@ -1,11 +1,11 @@
 ﻿using Pather.Common;
-using Pather.ServerManager.Libraries.Socket.IO;
+using Pather.ServerManager.Common.SocketManager;
 
-namespace Pather.ServerManager.GameServer
+namespace Pather.ServerManager.GameSegment
 {
     public class ServerEntity:Entity
     {
-        public SocketIOConnection Socket ;
+        public ISocket Socket;
         public ServerEntity(Game game,string playerId) : base(game, playerId)
         {
         }

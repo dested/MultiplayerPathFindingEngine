@@ -23,7 +23,8 @@ namespace Pather.Common.Utils.Promises
 
         public Promise<TResolve, TError> PassPromiseThrough(Promise<TResolve, TError> passThrough)
         {
-            return passThrough.Then(Promise.Resolve).Error(Promise.Reject);
+            passThrough.Then((resolve) => Promise.Resolve(resolve)).Error((reject) => Promise.Reject(reject));
+            return Promise;
         }
     }
 

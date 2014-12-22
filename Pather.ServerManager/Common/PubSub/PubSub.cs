@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Serialization;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Utils.Promises;
 using Pather.ServerManager.Libraries.Redis;
 
-namespace Pather.ServerManager.Common
+namespace Pather.ServerManager.Common.PubSub
 {
     public class PubSub : IPubSub
     {
@@ -19,8 +20,9 @@ namespace Pather.ServerManager.Common
         {
         }
 
-        public void Init(Action<IPubSub> ready)
+        public Promise Init()
         {
+            var deferred = Q.Defer();
             subbed = new JsDictionary<string, Action<string>>();
 
             var redis = Global.Require<Redis>("redis");
@@ -33,38 +35,44 @@ namespace Pather.ServerManager.Common
             subClient.On("message",
                 (string channel, string message) =>
                 {
-                    RecievedMessage(channel, message);
+                    ReceivedMessage(channel, message);
                 });
             subClient.On("ready",
                 () =>
                 {
                     sready = true;
                     if (sready && pready)
-                        ready(this);
+                        deferred.Resolve();
                 });
             pubClient.On("ready",
                 () =>
                 {
                     pready = true;
                     if (sready && pready)
-                        ready(this);
+                        deferred.Resolve();
                 });
+            return deferred.Promise;
         }
 
-        public void RecievedMessage(string channel, string message)
+        public void ReceivedMessage(string channel, string message)
         {
-            if (subbed[channel] != null)
-                subbed[channel](message);
+            Global.Console.Log("Pubsub Message Received",channel,message);
+            Action<string> channelCallback = subbed[channel];
+            if (channelCallback != null)
+                channelCallback(message);
         }
 
 
-        public void Publish(string channel, string content)
+        public void Publish(string channel, string message)
         {
-            pubClient.Publish(channel, content);
+            Global.Console.Log("Pubsub Message Sent", channel, message);
+            pubClient.Publish(channel, message);
         }
-        public void Publish<T>(string channel, T content)
+        public void Publish<T>(string channel, T message)
         {
-            pubClient.Publish(channel, Json.Stringify(content));
+            string stringMessage = Json.Stringify(message);
+            Global.Console.Log("Pubsub Message Sent", channel, stringMessage);
+            pubClient.Publish(channel, stringMessage);
         }
 
 

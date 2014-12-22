@@ -78,6 +78,11 @@
     <Compile Include="Libraries\NodeJS\WritableStream.cs" />
     <Compile Include="Logger.cs" />
     <Compile Include="LogLevel.cs" />
+    <Compile Include="Models\GameSegmentCluster\GameSegmentClusterPubSubMessage.cs" />
+    <Compile Include="Models\GameSegmentCluster\CreateGameServerGameSegmentClusterPubSubMessage.cs" />
+    <Compile Include="Models\GameSegmentCluster\GameSegmentClusterMessageType.cs" />
+    <Compile Include="Models\GameSegmentCluster\IPubSubReqResMessage.cs" />
+    <Compile Include="Models\GameWorld\CreateGameServerResponseGameWorldPubSubMessage.cs" />
     <Compile Include="Models\GameWorld\GameWorldPubSubMessage.cs" />
     <Compile Include="Models\GameWorld\GameWorldMessageType.cs" />
     <Compile Include="Models\GameWorld\UserJoinedGameWorldPubSubMessage.cs" />
@@ -117,6 +122,7 @@
     <Compile Include="Utils\Promises\Q.cs" />
     <Compile Include="Utils\Promises\Deferred.cs" />
     <Compile Include="Utils\Promises\Promise.cs" />
+    <Compile Include="Utils\Promises\UndefinedPromiseError.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -67,5 +67,31 @@ namespace Pather.Common.Utils.Promises
             }
             return deferred.Promise;
         }
+
+        public static Promise ResolvedPromise()
+        {
+            var deferred = Defer();
+            deferred.Resolve();
+            return deferred.Promise;
+        }
+        public static Promise<TResolve, TError> ResolvedPromise<TResolve, TError>(TResolve resolve)
+        {
+            var deferred = Defer<TResolve, TError>();
+            deferred.Resolve(resolve);
+            return deferred.Promise;
+        }
+
+        public static Promise RejectedPromise()
+        {
+            var deferred = Defer();
+            deferred.Resolve();
+            return deferred.Promise;
+        }
+        public static Promise<TResolve, TError> RejectedPromise<TResolve, TError>(TError error)
+        {
+            var deferred = Defer<TResolve, TError>();
+            deferred.Reject(error);
+            return deferred.Promise;
+        }
     }
 }

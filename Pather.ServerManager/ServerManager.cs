@@ -1,9 +1,14 @@
 ﻿using System;
+using System.Diagnostics;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.TestFramework;
 using Pather.ServerManager.Common;
+using Pather.ServerManager.Common.PubSub;
+using Pather.ServerManager.Common.PushPop;
+using Pather.ServerManager.Common.SocketManager;
 using Pather.ServerManager.Database;
 using Pather.ServerManager.GatewayServer;
+using Pather.ServerManager.Libraries.Redis;
 
 namespace Pather.ServerManager
 {
@@ -11,8 +16,8 @@ namespace Pather.ServerManager
     {
         public static void Main()
         {
+            Debugger.Break();
             string arg = Global.Process.Arguments[2];
-
 
             if (string.IsNullOrEmpty(arg))
             {
@@ -20,10 +25,19 @@ namespace Pather.ServerManager
             }
 
             arg = arg.ToLower();
+            Global.Console.Log("Server started", arg);
 
             if (arg == "test")
             {
-                TestFramework.RunTests();
+
+                string testClass = null;
+
+                if (!string.IsNullOrEmpty(Global.Process.Arguments[3]))
+                {
+                    testClass = Global.Process.Arguments[3];
+                }
+                
+                TestFramework.RunTests(testClass);
                 return;
             }
 
@@ -40,9 +54,13 @@ namespace Pather.ServerManager
                     case "auth":
                         new AuthServer.AuthServer();
                         break;
-                    case "g":
+                    case "gsc":
+                    case "GameSegmentCluster":
+                        new GameSegmentCluster.GameSegmentCluster(new PubSub(), new PushPop());
+                        break;
+                    case "gs":
                     case "game":
-                        new GameServer.GameServer();
+                        new GameSegment.GameSegment(new SocketIOManager(), new PubSub(), new PushPop(), Global.Process.Arguments[3]);
                         break;
                     case "gw":
                     case "gameworld":

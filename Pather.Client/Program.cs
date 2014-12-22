@@ -12,7 +12,7 @@ namespace Pather.Client
 
             if (Window.Location.Hash == "#test")
             {
-                TestFramework.RunTests();
+                TestFramework.RunTests((string)null);
                 return;
             }
 

@@ -20,5 +20,11 @@ namespace Pather.Common.Libraries.NodeJS
         [IntrinsicProperty]
         public string[] Arguments { get; set; }
         public void Exit() {}
+
+        [ScriptName("unref")]
+        public void Unref()
+        {
+            
+        }
     }
 }

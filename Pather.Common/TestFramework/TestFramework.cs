@@ -149,7 +149,7 @@ namespace Pather.Common.TestFramework
         }
 
 
-        public static void RunTests()
+        public static void RunTests(string testClass)
         {
             Assembly[] allAssemblies = GetAllAssemblies();
             List<Promise> testClassesPromises = new List<Promise>();
@@ -160,7 +160,10 @@ namespace Pather.Common.TestFramework
                 {
                     if (type.GetCustomAttributes(typeof(TestClassAttribute), true).Length > 0)
                     {
-                        testClassesPromises.Add(RunTests(type));
+                        if (string.IsNullOrEmpty(testClass) || type.Name == testClass)
+                        {
+                            testClassesPromises.Add(RunTests(type));
+                        }
                     }
                 }
             }
@@ -171,7 +174,10 @@ namespace Pather.Common.TestFramework
             Q.All(testClassesPromises.ToArray()).Then(() =>
             {
                 Global.Console.Log("Done running tests.");
-                Global.Process.Exit();
+                if (Global.Process != null)
+                {
+                    Global.Process.Exit();
+                }
             });
 
 

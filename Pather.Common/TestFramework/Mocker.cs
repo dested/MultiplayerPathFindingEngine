@@ -130,9 +130,10 @@ global.$instantiateInterface$=function ($type$) {
         }
 
         [InlineCode("global.$instantiateInterface$({T})")]
-        public static  T InstantiateInterface<T>()
+        public static T InstantiateInterface<T>()
         {
             return default(T);
         }
+      
     }
 }

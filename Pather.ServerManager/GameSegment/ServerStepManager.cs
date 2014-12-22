@@ -1,6 +1,6 @@
 using Pather.Common;
 
-namespace Pather.ServerManager.GameServer
+namespace Pather.ServerManager.GameSegment
 {
     public class ServerStepManager : StepManager
     {

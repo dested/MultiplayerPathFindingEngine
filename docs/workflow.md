@@ -72,3 +72,16 @@ every
 			gw tells player gs to send in progress actions to reorg gs
 			reorg gs executes actions appropriately
 			all new actions from player goto reorg gs
+
+
+
+gameserverclusters
+	one on each gameserver box
+	monitors how many game servers there are
+	monitors healthcheck for game servers
+	can spin up a new game server instnace at the gw request
+
+gw can spin up a new game server box
+	calls api to provision a new box
+	runs gameserver cluster
+	regular gsc procedure takes place

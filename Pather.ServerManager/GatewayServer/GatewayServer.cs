@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Serialization;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameWorld;
 using Pather.Common.Models.Gateway;
 using Pather.ServerManager.Common;
+using Pather.ServerManager.Common.PubSub;
+using Pather.ServerManager.Common.SocketManager;
 using Pather.ServerManager.Libraries.Socket.IO;
 using Pather.ServerManager.Utils;
 
@@ -12,130 +15,102 @@ namespace Pather.ServerManager.GatewayServer
 {
     public class GatewayServer
     {
-        public ISocketManager SocketManager { get; set; }
+        public IPubSub Pubsub { get; set; }
         public string GatewayName;
+        public ServerCommunicator ServerCommunicator { get; set; }
 
-        public GatewayServer(IPubSub pubsub,ISocketManager socketManager)
+        public GatewayServer(IPubSub pubsub, ISocketManager socketManager)
         {
-            SocketManager = socketManager;
+            Pubsub = pubsub;
             GatewayName = "Gateway " + Guid.NewGuid();
             Global.Console.Log(GatewayName);
-            
-                        
+
             var port = 1800 + Math.Truncate((Math.Random() * 4000d));
             port = 1800;
-            socketManager.Init(port);
 
-            pubsub.Init(pubsubReady);
+            ServerCommunicator = new ServerCommunicator(socketManager, port);
 
 
+            pubsub.Init().Then(pubsubReady);
         }
 
-        private void pubsubReady(IPubSub pubsub)
+
+        private List<GatewayUser> Users = new List<GatewayUser>();
+
+
+        private void pubsubReady()
         {
             Global.Console.Log("pubsub ready");
 
-            pubsub.Subscribe(GatewayName,gatewayMessage);
-
-
-            SocketManager.Connections((socket) =>
+            Pubsub.Subscribe(GatewayName, gatewayMessage);
+            ServerCommunicator.OnDisconnectConnection += (socket) =>
             {
-                socket.On("Gateway.Message",
-                    (GatewaySocketMessageModel data) =>
+                Global.Console.Log("Disconnect", Users.Count);
+                foreach (var gatewayUser in Users)
+                {
+                    if (gatewayUser.Socket == socket)
+                    {
+                        Global.Console.Log("Left");
+                        Users.Remove(gatewayUser);
+                        break;
+                    }
+                }
+
+            };
+
+
+            ServerCommunicator.OnNewConnection += (socket) =>
+            {
+                GatewayUser user = new GatewayUser() { Socket = socket };
+                Users.Add(user);
+                ServerCommunicator.ListenOnChannel(socket, "Gateway.Message",
+                    (ISocket cSocket, GatewaySocketMessageModel data) =>
                     {
                         Global.Console.Log("Socket message ", data);
                     });
 
-                socket.On("Gateway.Join",
-                    (GatewayJoinModel data) =>
+                ServerCommunicator.ListenOnChannel(socket, "Gateway.Join",
+                    (ISocket cSocket, GatewayJoinModel data) =>
                     {
-                        pubsub.Publish(PubSubChannels.GameWorld, new UserJoinedGameWorldPubSubMessage()
+                        user.UserToken = data.UserToken;
+                        Pubsub.Publish(PubSubChannels.GameWorld, new UserJoinedGameWorldPubSubMessage()
                         {
                             Type = GameWorldMessageType.UserJoined,
                             GatewayChannel = GatewayName,
                             UserToken = data.UserToken
                         });
                     });
-                socket.Disconnect(() => { });
 
-            });
+            };
 
 
         }
 
         private void gatewayMessage(string message)
         {
-            Global.Console.Log("message:",message);
-        }
-    }
+            Global.Console.Log("message:", message);
 
-    public class SocketIOManager : ISocketManager
-    {
-        private SocketIOClient io;
-
-        public void Init(int port)
-        {
-
-            var http = Global.Require<Http>("http");
-
-            var app = http.CreateServer((req, res) => res.End());
-
-            io = SocketIO.Listen(app);
-
-
-            List<string> networkIPs = ServerHelper.GetNetworkIPs();
-            string currentIP = networkIPs[0] + ":" + port;
-            string url;
-            url = string.Format("http://{0}", currentIP);
-
-            Global.Console.Log("Server URL", url);
-            app.Listen(port);
-
-        }
-
-        public void Connections(Action<ISocket> action)
-        {
-            io.Sockets.On("connection", (SocketIOConnection socket) =>
+            var gMessage = Json.Parse<GatewayPubSubMessage>(message);
+            switch (gMessage.Type)
             {
-                action(new SocketIOSocket(socket));
-            });
+                case GatewayMessageType.UserJoined:
+                    var userJoinedMessage = (UserJoinedGatewayPubSubMessage)gMessage;
 
+
+                    foreach (var gatewayUser in Users)
+                    {
+                        if (gatewayUser.UserToken == userJoinedMessage.UserId)
+                        {
+//                            this is only sending once idk why
+                            ServerCommunicator.SendMessage(gatewayUser.Socket, "Gateway.Join.Success", userJoinedMessage);
+                            break;
+                        }
+                    }
+
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
-    }
-
-
-
-    public class SocketIOSocket : ISocket
-    {
-        public SocketIOConnection Socket { get; set; }
-
-        public SocketIOSocket(SocketIOConnection socket)
-        {
-            Socket = socket;
-        }
-
-        public void On<T>(string channel, Action<T> callback)
-        {
-            Socket.On(channel, callback);
-        }
-
-        public void Disconnect(Action callback)
-        {
-            Socket.On("disconnect", callback);
-
-        }
-    }
-
-    public interface ISocketManager
-    {
-        void Init(int port);
-        void Connections(Action<ISocket> action);
-    }
-
-    public interface ISocket
-    {
-        [IncludeGenericArguments(false)]
-        void On<T>(string channel, Action<T> callback);
-        void Disconnect(Action callback);
     }
 }

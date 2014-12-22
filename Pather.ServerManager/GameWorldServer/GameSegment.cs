@@ -10,7 +10,7 @@ namespace Pather.ServerManager.GameWorldServer
         }
 
         public List<GameWorldUser> Users;
-        public string GameServerId;
+        public string GameSegmentId;
 
         public void AddUserToSegment(GameWorldUser gwUser)
         {

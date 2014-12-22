@@ -9,5 +9,8 @@ namespace Pather.Common.Libraries.NodeJS
     {
         [IntrinsicProperty]
         public Func<string, Process> Exec { get; set; }
+
+        [IntrinsicProperty]
+        public Func<string,string[],object, Process> Spawn { get; set; }
     }
 }

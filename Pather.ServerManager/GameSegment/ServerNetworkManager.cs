@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Game;
-using Pather.ServerManager.Libraries.Socket.IO;
+using Pather.ServerManager.Common;
+using Pather.ServerManager.Common.SocketManager;
 
-namespace Pather.ServerManager.GameServer
+namespace Pather.ServerManager.GameSegment
 {
     public class ServerNetworkManager
     {
@@ -13,11 +14,11 @@ namespace Pather.ServerManager.GameServer
         public ServerCommunicator ServerCommunicator ;
         public Action<SerializableAction> OnRecieveAction ;
 
-        public ServerNetworkManager(ServerGame game)
+        public ServerNetworkManager(ServerGame game,ISocketManager socketManager)
         {
             Game = game;
             Game.SyncLockstep += OnSyncLockstep;
-            ServerCommunicator = new ServerCommunicator();
+            ServerCommunicator = new ServerCommunicator(socketManager,8991);
             ServerCommunicator.OnNewConnection += OnNewConnection;
             ServerCommunicator.OnDisconnectConnection += OnDisconnectConnection;
         }
@@ -49,9 +50,9 @@ namespace Pather.ServerManager.GameServer
                 forceSyncNextLockstep.Clear();
             }
         }
-        private List<SocketIOConnection> forceSyncNextLockstep = new List<SocketIOConnection>();
+        private List<ISocket> forceSyncNextLockstep = new List<ISocket>();
 
-        private void OnNewConnection(SocketIOConnection socketIoConnection)
+        private void OnNewConnection(ISocket socketIoConnection)
         {
 
             ServerCommunicator.SendMessage(socketIoConnection,
@@ -71,13 +72,13 @@ namespace Pather.ServerManager.GameServer
                 SocketChannels.ClientChannel(SocketChannels.Client.Ping), Pong);
         }
 
-        private void Pong(SocketIOConnection socket, PingPongModel pingPongModel)
+        private void Pong(ISocket socket, PingPongModel pingPongModel)
         {
             ServerCommunicator.SendMessage(socket, SocketChannels.ServerChannel(SocketChannels.Server.Pong), pingPongModel);
         }
 
 
-        private void OnDisconnectConnection(SocketIOConnection socketIoConnection)
+        private void OnDisconnectConnection(ISocket socketIoConnection)
         {
 
             Entity player = null;
@@ -117,7 +118,7 @@ namespace Pather.ServerManager.GameServer
         }
 
 
-        private void PostAction(SocketIOConnection socket, SerializableAction action)
+        private void PostAction(ISocket socket, SerializableAction action)
         {
 //            Global.Console.Log("player action ", action);
             OnRecieveAction(action);
@@ -131,7 +132,7 @@ namespace Pather.ServerManager.GameServer
             }
         }
 
-        private void JoinPlayer(SocketIOConnection socket, PlayerJoinModel model)
+        private void JoinPlayer(ISocket socket, PlayerJoinModel model)
         {
 
 

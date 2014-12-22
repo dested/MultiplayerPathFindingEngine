@@ -9,7 +9,7 @@ namespace Pather.Common.Libraries.NodeJS
     public static class Global
     {
         [IntrinsicProperty]
-        [ScriptAlias("process")]
+        [ScriptAlias("global.process")]
         public static Process Process { get; set; }
         [ScriptAlias("global")]
         public static dynamic Scope { get; set; }

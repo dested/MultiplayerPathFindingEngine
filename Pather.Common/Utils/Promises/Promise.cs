@@ -62,7 +62,7 @@ namespace Pather.Common.Utils.Promises
             }
         }
 
-        internal Promise<TResolve, TError> Error(Action<TError> error)
+        public Promise<TResolve, TError> Error(Action<TError> error)
         {
             if (IsRejected)
             {
@@ -108,7 +108,6 @@ namespace Pather.Common.Utils.Promises
                 }
         */
     }
-
 
 
     public class Promise

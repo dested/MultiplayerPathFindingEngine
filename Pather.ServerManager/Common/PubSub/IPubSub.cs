@@ -1,7 +1,8 @@
 using System;
 using System.Runtime.CompilerServices;
+using Pather.Common.Utils.Promises;
 
-namespace Pather.ServerManager.Common
+namespace Pather.ServerManager.Common.PubSub
 {
     public interface IPubSub
     {
@@ -9,7 +10,7 @@ namespace Pather.ServerManager.Common
         [IncludeGenericArguments(false)]
         void Publish<T>(string channel, T content);
         void Subscribe(string channel, Action<string> callback);
-        void Init(Action<IPubSub> pubsubReady);
-        void RecievedMessage(string channel, string message);
+        Promise Init();
+        void ReceivedMessage(string channel, string message);
     }
 }

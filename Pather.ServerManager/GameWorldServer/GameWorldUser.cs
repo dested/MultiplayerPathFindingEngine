@@ -9,6 +9,21 @@ namespace Pather.ServerManager.GameWorldServer
         public int Y;
         public string GatewayServer;
         public GameSegment GameSegment;
-        public List<GameWorldUser> Neighbors { get; set; }
+        public List<GameWorldNeighbor> Neighbors { get; set; }
+
+         
+
+        public GameWorldNeighbor ClosestNeighbor()
+        {
+            GameWorldNeighbor closestNeighbor = null;
+            foreach (var gameWorldNeighbor in Neighbors)
+            {
+                if (closestNeighbor==null ||gameWorldNeighbor.Distance < closestNeighbor.Distance)
+                {
+                    closestNeighbor = gameWorldNeighbor;
+                }
+            }
+            return closestNeighbor;
+        }
     }
 }

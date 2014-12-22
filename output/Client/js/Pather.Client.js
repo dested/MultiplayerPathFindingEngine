@@ -12,7 +12,7 @@
 	$Pather_Client_$Program.__typeName = 'Pather.Client.$Program';
 	$Pather_Client_$Program.$main = function() {
 		if (window.location.hash === '#test') {
-			Pather.Common.TestFramework.TestFramework.runTests();
+			Pather.Common.TestFramework.TestFramework.runTests(null);
 			return;
 		}
 		var game = new $Pather_Client_ClientGame();
@@ -20,10 +20,10 @@
 	};
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Client.ClientCommunicator
-	var $Pather_Client_ClientCommunicator = function() {
+	var $Pather_Client_ClientCommunicator = function(url) {
 		this.socket = null;
-		var url = 'http://198.211.107.101:8991';
-		//            var url = "http://127.0.0.1:8991";
+		//            var url = "http://198.211.107.101:8991";
+		url = ss.coalesce(url, 'http://127.0.0.1:8991');
 		if (Pather.Common.Constants.get_testServer()) {
 			this.socket = require('socket.io-client')(url);
 			this.socket.on('connect', function() {
@@ -95,7 +95,7 @@
 		this.onSetLatency = null;
 		this.$lastPing = 0;
 		this.$pingSent = null;
-		this.clientCommunicator = new $Pather_Client_ClientCommunicator();
+		this.clientCommunicator = new $Pather_Client_ClientCommunicator(null);
 		this.networkPlayers = 0;
 		this.clientCommunicator.listenOnChannel(Pather.Common.Models.Game.ConnectedModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('connect'), ss.mkdel(this, function(model) {
 			this.onConnected(model);
@@ -152,17 +152,11 @@
 	$Pather_Client_ClientStepManager.__typeName = 'Pather.Client.ClientStepManager';
 	global.Pather.Client.ClientStepManager = $Pather_Client_ClientStepManager;
 	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Client.Tests.Test
-	var $Pather_Client_Tests_Test = function() {
+	// Pather.Client.Tests.LoginE2ETest
+	var $Pather_Client_Tests_LoginE2ETest = function() {
 	};
-	$Pather_Client_Tests_Test.__typeName = 'Pather.Client.Tests.Test';
-	global.Pather.Client.Tests.Test = $Pather_Client_Tests_Test;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Client.Tests.Test22
-	var $Pather_Client_Tests_Test22 = function() {
-	};
-	$Pather_Client_Tests_Test22.__typeName = 'Pather.Client.Tests.Test22';
-	global.Pather.Client.Tests.Test22 = $Pather_Client_Tests_Test22;
+	$Pather_Client_Tests_LoginE2ETest.__typeName = 'Pather.Client.Tests.LoginE2ETest';
+	global.Pather.Client.Tests.LoginE2ETest = $Pather_Client_Tests_LoginE2ETest;
 	ss.initClass($Pather_Client_$Program, $asm, {});
 	ss.initClass($Pather_Client_ClientCommunicator, $asm, {
 		listenOnChannel: function(T) {
@@ -387,43 +381,18 @@
 			this.clientNetworkManager.sendAction(serAction);
 		}
 	}, Pather.Common.StepManager);
-	ss.initClass($Pather_Client_Tests_Test, $asm, {
-		test2: function() {
-			Pather.Common.TestFramework.Assert.that(12).get_does().equal(12);
-		},
+	ss.initClass($Pather_Client_Tests_LoginE2ETest, $asm, {
 		test1: function(defer) {
-			setTimeout(function() {
+			var clientCommunicator = new $Pather_Client_ClientCommunicator('http://127.0.0.1:1800');
+			clientCommunicator.listenOnChannel(String).call(clientCommunicator, 'Gateway.Join.Success', function(item) {
+				console.log(item);
 				defer.resolve();
-			}, 1000);
-			Pather.Common.TestFramework.DeferredAssert.that(defer, 12).get_does().equal(12);
-		},
-		test3: function() {
-			Pather.Common.TestFramework.Assert.that(12).get_does().equal(12);
-		},
-		test4: function() {
-			Pather.Common.TestFramework.Assert.that(12).get_does().equal(12);
-			Pather.Common.TestFramework.Assert.that(12).get_does().equal(12);
+			});
+			var $t1 = Pather.Common.Models.Gateway.GatewayJoinModel.$ctor();
+			$t1.userToken = 'salvatore';
+			clientCommunicator.sendMessage('Gateway.Join', $t1);
 		}
 	});
-	ss.initClass($Pather_Client_Tests_Test22, $asm, {
-		test2: function() {
-			Pather.Common.TestFramework.Assert.that(12).get_does().equal(12);
-		},
-		test1: function(defer) {
-			setTimeout(function() {
-				defer.resolve();
-			}, 4000);
-			Pather.Common.TestFramework.DeferredAssert.that(defer, 12).get_does().equal(12);
-		},
-		test3: function() {
-			Pather.Common.TestFramework.Assert.that(12).get_does().equal(12);
-		},
-		test4: function() {
-			Pather.Common.TestFramework.Assert.that(12).get_does().equal(12);
-			Pather.Common.TestFramework.Assert.that(12).get_does().equal(12);
-		}
-	});
-	ss.setMetadata($Pather_Client_Tests_Test, { attr: [new Pather.Common.TestFramework.TestClassAttribute()], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'Test1', type: 8, sname: 'test1', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'Test2', type: 8, sname: 'test2', returnType: Object, params: [] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'Test3', type: 8, sname: 'test3', returnType: Object, params: [] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'Test4', type: 8, sname: 'test4', returnType: Object, params: [] }] });
-	ss.setMetadata($Pather_Client_Tests_Test22, { attr: [new Pather.Common.TestFramework.TestClassAttribute()], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'Test1', type: 8, sname: 'test1', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'Test2', type: 8, sname: 'test2', returnType: Object, params: [] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'Test3', type: 8, sname: 'test3', returnType: Object, params: [] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'Test4', type: 8, sname: 'test4', returnType: Object, params: [] }] });
+	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute()], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'Test1', type: 8, sname: 'test1', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
 	$Pather_Client_$Program.$main();
 })();

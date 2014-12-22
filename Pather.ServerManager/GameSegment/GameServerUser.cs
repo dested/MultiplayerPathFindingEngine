@@ -1,4 +1,4 @@
-namespace Pather.ServerManager.GameServer
+namespace Pather.ServerManager.GameSegment
 {
     public class GameServerUser
     {

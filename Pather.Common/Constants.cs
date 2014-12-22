@@ -18,7 +18,7 @@ namespace Pather.Common
             AnimationSteps = 5;
 
             NeighborDistance = 20;
-
+            UsersPerGameSegment = 50;
         }
 
         public static int AnimationSteps ;
@@ -37,5 +37,7 @@ namespace Pather.Common
         {
             get { return ((dynamic)Window.Instance).TestServer; }
         }
+
+        public static int UsersPerGameSegment;
     }
 }

@@ -2,9 +2,12 @@
 
 figure out auth
     also any client can send a command for any playerid
-figure out fast neighbor
+'/figure out fast neighbor
 data base
 verify move
+
+logout of gameworld server
+    spin down game segment
 
 figure out action priming (player is halfway between X and Y, deterministically determine where he is and continue moving there)
     send out primed actions to new players

@@ -1,14 +1,17 @@
 ﻿using System;
 using Pather.Common;
+using Pather.Common.Libraries.NodeJS;
+using Pather.ServerManager.Common.SocketManager;
 
-namespace Pather.ServerManager.GameServer
+namespace Pather.ServerManager.GameSegment
 {
     public class ServerGame : Game
     {
-        public ServerGame()
+        public ServerGame(ISocketManager socketManager, string gameServerName)
             : base()
         {
-            StepManager = new ServerStepManager(this, new ServerNetworkManager(this));
+            Global.Console.Log(gameServerName + " Has come online");
+            StepManager = new ServerStepManager(this, new ServerNetworkManager(this,socketManager));
             ConstructGrid();
             Ready = true;
         }

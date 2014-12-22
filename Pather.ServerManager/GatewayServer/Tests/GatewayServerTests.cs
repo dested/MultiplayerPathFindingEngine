@@ -5,8 +5,11 @@ using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameWorld;
 using Pather.Common.Models.Gateway;
 using Pather.Common.TestFramework;
+using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
 using Pather.ServerManager.Common;
+using Pather.ServerManager.Common.PubSub;
+using Pather.ServerManager.Common.SocketManager;
 using Pather.ServerManager.Database;
 
 namespace Pather.ServerManager.GatewayServer.Tests
@@ -19,7 +22,7 @@ namespace Pather.ServerManager.GatewayServer.Tests
         }
 
         [TestMethod]
-        public void UserShouldJoin(Deferred testDeferred)
+        public void UserShouldJoinFromGateway(Deferred testDeferred)
         {
             string userToken = "abcdef";
 
@@ -35,29 +38,34 @@ namespace Pather.ServerManager.GatewayServer.Tests
                 var socket = Mocker.InstantiateInterface<ISocket>();
 
                 Mocker.StubMethodCall<Action>(socket.Disconnect);
-                Mocker.StubMethodCall<string, Action<GatewayJoinModel>>(socket.On, (channel, onCallback) =>
+                Mocker.StubMethodCall<string, Action<DataObject<GatewayJoinModel>>>(socket.On, (channel, onCallback) =>
                 {
                     if (channel == "Gateway.Join")
                     {
                         Global.SetTimeout(() =>
                         {
                             //user logged in via socketio
-                            onCallback(new GatewayJoinModel() { UserToken = userToken });
+                            onCallback(new DataObject<GatewayJoinModel>(new GatewayJoinModel() { UserToken = userToken }));
                         }, 1);
                     }
                 });
-                callback(socket);
+                Global.SetTimeout(() =>
+                {
+
+                    callback(socket);
+                }, 1);
             });
 
 
-            
+
             var pubSub = Mocker.InstantiateInterface<IPubSub>();
-            Mocker.StubMethodCall<Action<IPubSub>>(pubSub.Init, (a => a(pubSub)));
+
+            Mocker.StubMethodCall(pubSub.Init, (() => Q.ResolvedPromise()));
             Mocker.StubMethodCall<string, Action<string>>(pubSub.Subscribe, (channel, callback) =>
             {
                 publishData += (pchannel, pmessage) =>
                 {
-                    pubSub.RecievedMessage(channel, Json.Stringify(pmessage));
+                    pubSub.ReceivedMessage(channel, Json.Stringify(pmessage));
                 };
             });
 
@@ -74,7 +82,7 @@ namespace Pather.ServerManager.GatewayServer.Tests
 
 
             string gatewayName = null;
-            Mocker.StubMethodCall<string, string>(pubSub.RecievedMessage, (channel, message) =>
+            Mocker.StubMethodCall<string, string>(pubSub.ReceivedMessage, (channel, message) =>
             {
                 if (channel == gatewayName)
                 {
@@ -119,7 +127,7 @@ namespace Pather.ServerManager.GatewayServer.Tests
             }));
 
 
-            Mocker.StubMethodCall<Action<IPubSub>>(pubSubTest.Init, (a => a(pubSubTest)));
+            Mocker.StubMethodCall(pubSub.Init, (() => Q.ResolvedPromise()));
 
             Mocker.StubMethodCall<string, Action<string>>(pubSubTest.Subscribe, ((channel, callback) =>
             {

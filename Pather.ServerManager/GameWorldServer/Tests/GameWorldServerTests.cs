@@ -8,6 +8,7 @@ using Pather.Common.Models.Gateway;
 using Pather.Common.TestFramework;
 using Pather.Common.Utils.Promises;
 using Pather.ServerManager.Common;
+using Pather.ServerManager.Common.PubSub;
 using Pather.ServerManager.Database;
 
 namespace Pather.ServerManager.GameWorldServer.Tests
@@ -41,7 +42,8 @@ namespace Pather.ServerManager.GameWorldServer.Tests
             }));
 
 
-            Mocker.StubMethodCall<Action<IPubSub>>(pubSubTest.Init, (a => a(pubSubTest)));
+
+            Mocker.StubMethodCall(pubSubTest.Init, (() => Q.ResolvedPromise()));
 
             Mocker.StubMethodCall<string, Action<string>>(pubSubTest.Subscribe, ((channel, callback) =>
             {

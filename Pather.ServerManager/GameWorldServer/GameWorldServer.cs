@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Serialization;
 using Pather.Common.Models.GameWorld;
 using Pather.Common.Models.Gateway;
 using Pather.Common.Utils.Promises;
 using Pather.ServerManager.Common;
+using Pather.ServerManager.Common.PubSub;
 using Pather.ServerManager.Database;
 
 namespace Pather.ServerManager.GameWorldServer
@@ -16,21 +16,25 @@ namespace Pather.ServerManager.GameWorldServer
 
         public GameWorldServer(IPubSub pubSub, IDatabaseQueries dbQueries)
         {
-            DatabaseQueries = dbQueries;
-            GameWorld = new GameWorld();
-            pubSub.Init(pubsubReady);
-        }
-
-
-        private void pubsubReady(IPubSub pubSub)
-        {
             this.pubSub = pubSub;
-            pubSub.Subscribe(PubSubChannels.GameWorld, gameworldMessage);
+            DatabaseQueries = dbQueries;
+            pubSub.Init().Then(pubsubReady);
         }
 
-        private void gameworldMessage(string message)
+
+        private void pubsubReady()
         {
-            var gameworldMessage = Json.Parse<GameWorldPubSubMessage>(message);
+
+            var gameSegmentClusterPubSub = new GameWorldPubSub(pubSub);
+            gameSegmentClusterPubSub.Init();
+            gameSegmentClusterPubSub.Message += gameWorldMessage;
+
+            GameWorld = new GameWorld(gameSegmentClusterPubSub);
+
+        }
+
+        private void gameWorldMessage(GameWorldPubSubMessage gameworldMessage)
+        {
             switch (gameworldMessage.Type)
             {
                 case GameWorldMessageType.UserJoined:
@@ -38,7 +42,7 @@ namespace Pather.ServerManager.GameWorldServer
                     {
                         pubSub.Publish(gwUser.GatewayServer, new UserJoinedGatewayPubSubMessage()
                         {
-                            GameServerId = gwUser.GameSegment.GameServerId,
+                            GameServerId = gwUser.GameSegment.GameSegmentId,
                             UserId = gwUser.UserId,
                         });
                     });
@@ -51,9 +55,11 @@ namespace Pather.ServerManager.GameWorldServer
         private Promise<GameWorldUser, UserJoinError> UserJoined(UserJoinedGameWorldPubSubMessage userJoinedMessage)
         {
             var deferred = Q.Defer<GameWorldUser, UserJoinError>();
+
+            //query database for user
             DatabaseQueries.GetUserByToken(userJoinedMessage.UserToken).Then(dbUser =>
             {
-                deferred.PassPromiseThrough(GameWorld.UserJoined(userJoinedMessage.GatewayChannel,dbUser));
+                deferred.PassPromiseThrough(GameWorld.UserJoined(userJoinedMessage.GatewayChannel, dbUser));
             });
             return deferred.Promise;
         }

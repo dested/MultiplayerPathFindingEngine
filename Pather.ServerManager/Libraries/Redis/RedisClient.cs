@@ -27,7 +27,7 @@ namespace Pather.ServerManager.Libraries.Redis
         }
 
         [ScriptName("blpop")]
-        public void BLPop(object[] objectsAndTimeout, Action<string, object> action)
+        public void BLPop(object[] objectsAndTimeout, Action<string, string[]> action)
         {
         }
     }
