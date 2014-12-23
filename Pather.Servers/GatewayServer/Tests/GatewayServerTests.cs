@@ -24,8 +24,8 @@ namespace Pather.Servers.GatewayServer.Tests
         {
             var userToken = "abcdef";
 
-            Action<string, GatewayPubSubMessage> publishData = null;
-            Action<UserJoinedGameWorldPubSubMessage> sendMessageToGameWorld = null;
+            Action<string, Gateway_PubSub_Message> publishData = null;
+            Action<UserJoined_GameWorld_PubSub_Message> sendMessageToGameWorld = null;
 
 
             var socketManager = Mocker.InstantiateInterface<ISocketManager>();
@@ -69,7 +69,7 @@ namespace Pather.Servers.GatewayServer.Tests
             });
 
 
-            Mocker.StubMethodCall<string, UserJoinedGameWorldPubSubMessage>(pubSub.Publish, ((channel, data) =>
+            Mocker.StubMethodCall<string, UserJoined_GameWorld_PubSub_Message>(pubSub.Publish, ((channel, data) =>
             {
                 if (channel == PubSubChannels.GameWorld())
                 {
@@ -83,7 +83,7 @@ namespace Pather.Servers.GatewayServer.Tests
             {
                 if (channel == gatewayName)
                 {
-                    var userJoined = Json.Parse<UserJoinedGatewayPubSubMessage>(message);
+                    var userJoined = Json.Parse<UserJoined_Gateway_PubSub_Message>(message);
 
                     DeferredAssert.That(testDeferred, userJoined.UserId).Does.Equal(userToken);
                     testDeferred.Resolve();
@@ -122,9 +122,9 @@ namespace Pather.Servers.GatewayServer.Tests
             }));
 
 
-            Mocker.StubMethodCall<string, GatewayPubSubMessage>(pubSubTest.Publish, ((channel, data) =>
+            Mocker.StubMethodCall<string, Gateway_PubSub_Message>(pubSubTest.Publish, ((channel, data) =>
             {
-                DeferredAssert.That(testDeferred, ((UserJoinedGatewayPubSubMessage) data).UserId).Does.Equal(userToken);
+                DeferredAssert.That(testDeferred, ((UserJoined_Gateway_PubSub_Message) data).UserId).Does.Equal(userToken);
 
                 publishData(channel, data);
             }));

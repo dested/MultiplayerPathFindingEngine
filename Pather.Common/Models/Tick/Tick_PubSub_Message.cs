@@ -3,8 +3,8 @@
 namespace Pather.Common.Models.Tick
 {
     [Serializable]
-    public class TickPubSubMessage
+    public class Tick_PubSub_Message
     {
-        public TickPubSubMessageType Type;
+        public Tick_PubSub_MessageType Type;
     }
 }

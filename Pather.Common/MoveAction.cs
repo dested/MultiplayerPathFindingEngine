@@ -1,4 +1,4 @@
-using Pather.Common.Models.Game;
+using Pather.Common.Models.Game.Old;
 
 namespace Pather.Common
 {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Pather.Common;
 using Pather.Common.Definitions.AStar;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models.Game;
+using Pather.Common.Models.Game.Old;
 
 namespace Pather.Client
 {

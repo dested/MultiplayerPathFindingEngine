@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Pather.Common.Models.Game
+namespace Pather.Common.Models.Game.Old
 {
     [Serializable]
     public class PlayerSyncModel

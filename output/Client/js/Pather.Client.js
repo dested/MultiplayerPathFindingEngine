@@ -97,12 +97,12 @@
 		this.$pingSent = null;
 		this.clientCommunicator = new $Pather_Client_ClientCommunicator(null);
 		this.networkPlayers = 0;
-		this.clientCommunicator.listenOnChannel(Pather.Common.Models.Game.ConnectedModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('connect'), ss.mkdel(this, function(model) {
+		this.clientCommunicator.listenOnChannel(Pather.Common.Models.Game.Old.ConnectedModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('connect'), ss.mkdel(this, function(model) {
 			this.onConnected(model);
 			this.$triggerPingTest();
 			window.setInterval(ss.mkdel(this, this.$triggerPingTest), 60000);
 		}));
-		this.clientCommunicator.listenOnChannel(Pather.Common.Models.Game.PlayerSyncModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('playerSync'), ss.mkdel(this, function(model1) {
+		this.clientCommunicator.listenOnChannel(Pather.Common.Models.Game.Old.PlayerSyncModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('playerSync'), ss.mkdel(this, function(model1) {
 			if (ss.isValue(model1.joinedPlayers)) {
 				this.networkPlayers += model1.joinedPlayers.length;
 			}
@@ -111,12 +111,12 @@
 			}
 			this.onPlayerSync(model1);
 		}));
-		this.clientCommunicator.listenOnChannel(Pather.Common.Models.Game.PingPongModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('pong'), ss.mkdel(this, function(model2) {
+		this.clientCommunicator.listenOnChannel(Pather.Common.Models.Game.Old.PingPongModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('pong'), ss.mkdel(this, function(model2) {
 			var cur = (new Date()).getTime();
 			this.$pingSent.push(cur - this.$lastPing);
 			this.$lastPing = cur;
 			if (this.$pingSent.length < 6) {
-				this.clientCommunicator.sendMessage(Pather.Common.SocketChannels.clientChannel('ping'), Pather.Common.Models.Game.PingPongModel.$ctor());
+				this.clientCommunicator.sendMessage(Pather.Common.SocketChannels.clientChannel('ping'), Pather.Common.Models.Game.Old.PingPongModel.$ctor());
 			}
 			else {
 				var average = 0;
@@ -128,7 +128,7 @@
 				this.$pingSent = null;
 			}
 		}));
-		this.clientCommunicator.listenOnChannel(Pather.Common.Models.Game.SyncLockstepModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('syncLockstep'), ss.mkdel(this, function(model3) {
+		this.clientCommunicator.listenOnChannel(Pather.Common.Models.Game.Old.SyncLockstepModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('syncLockstep'), ss.mkdel(this, function(model3) {
 			this.onSetLockStep(model3);
 		}));
 		this.clientCommunicator.listenOnChannel(Pather.Common.SerializableAction).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('postAction'), ss.mkdel(this, function(model4) {
@@ -229,7 +229,7 @@
 				lockstepNumber += 1;
 			}
 			var $t2 = ss.cast(this.stepManager, $Pather_Client_ClientStepManager);
-			var $t1 = Pather.Common.Models.Game.MoveModel.$ctor();
+			var $t1 = Pather.Common.Models.Game.Old.MoveModel.$ctor();
 			$t1.x = squareX;
 			$t1.y = squareY;
 			$t1.playerId = this.myPlayer.playerId;
@@ -296,7 +296,7 @@
 		$triggerPingTest: function() {
 			this.$pingSent = [];
 			this.$lastPing = (new Date()).getTime();
-			this.clientCommunicator.sendMessage(Pather.Common.SocketChannels.clientChannel('ping'), Pather.Common.Models.Game.PingPongModel.$ctor());
+			this.clientCommunicator.sendMessage(Pather.Common.SocketChannels.clientChannel('ping'), Pather.Common.Models.Game.Old.PingPongModel.$ctor());
 		},
 		sendAction: function(serAction) {
 			this.clientCommunicator.sendMessage(Pather.Common.SocketChannels.clientChannel('postAction'), serAction);
@@ -307,7 +307,7 @@
 		joinPlayer: function(myPlayerId) {
 			var $t2 = this.clientCommunicator;
 			var $t3 = Pather.Common.SocketChannels.clientChannel('joinPlayer');
-			var $t1 = Pather.Common.Models.Game.PlayerJoinModel.$ctor();
+			var $t1 = Pather.Common.Models.Game.Old.PlayerJoinModel.$ctor();
 			$t1.playerId = myPlayerId;
 			$t2.sendMessage($t3, $t1);
 		}

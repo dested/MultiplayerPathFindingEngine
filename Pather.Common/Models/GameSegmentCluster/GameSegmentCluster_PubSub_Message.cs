@@ -5,6 +5,6 @@ namespace Pather.Common.Models.GameSegmentCluster
     [Serializable]
     public class GameSegmentCluster_PubSub_Message
     {
-        public GameSegmentClusterPubSubMessageType Type;
+        public GameSegmentCluster_PubSub_MessageType Type;
     }
 }

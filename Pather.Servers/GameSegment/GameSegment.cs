@@ -9,26 +9,17 @@ using Pather.Servers.Common;
 using Pather.Servers.Common.PubSub;
 using Pather.Servers.Common.PushPop;
 using Pather.Servers.Common.SocketManager;
-using Pather.Servers.GameSegment.Old;
 
 namespace Pather.Servers.GameSegment
 {
-        public class GameSegmentUser
-    {
-        public string GatewayServer;
-        public int X;
-        public int Y;
-        public string UserId;
-    }
-
     public class GameSegment
     {
         private ClientTickManager ClientTickManager;
         private ISocketManager SocketManager;
-        private IPubSub Pubsub;
-        private IPushPop PushPop;
-        private string GameSegmentId;
-        private List<GameSegmentUser> users = new List<GameSegmentUser>();
+        private readonly IPubSub Pubsub;
+        private readonly IPushPop PushPop;
+        private readonly string GameSegmentId;
+        private readonly List<GameSegmentUser> users = new List<GameSegmentUser>();
 
         public GameSegment(ISocketManager socketManager, IPubSub pubsub, IPushPop pushPop, string gameSegmentId)
         {
@@ -42,8 +33,7 @@ namespace Pather.Servers.GameSegment
             //            game.Init();
 
 
-
-            Q.All(pubsub.Init(),pushPop.Init())
+            Q.All(pubsub.Init(), pushPop.Init())
                 .Then(() =>
                 {
                     GameSegmentPubSub = new GameSegmentPubSub(Pubsub, GameSegmentId);
@@ -53,13 +43,11 @@ namespace Pather.Servers.GameSegment
                 });
         }
 
-       
 
         private void ready()
         {
-
             ClientTickManager = new ClientTickManager();
-            ClientTickManager.Init(SendPing,TickManagerReady);
+            ClientTickManager.Init(SendPing, TickManagerReady);
             ClientTickManager.StartPing();
         }
 
@@ -70,7 +58,11 @@ namespace Pather.Servers.GameSegment
 
         private void SendPing()
         {
-            GameSegmentPubSub.PublishToTickServer(new PingTickPubSubMessage() { Origin = PubSubChannels.GameSegment(GameSegmentId), OriginType = PingTickPubSubMessageOriginType.GameSegment });
+            GameSegmentPubSub.PublishToTickServer(new Ping_Tick_PubSub_Message()
+            {
+                Origin = PubSubChannels.GameSegment(GameSegmentId),
+                OriginType = Ping_Tick_PubSub_Message_OriginType.GameSegment
+            });
         }
 
         private void RegisterGameSegmentWithCluster()
@@ -84,8 +76,8 @@ namespace Pather.Servers.GameSegment
         {
             switch (message.Type)
             {
-                case GameSegmentPubSubMessageType.UserJoin:
-                    var userJoinMessage = (UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message)message;
+                case GameSegment_PubSub_MessageType.UserJoin:
+                    var userJoinMessage = (UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message) message;
                     users.Add(new GameSegmentUser()
                     {
                         UserId = userJoinMessage.UserId,
@@ -93,29 +85,28 @@ namespace Pather.Servers.GameSegment
                         X = userJoinMessage.X,
                         Y = userJoinMessage.Y,
                     });
-                    Global.Console.Log("User Joined Game Segment",GameSegmentId,"User count now: ",users.Count);
+                    Global.Console.Log("User Joined Game Segment", GameSegmentId, "User count now: ", users.Count);
                     GameSegmentPubSub.PublishToGameWorld(new UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message()
                     {
-                        MessageId=userJoinMessage.MessageId
+                        MessageId = userJoinMessage.MessageId
                     });
 
                     break;
-                case GameSegmentPubSubMessageType.Pong:
-                    var pongMessage = (PongGameSegmentPubSubMessage)message;
+                case GameSegment_PubSub_MessageType.Pong:
+                    var pongMessage = (Pong_GameSegment_PubSub_Message) message;
                     ClientTickManager.OnPongReceived();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
         }
 
         private void onAllMessage(GameSegment_PubSub_AllMessage message)
         {
             switch (message.Type)
             {
-                case GameSegmentPubSubAllMessageType.TickSync:
-                    var tickSyncMessage = (TickSyncGameSegmentPubSubAllMessage)message;
+                case GameSegment_PubSub_AllMessageType.TickSync:
+                    var tickSyncMessage = (TickSync_GameSegment_PubSub_AllMessage) message;
                     ClientTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;
                 default:

@@ -6,7 +6,6 @@ namespace Pather.Servers.Common
 {
     public class TickManager
     {
-
         public TickManager()
         {
         }
@@ -15,6 +14,7 @@ namespace Pather.Servers.Common
 
         private long CurrentLockstepTime;
         private long CurrentServerLatency;
+
         public virtual void Init(long currentLockstepTickNumber)
         {
             LockstepTickNumber = currentLockstepTickNumber;
@@ -30,6 +30,7 @@ namespace Pather.Servers.Common
 
             //todo resolve if current > or < lockstep
         }
+
         public virtual void SetServerLatency(long latency)
         {
             CurrentServerLatency = latency;

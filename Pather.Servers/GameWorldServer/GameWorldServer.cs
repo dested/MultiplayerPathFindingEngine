@@ -36,13 +36,20 @@ namespace Pather.Servers.GameWorldServer
 
 
             ClientTickManager = new ClientTickManager();
-            ClientTickManager.Init(sendPing, ()=>{Global.Console.Log("Connected To Tick Server");});
+            ClientTickManager.Init(sendPing, () =>
+            {
+                Global.Console.Log("Connected To Tick Server");
+            });
             ClientTickManager.StartPing();
         }
 
         private void sendPing()
         {
-            gameSegmentClusterPubSub.PublishToTickServer(new PingTickPubSubMessage() { Origin = PubSubChannels.GameWorld(), OriginType = PingTickPubSubMessageOriginType.GameWorld });
+            gameSegmentClusterPubSub.PublishToTickServer(new Ping_Tick_PubSub_Message()
+            {
+                Origin = PubSubChannels.GameWorld(),
+                OriginType = Ping_Tick_PubSub_Message_OriginType.GameWorld
+            });
         }
 
 
@@ -51,9 +58,9 @@ namespace Pather.Servers.GameWorldServer
             switch (message.Type)
             {
                 case GameWorld_PubSub_MessageType.UserJoined:
-                    UserJoined((UserJoinedGameWorldPubSubMessage)message).Then(gwUser =>
+                    UserJoined((UserJoined_GameWorld_PubSub_Message) message).Then(gwUser =>
                     {
-                        gameSegmentClusterPubSub.PublishToGatewayServer(PubSubChannels.Gateway(gwUser.GatewayServer), new UserJoinedGatewayPubSubMessage()
+                        gameSegmentClusterPubSub.PublishToGatewayServer(PubSubChannels.Gateway(gwUser.GatewayServer), new UserJoined_Gateway_PubSub_Message()
                         {
                             GameSegmentId = gwUser.GameSegment.GameSegmentId,
                             UserId = gwUser.UserId,
@@ -65,11 +72,11 @@ namespace Pather.Servers.GameWorldServer
                     break;
 
                 case GameWorld_PubSub_MessageType.Pong:
-                    var pongMessage = (PongGameWorldPubSubMessage)message;
+                    var pongMessage = (Pong_GameWorld_PubSub_Message) message;
                     ClientTickManager.OnPongReceived();
                     break;
                 case GameWorld_PubSub_MessageType.TickSync:
-                    var tickSyncMessage = (TickSyncGameWorldPubSubMessage)message;
+                    var tickSyncMessage = (TickSync_GameWorld_PubSub_Message) message;
                     ClientTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;
                 default:
@@ -77,7 +84,7 @@ namespace Pather.Servers.GameWorldServer
             }
         }
 
-        private Promise<GameWorldUser, UserJoinError> UserJoined(UserJoinedGameWorldPubSubMessage userJoinedMessage)
+        private Promise<GameWorldUser, UserJoinError> UserJoined(UserJoined_GameWorld_PubSub_Message userJoinedMessage)
         {
             var deferred = Q.Defer<GameWorldUser, UserJoinError>();
 

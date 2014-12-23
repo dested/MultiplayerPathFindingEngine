@@ -57,6 +57,7 @@ namespace Pather.Servers.GameWorldServer
         {
             PubSub.Publish(PubSubChannels.GameSegment(gameSegmentId), message);
         }
+
         public Promise<T, UndefinedPromiseError> PublishToGameSegmentWithCallback<T>(string gameSegmentId, GameSegment_PubSub_ReqRes_Message message)
         {
             var deferred = Q.Defer<T, UndefinedPromiseError>();
@@ -65,7 +66,7 @@ namespace Pather.Servers.GameWorldServer
             return deferred.Promise;
         }
 
-        public void PublishToTickServer(TickPubSubMessage message)
+        public void PublishToTickServer(Tick_PubSub_Message message)
         {
             PubSub.Publish(PubSubChannels.Tick(), message);
         }
@@ -79,10 +80,9 @@ namespace Pather.Servers.GameWorldServer
             return deferred.Promise;
         }
 
-        public void PublishToGatewayServer(string gatewayId, GatewayPubSubMessage message)
+        public void PublishToGatewayServer(string gatewayId, Gateway_PubSub_Message message)
         {
             PubSub.Publish(gatewayId, message);
-
         }
     }
 }

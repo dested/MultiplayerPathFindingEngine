@@ -856,7 +856,7 @@ ss.initClass($Pather_Servers_GameSegment_GameSegment, $asm, {
 	},
 	$sendPing: function() {
 		var $t2 = this.gameSegmentPubSub;
-		var $t1 = Pather.Common.Models.Tick.PingTickPubSubMessage.$ctor();
+		var $t1 = Pather.Common.Models.Tick.Ping_Tick_PubSub_Message.$ctor();
 		$t1.origin = $Pather_Servers_Common_PubSub_PubSubChannels.gameSegment$1(this.$gameSegmentId);
 		$t1.originType = 0;
 		$t2.publishToTickServer($t1);
@@ -951,7 +951,7 @@ ss.initClass($Pather_Servers_GameSegment_Old_ServerNetworkManager, $asm, {
 				var socketIoConnection = this.$forceSyncNextLockstep[$t1];
 				var $t3 = this.serverCommunicator;
 				var $t4 = Pather.Common.SocketChannels.serverChannel('syncLockstep');
-				var $t2 = Pather.Common.Models.Game.SyncLockstepModel.$ctor();
+				var $t2 = Pather.Common.Models.Game.Old.SyncLockstepModel.$ctor();
 				$t2.lockstepTickNumber = lockStepTick;
 				$t3.sendMessage(socketIoConnection, $t4, $t2);
 			}
@@ -961,7 +961,7 @@ ss.initClass($Pather_Servers_GameSegment_Old_ServerNetworkManager, $asm, {
 					var $t7 = this.serverCommunicator;
 					var $t8 = player.socket;
 					var $t9 = Pather.Common.SocketChannels.serverChannel('syncLockstep');
-					var $t6 = Pather.Common.Models.Game.SyncLockstepModel.$ctor();
+					var $t6 = Pather.Common.Models.Game.Old.SyncLockstepModel.$ctor();
 					$t6.lockstepTickNumber = lockStepTick;
 					$t7.sendMessage($t8, $t9, $t6);
 				}
@@ -972,13 +972,13 @@ ss.initClass($Pather_Servers_GameSegment_Old_ServerNetworkManager, $asm, {
 	$onNewConnection: function(socketIoConnection) {
 		var $t2 = this.serverCommunicator;
 		var $t3 = Pather.Common.SocketChannels.serverChannel('connect');
-		var $t1 = Pather.Common.Models.Game.ConnectedModel.$ctor();
+		var $t1 = Pather.Common.Models.Game.Old.ConnectedModel.$ctor();
 		$t1.grid = this.game.grid;
 		$t2.sendMessage(socketIoConnection, $t3, $t1);
 		this.$forceSyncNextLockstep.push(socketIoConnection);
-		this.serverCommunicator.listenOnChannel(Pather.Common.Models.Game.PlayerJoinModel).call(this.serverCommunicator, socketIoConnection, Pather.Common.SocketChannels.clientChannel('joinPlayer'), ss.mkdel(this, this.$joinPlayer));
+		this.serverCommunicator.listenOnChannel(Pather.Common.Models.Game.Old.PlayerJoinModel).call(this.serverCommunicator, socketIoConnection, Pather.Common.SocketChannels.clientChannel('joinPlayer'), ss.mkdel(this, this.$joinPlayer));
 		this.serverCommunicator.listenOnChannel(Pather.Common.SerializableAction).call(this.serverCommunicator, socketIoConnection, Pather.Common.SocketChannels.clientChannel('postAction'), ss.mkdel(this, this.$postAction));
-		this.serverCommunicator.listenOnChannel(Pather.Common.Models.Game.PingPongModel).call(this.serverCommunicator, socketIoConnection, Pather.Common.SocketChannels.clientChannel('ping'), ss.mkdel(this, this.$pong));
+		this.serverCommunicator.listenOnChannel(Pather.Common.Models.Game.Old.PingPongModel).call(this.serverCommunicator, socketIoConnection, Pather.Common.SocketChannels.clientChannel('ping'), ss.mkdel(this, this.$pong));
 	},
 	$pong: function(socket, pingPongModel) {
 		this.serverCommunicator.sendMessage(socket, Pather.Common.SocketChannels.serverChannel('pong'), pingPongModel);
@@ -994,9 +994,9 @@ ss.initClass($Pather_Servers_GameSegment_Old_ServerNetworkManager, $asm, {
 		if (ss.isNullOrUndefined(player)) {
 			return;
 		}
-		var $t2 = Pather.Common.Models.Game.PlayerSyncModel.$ctor();
+		var $t2 = Pather.Common.Models.Game.Old.PlayerSyncModel.$ctor();
 		var $t3 = [];
-		var $t4 = Pather.Common.Models.Game.PlayerModel.$ctor();
+		var $t4 = Pather.Common.Models.Game.Old.PlayerModel.$ctor();
 		$t4.playerId = player.playerId;
 		$t3.push($t4);
 		$t2.leftPlayers = $t3;
@@ -1031,9 +1031,9 @@ ss.initClass($Pather_Servers_GameSegment_Old_ServerNetworkManager, $asm, {
 				var $t5 = this.serverCommunicator;
 				var $t6 = entity.socket;
 				var $t7 = Pather.Common.SocketChannels.serverChannel('playerSync');
-				var $t2 = Pather.Common.Models.Game.PlayerSyncModel.$ctor();
+				var $t2 = Pather.Common.Models.Game.Old.PlayerSyncModel.$ctor();
 				var $t3 = [];
-				var $t4 = Pather.Common.Models.Game.PlayerModel.$ctor();
+				var $t4 = Pather.Common.Models.Game.Old.PlayerModel.$ctor();
 				$t4.playerId = player.playerId;
 				$t4.x = player.x;
 				$t4.y = player.y;
@@ -1044,9 +1044,9 @@ ss.initClass($Pather_Servers_GameSegment_Old_ServerNetworkManager, $asm, {
 			else {
 				var $t10 = this.serverCommunicator;
 				var $t11 = Pather.Common.SocketChannels.serverChannel('playerSync');
-				var $t8 = Pather.Common.Models.Game.PlayerSyncModel.$ctor();
+				var $t8 = Pather.Common.Models.Game.Old.PlayerSyncModel.$ctor();
 				$t8.joinedPlayers = this.game.players.map(function(p) {
-					var $t9 = Pather.Common.Models.Game.PlayerModel.$ctor();
+					var $t9 = Pather.Common.Models.Game.Old.PlayerModel.$ctor();
 					$t9.playerId = p.playerId;
 					$t9.x = p.x;
 					$t9.y = p.y;
@@ -1335,7 +1335,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 	},
 	$sendPing: function() {
 		var $t2 = this.$gameSegmentClusterPubSub;
-		var $t1 = Pather.Common.Models.Tick.PingTickPubSubMessage.$ctor();
+		var $t1 = Pather.Common.Models.Tick.Ping_Tick_PubSub_Message.$ctor();
 		$t1.origin = $Pather_Servers_Common_PubSub_PubSubChannels.gameWorld();
 		$t1.originType = 1;
 		$t2.publishToTickServer($t1);
@@ -1346,7 +1346,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 				this.$userJoined(message).then(ss.mkdel(this, function(gwUser) {
 					var $t2 = this.$gameSegmentClusterPubSub;
 					var $t3 = $Pather_Servers_Common_PubSub_PubSubChannels.gateway$1(gwUser.gatewayServer);
-					var $t1 = Pather.Common.Models.Gateway.UserJoinedGatewayPubSubMessage.$ctor();
+					var $t1 = Pather.Common.Models.Gateway.UserJoined_Gateway_PubSub_Message.$ctor();
 					$t1.gameSegmentId = gwUser.gameSegment.gameSegmentId;
 					$t1.userId = gwUser.userId;
 					$t2.publishToGatewayServer($t3, $t1);
@@ -1421,7 +1421,7 @@ ss.initClass($Pather_Servers_GameWorldServer_Tests_GameWorldServerTests, $asm, {
 		});
 		global.$overwiteMethodCallForMocker$(ss.mkdel(pubSubTest, pubSubTest.subscribe), function(channel, callback) {
 			Pather.Common.TestFramework.DeferredAssert.that(testDeferred, channel).get_does().equal($Pather_Servers_Common_PubSub_PubSubChannels.gameWorld());
-			var userJoinedGameWorldPubSubMessage = Pather.Common.Models.GameWorld.UserJoinedGameWorldPubSubMessage.$ctor();
+			var userJoinedGameWorldPubSubMessage = Pather.Common.Models.GameWorld.UserJoined_GameWorld_PubSub_Message.$ctor();
 			userJoinedGameWorldPubSubMessage.type = 'userJoined';
 			userJoinedGameWorldPubSubMessage.userToken = 'abcd';
 			userJoinedGameWorldPubSubMessage.gatewayChannel = 'Gateway 1';
@@ -1475,7 +1475,7 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayPubSub, $asm, {
 ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 	$sendPing: function() {
 		var $t2 = this.gatewayPubSub;
-		var $t1 = Pather.Common.Models.Tick.PingTickPubSubMessage.$ctor();
+		var $t1 = Pather.Common.Models.Tick.Ping_Tick_PubSub_Message.$ctor();
 		$t1.origin = $Pather_Servers_Common_PubSub_PubSubChannels.gateway$1(this.gatewayId);
 		$t1.originType = 1;
 		$t2.publishToTickServer($t1);
@@ -1539,7 +1539,7 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 			this.serverCommunicator.listenOnChannel(Pather.Common.Models.Gateway.GatewayJoinModel).call(this.serverCommunicator, socket1, 'Gateway.Join', ss.mkdel(this, function(cSocket1, data1) {
 				user.set_$userToken(data1.userToken);
 				var $t4 = this.gatewayPubSub;
-				var $t3 = Pather.Common.Models.GameWorld.UserJoinedGameWorldPubSubMessage.$ctor();
+				var $t3 = Pather.Common.Models.GameWorld.UserJoined_GameWorld_PubSub_Message.$ctor();
 				$t3.type = 'userJoined';
 				$t3.gatewayChannel = this.gatewayId;
 				$t3.userToken = data1.userToken;
@@ -1665,15 +1665,15 @@ ss.initClass($Pather_Servers_TickServer_TickServer, $asm, {
 				var returnMessage;
 				switch (pingMessage.originType) {
 					case 0: {
-						returnMessage = Pather.Common.Models.GameSegment.PongGameSegmentPubSubMessage.$ctor();
+						returnMessage = Pather.Common.Models.GameSegment.Pong_GameSegment_PubSub_Message.$ctor();
 						break;
 					}
 					case 1: {
-						returnMessage = Pather.Common.Models.GameWorld.PongGameWorldPubSubMessage.$ctor();
+						returnMessage = Pather.Common.Models.GameWorld.Pong_GameWorld_PubSub_Message.$ctor();
 						break;
 					}
 					case 2: {
-						returnMessage = Pather.Common.Models.Gateway.PongGatewayPubSubMessage.$ctor();
+						returnMessage = Pather.Common.Models.Gateway.Pong_Gateway_PubSub_Message.$ctor();
 						break;
 					}
 					default: {
@@ -1693,9 +1693,9 @@ ss.initClass($Pather_Servers_TickServer_TickServerTickManager, $asm, {
 	processLockstep: function(lockstepTickNumber) {
 		$Pather_Servers_Common_TickManager.prototype.processLockstep.call(this, lockstepTickNumber);
 		if (lockstepTickNumber % 15 === 0) {
-			this.tickPubSub.publishToAllGameSegments(Pather.Common.Models.GameSegment.TickSyncGameSegmentPubSubAllMessage.$ctor(lockstepTickNumber));
-			this.tickPubSub.publishToAllGateways(Pather.Common.Models.Gateway.TickSyncGatewayPubSubAllMessage.$ctor(lockstepTickNumber));
-			this.tickPubSub.publishToGameWorld(Pather.Common.Models.GameWorld.TickSyncGameWorldPubSubMessage.$ctor(lockstepTickNumber));
+			this.tickPubSub.publishToAllGameSegments(Pather.Common.Models.GameSegment.TickSync_GameSegment_PubSub_AllMessage.$ctor(lockstepTickNumber));
+			this.tickPubSub.publishToAllGateways(Pather.Common.Models.Gateway.TickSync_Gateway_PubSub_AllMessage.$ctor(lockstepTickNumber));
+			this.tickPubSub.publishToGameWorld(Pather.Common.Models.GameWorld.TickSync_GameWorld_PubSub_Message.$ctor(lockstepTickNumber));
 		}
 	}
 }, $Pather_Servers_Common_TickManager);

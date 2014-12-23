@@ -2,7 +2,7 @@ using System;
 using System.Html;
 using System.Html.Media.Graphics;
 using Pather.Common;
-using Pather.Common.Models.Game;
+using Pather.Common.Models.Game.Old;
 
 namespace Pather.Client
 {

@@ -42,18 +42,20 @@ namespace Pather.Servers.GameSegment
             deferred.Resolve();
             return deferred.Promise;
         }
-        public void PublishToTickServer(TickPubSubMessage message)
+
+        public void PublishToTickServer(Tick_PubSub_Message message)
         {
             PubSub.Publish(PubSubChannels.Tick(), message);
         }
-        public void PublishToGateway(string gatewayId, GatewayPubSubMessage message)
+
+        public void PublishToGateway(string gatewayId, Gateway_PubSub_Message message)
         {
             PubSub.Publish(PubSubChannels.Gateway(gatewayId), message);
         }
+
         public void PublishToGameWorld(GameWorld_PubSub_Message message)
         {
             PubSub.Publish(PubSubChannels.GameWorld(), message);
         }
-
     }
 }

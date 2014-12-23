@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models.Game;
+using Pather.Common.Models.Game.Old;
 using Pather.Servers.Common;
 using Pather.Servers.Common.SocketManager;
 

@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameWorld;
 using Pather.Common.Models.Gateway;
 using Pather.Common.Models.Tick;
 using Pather.Servers.Common.PubSub;
-using Pather.Servers.GameWorldServer;
 
 namespace Pather.Servers.TickServer
 {
@@ -28,33 +26,32 @@ namespace Pather.Servers.TickServer
 
         private void ready()
         {
-
             TickManager = new TickServerTickManager(TickPubSub);
             TickManager.Init(0);
 
             TickPubSub.OnMessage += pubSubMessage;
         }
 
-        private void pubSubMessage(TickPubSubMessage message)
+        private void pubSubMessage(Tick_PubSub_Message message)
         {
             switch (message.Type)
             {
-                case TickPubSubMessageType.Ping:
+                case Tick_PubSub_MessageType.Ping:
 
-                    var pingMessage = (PingTickPubSubMessage) message;
+                    var pingMessage = (Ping_Tick_PubSub_Message) message;
 
                     object returnMessage;
 
                     switch (pingMessage.OriginType)
                     {
-                        case PingTickPubSubMessageOriginType.GameSegment:
-                            returnMessage = new PongGameSegmentPubSubMessage();
+                        case Ping_Tick_PubSub_Message_OriginType.GameSegment:
+                            returnMessage = new Pong_GameSegment_PubSub_Message();
                             break;
-                        case PingTickPubSubMessageOriginType.GameWorld:
-                            returnMessage = new PongGameWorldPubSubMessage();
+                        case Ping_Tick_PubSub_Message_OriginType.GameWorld:
+                            returnMessage = new Pong_GameWorld_PubSub_Message();
                             break;
-                        case PingTickPubSubMessageOriginType.Gateway:
-                            returnMessage = new PongGatewayPubSubMessage();
+                        case Ping_Tick_PubSub_Message_OriginType.Gateway:
+                            returnMessage = new Pong_Gateway_PubSub_Message();
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();

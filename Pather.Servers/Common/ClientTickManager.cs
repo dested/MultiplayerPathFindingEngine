@@ -50,8 +50,8 @@ namespace Pather.Servers.Common
                     average += l;
                 }
 
-                double roundTripLatency = ((double)average / (double)(pingSent.Count));
-                int oneWayLatency = (int)roundTripLatency / 2;
+                var roundTripLatency = ((double) average/(double) (pingSent.Count));
+                var oneWayLatency = (int) roundTripLatency/2;
 
                 SetServerLatency(oneWayLatency);
                 pingSent = null;
@@ -60,7 +60,8 @@ namespace Pather.Servers.Common
 
         private bool hasLockstep = false;
         private bool hasLatency = false;
-        private bool tickManagerInitialized= false;
+        private bool tickManagerInitialized = false;
+
         public override void SetLockStepTick(long lockStepTickNumber)
         {
             base.SetLockStepTick(lockStepTickNumber);
@@ -82,7 +83,6 @@ namespace Pather.Servers.Common
                 tickManagerInitialized = true;
                 TickManagerReady();
             }
-
         }
 
         private void TickManagerReady()

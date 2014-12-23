@@ -53,6 +53,7 @@
     <Compile Include="GameSegmentCluster\Tests\StubPubSub.cs" />
     <Compile Include="Common\ClientTickManager.cs" />
     <Compile Include="GameSegment\GameSegmentPubSub.cs" />
+    <Compile Include="GameSegment\GameSegmentUser.cs" />
     <Compile Include="GameSegment\Old\GameSegmentUser.cs" />
     <Compile Include="GameWorldServer\GameSegment.cs" />
     <Compile Include="GameWorldServer\GameWorld.cs" />

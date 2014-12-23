@@ -14,7 +14,7 @@ namespace Pather.Servers.GameWorldServer
         public GameWorldPubSub GameWorldPubSub;
         public List<GameWorldUser> Users;
         public List<GameSegment> GameSegments;
-        private string gameSegmentClusterId="TODO:DEFAULTGAMESEGMENT";
+        private string gameSegmentClusterId = "TODO:DEFAULTGAMESEGMENT";
 
         public GameWorld(GameWorldPubSub gameWorldPubSub)
         {
@@ -42,7 +42,7 @@ namespace Pather.Servers.GameWorldServer
                         .Then(() =>
                         {
                             Users.Add(gwUser);
-                            Global.Console.Log("","Gameworld has added a new user to game segment", gameSegment.GameSegmentId, "bring the total number of players to", Users.Count, ". The game segment has", gameSegment.Users.Count, "users.");
+                            Global.Console.Log("", "Gameworld has added a new user to game segment", gameSegment.GameSegmentId, "bring the total number of players to", Users.Count, ". The game segment has", gameSegment.Users.Count, "users.");
 
                             defer.Resolve(gwUser);
                         });
@@ -112,7 +112,7 @@ namespace Pather.Servers.GameWorldServer
                 GameSegmentId = Pather.Common.Common.UniqueId(),
             };
 
-            GameWorldPubSub.PublishToGameSegmentClusterWithCallback<CreateGameSegment_Response_GameWorld_PubSub_Message>(gameSegmentClusterId,createGameMessage)
+            GameWorldPubSub.PublishToGameSegmentClusterWithCallback<CreateGameSegment_Response_GameWorld_PubSub_Message>(gameSegmentClusterId, createGameMessage)
                 .Then((createGameMessageResponse) =>
                 {
                     var gs = new GameSegment(this);

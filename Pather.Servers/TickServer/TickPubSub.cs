@@ -18,7 +18,7 @@ namespace Pather.Servers.TickServer
             PubSub = pubSub;
         }
 
-        public Action<TickPubSubMessage> OnMessage;
+        public Action<Tick_PubSub_Message> OnMessage;
 
         public Promise Init()
         {
@@ -26,7 +26,7 @@ namespace Pather.Servers.TickServer
 
             PubSub.Subscribe(PubSubChannels.Tick(), (message) =>
             {
-                var tickPubSubMessage = Json.Parse<TickPubSubMessage>(message);
+                var tickPubSubMessage = Json.Parse<Tick_PubSub_Message>(message);
                 OnMessage(tickPubSubMessage);
             });
 
@@ -41,7 +41,7 @@ namespace Pather.Servers.TickServer
         }
 
 
-        public void PublishToAllGateways(GatewayPubSubAllMessage message)
+        public void PublishToAllGateways(Gateway_PubSub_AllMessage message)
         {
             //todo test if its faster for redis to have one "tick" subscription for all relevent clients or not
             PubSub.Publish(PubSubChannels.Gateway(), message);

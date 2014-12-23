@@ -17,7 +17,7 @@ namespace Pather.Client
 
             if (Constants.TestServer)
             {
-                Socket = Global.Require<Func<string,object, SocketIOClient>>("socket.io-client")(url,
+                Socket = Global.Require<Func<string, object, SocketIOClient>>("socket.io-client")(url,
                     new
                     {
                         reconnection = false

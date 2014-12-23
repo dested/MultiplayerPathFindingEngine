@@ -3,14 +3,9 @@ using System.Runtime.CompilerServices;
 namespace Pather.Common.Models.GameSegment
 {
     [NamedValues]
-    public enum GameSegmentPubSubMessageType
+    public enum GameSegment_PubSub_MessageType
     {
         Pong,
         UserJoin
-    }
-    [NamedValues]
-    public enum GameSegmentPubSubAllMessageType
-    {
-        TickSync,
     }
 }

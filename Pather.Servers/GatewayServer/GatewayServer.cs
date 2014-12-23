@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Serialization;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameWorld;
 using Pather.Common.Models.Gateway;
@@ -24,7 +23,7 @@ namespace Pather.Servers.GatewayServer
             GatewayId = Pather.Common.Common.UniqueId();
             Global.Console.Log(GatewayId);
 
-            var port = 1800 + Math.Truncate((Math.Random() * 4000d));
+            var port = 1800 + Math.Truncate((Math.Random()*4000d));
             port = 1800;
 
             ServerCommunicator = new ServerCommunicator(socketManager, port);
@@ -38,7 +37,10 @@ namespace Pather.Servers.GatewayServer
 
 
                 ClientTickManager = new ClientTickManager();
-                ClientTickManager.Init(SendPing, () => { Global.Console.Log("Connected To Tick Server"); });
+                ClientTickManager.Init(SendPing, () =>
+                {
+                    Global.Console.Log("Connected To Tick Server");
+                });
                 ClientTickManager.StartPing();
 
 
@@ -48,30 +50,32 @@ namespace Pather.Servers.GatewayServer
 
         private void SendPing()
         {
-            GatewayPubSub.PublishToTickServer(new PingTickPubSubMessage() { Origin = PubSubChannels.Gateway(GatewayId), OriginType = PingTickPubSubMessageOriginType.GameWorld });
+            GatewayPubSub.PublishToTickServer(new Ping_Tick_PubSub_Message()
+            {
+                Origin = PubSubChannels.Gateway(GatewayId),
+                OriginType = Ping_Tick_PubSub_Message_OriginType.GameWorld
+            });
         }
 
-        private void OnAllMessage(GatewayPubSubAllMessage message)
+        private void OnAllMessage(Gateway_PubSub_AllMessage message)
         {
             switch (message.Type)
             {
-                case GatewayPubSubAllMessageType.TickSync:
-                    var tickSyncMessage = (TickSyncGatewayPubSubAllMessage)message;
+                case Gateway_PubSub_AllMessageType.TickSync:
+                    var tickSyncMessage = (TickSync_Gateway_PubSub_AllMessage) message;
                     ClientTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-
         }
 
-        private void OnMessage(GatewayPubSubMessage message)
+        private void OnMessage(Gateway_PubSub_Message message)
         {
-
             switch (message.Type)
             {
-                case GatewayPubSubMessageType.UserJoined:
-                    var userJoinedMessage = (UserJoinedGatewayPubSubMessage)message;
+                case Gateway_PubSub_MessageType.UserJoined:
+                    var userJoinedMessage = (UserJoined_Gateway_PubSub_Message) message;
 
 
                     foreach (var gatewayUser in Users)
@@ -84,8 +88,8 @@ namespace Pather.Servers.GatewayServer
                     }
 
                     break;
-                case GatewayPubSubMessageType.Pong:
-                    var pongMessage = (PongGatewayPubSubMessage)message;
+                case Gateway_PubSub_MessageType.Pong:
+                    var pongMessage = (Pong_Gateway_PubSub_Message) message;
                     ClientTickManager.OnPongReceived();
 
                     break;
@@ -134,7 +138,7 @@ namespace Pather.Servers.GatewayServer
                     (ISocket cSocket, GatewayJoinModel data) =>
                     {
                         user.UserToken = data.UserToken;
-                        GatewayPubSub.PublishToGameWorld(new UserJoinedGameWorldPubSubMessage()
+                        GatewayPubSub.PublishToGameWorld(new UserJoined_GameWorld_PubSub_Message()
                         {
                             Type = GameWorld_PubSub_MessageType.UserJoined,
                             GatewayChannel = GatewayId,
@@ -143,7 +147,5 @@ namespace Pather.Servers.GatewayServer
                     });
             };
         }
-
-
     }
 }

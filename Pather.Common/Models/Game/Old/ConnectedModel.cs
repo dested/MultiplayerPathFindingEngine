@@ -1,6 +1,6 @@
 using System;
 
-namespace Pather.Common.Models.Game
+namespace Pather.Common.Models.Game.Old
 {
     [Serializable]
     public class ConnectedModel
