@@ -566,7 +566,6 @@
 	$Pather_Common_Models_GameWorld_GameWorld_PubSub_ReqRes_Message.$ctor = function() {
 		var $this = $Pather_Common_Models_GameWorld_GameWorld_PubSub_Message.$ctor();
 		$this.messageId = null;
-		$this.type = 'createGameSegmentResponse';
 		$this.messageId = $Pather_Common_Common.uniqueId();
 		return $this;
 	};
@@ -608,7 +607,7 @@
 	};
 	$Pather_Common_Models_GameWorld_UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message.$ctor = function() {
 		var $this = $Pather_Common_Models_GameWorld_GameWorld_PubSub_ReqRes_Message.$ctor();
-		$this.type = 'createGameSegmentResponse';
+		$this.type = 'userJoinResponse';
 		return $this;
 	};
 	global.Pather.Common.Models.GameWorld.UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message = $Pather_Common_Models_GameWorld_UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message;

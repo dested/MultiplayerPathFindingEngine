@@ -55,7 +55,7 @@ namespace Pather.Servers
                         new MonitorServer.MonitorServer();
                         break;
                     case "gsc":
-                    case "GameSegmentCluster":
+                    case "gamesegmentcluster":
                         new GameSegmentCluster.GameSegmentCluster(new PubSub(), new PushPop(), "TODO:DEFAULTGAMESEGMENTCLUSTER");
                         break;
                     case "gs":

@@ -29,9 +29,7 @@ namespace Pather.Servers.GameWorldServer
             PubSub.Subscribe(PubSubChannels.GameWorld(), (message) =>
             {
                 var gameWorldPubSubMessage = Json.Parse<GameWorld_PubSub_Message>(message);
-
                 var possibleMessageReqRes = Script.Reinterpret<IPubSub_ReqRes_Message>(gameWorldPubSubMessage);
-
 
                 if (!Script.IsUndefined(possibleMessageReqRes.MessageId))
                 {

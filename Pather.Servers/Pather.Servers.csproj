@@ -50,6 +50,7 @@
     <Compile Include="Database\DatabaseError.cs" />
     <Compile Include="Database\DBUser.cs" />
     <Compile Include="Database\IDatabaseQueries.cs" />
+    <Compile Include="GameSegmentCluster\GameSegmentClusterPubSub.cs" />
     <Compile Include="GameSegmentCluster\Tests\GameSegmentClusterTest.cs" />
     <Compile Include="GameSegmentCluster\Tests\StubPubSub.cs" />
     <Compile Include="Common\ClientTickManager.cs" />

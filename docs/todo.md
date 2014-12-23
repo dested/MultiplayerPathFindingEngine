@@ -20,7 +20,9 @@ look into rabbitMQ
 
 unref child in gsc
 
-add teh webpage logger from shuffly
+ignore ping/lockstep/keepalive in pubsub
+
+'/ add teh webpage logger from shuffly
 
 decide how to spin up gateways
 decide how to spin up gsc

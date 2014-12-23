@@ -8,7 +8,6 @@ namespace Pather.Common.Models.GameWorld
     {
         public GameWorld_PubSub_ReqRes_Message()
         {
-            Type = GameWorld_PubSub_MessageType.CreateGameSegmentResponse;
             MessageId = Common.UniqueId();
         }
 

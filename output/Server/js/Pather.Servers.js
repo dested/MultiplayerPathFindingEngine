@@ -62,7 +62,7 @@ $Pather_Servers_ServerManager.main = function() {
 				break;
 			}
 			case 'gsc':
-			case 'GameSegmentCluster': {
+			case 'gamesegmentcluster': {
 				new $Pather_Servers_GameSegmentCluster_GameSegmentCluster(new $Pather_Servers_Common_PubSub_PubSub(), new $Pather_Servers_Common_PushPop_PushPop(), 'TODO:DEFAULTGAMESEGMENTCLUSTER');
 				break;
 			}
@@ -433,17 +433,29 @@ global.Pather.Servers.GameSegment.Old.ServerStepManager = $Pather_Servers_GameSe
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameSegmentCluster.GameSegmentCluster
 var $Pather_Servers_GameSegmentCluster_GameSegmentCluster = function(pubsub, pushPop, gameSegmentClusterId) {
-	this.$1$PushPopField = null;
-	this.$1$GameSegmentClusterIdField = null;
+	this.pushPop = null;
+	this.gameSegmentClusterPubSub = null;
+	this.gameSegmentClusterId = null;
 	this.$pubsub = null;
 	$Pather_Servers_Common_ServerLogger_ServerLogger.initLogger('GameSegmentCluster', gameSegmentClusterId);
-	this.set_pushPop(pushPop);
-	this.set_gameSegmentClusterId(gameSegmentClusterId);
+	this.pushPop = pushPop;
+	this.gameSegmentClusterId = gameSegmentClusterId;
 	this.$pubsub = pubsub;
 	Pather.Common.Utils.Promises.Q.all([pubsub.init(), pushPop.init()]).then(ss.mkdel(this, this.$pubsubsConnected));
 };
 $Pather_Servers_GameSegmentCluster_GameSegmentCluster.__typeName = 'Pather.Servers.GameSegmentCluster.GameSegmentCluster';
 global.Pather.Servers.GameSegmentCluster.GameSegmentCluster = $Pather_Servers_GameSegmentCluster_GameSegmentCluster;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.GameSegmentCluster.GameSegmentClusterPubSub
+var $Pather_Servers_GameSegmentCluster_GameSegmentClusterPubSub = function(pubSub, gameSegmentClusterId) {
+	this.gameSegmentClusterId = null;
+	this.pubSub = null;
+	this.onMessage = null;
+	this.gameSegmentClusterId = gameSegmentClusterId;
+	this.pubSub = pubSub;
+};
+$Pather_Servers_GameSegmentCluster_GameSegmentClusterPubSub.__typeName = 'Pather.Servers.GameSegmentCluster.GameSegmentClusterPubSub';
+global.Pather.Servers.GameSegmentCluster.GameSegmentClusterPubSub = $Pather_Servers_GameSegmentCluster_GameSegmentClusterPubSub;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameSegmentCluster.Tests.GameSegmentClusterTest
 var $Pather_Servers_GameSegmentCluster_Tests_GameSegmentClusterTest = function() {
@@ -1187,26 +1199,15 @@ ss.initClass($Pather_Servers_GameSegment_Old_ServerStepManager, $asm, {
 	}
 }, Pather.Common.StepManager);
 ss.initClass($Pather_Servers_GameSegmentCluster_GameSegmentCluster, $asm, {
-	get_pushPop: function() {
-		return this.$1$PushPopField;
-	},
-	set_pushPop: function(value) {
-		this.$1$PushPopField = value;
-	},
-	get_gameSegmentClusterId: function() {
-		return this.$1$GameSegmentClusterIdField;
-	},
-	set_gameSegmentClusterId: function(value) {
-		this.$1$GameSegmentClusterIdField = value;
-	},
 	$pubsubsConnected: function() {
-		this.$pubsub.subscribe($Pather_Servers_Common_PubSub_PubSubChannels.gameSegmentCluster$1(this.get_gameSegmentClusterId()), ss.mkdel(this, this.$receiveMessage));
+		this.gameSegmentClusterPubSub = new $Pather_Servers_GameSegmentCluster_GameSegmentClusterPubSub(this.$pubsub, this.gameSegmentClusterId);
+		this.gameSegmentClusterPubSub.onMessage = ss.delegateCombine(this.gameSegmentClusterPubSub.onMessage, ss.mkdel(this, this.$receiveMessage));
+		this.gameSegmentClusterPubSub.init();
 	},
 	$receiveMessage: function(message) {
-		var GameSegmentCluster = JSON.parse(message);
-		switch (GameSegmentCluster.type) {
+		switch (message.type) {
 			case 0: {
-				this.$createGameSegment(GameSegmentCluster);
+				this.$createGameSegment(message);
 				break;
 			}
 		}
@@ -1218,19 +1219,29 @@ ss.initClass($Pather_Servers_GameSegmentCluster_GameSegmentCluster, $asm, {
 		var m = fs.openSync('./out.log', 'a', null);
 		var out = fs.openSync('./out.log', 'a', null);
 		var err = fs.openSync('./out.log', 'a', null);
-		this.get_pushPop().blockingPop(createGameSegment.gameSegmentId, Pather.Common.Constants.gameSegmentCreationWait).then(ss.mkdel(this, function(content) {
-			var $t2 = this.$pubsub;
-			var $t3 = $Pather_Servers_Common_PubSub_PubSubChannels.gameWorld();
+		this.pushPop.blockingPop(createGameSegment.gameSegmentId, Pather.Common.Constants.gameSegmentCreationWait).then(ss.mkdel(this, function(content) {
+			var $t2 = this.gameSegmentClusterPubSub;
 			var $t1 = Pather.Common.Models.GameWorld.CreateGameSegment_Response_GameWorld_PubSub_Message.$ctor();
 			$t1.gameSegmentId = createGameSegment.gameSegmentId;
 			$t1.messageId = createGameSegment.messageId;
-			$t2.publish$1($t3, $t1);
+			$t2.publishToGameWorld($t1);
 			console.log('Server Created!', createGameSegment.gameSegmentId);
 		})).error(function(a) {
 			console.log('Server Creation Failed!');
 		});
 		var child = spawn('node', ['app.js', 'gs', createGameSegment.gameSegmentId], { stdio: [m, out, err] });
 		//            child.Unref();
+	}
+});
+ss.initClass($Pather_Servers_GameSegmentCluster_GameSegmentClusterPubSub, $asm, {
+	init: function() {
+		this.pubSub.subscribe($Pather_Servers_Common_PubSub_PubSubChannels.gameSegmentCluster$1(this.gameSegmentClusterId), ss.mkdel(this, function(message) {
+			var gameWorldPubSubMessage = JSON.parse(message);
+			this.onMessage(gameWorldPubSubMessage);
+		}));
+	},
+	publishToGameWorld: function(message) {
+		this.pubSub.publish$1($Pather_Servers_Common_PubSub_PubSubChannels.gameWorld(), message);
 	}
 });
 ss.initClass($Pather_Servers_GameSegmentCluster_Tests_GameSegmentClusterTest, $asm, {
@@ -1465,10 +1476,6 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 					$t1.userId = gwUser.userId;
 					$t2.publishToGatewayServer($t3, $t1);
 				}));
-				break;
-			}
-			case 'createGameSegmentResponse': {
-				console.log('Create game segment response, not handled', message);
 				break;
 			}
 			case 'pong': {

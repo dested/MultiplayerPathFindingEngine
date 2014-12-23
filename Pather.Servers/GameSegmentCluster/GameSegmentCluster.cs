@@ -12,8 +12,9 @@ namespace Pather.Servers.GameSegmentCluster
 {
     public class GameSegmentCluster
     {
-        public IPushPop PushPop { get; set; }
-        public string GameSegmentClusterId { get; set; }
+        public IPushPop PushPop;
+        public GameSegmentClusterPubSub GameSegmentClusterPubSub;
+        public string GameSegmentClusterId;
         private readonly IPubSub pubsub;
 
         public GameSegmentCluster(IPubSub pubsub, IPushPop pushPop, string gameSegmentClusterId)
@@ -28,18 +29,21 @@ namespace Pather.Servers.GameSegmentCluster
 
         private void pubsubsConnected()
         {
-            pubsub.Subscribe(PubSubChannels.GameSegmentCluster(GameSegmentClusterId), receiveMessage);
+            GameSegmentClusterPubSub = new GameSegmentClusterPubSub(pubsub, GameSegmentClusterId);
+            GameSegmentClusterPubSub.OnMessage += receiveMessage;
+            GameSegmentClusterPubSub.Init();
+            
         }
 
-        private void receiveMessage(string message)
-        {
-            var GameSegmentCluster = Json.Parse<GameSegmentCluster_PubSub_Message>(message);
 
-            switch (GameSegmentCluster.Type)
+        private void receiveMessage(GameSegmentCluster_PubSub_Message message)
+        {
+
+            switch (message.Type)
             {
                 case GameSegmentCluster_PubSub_MessageType.CreateGameSegment:
 
-                    CreateGameSegment(((CreateGameSegment_GameSegmentCluster_PubSub_ReqRes_Message) GameSegmentCluster));
+                    CreateGameSegment(((CreateGameSegment_GameSegmentCluster_PubSub_ReqRes_Message)message));
 
                     break;
             }
@@ -56,14 +60,14 @@ namespace Pather.Servers.GameSegmentCluster
             var @out = fs.OpenSync("./out.log", "a", null);
             var err = fs.OpenSync("./out.log", "a", null);
 
-
             PushPop.BlockingPop(createGameSegment.GameSegmentId, Constants.GameSegmentCreationWait).Then((content) =>
             {
-                pubsub.Publish(PubSubChannels.GameWorld(), new CreateGameSegment_Response_GameWorld_PubSub_Message()
+                GameSegmentClusterPubSub.PublishToGameWorld(new CreateGameSegment_Response_GameWorld_PubSub_Message()
                 {
                     GameSegmentId = createGameSegment.GameSegmentId,
                     MessageId = createGameSegment.MessageId,
                 });
+                
                 Global.Console.Log("Server Created!", createGameSegment.GameSegmentId);
             }).Error(a =>
             {
@@ -80,10 +84,10 @@ namespace Pather.Servers.GameSegmentCluster
                 {
                     m, @out, err
                 },
-//                detached = true,
+                //                detached = true,
             });
 
-//            child.Unref();
+            //            child.Unref();
         }
     }
 }

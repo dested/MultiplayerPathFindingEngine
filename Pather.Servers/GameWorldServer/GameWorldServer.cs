@@ -69,10 +69,6 @@ namespace Pather.Servers.GameWorldServer
                         });
                     });
                     break;
-                case GameWorld_PubSub_MessageType.CreateGameSegmentResponse:
-                    Global.Console.Log("Create game segment response, not handled", message);
-                    break;
-
                 case GameWorld_PubSub_MessageType.Pong:
                     var pongMessage = (Pong_GameWorld_PubSub_Message) message;
                     ClientTickManager.OnPongReceived();

@@ -4,14 +4,14 @@ user hits gateway with player token
 '/gameworld determines which player is closest to our new user, 
 	and adds him to that game server, so as not to reorg on every new join
 
-gameworld tells gateway which game server to send user to 
+'/gameworld tells gateway which game server to send user to 
 
 gateway publishes user join to users game server
 	gameserver adds user to his active watch list
 	gameserver runs update neighbors	
 gateway publishes user join knowledge to all other game servers
 	gameserver adds user to his inactive watch list
-	gameserver runs update neighbors	
+	gameserver runs update neighbors
 
 game server sends ready to gateway
 gateway sends ready to user
@@ -40,12 +40,12 @@ game server notifies client of his new neighbors
 
 
 
-tick server
-	keeps all gs, the gw, and clients in sync
-	does nothing but ticktock
+'/tick server
+	keeps all '/gt's '/gs's, the '/gw, and clients in sync
+	'/does nothing but ticktock
 
-	ts plays pingpong with each gs, each gateway, and the gw
-		each gs/gateway determines latency 
+	'/ts plays pingpong with each gs, each gateway, and the gw
+	'/	each gs/gateway determines latency 
 	player determines latecny with gateway, adds it to its ticktock latency
 
 
@@ -75,11 +75,11 @@ every
 
 
 
-gameserverclusters
+'/gameserverclusters
 	one on each gameserver box
 	monitors how many game servers there are
 	monitors healthcheck for game servers
-	can spin up a new game server instnace at the gw request
+	'/can spin up a new game server instnace at the gw request
 
 gw can spin up a new game server box
 	calls api to provision a new box
