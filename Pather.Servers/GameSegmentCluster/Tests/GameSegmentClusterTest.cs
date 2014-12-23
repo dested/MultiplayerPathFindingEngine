@@ -26,16 +26,13 @@ namespace Pather.Servers.GameSegmentCluster.Tests
             Mocker.StubMethodCall(pubSub.Init, (() => Q.ResolvedPromise()));
 
 
-            Mocker.StubMethodCall<string, GameSegmentClusterPubSubMessage>(pubSub.Publish, (channel, data) =>
+            Mocker.StubMethodCall<string, GameSegmentCluster_PubSub_Message>(pubSub.Publish, (channel, data) =>
             {
             });
 
             var gts = new GameSegmentCluster(pubSub, pushPop, gameSegmentId);
 
-            pubSub.ReceivedMessage(PubSubChannels.GameSegmentCluster(gameSegmentId), Json.Stringify(new CreateGameSegmentGameSegmentClusterPubSubMessage()
-            {
-                Type = GameSegmentClusterPubSubMessageType.CreateGameSegment
-            }));
+            pubSub.ReceivedMessage(PubSubChannels.GameSegmentCluster(gameSegmentId), Json.Stringify(new CreateGameSegment_GameSegmentCluster_PubSub_ReqRes_Message()));
 
             Debugger.Break();
             testDeferred.Resolve();

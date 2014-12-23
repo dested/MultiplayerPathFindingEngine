@@ -24,3 +24,10 @@ add teh webpage logger from shuffly
 
 decide how to spin up gateways
 decide how to spin up gsc
+
+change gamesegmentcluster to new pubsub model
+
+
+TypeError: Cannot call method 'push' of null
+    at ss.initClass.onPongReceived (C:\code\github\dested\MultiplayerPathFindingEngine\output\Server\js\Pather.Serve
+rs.js:642:18)

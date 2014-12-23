@@ -31,19 +31,19 @@ namespace Pather.Servers.GameSegmentCluster
 
         private void receiveMessage(string message)
         {
-            var GameSegmentCluster = Json.Parse<GameSegmentClusterPubSubMessage>(message);
+            var GameSegmentCluster = Json.Parse<GameSegmentCluster_PubSub_Message>(message);
 
             switch (GameSegmentCluster.Type)
             {
                 case GameSegmentClusterPubSubMessageType.CreateGameSegment:
 
-                    CreateGameSegment(((CreateGameSegmentGameSegmentClusterPubSubMessage) GameSegmentCluster));
+                    CreateGameSegment(((CreateGameSegment_GameSegmentCluster_PubSub_ReqRes_Message) GameSegmentCluster));
 
                     break;
             }
         }
 
-        private void CreateGameSegment(CreateGameSegmentGameSegmentClusterPubSubMessage createGameSegment)
+        private void CreateGameSegment(CreateGameSegment_GameSegmentCluster_PubSub_ReqRes_Message createGameSegment)
         {
             Global.Console.Log("Spawning new game segment");
 
@@ -57,7 +57,7 @@ namespace Pather.Servers.GameSegmentCluster
 
             PushPop.BlockingPop(createGameSegment.GameSegmentId, Constants.GameSegmentCreationWait).Then((content) =>
             {
-                pubsub.Publish(PubSubChannels.GameWorld(), new CreateGameSegmentResponseGameWorldPubSubMessage()
+                pubsub.Publish(PubSubChannels.GameWorld(), new CreateGameSegment_Response_GameWorld_PubSub_Message()
                 {
                     GameSegmentId = createGameSegment.GameSegmentId,
                     MessageId = createGameSegment.MessageId,

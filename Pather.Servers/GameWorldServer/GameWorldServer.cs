@@ -36,21 +36,21 @@ namespace Pather.Servers.GameWorldServer
 
 
             ClientTickManager = new ClientTickManager();
-            ClientTickManager.Init(SendPing, ()=>{Global.Console.Log("Connected To Tick Server");});
+            ClientTickManager.Init(sendPing, ()=>{Global.Console.Log("Connected To Tick Server");});
             ClientTickManager.StartPing();
         }
 
-        private void SendPing()
+        private void sendPing()
         {
             gameSegmentClusterPubSub.PublishToTickServer(new PingTickPubSubMessage() { Origin = PubSubChannels.GameWorld(), OriginType = PingTickPubSubMessageOriginType.GameWorld });
         }
 
 
-        private void gameWorldMessage(GameWorldPubSubMessage message)
+        private void gameWorldMessage(GameWorld_PubSub_Message message)
         {
             switch (message.Type)
             {
-                case GameWorldPubSubMessageType.UserJoined:
+                case GameWorld_PubSub_MessageType.UserJoined:
                     UserJoined((UserJoinedGameWorldPubSubMessage)message).Then(gwUser =>
                     {
                         gameSegmentClusterPubSub.PublishToGatewayServer(PubSubChannels.Gateway(gwUser.GatewayServer), new UserJoinedGatewayPubSubMessage()
@@ -60,15 +60,15 @@ namespace Pather.Servers.GameWorldServer
                         });
                     });
                     break;
-                case GameWorldPubSubMessageType.CreateGameSegmentResponse:
+                case GameWorld_PubSub_MessageType.CreateGameSegmentResponse:
                     Global.Console.Log("Create game segment response, not handled", message);
                     break;
 
-                case GameWorldPubSubMessageType.Pong:
+                case GameWorld_PubSub_MessageType.Pong:
                     var pongMessage = (PongGameWorldPubSubMessage)message;
                     ClientTickManager.OnPongReceived();
                     break;
-                case GameWorldPubSubMessageType.TickSync:
+                case GameWorld_PubSub_MessageType.TickSync:
                     var tickSyncMessage = (TickSyncGameWorldPubSubMessage)message;
                     ClientTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;

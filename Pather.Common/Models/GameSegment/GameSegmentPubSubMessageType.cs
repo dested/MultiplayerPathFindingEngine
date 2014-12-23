@@ -5,7 +5,8 @@ namespace Pather.Common.Models.GameSegment
     [NamedValues]
     public enum GameSegmentPubSubMessageType
     {
-        Pong
+        Pong,
+        UserJoin
     }
     [NamedValues]
     public enum GameSegmentPubSubAllMessageType

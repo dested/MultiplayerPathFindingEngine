@@ -44,7 +44,7 @@ namespace Pather.Servers.GameWorldServer.Tests
             {
                 DeferredAssert.That(testDeferred, channel).Does.Equal(PubSubChannels.GameWorld());
                 var userJoinedGameWorldPubSubMessage = new UserJoinedGameWorldPubSubMessage();
-                userJoinedGameWorldPubSubMessage.Type = GameWorldPubSubMessageType.UserJoined;
+                userJoinedGameWorldPubSubMessage.Type = GameWorld_PubSub_MessageType.UserJoined;
                 userJoinedGameWorldPubSubMessage.UserToken = "abcd";
                 userJoinedGameWorldPubSubMessage.GatewayChannel = "Gateway 1";
                 callback(Json.Stringify(userJoinedGameWorldPubSubMessage));

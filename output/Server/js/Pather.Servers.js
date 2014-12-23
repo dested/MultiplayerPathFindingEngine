@@ -273,6 +273,7 @@ var $Pather_Servers_GameSegment_GameSegment = function(socketManager, pubsub, pu
 	this.$pubsub = null;
 	this.$pushPop = null;
 	this.$gameSegmentId = null;
+	this.$users = [];
 	this.gameSegmentPubSub = null;
 	this.$socketManager = socketManager;
 	this.$pubsub = pubsub;
@@ -283,6 +284,8 @@ var $Pather_Servers_GameSegment_GameSegment = function(socketManager, pubsub, pu
 	//            game.Init();
 	Pather.Common.Utils.Promises.Q.all([pubsub.init(), pushPop.init()]).then(ss.mkdel(this, function() {
 		this.gameSegmentPubSub = new $Pather_Servers_GameSegment_GameSegmentPubSub(this.$pubsub, this.$gameSegmentId);
+		this.gameSegmentPubSub.onAllMessage = ss.delegateCombine(this.gameSegmentPubSub.onAllMessage, ss.mkdel(this, this.$onAllMessage));
+		this.gameSegmentPubSub.onMessage = ss.delegateCombine(this.gameSegmentPubSub.onMessage, ss.mkdel(this, this.$onMessage));
 		this.gameSegmentPubSub.init().then(ss.mkdel(this, this.$ready));
 	}));
 };
@@ -301,12 +304,15 @@ var $Pather_Servers_GameSegment_GameSegmentPubSub = function(pubSub, gameSegment
 $Pather_Servers_GameSegment_GameSegmentPubSub.__typeName = 'Pather.Servers.GameSegment.GameSegmentPubSub';
 global.Pather.Servers.GameSegment.GameSegmentPubSub = $Pather_Servers_GameSegment_GameSegmentPubSub;
 ////////////////////////////////////////////////////////////////////////////////
-// Pather.Servers.GameSegment.Old.GameSegmentUser
-var $Pather_Servers_GameSegment_Old_GameSegmentUser = function() {
+// Pather.Servers.GameSegment.GameSegmentUser
+var $Pather_Servers_GameSegment_GameSegmentUser = function() {
 	this.gatewayServer = null;
+	this.x = 0;
+	this.y = 0;
+	this.userId = null;
 };
-$Pather_Servers_GameSegment_Old_GameSegmentUser.__typeName = 'Pather.Servers.GameSegment.Old.GameSegmentUser';
-global.Pather.Servers.GameSegment.Old.GameSegmentUser = $Pather_Servers_GameSegment_Old_GameSegmentUser;
+$Pather_Servers_GameSegment_GameSegmentUser.__typeName = 'Pather.Servers.GameSegment.GameSegmentUser';
+global.Pather.Servers.GameSegment.GameSegmentUser = $Pather_Servers_GameSegment_GameSegmentUser;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameSegment.Old.ServerEntity
 var $Pather_Servers_GameSegment_Old_ServerEntity = function(game, playerId) {
@@ -380,9 +386,11 @@ $Pather_Servers_GameSegmentCluster_Tests_StubPubSub.__typeName = 'Pather.Servers
 global.Pather.Servers.GameSegmentCluster.Tests.StubPubSub = $Pather_Servers_GameSegmentCluster_Tests_StubPubSub;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameWorldServer.GameSegment
-var $Pather_Servers_GameWorldServer_GameSegment = function() {
+var $Pather_Servers_GameWorldServer_GameSegment = function(gameWorld) {
+	this.gameWorld = null;
 	this.users = null;
 	this.gameSegmentId = null;
+	this.gameWorld = gameWorld;
 	this.users = [];
 };
 $Pather_Servers_GameWorldServer_GameSegment.__typeName = 'Pather.Servers.GameWorldServer.GameSegment';
@@ -839,8 +847,6 @@ ss.initClass($Pather_Servers_Database_DatabaseQueries, $asm, {
 ss.initClass($Pather_Servers_Database_DBUser, $asm, {});
 ss.initClass($Pather_Servers_GameSegment_GameSegment, $asm, {
 	$ready: function() {
-		this.gameSegmentPubSub.onAllMessage = ss.delegateCombine(this.gameSegmentPubSub.onAllMessage, ss.mkdel(this, this.$onAllMessage));
-		this.gameSegmentPubSub.onMessage = ss.delegateCombine(this.gameSegmentPubSub.onMessage, ss.mkdel(this, this.$onMessage));
 		this.$clientTickManager = new $Pather_Servers_Common_ClientTickManager();
 		this.$clientTickManager.init$1(ss.mkdel(this, this.$sendPing), ss.mkdel(this, this.$tickManagerReady));
 		this.$clientTickManager.startPing();
@@ -861,6 +867,22 @@ ss.initClass($Pather_Servers_GameSegment_GameSegment, $asm, {
 	},
 	$onMessage: function(message) {
 		switch (message.type) {
+			case 'userJoin': {
+				var userJoinMessage = message;
+				var $t2 = this.$users;
+				var $t1 = new $Pather_Servers_GameSegment_GameSegmentUser();
+				$t1.userId = userJoinMessage.userId;
+				$t1.gatewayServer = userJoinMessage.gatewayServer;
+				$t1.x = userJoinMessage.x;
+				$t1.y = userJoinMessage.y;
+				$t2.push($t1);
+				console.log('User Joined Game Segment', this.$gameSegmentId, 'User count now: ', this.$users.length);
+				var $t4 = this.gameSegmentPubSub;
+				var $t3 = Pather.Common.Models.GameWorld.UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message.$ctor();
+				$t3.messageId = userJoinMessage.messageId;
+				$t4.publishToGameWorld($t3);
+				break;
+			}
 			case 'pong': {
 				var pongMessage = message;
 				this.$clientTickManager.onPongReceived();
@@ -900,9 +922,15 @@ ss.initClass($Pather_Servers_GameSegment_GameSegmentPubSub, $asm, {
 	},
 	publishToTickServer: function(message) {
 		this.pubSub.publish$1($Pather_Servers_Common_PubSub_PubSubChannels.tick(), message);
+	},
+	publishToGateway: function(gatewayId, message) {
+		this.pubSub.publish$1($Pather_Servers_Common_PubSub_PubSubChannels.gateway$1(gatewayId), message);
+	},
+	publishToGameWorld: function(message) {
+		this.pubSub.publish$1($Pather_Servers_Common_PubSub_PubSubChannels.gameWorld(), message);
 	}
 });
-ss.initClass($Pather_Servers_GameSegment_Old_GameSegmentUser, $asm, {});
+ss.initClass($Pather_Servers_GameSegment_GameSegmentUser, $asm, {});
 ss.initClass($Pather_Servers_GameSegment_Old_ServerEntity, $asm, {}, Pather.Common.Entity);
 ss.initClass($Pather_Servers_GameSegment_Old_ServerGame, $asm, {
 	createPlayer: function(playerId) {
@@ -1079,7 +1107,7 @@ ss.initClass($Pather_Servers_GameSegmentCluster_GameSegmentCluster, $asm, {
 		this.get_pushPop().blockingPop(createGameSegment.gameSegmentId, Pather.Common.Constants.gameSegmentCreationWait).then(ss.mkdel(this, function(content) {
 			var $t2 = this.$pubsub;
 			var $t3 = $Pather_Servers_Common_PubSub_PubSubChannels.gameWorld();
-			var $t1 = Pather.Common.Models.GameWorld.CreateGameSegmentResponseGameWorldPubSubMessage.$ctor();
+			var $t1 = Pather.Common.Models.GameWorld.CreateGameSegment_Response_GameWorld_PubSub_Message.$ctor();
 			$t1.gameSegmentId = createGameSegment.gameSegmentId;
 			$t1.messageId = createGameSegment.messageId;
 			$t2.publish$1($t3, $t1);
@@ -1102,10 +1130,7 @@ ss.initClass($Pather_Servers_GameSegmentCluster_Tests_GameSegmentClusterTest, $a
 		global.$overwiteMethodCallForMocker$(ss.mkdel(pubSub, pubSub.publish$1), function(channel, data) {
 		});
 		var gts = new $Pather_Servers_GameSegmentCluster_GameSegmentCluster(pubSub, pushPop, gameSegmentId);
-		var $t2 = $Pather_Servers_Common_PubSub_PubSubChannels.gameSegmentCluster$1(gameSegmentId);
-		var $t1 = Pather.Common.Models.GameSegmentCluster.CreateGameSegmentGameSegmentClusterPubSubMessage.$ctor();
-		$t1.type = 0;
-		pubSub.receivedMessage($t2, JSON.stringify($t1));
+		pubSub.receivedMessage($Pather_Servers_Common_PubSub_PubSubChannels.gameSegmentCluster$1(gameSegmentId), JSON.stringify(Pather.Common.Models.GameSegmentCluster.CreateGameSegment_GameSegmentCluster_PubSub_ReqRes_Message.$ctor()));
 		debugger;
 		testDeferred.resolve();
 	}
@@ -1129,8 +1154,22 @@ ss.initClass($Pather_Servers_GameSegmentCluster_Tests_StubPubSub, $asm, {
 }, null, [$Pather_Servers_Common_PubSub_IPubSub]);
 ss.initClass($Pather_Servers_GameWorldServer_GameSegment, $asm, {
 	addUserToSegment: function(gwUser) {
-		this.users.push(gwUser);
-		gwUser.gameSegment = this;
+		var deferred = Pather.Common.Utils.Promises.Q.defer();
+		console.log('User added to game segment');
+		var $t2 = this.gameWorld.gameWorldPubSub;
+		var $t3 = this.gameSegmentId;
+		var $t1 = Pather.Common.Models.GameSegment.UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message.$ctor();
+		$t1.x = gwUser.x;
+		$t1.y = gwUser.y;
+		$t1.gatewayServer = gwUser.gatewayServer;
+		$t1.userId = gwUser.userId;
+		$t2.publishToGameSegmentWithCallback(Pather.Common.Models.GameWorld.UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message).call($t2, $t3, $t1).then(ss.mkdel(this, function(userJoinResponse) {
+			console.log('User added to game segment');
+			this.users.push(gwUser);
+			gwUser.gameSegment = this;
+			deferred.resolve();
+		}));
+		return deferred.promise;
 	}
 });
 ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
@@ -1146,7 +1185,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 		this.$determineGameSegment(gwUser).then(ss.mkdel(this, function(gameSegment) {
 			this.$addUserToSegment(gwUser, gameSegment).then(ss.mkdel(this, function() {
 				this.users.push(gwUser);
-				console.log('Gameworld has added a new user to game segment', gameSegment.gameSegmentId, 'bring the total number of players to', this.users.length, '. The game segment has', gameSegment.users.length, 'users.');
+				console.log('', 'Gameworld has added a new user to game segment', gameSegment.gameSegmentId, 'bring the total number of players to', this.users.length, '. The game segment has', gameSegment.users.length, 'users.');
 				defer.resolve(gwUser);
 			}));
 		}));
@@ -1183,18 +1222,16 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 	},
 	$addUserToSegment: function(gwUser, gameSegment) {
 		var deferred = Pather.Common.Utils.Promises.Q.defer();
-		gameSegment.addUserToSegment(gwUser);
-		deferred.resolve();
+		deferred.passThrough(gameSegment.addUserToSegment(gwUser));
 		return deferred.promise;
 	},
 	createGameSegment: function() {
 		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_Servers_GameWorldServer_GameSegment, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
-		var $t1 = Pather.Common.Models.GameSegmentCluster.CreateGameSegmentGameSegmentClusterPubSubMessage.$ctor();
+		var $t1 = Pather.Common.Models.GameSegmentCluster.CreateGameSegment_GameSegmentCluster_PubSub_ReqRes_Message.$ctor();
 		$t1.gameSegmentId = Pather.Common.Common.uniqueId();
-		$t1.messageId = Pather.Common.Common.uniqueId();
 		var createGameMessage = $t1;
-		this.gameWorldPubSub.publishToGameSegmentClusterWithCallback(Pather.Common.Models.GameWorld.CreateGameSegmentResponseGameWorldPubSubMessage).call(this.gameWorldPubSub, this.$gameSegmentClusterId, createGameMessage).then(ss.mkdel(this, function(createGameMessageResponse) {
-			var gs = new $Pather_Servers_GameWorldServer_GameSegment();
+		this.gameWorldPubSub.publishToGameSegmentClusterWithCallback(Pather.Common.Models.GameWorld.CreateGameSegment_Response_GameWorld_PubSub_Message).call(this.gameWorldPubSub, this.$gameSegmentClusterId, createGameMessage).then(ss.mkdel(this, function(createGameMessageResponse) {
+			var gs = new $Pather_Servers_GameWorldServer_GameSegment(this);
 			gs.gameSegmentId = createGameMessageResponse.gameSegmentId;
 			this.gameSegments.push(gs);
 			deferred.resolve(gs);
@@ -1245,20 +1282,29 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldPubSub, $asm, {
 			var gameWorldPubSubMessage = JSON.parse(message);
 			var possibleMessageReqRes = gameWorldPubSubMessage;
 			if (!(typeof(possibleMessageReqRes.messageId) === 'undefined')) {
-				if (gameWorldPubSubMessage.type === 'createGameSegmentResponse') {
-					if (!this.deferredMessages.containsKey(possibleMessageReqRes.messageId)) {
-						console.log('Received message that I didnt ask for.');
-						throw new ss.Exception('Received message that I didnt ask for.');
-					}
-					this.deferredMessages.get_item(possibleMessageReqRes.messageId).resolve(gameWorldPubSubMessage);
-					return;
+				if (!this.deferredMessages.containsKey(possibleMessageReqRes.messageId)) {
+					console.log('Received message that I didnt ask for.');
+					throw new ss.Exception('Received message that I didnt ask for.');
 				}
+				this.deferredMessages.get_item(possibleMessageReqRes.messageId).resolve(gameWorldPubSubMessage);
+				return;
 			}
 			this.message(gameWorldPubSubMessage);
 		}));
 	},
+	publishToGameSegmentCluster: function(gameSegmentClusterId, message) {
+		this.pubSub.publish$1($Pather_Servers_Common_PubSub_PubSubChannels.gameSegmentCluster$1(gameSegmentClusterId), message);
+	},
 	publishToGameSegment: function(gameSegmentId, message) {
-		this.pubSub.publish$1($Pather_Servers_Common_PubSub_PubSubChannels.gameSegmentCluster$1(gameSegmentId), message);
+		this.pubSub.publish$1($Pather_Servers_Common_PubSub_PubSubChannels.gameSegment$1(gameSegmentId), message);
+	},
+	publishToGameSegmentWithCallback: function(T) {
+		return function(gameSegmentId, message) {
+			var deferred = Pather.Common.Utils.Promises.Q.defer$2(T, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
+			this.pubSub.publish$1($Pather_Servers_Common_PubSub_PubSubChannels.gameSegment$1(gameSegmentId), message);
+			this.deferredMessages.add(message.messageId, deferred);
+			return deferred.promise;
+		};
 	},
 	publishToTickServer: function(message) {
 		this.pubSub.publish$1($Pather_Servers_Common_PubSub_PubSubChannels.tick(), message);

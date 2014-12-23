@@ -47,7 +47,7 @@ namespace Pather.Servers.GatewayServer
             PubSub.Publish(PubSubChannels.Tick(), message);
         }
 
-        public void PublishToGameWorld(GameWorldPubSubMessage message)
+        public void PublishToGameWorld(GameWorld_PubSub_Message message)
         {
             PubSub.Publish(PubSubChannels.GameWorld(), message);
         }

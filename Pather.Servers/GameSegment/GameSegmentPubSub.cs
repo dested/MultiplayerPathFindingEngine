@@ -1,6 +1,8 @@
 using System;
 using System.Serialization;
 using Pather.Common.Models.GameSegment;
+using Pather.Common.Models.GameWorld;
+using Pather.Common.Models.Gateway;
 using Pather.Common.Models.Tick;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common.PubSub;
@@ -18,8 +20,8 @@ namespace Pather.Servers.GameSegment
             PubSub = pubSub;
         }
 
-        public Action<GameSegmentPubSubMessage> OnMessage;
-        public Action<GameSegmentPubSubAllMessage> OnAllMessage;
+        public Action<GameSegment_PubSub_Message> OnMessage;
+        public Action<GameSegment_PubSub_AllMessage> OnAllMessage;
 
         public Promise Init()
         {
@@ -27,13 +29,13 @@ namespace Pather.Servers.GameSegment
 
             PubSub.Subscribe(PubSubChannels.GameSegment(), (message) =>
             {
-                var gameSegmentPubSubMessage = Json.Parse<GameSegmentPubSubAllMessage>(message);
+                var gameSegmentPubSubMessage = Json.Parse<GameSegment_PubSub_AllMessage>(message);
                 OnAllMessage(gameSegmentPubSubMessage);
             });
 
             PubSub.Subscribe(PubSubChannels.GameSegment(GameSegmentId), (message) =>
             {
-                var gameSegmentPubSubMessage = Json.Parse<GameSegmentPubSubMessage>(message);
+                var gameSegmentPubSubMessage = Json.Parse<GameSegment_PubSub_Message>(message);
                 OnMessage(gameSegmentPubSubMessage);
             });
 
@@ -44,5 +46,14 @@ namespace Pather.Servers.GameSegment
         {
             PubSub.Publish(PubSubChannels.Tick(), message);
         }
+        public void PublishToGateway(string gatewayId, GatewayPubSubMessage message)
+        {
+            PubSub.Publish(PubSubChannels.Gateway(gatewayId), message);
+        }
+        public void PublishToGameWorld(GameWorld_PubSub_Message message)
+        {
+            PubSub.Publish(PubSubChannels.GameWorld(), message);
+        }
+
     }
 }

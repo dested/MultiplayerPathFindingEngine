@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Serialization;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameSegmentCluster;
 using Pather.Common.Models.GameWorld;
 using Pather.Common.Models.Gateway;
@@ -20,39 +21,48 @@ namespace Pather.Servers.GameWorldServer
             PubSub = pubSub;
         }
 
-        public Action<GameWorldPubSubMessage> Message;
+        public Action<GameWorld_PubSub_Message> Message;
         public Dictionary<string, Deferred<object, UndefinedPromiseError>> deferredMessages = new Dictionary<string, Deferred<object, UndefinedPromiseError>>();
 
         public void Init()
         {
             PubSub.Subscribe(PubSubChannels.GameWorld(), (message) =>
             {
-                var gameWorldPubSubMessage = Json.Parse<GameWorldPubSubMessage>(message);
+                var gameWorldPubSubMessage = Json.Parse<GameWorld_PubSub_Message>(message);
 
-                var possibleMessageReqRes = Script.Reinterpret<IPubSubReqResMessage>(gameWorldPubSubMessage);
+                var possibleMessageReqRes = Script.Reinterpret<IPubSub_ReqRes_Message>(gameWorldPubSubMessage);
 
 
                 if (!Script.IsUndefined(possibleMessageReqRes.MessageId))
                 {
-                    if (gameWorldPubSubMessage.Type == GameWorldPubSubMessageType.CreateGameSegmentResponse)
+                    if (!deferredMessages.ContainsKey(possibleMessageReqRes.MessageId))
                     {
-                        if (!deferredMessages.ContainsKey(possibleMessageReqRes.MessageId))
-                        {
-                            Global.Console.Log("Received message that I didnt ask for.");
-                            throw new Exception("Received message that I didnt ask for.");
-                        }
-                        deferredMessages[possibleMessageReqRes.MessageId].Resolve(gameWorldPubSubMessage);
-                        return;
+                        Global.Console.Log("Received message that I didnt ask for.");
+                        throw new Exception("Received message that I didnt ask for.");
                     }
+                    deferredMessages[possibleMessageReqRes.MessageId].Resolve(gameWorldPubSubMessage);
+                    return;
                 }
 
                 Message(gameWorldPubSubMessage);
             });
         }
 
-        public void PublishToGameSegment(string gameSegmentId,GameSegmentClusterPubSubMessage message)
+        public void PublishToGameSegmentCluster(string gameSegmentClusterId, GameSegmentCluster_PubSub_Message message)
         {
-            PubSub.Publish(PubSubChannels.GameSegmentCluster(gameSegmentId), message);
+            PubSub.Publish(PubSubChannels.GameSegmentCluster(gameSegmentClusterId), message);
+        }
+
+        public void PublishToGameSegment(string gameSegmentId, GameSegment_PubSub_Message message)
+        {
+            PubSub.Publish(PubSubChannels.GameSegment(gameSegmentId), message);
+        }
+        public Promise<T, UndefinedPromiseError> PublishToGameSegmentWithCallback<T>(string gameSegmentId, GameSegment_PubSub_ReqRes_Message message)
+        {
+            var deferred = Q.Defer<T, UndefinedPromiseError>();
+            PubSub.Publish(PubSubChannels.GameSegment(gameSegmentId), message);
+            deferredMessages.Add(message.MessageId, Script.Reinterpret<Deferred<object, UndefinedPromiseError>>(deferred));
+            return deferred.Promise;
         }
 
         public void PublishToTickServer(TickPubSubMessage message)
@@ -61,7 +71,7 @@ namespace Pather.Servers.GameWorldServer
         }
 
 
-        public Promise<T, UndefinedPromiseError> PublishToGameSegmentClusterWithCallback<T>(string gameSegmentClusterId,IPubSubReqResMessage message)
+        public Promise<T, UndefinedPromiseError> PublishToGameSegmentClusterWithCallback<T>(string gameSegmentClusterId, GameSegmentCluster_PubSub_ReqRes_Message message)
         {
             var deferred = Q.Defer<T, UndefinedPromiseError>();
             PubSub.Publish(PubSubChannels.GameSegmentCluster(gameSegmentClusterId), message);

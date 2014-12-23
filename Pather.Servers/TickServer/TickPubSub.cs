@@ -34,7 +34,7 @@ namespace Pather.Servers.TickServer
             return deferred.Promise;
         }
 
-        public void PublishToAllGameSegments(GameSegmentPubSubAllMessage message)
+        public void PublishToAllGameSegments(GameSegment_PubSub_AllMessage message)
         {
             //todo test if its faster for redis to have one "tick" subscription for all relevent clients or not
             PubSub.Publish(PubSubChannels.GameSegment(), message);
@@ -47,7 +47,7 @@ namespace Pather.Servers.TickServer
             PubSub.Publish(PubSubChannels.Gateway(), message);
         }
 
-        public void PublishToGameWorld(GameWorldPubSubMessage message)
+        public void PublishToGameWorld(GameWorld_PubSub_Message message)
         {
             //todo test if its faster for redis to have one "tick" subscription for all relevent clients or not
             PubSub.Publish(PubSubChannels.GameWorld(), message);

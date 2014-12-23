@@ -1,14 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
+using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameSegment;
+using Pather.Common.Models.GameWorld;
 using Pather.Common.Models.Tick;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common;
 using Pather.Servers.Common.PubSub;
 using Pather.Servers.Common.PushPop;
 using Pather.Servers.Common.SocketManager;
+using Pather.Servers.GameSegment.Old;
 
 namespace Pather.Servers.GameSegment
 {
+        public class GameSegmentUser
+    {
+        public string GatewayServer;
+        public int X;
+        public int Y;
+        public string UserId;
+    }
+
     public class GameSegment
     {
         private ClientTickManager ClientTickManager;
@@ -16,6 +28,7 @@ namespace Pather.Servers.GameSegment
         private IPubSub Pubsub;
         private IPushPop PushPop;
         private string GameSegmentId;
+        private List<GameSegmentUser> users = new List<GameSegmentUser>();
 
         public GameSegment(ISocketManager socketManager, IPubSub pubsub, IPushPop pushPop, string gameSegmentId)
         {
@@ -34,14 +47,16 @@ namespace Pather.Servers.GameSegment
                 .Then(() =>
                 {
                     GameSegmentPubSub = new GameSegmentPubSub(Pubsub, GameSegmentId);
+                    GameSegmentPubSub.OnAllMessage += onAllMessage;
+                    GameSegmentPubSub.OnMessage += onMessage;
                     GameSegmentPubSub.Init().Then(ready);
                 });
         }
 
+       
+
         private void ready()
         {
-            GameSegmentPubSub.OnAllMessage += onAllMessage;
-            GameSegmentPubSub.OnMessage += onMessage;
 
             ClientTickManager = new ClientTickManager();
             ClientTickManager.Init(SendPing,TickManagerReady);
@@ -65,10 +80,26 @@ namespace Pather.Servers.GameSegment
         }
 
 
-        private void onMessage(GameSegmentPubSubMessage message)
+        private void onMessage(GameSegment_PubSub_Message message)
         {
             switch (message.Type)
             {
+                case GameSegmentPubSubMessageType.UserJoin:
+                    var userJoinMessage = (UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message)message;
+                    users.Add(new GameSegmentUser()
+                    {
+                        UserId = userJoinMessage.UserId,
+                        GatewayServer = userJoinMessage.GatewayServer,
+                        X = userJoinMessage.X,
+                        Y = userJoinMessage.Y,
+                    });
+                    Global.Console.Log("User Joined Game Segment",GameSegmentId,"User count now: ",users.Count);
+                    GameSegmentPubSub.PublishToGameWorld(new UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message()
+                    {
+                        MessageId=userJoinMessage.MessageId
+                    });
+
+                    break;
                 case GameSegmentPubSubMessageType.Pong:
                     var pongMessage = (PongGameSegmentPubSubMessage)message;
                     ClientTickManager.OnPongReceived();
@@ -79,7 +110,7 @@ namespace Pather.Servers.GameSegment
 
         }
 
-        private void onAllMessage(GameSegmentPubSubAllMessage message)
+        private void onAllMessage(GameSegment_PubSub_AllMessage message)
         {
             switch (message.Type)
             {

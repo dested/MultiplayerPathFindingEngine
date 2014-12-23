@@ -42,7 +42,7 @@ namespace Pather.Servers.GameWorldServer
                         .Then(() =>
                         {
                             Users.Add(gwUser);
-                            Global.Console.Log("Gameworld has added a new user to game segment", gameSegment.GameSegmentId, "bring the total number of players to", Users.Count, ". The game segment has", gameSegment.Users.Count, "users.");
+                            Global.Console.Log("","Gameworld has added a new user to game segment", gameSegment.GameSegmentId, "bring the total number of players to", Users.Count, ". The game segment has", gameSegment.Users.Count, "users.");
 
                             defer.Resolve(gwUser);
                         });
@@ -98,10 +98,7 @@ namespace Pather.Servers.GameWorldServer
         private Promise AddUserToSegment(GameWorldUser gwUser, GameSegment gameSegment)
         {
             var deferred = Q.Defer();
-            gameSegment.AddUserToSegment(gwUser);
-
-
-            deferred.Resolve();
+            deferred.PassThrough(gameSegment.AddUserToSegment(gwUser));
             return deferred.Promise;
         }
 
@@ -110,16 +107,15 @@ namespace Pather.Servers.GameWorldServer
         {
             var deferred = Q.Defer<GameSegment, UndefinedPromiseError>();
 
-            var createGameMessage = new CreateGameSegmentGameSegmentClusterPubSubMessage()
+            var createGameMessage = new CreateGameSegment_GameSegmentCluster_PubSub_ReqRes_Message()
             {
                 GameSegmentId = Pather.Common.Common.UniqueId(),
-                MessageId = Pather.Common.Common.UniqueId()
             };
 
-            GameWorldPubSub.PublishToGameSegmentClusterWithCallback<CreateGameSegmentResponseGameWorldPubSubMessage>(gameSegmentClusterId,createGameMessage)
+            GameWorldPubSub.PublishToGameSegmentClusterWithCallback<CreateGameSegment_Response_GameWorld_PubSub_Message>(gameSegmentClusterId,createGameMessage)
                 .Then((createGameMessageResponse) =>
                 {
-                    var gs = new GameSegment();
+                    var gs = new GameSegment(this);
                     gs.GameSegmentId = createGameMessageResponse.GameSegmentId;
 
                     GameSegments.Add(gs);

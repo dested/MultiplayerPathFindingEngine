@@ -136,7 +136,7 @@ namespace Pather.Servers.GatewayServer
                         user.UserToken = data.UserToken;
                         GatewayPubSub.PublishToGameWorld(new UserJoinedGameWorldPubSubMessage()
                         {
-                            Type = GameWorldPubSubMessageType.UserJoined,
+                            Type = GameWorld_PubSub_MessageType.UserJoined,
                             GatewayChannel = GatewayId,
                             UserToken = data.UserToken
                         });
