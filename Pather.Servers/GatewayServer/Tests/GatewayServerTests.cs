@@ -90,7 +90,7 @@ namespace Pather.Servers.GatewayServer.Tests
                 }
             });
             var gts = new GatewayServer(pubSub, socketManager);
-            gatewayName = gts.GatewayName;
+            gatewayName = gts.GatewayId;
 
 
             var pubSubTest = Mocker.InstantiateInterface<IPubSub>();

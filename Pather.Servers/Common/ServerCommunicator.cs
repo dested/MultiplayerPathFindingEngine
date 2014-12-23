@@ -24,9 +24,7 @@ namespace Pather.Servers.Common
         {
             this.socketManager = socketManager;
 
-
             socketManager.Init(port);
-
 
             socketManager.Connections(socket =>
             {

@@ -25,13 +25,13 @@
 		//            var url = "http://198.211.107.101:8991";
 		url = ss.coalesce(url, 'http://127.0.0.1:8991');
 		if (Pather.Common.Constants.get_testServer()) {
-			this.socket = require('socket.io-client')(url);
+			this.socket = require('socket.io-client')(url, { reconnection: false });
 			this.socket.on('connect', function() {
 				console.log('hi');
 			});
 		}
 		else {
-			this.socket = io.connect(url);
+			this.socket = io.connect(url, { reconnection: false });
 		}
 	};
 	$Pather_Client_ClientCommunicator.__typeName = 'Pather.Client.ClientCommunicator';

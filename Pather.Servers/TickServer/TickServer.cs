@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using Pather.Common.Models.GameSegment;
+using Pather.Common.Models.GameWorld;
+using Pather.Common.Models.Gateway;
 using Pather.Common.Models.Tick;
 using Pather.Servers.Common.PubSub;
 using Pather.Servers.GameWorldServer;
@@ -8,7 +11,7 @@ namespace Pather.Servers.TickServer
 {
     public class TickServer
     {
-        public TickManager TickManager;
+        public TickServerTickManager TickManager;
         public TickPubSub TickPubSub;
         public IPubSub PubSub;
 
@@ -26,7 +29,7 @@ namespace Pather.Servers.TickServer
         private void ready()
         {
 
-            TickManager = new TickManager(TickPubSub);
+            TickManager = new TickServerTickManager(TickPubSub);
             TickManager.Init(0);
 
             TickPubSub.OnMessage += pubSubMessage;
@@ -40,8 +43,23 @@ namespace Pather.Servers.TickServer
 
                     var pingMessage = (PingTickPubSubMessage) message;
 
-                    TickPubSub.PublishToOrigin(pingMessage.Origin, null);
-                    
+                    object returnMessage;
+
+                    switch (pingMessage.OriginType)
+                    {
+                        case PingTickPubSubMessageOriginType.GameSegment:
+                            returnMessage = new PongGameSegmentPubSubMessage();
+                            break;
+                        case PingTickPubSubMessageOriginType.GameWorld:
+                            returnMessage = new PongGameWorldPubSubMessage();
+                            break;
+                        case PingTickPubSubMessageOriginType.Gateway:
+                            returnMessage = new PongGatewayPubSubMessage();
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                    TickPubSub.PublishToOrigin(pingMessage.Origin, returnMessage);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

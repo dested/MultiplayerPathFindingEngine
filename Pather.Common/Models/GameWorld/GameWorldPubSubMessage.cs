@@ -7,4 +7,13 @@ namespace Pather.Common.Models.GameWorld
     {
         public GameWorldPubSubMessageType Type;
     }
+    [Serializable]
+    public class PongGameWorldPubSubMessage : GameWorldPubSubMessage
+    {
+        public PongGameWorldPubSubMessage()
+        {
+            Type = GameWorldPubSubMessageType.Pong;
+        }
+    }
+
 }

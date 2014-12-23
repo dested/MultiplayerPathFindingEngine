@@ -9,7 +9,7 @@ namespace Pather.Client.Libraries
     public class SocketIOClient : EventEmitter
     {
         [ScriptName("connect")]
-        public static SocketIOClient Connect(string server)
+        public static SocketIOClient Connect(string server, object options=null)
         {
             return null;
         }

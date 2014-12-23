@@ -11,5 +11,13 @@ namespace Pather.Common.Models.Tick
         }
 
         public string Origin;
+        public PingTickPubSubMessageOriginType OriginType;
+    }
+
+    public enum PingTickPubSubMessageOriginType
+    {
+        GameSegment,
+        GameWorld,
+        Gateway
     }
 }

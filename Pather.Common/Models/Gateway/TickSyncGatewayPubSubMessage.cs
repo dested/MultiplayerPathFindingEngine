@@ -3,11 +3,11 @@ using System;
 namespace Pather.Common.Models.Gateway
 {
     [Serializable]
-    public class TickSyncGatewayPubSubMessage : GatewayPubSubMessage
+    public class TickSyncGatewayPubSubAllMessage : GatewayPubSubAllMessage
     {
-        public TickSyncGatewayPubSubMessage(long lockstepTickNumber)
+        public TickSyncGatewayPubSubAllMessage(long lockstepTickNumber)
         {
-            Type = GatewayPubSubMessageType.TickSync;
+            Type = GatewayPubSubAllMessageType.TickSync;
             LockstepTickNumber = lockstepTickNumber;
         }
 

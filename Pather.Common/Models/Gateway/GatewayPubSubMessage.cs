@@ -7,4 +7,18 @@ namespace Pather.Common.Models.Gateway
     {
         public GatewayPubSubMessageType Type;
     }
+    [Serializable]
+    public class GatewayPubSubAllMessage
+    {
+        public GatewayPubSubAllMessageType Type;
+    }
+
+    [Serializable]
+    public class PongGatewayPubSubMessage : GatewayPubSubMessage
+    {
+        public PongGatewayPubSubMessage()
+        {
+            Type = GatewayPubSubMessageType.Pong;
+        }
+    }
 }

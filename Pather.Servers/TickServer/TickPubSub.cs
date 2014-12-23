@@ -34,14 +34,14 @@ namespace Pather.Servers.TickServer
             return deferred.Promise;
         }
 
-        public void PublishToAllGameSegments(GameSegmentPubSubMessage message)
+        public void PublishToAllGameSegments(GameSegmentPubSubAllMessage message)
         {
             //todo test if its faster for redis to have one "tick" subscription for all relevent clients or not
             PubSub.Publish(PubSubChannels.GameSegment, message);
         }
 
 
-        public void PublishToAllGateways(GatewayPubSubMessage message)
+        public void PublishToAllGateways(GatewayPubSubAllMessage message)
         {
             //todo test if its faster for redis to have one "tick" subscription for all relevent clients or not
             PubSub.Publish(PubSubChannels.Gateway, message);

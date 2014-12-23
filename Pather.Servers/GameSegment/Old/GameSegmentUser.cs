@@ -1,4 +1,4 @@
-namespace Pather.Servers.GameSegment.OldGameServer
+namespace Pather.Servers.GameSegment.Old
 {
     public class GameSegmentUser
     {

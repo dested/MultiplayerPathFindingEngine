@@ -4,6 +4,8 @@ using System.Serialization;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameSegmentCluster;
 using Pather.Common.Models.GameWorld;
+using Pather.Common.Models.Gateway;
+using Pather.Common.Models.Tick;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common.PubSub;
 
@@ -53,12 +55,24 @@ namespace Pather.Servers.GameWorldServer
             PubSub.Publish(PubSubChannels.GameSegmentCluster + 1, message);
         }
 
+        public void PublishToTickServer(TickPubSubMessage message)
+        {
+            PubSub.Publish(PubSubChannels.Tick, message);
+        }
+
+
         public Promise<T, UndefinedPromiseError> PublishToGameSegmentWithCallback<T>(IPubSubReqResMessage message)
         {
             var deferred = Q.Defer<T, UndefinedPromiseError>();
             PubSub.Publish(PubSubChannels.GameSegmentCluster + 1, message);
             deferredMessages.Add(message.MessageId, Script.Reinterpret<Deferred<object, UndefinedPromiseError>>(deferred));
             return deferred.Promise;
+        }
+
+        public void PublishToGatewayServer(string gatewayId, GatewayPubSubMessage message)
+        {
+            PubSub.Publish(gatewayId, message);
+
         }
     }
 }

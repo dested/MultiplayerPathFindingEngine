@@ -11,7 +11,7 @@ global.Pather.Servers.Common.PushPop = global.Pather.Servers.Common.PushPop || {
 global.Pather.Servers.Common.SocketManager = global.Pather.Servers.Common.SocketManager || {};
 global.Pather.Servers.Database = global.Pather.Servers.Database || {};
 global.Pather.Servers.GameSegment = global.Pather.Servers.GameSegment || {};
-global.Pather.Servers.GameSegment.OldGameServer = global.Pather.Servers.GameSegment.OldGameServer || {};
+global.Pather.Servers.GameSegment.Old = global.Pather.Servers.GameSegment.Old || {};
 global.Pather.Servers.GameSegmentCluster = global.Pather.Servers.GameSegmentCluster || {};
 global.Pather.Servers.GameSegmentCluster.Tests = global.Pather.Servers.GameSegmentCluster.Tests || {};
 global.Pather.Servers.GameWorldServer = global.Pather.Servers.GameWorldServer || {};
@@ -93,6 +93,20 @@ var $Pather_Servers_AuthServer_AuthServer = function() {
 $Pather_Servers_AuthServer_AuthServer.__typeName = 'Pather.Servers.AuthServer.AuthServer';
 global.Pather.Servers.AuthServer.AuthServer = $Pather_Servers_AuthServer_AuthServer;
 ////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Common.ClientTickManager
+var $Pather_Servers_Common_ClientTickManager = function() {
+	this.$lastPing = 0;
+	this.$pingSent = null;
+	this.$sendPing = null;
+	this.$tickManagerReady = null;
+	this.$hasLockstep = false;
+	this.$hasLatency = false;
+	this.$tickManagerInitialized = false;
+	$Pather_Servers_Common_TickManager.call(this);
+};
+$Pather_Servers_Common_ClientTickManager.__typeName = 'Pather.Servers.Common.ClientTickManager';
+global.Pather.Servers.Common.ClientTickManager = $Pather_Servers_Common_ClientTickManager;
+////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.Common.ConnectionConstants
 var $Pather_Servers_Common_ConnectionConstants = function() {
 };
@@ -117,6 +131,14 @@ var $Pather_Servers_Common_ServerCommunicator = function(socketManager, port) {
 };
 $Pather_Servers_Common_ServerCommunicator.__typeName = 'Pather.Servers.Common.ServerCommunicator';
 global.Pather.Servers.Common.ServerCommunicator = $Pather_Servers_Common_ServerCommunicator;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Common.TickManager
+var $Pather_Servers_Common_TickManager = function() {
+	this.curLockstepTime = 0;
+	this.lockstepTickNumber = 0;
+};
+$Pather_Servers_Common_TickManager.__typeName = 'Pather.Servers.Common.TickManager';
+global.Pather.Servers.Common.TickManager = $Pather_Servers_Common_TickManager;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.Common.PubSub.IPubSub
 var $Pather_Servers_Common_PubSub_IPubSub = function() {
@@ -220,52 +242,69 @@ $Pather_Servers_Database_IDatabaseQueries.__typeName = 'Pather.Servers.Database.
 global.Pather.Servers.Database.IDatabaseQueries = $Pather_Servers_Database_IDatabaseQueries;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameSegment.GameSegment
-var $Pather_Servers_GameSegment_GameSegment = function(socketManager, pubsub, pushPop, gameSegmentName) {
-	this.$1$SocketManagerField = null;
-	this.$1$PubsubField = null;
-	this.$1$PushPopField = null;
-	this.$1$GameSegmentNameField = null;
-	this.set_socketManager(socketManager);
-	this.set_pubsub(pubsub);
-	this.set_pushPop(pushPop);
-	this.set_gameSegmentName(gameSegmentName);
+var $Pather_Servers_GameSegment_GameSegment = function(socketManager, pubsub, pushPop, gameSegmentId) {
+	this.$clientTickManager = null;
+	this.$socketManager = null;
+	this.$pubsub = null;
+	this.$pushPop = null;
+	this.$gameSegmentId = null;
+	this.gameSegmentPubSub = null;
+	this.$socketManager = socketManager;
+	this.$pubsub = pubsub;
+	this.$pushPop = pushPop;
+	this.$gameSegmentId = gameSegmentId;
 	//            Global.SetInterval(() => { Global.Console.Log("keep alive " + new DateTime().ToString().Substring(17, 24)); }, 10 * 1000);
 	//            var game = new ServerGame(socketManager, gameServerName);
 	//            game.Init();
-	pushPop.init().then(ss.mkdel(this, this.$ready));
+	Pather.Common.Utils.Promises.Q.all([pubsub.init(), pushPop.init()]).then(ss.mkdel(this, function() {
+		this.gameSegmentPubSub = new $Pather_Servers_GameSegment_GameSegmentPubSub(this.$pubsub, this.$gameSegmentId);
+		this.gameSegmentPubSub.init().then(ss.mkdel(this, this.$ready));
+	}));
 };
 $Pather_Servers_GameSegment_GameSegment.__typeName = 'Pather.Servers.GameSegment.GameSegment';
 global.Pather.Servers.GameSegment.GameSegment = $Pather_Servers_GameSegment_GameSegment;
 ////////////////////////////////////////////////////////////////////////////////
-// Pather.Servers.GameSegment.OldGameServer.GameSegmentUser
-var $Pather_Servers_GameSegment_OldGameServer_GameSegmentUser = function() {
+// Pather.Servers.GameSegment.GameSegmentPubSub
+var $Pather_Servers_GameSegment_GameSegmentPubSub = function(pubSub, gameSegmentId) {
+	this.gameSegmentId = null;
+	this.pubSub = null;
+	this.onMessage = null;
+	this.onAllMessage = null;
+	this.gameSegmentId = gameSegmentId;
+	this.pubSub = pubSub;
+};
+$Pather_Servers_GameSegment_GameSegmentPubSub.__typeName = 'Pather.Servers.GameSegment.GameSegmentPubSub';
+global.Pather.Servers.GameSegment.GameSegmentPubSub = $Pather_Servers_GameSegment_GameSegmentPubSub;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.GameSegment.Old.GameSegmentUser
+var $Pather_Servers_GameSegment_Old_GameSegmentUser = function() {
 	this.gatewayServer = null;
 };
-$Pather_Servers_GameSegment_OldGameServer_GameSegmentUser.__typeName = 'Pather.Servers.GameSegment.OldGameServer.GameSegmentUser';
-global.Pather.Servers.GameSegment.OldGameServer.GameSegmentUser = $Pather_Servers_GameSegment_OldGameServer_GameSegmentUser;
+$Pather_Servers_GameSegment_Old_GameSegmentUser.__typeName = 'Pather.Servers.GameSegment.Old.GameSegmentUser';
+global.Pather.Servers.GameSegment.Old.GameSegmentUser = $Pather_Servers_GameSegment_Old_GameSegmentUser;
 ////////////////////////////////////////////////////////////////////////////////
-// Pather.Servers.GameSegment.OldGameServer.ServerEntity
-var $Pather_Servers_GameSegment_OldGameServer_ServerEntity = function(game, playerId) {
+// Pather.Servers.GameSegment.Old.ServerEntity
+var $Pather_Servers_GameSegment_Old_ServerEntity = function(game, playerId) {
 	this.socket = null;
 	Pather.Common.Entity.call(this, game, playerId);
 };
-$Pather_Servers_GameSegment_OldGameServer_ServerEntity.__typeName = 'Pather.Servers.GameSegment.OldGameServer.ServerEntity';
-global.Pather.Servers.GameSegment.OldGameServer.ServerEntity = $Pather_Servers_GameSegment_OldGameServer_ServerEntity;
+$Pather_Servers_GameSegment_Old_ServerEntity.__typeName = 'Pather.Servers.GameSegment.Old.ServerEntity';
+global.Pather.Servers.GameSegment.Old.ServerEntity = $Pather_Servers_GameSegment_Old_ServerEntity;
 ////////////////////////////////////////////////////////////////////////////////
-// Pather.Servers.GameSegment.OldGameServer.ServerGame
-var $Pather_Servers_GameSegment_OldGameServer_ServerGame = function(socketManager, gameServerName) {
+// Pather.Servers.GameSegment.Old.ServerGame
+var $Pather_Servers_GameSegment_Old_ServerGame = function(socketManager, gameServerName) {
 	this.syncLockstep = null;
 	Pather.Common.Game.call(this);
 	console.log(gameServerName + ' Has come online');
-	this.stepManager = new $Pather_Servers_GameSegment_OldGameServer_ServerStepManager(this, new $Pather_Servers_GameSegment_OldGameServer_ServerNetworkManager(this, socketManager));
+	this.stepManager = new $Pather_Servers_GameSegment_Old_ServerStepManager(this, new $Pather_Servers_GameSegment_Old_ServerNetworkManager(this, socketManager));
 	this.constructGrid();
 	this.ready = true;
 };
-$Pather_Servers_GameSegment_OldGameServer_ServerGame.__typeName = 'Pather.Servers.GameSegment.OldGameServer.ServerGame';
-global.Pather.Servers.GameSegment.OldGameServer.ServerGame = $Pather_Servers_GameSegment_OldGameServer_ServerGame;
+$Pather_Servers_GameSegment_Old_ServerGame.__typeName = 'Pather.Servers.GameSegment.Old.ServerGame';
+global.Pather.Servers.GameSegment.Old.ServerGame = $Pather_Servers_GameSegment_Old_ServerGame;
 ////////////////////////////////////////////////////////////////////////////////
-// Pather.Servers.GameSegment.OldGameServer.ServerNetworkManager
-var $Pather_Servers_GameSegment_OldGameServer_ServerNetworkManager = function(game, socketManager) {
+// Pather.Servers.GameSegment.Old.ServerNetworkManager
+var $Pather_Servers_GameSegment_Old_ServerNetworkManager = function(game, socketManager) {
 	this.game = null;
 	this.serverCommunicator = null;
 	this.onRecieveAction = null;
@@ -276,18 +315,18 @@ var $Pather_Servers_GameSegment_OldGameServer_ServerNetworkManager = function(ga
 	this.serverCommunicator.onNewConnection = ss.delegateCombine(this.serverCommunicator.onNewConnection, ss.mkdel(this, this.$onNewConnection));
 	this.serverCommunicator.onDisconnectConnection = ss.delegateCombine(this.serverCommunicator.onDisconnectConnection, ss.mkdel(this, this.$onDisconnectConnection));
 };
-$Pather_Servers_GameSegment_OldGameServer_ServerNetworkManager.__typeName = 'Pather.Servers.GameSegment.OldGameServer.ServerNetworkManager';
-global.Pather.Servers.GameSegment.OldGameServer.ServerNetworkManager = $Pather_Servers_GameSegment_OldGameServer_ServerNetworkManager;
+$Pather_Servers_GameSegment_Old_ServerNetworkManager.__typeName = 'Pather.Servers.GameSegment.Old.ServerNetworkManager';
+global.Pather.Servers.GameSegment.Old.ServerNetworkManager = $Pather_Servers_GameSegment_Old_ServerNetworkManager;
 ////////////////////////////////////////////////////////////////////////////////
-// Pather.Servers.GameSegment.OldGameServer.ServerStepManager
-var $Pather_Servers_GameSegment_OldGameServer_ServerStepManager = function(game, serverNetworkManager) {
+// Pather.Servers.GameSegment.Old.ServerStepManager
+var $Pather_Servers_GameSegment_Old_ServerStepManager = function(game, serverNetworkManager) {
 	this.serverNetworkManager = null;
 	Pather.Common.StepManager.call(this, game);
 	this.serverNetworkManager = serverNetworkManager;
 	this.serverNetworkManager.onRecieveAction = ss.delegateCombine(this.serverNetworkManager.onRecieveAction, ss.mkdel(this, this.receiveAction));
 };
-$Pather_Servers_GameSegment_OldGameServer_ServerStepManager.__typeName = 'Pather.Servers.GameSegment.OldGameServer.ServerStepManager';
-global.Pather.Servers.GameSegment.OldGameServer.ServerStepManager = $Pather_Servers_GameSegment_OldGameServer_ServerStepManager;
+$Pather_Servers_GameSegment_Old_ServerStepManager.__typeName = 'Pather.Servers.GameSegment.Old.ServerStepManager';
+global.Pather.Servers.GameSegment.Old.ServerStepManager = $Pather_Servers_GameSegment_Old_ServerStepManager;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameSegmentCluster.GameSegmentCluster
 var $Pather_Servers_GameSegmentCluster_GameSegmentCluster = function(pubsub, pushPop) {
@@ -369,6 +408,8 @@ var $Pather_Servers_GameWorldServer_GameWorldServer = function(pubSub, dbQueries
 	this.$pubSub = null;
 	this.$databaseQueries = null;
 	this.gameWorld = null;
+	this.clientTickManager = null;
+	this.$gameSegmentClusterPubSub = null;
 	this.$pubSub = pubSub;
 	this.$databaseQueries = dbQueries;
 	pubSub.init().then(ss.mkdel(this, this.$pubsubReady));
@@ -407,19 +448,42 @@ var $Pather_Servers_GatewayServer_$GatewayUser = function() {
 };
 $Pather_Servers_GatewayServer_$GatewayUser.__typeName = 'Pather.Servers.GatewayServer.$GatewayUser';
 ////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.GatewayServer.GatewayPubSub
+var $Pather_Servers_GatewayServer_GatewayPubSub = function(pubSub, gatewayId) {
+	this.$1$GatewayIdField = null;
+	this.pubSub = null;
+	this.onMessage = null;
+	this.onAllMessage = null;
+	this.set_gatewayId(gatewayId);
+	this.pubSub = pubSub;
+};
+$Pather_Servers_GatewayServer_GatewayPubSub.__typeName = 'Pather.Servers.GatewayServer.GatewayPubSub';
+global.Pather.Servers.GatewayServer.GatewayPubSub = $Pather_Servers_GatewayServer_GatewayPubSub;
+////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GatewayServer.GatewayServer
 var $Pather_Servers_GatewayServer_GatewayServer = function(pubsub, socketManager) {
-	this.$1$PubsubField = null;
-	this.gatewayName = null;
-	this.$1$ServerCommunicatorField = null;
+	this.gatewayId = null;
+	this.serverCommunicator = null;
+	this.gatewayPubSub = null;
+	this.clientTickManager = null;
 	this.$users = [];
-	this.set_pubsub(pubsub);
-	this.gatewayName = 'Gateway ' + ss.Guid.newGuid();
-	console.log(this.gatewayName);
+	this.gatewayId = Pather.Common.Common.uniqueId();
+	console.log(this.gatewayId);
 	var port = 1800 + (Math.random() * 4000 | 0);
 	port = 1800;
-	this.set_serverCommunicator(new $Pather_Servers_Common_ServerCommunicator(socketManager, port));
-	pubsub.init().then(ss.mkdel(this, this.$pubsubReady));
+	this.serverCommunicator = new $Pather_Servers_Common_ServerCommunicator(socketManager, port);
+	pubsub.init().then(ss.mkdel(this, function() {
+		this.gatewayPubSub = new $Pather_Servers_GatewayServer_GatewayPubSub(pubsub, this.gatewayId);
+		this.gatewayPubSub.onMessage = ss.delegateCombine(this.gatewayPubSub.onMessage, ss.mkdel(this, this.$onMessage));
+		this.gatewayPubSub.onAllMessage = ss.delegateCombine(this.gatewayPubSub.onAllMessage, ss.mkdel(this, this.$onAllMessage));
+		this.gatewayPubSub.init();
+		this.clientTickManager = new $Pather_Servers_Common_ClientTickManager();
+		this.clientTickManager.init$1(ss.mkdel(this, this.$sendPing), function() {
+			console.log('Connected To Tick Server');
+		});
+		this.clientTickManager.startPing();
+		this.$pubsubReady();
+	}));
 };
 $Pather_Servers_GatewayServer_GatewayServer.__typeName = 'Pather.Servers.GatewayServer.GatewayServer';
 global.Pather.Servers.GatewayServer.GatewayServer = $Pather_Servers_GatewayServer_GatewayServer;
@@ -429,16 +493,6 @@ var $Pather_Servers_GatewayServer_Tests_GatewayServerTests = function() {
 };
 $Pather_Servers_GatewayServer_Tests_GatewayServerTests.__typeName = 'Pather.Servers.GatewayServer.Tests.GatewayServerTests';
 global.Pather.Servers.GatewayServer.Tests.GatewayServerTests = $Pather_Servers_GatewayServer_Tests_GatewayServerTests;
-////////////////////////////////////////////////////////////////////////////////
-// Pather.Servers.TickServer.TickManager
-var $Pather_Servers_TickServer_TickManager = function(tickPubSub) {
-	this.tickPubSub = null;
-	this.curLockstepTime = 0;
-	this.lockstepTickNumber = 0;
-	this.tickPubSub = tickPubSub;
-};
-$Pather_Servers_TickServer_TickManager.__typeName = 'Pather.Servers.TickServer.TickManager';
-global.Pather.Servers.TickServer.TickManager = $Pather_Servers_TickServer_TickManager;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.TickServer.TickPubSub
 var $Pather_Servers_TickServer_TickPubSub = function(pubSub) {
@@ -462,6 +516,15 @@ var $Pather_Servers_TickServer_TickServer = function(pubSub) {
 };
 $Pather_Servers_TickServer_TickServer.__typeName = 'Pather.Servers.TickServer.TickServer';
 global.Pather.Servers.TickServer.TickServer = $Pather_Servers_TickServer_TickServer;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.TickServer.TickServerTickManager
+var $Pather_Servers_TickServer_TickServerTickManager = function(tickPubSub) {
+	this.tickPubSub = null;
+	$Pather_Servers_Common_TickManager.call(this);
+	this.tickPubSub = tickPubSub;
+};
+$Pather_Servers_TickServer_TickServerTickManager.__typeName = 'Pather.Servers.TickServer.TickServerTickManager';
+global.Pather.Servers.TickServer.TickServerTickManager = $Pather_Servers_TickServer_TickServerTickManager;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.Utils.ServerHelper
 var $Pather_Servers_Utils_ServerHelper = function() {
@@ -498,6 +561,82 @@ $Pather_Servers_Utils_ServerHelper.getNetworkIPs = function() {
 global.Pather.Servers.Utils.ServerHelper = $Pather_Servers_Utils_ServerHelper;
 ss.initClass($Pather_Servers_ServerManager, $asm, {});
 ss.initClass($Pather_Servers_AuthServer_AuthServer, $asm, {});
+ss.initClass($Pather_Servers_Common_TickManager, $asm, {
+	init: function(currentLockstepTickNumber) {
+		this.lockstepTickNumber = currentLockstepTickNumber;
+		this.curLockstepTime = (new Date()).getTime();
+		setTimeout(ss.mkdel(this, this.$tick), 1);
+	},
+	setLockStepTick: function(lockStepTickNumber) {
+		this.lockstepTickNumber = lockStepTickNumber;
+		//todo resolve if current > or < lockstep
+	},
+	setServerLatency: function(latency) {
+		this.curLockstepTime = (new Date()).getTime() - latency;
+	},
+	$tick: function() {
+		setTimeout(ss.mkdel(this, this.$tick), 1);
+		var vc = (new Date()).getTime();
+		var l = vc - this.curLockstepTime;
+		while (l > Pather.Common.Constants.lockstepTicks) {
+			l -= Pather.Common.Constants.lockstepTicks;
+			this.curLockstepTime += Pather.Common.Constants.lockstepTicks;
+			this.lockstepTickNumber++;
+			this.processLockstep(this.lockstepTickNumber);
+		}
+	},
+	processLockstep: function(lockstepTickNumber) {
+		console.log('Lockstep', this.lockstepTickNumber, (new Date()).getTime());
+	}
+});
+ss.initClass($Pather_Servers_Common_ClientTickManager, $asm, {
+	init$1: function(sendPing, tickManagerReady) {
+		this.$sendPing = sendPing;
+		this.$tickManagerReady = tickManagerReady;
+		setTimeout(ss.mkdel(this, this.startPing), Pather.Common.Constants.latencyPingInterval);
+	},
+	startPing: function() {
+		this.$pingSent = [];
+		this.$lastPing = (new Date()).getTime();
+		this.$sendPing();
+	},
+	onPongReceived: function() {
+		var cur = (new Date()).getTime();
+		this.$pingSent.push(cur - this.$lastPing);
+		this.$lastPing = cur;
+		if (this.$pingSent.length < 6) {
+			this.$sendPing();
+		}
+		else {
+			var average = 0;
+			for (var $t1 = 0; $t1 < this.$pingSent.length; $t1++) {
+				var l = this.$pingSent[$t1];
+				average += l;
+			}
+			var roundTripLatency = average / this.$pingSent.length;
+			var oneWayLatency = ss.Int32.div(ss.Int32.trunc(roundTripLatency), 2);
+			this.setServerLatency(oneWayLatency);
+			this.$pingSent = null;
+		}
+	},
+	setLockStepTick: function(lockStepTickNumber) {
+		$Pather_Servers_Common_TickManager.prototype.setLockStepTick.call(this, lockStepTickNumber);
+		this.$hasLockstep = true;
+		if (this.$hasLatency && this.$hasLockstep && !this.$tickManagerInitialized) {
+			this.$tickManagerInitialized = true;
+			this.$tickManagerReady();
+		}
+	},
+	setServerLatency: function(latency) {
+		$Pather_Servers_Common_TickManager.prototype.setServerLatency.call(this, latency);
+		console.log('Severy latency is ', latency, 'ms');
+		this.$hasLatency = true;
+		if (this.$hasLatency && this.$hasLockstep && !this.$tickManagerInitialized) {
+			this.$tickManagerInitialized = true;
+			this.$tickManagerReady();
+		}
+	}
+}, $Pather_Servers_Common_TickManager);
 ss.initClass($Pather_Servers_Common_ConnectionConstants, $asm, {});
 ss.initClass($Pather_Servers_Common_ServerCommunicator, $asm, {
 	listenOnChannel: function(T) {
@@ -560,6 +699,7 @@ ss.initClass($Pather_Servers_Common_PubSub_PubSub, $asm, {
 		this.$pubClient.publish(channel, stringMessage);
 	},
 	subscribe: function(channel, callback) {
+		console.log('Pubsub Subscribed to', channel);
 		this.$subClient.subscribe(channel);
 		this.$subbed[channel] = callback;
 	}
@@ -665,39 +805,75 @@ ss.initClass($Pather_Servers_Database_DatabaseQueries, $asm, {
 }, null, [$Pather_Servers_Database_IDatabaseQueries]);
 ss.initClass($Pather_Servers_Database_DBUser, $asm, {});
 ss.initClass($Pather_Servers_GameSegment_GameSegment, $asm, {
-	get_socketManager: function() {
-		return this.$1$SocketManagerField;
-	},
-	set_socketManager: function(value) {
-		this.$1$SocketManagerField = value;
-	},
-	get_pubsub: function() {
-		return this.$1$PubsubField;
-	},
-	set_pubsub: function(value) {
-		this.$1$PubsubField = value;
-	},
-	get_pushPop: function() {
-		return this.$1$PushPopField;
-	},
-	set_pushPop: function(value) {
-		this.$1$PushPopField = value;
-	},
-	get_gameSegmentName: function() {
-		return this.$1$GameSegmentNameField;
-	},
-	set_gameSegmentName: function(value) {
-		this.$1$GameSegmentNameField = value;
-	},
 	$ready: function() {
-		this.get_pushPop().push(this.get_gameSegmentName(), 1);
+		this.gameSegmentPubSub.onAllMessage = ss.delegateCombine(this.gameSegmentPubSub.onAllMessage, ss.mkdel(this, this.$onAllMessage));
+		this.gameSegmentPubSub.onMessage = ss.delegateCombine(this.gameSegmentPubSub.onMessage, ss.mkdel(this, this.$onMessage));
+		this.$clientTickManager = new $Pather_Servers_Common_ClientTickManager();
+		this.$clientTickManager.init$1(ss.mkdel(this, this.$sendPing), ss.mkdel(this, this.$tickManagerReady));
+		this.$clientTickManager.startPing();
+	},
+	$tickManagerReady: function() {
+		this.$registerGameSegmentWithCluster();
+	},
+	$sendPing: function() {
+		var $t2 = this.gameSegmentPubSub;
+		var $t1 = Pather.Common.Models.Tick.PingTickPubSubMessage.$ctor();
+		$t1.origin = $Pather_Servers_Common_PubSub_PubSubChannels.gameSegment + this.$gameSegmentId;
+		$t1.originType = 0;
+		$t2.publishToTickServer($t1);
+	},
+	$registerGameSegmentWithCluster: function() {
+		//register game segment
+		this.$pushPop.push(this.$gameSegmentId, 1);
+	},
+	$onMessage: function(message) {
+		switch (message.type) {
+			case 'pong': {
+				var pongMessage = message;
+				this.$clientTickManager.onPongReceived();
+				break;
+			}
+			default: {
+				throw new ss.ArgumentOutOfRangeException();
+			}
+		}
+	},
+	$onAllMessage: function(message) {
+		switch (message.type) {
+			case 'tickSync': {
+				var tickSyncMessage = message;
+				this.$clientTickManager.setLockStepTick(tickSyncMessage.lockstepTickNumber);
+				break;
+			}
+			default: {
+				throw new ss.ArgumentOutOfRangeException();
+			}
+		}
 	}
 });
-ss.initClass($Pather_Servers_GameSegment_OldGameServer_GameSegmentUser, $asm, {});
-ss.initClass($Pather_Servers_GameSegment_OldGameServer_ServerEntity, $asm, {}, Pather.Common.Entity);
-ss.initClass($Pather_Servers_GameSegment_OldGameServer_ServerGame, $asm, {
+ss.initClass($Pather_Servers_GameSegment_GameSegmentPubSub, $asm, {
+	init: function() {
+		var deferred = Pather.Common.Utils.Promises.Q.defer();
+		this.pubSub.subscribe($Pather_Servers_Common_PubSub_PubSubChannels.gameSegment, ss.mkdel(this, function(message) {
+			var gameSegmentPubSubMessage = JSON.parse(message);
+			this.onAllMessage(gameSegmentPubSubMessage);
+		}));
+		this.pubSub.subscribe($Pather_Servers_Common_PubSub_PubSubChannels.gameSegment + this.gameSegmentId, ss.mkdel(this, function(message1) {
+			var gameSegmentPubSubMessage1 = JSON.parse(message1);
+			this.onMessage(gameSegmentPubSubMessage1);
+		}));
+		deferred.resolve();
+		return deferred.promise;
+	},
+	publishToTickServer: function(message) {
+		this.pubSub.publish$1($Pather_Servers_Common_PubSub_PubSubChannels.tick, message);
+	}
+});
+ss.initClass($Pather_Servers_GameSegment_Old_GameSegmentUser, $asm, {});
+ss.initClass($Pather_Servers_GameSegment_Old_ServerEntity, $asm, {}, Pather.Common.Entity);
+ss.initClass($Pather_Servers_GameSegment_Old_ServerGame, $asm, {
 	createPlayer: function(playerId) {
-		return new $Pather_Servers_GameSegment_OldGameServer_ServerEntity(this, playerId);
+		return new $Pather_Servers_GameSegment_Old_ServerEntity(this, playerId);
 	},
 	tick: function() {
 		var tickResult = Pather.Common.Game.prototype.tick.call(this);
@@ -707,7 +883,7 @@ ss.initClass($Pather_Servers_GameSegment_OldGameServer_ServerGame, $asm, {
 		return tickResult;
 	}
 }, Pather.Common.Game);
-ss.initClass($Pather_Servers_GameSegment_OldGameServer_ServerNetworkManager, $asm, {
+ss.initClass($Pather_Servers_GameSegment_Old_ServerNetworkManager, $asm, {
 	$onSyncLockstep: function(lockStepTick) {
 		if (lockStepTick % 15 === 0 || this.$forceSyncNextLockstep.length > 0) {
 			for (var $t1 = 0; $t1 < this.$forceSyncNextLockstep.length; $t1++) {
@@ -781,7 +957,7 @@ ss.initClass($Pather_Servers_GameSegment_OldGameServer_ServerNetworkManager, $as
 		}
 	},
 	$joinPlayer: function(socket, model) {
-		var player = ss.cast(this.game.createPlayer(model.playerId), $Pather_Servers_GameSegment_OldGameServer_ServerEntity);
+		var player = ss.cast(this.game.createPlayer(model.playerId), $Pather_Servers_GameSegment_Old_ServerEntity);
 		player.socket = socket;
 		var x = Math.min(ss.Int32.trunc(Math.random() * Pather.Common.Constants.numberOfSquares), Pather.Common.Constants.numberOfSquares - 1);
 		var y = Math.min(ss.Int32.trunc(Math.random() * Pather.Common.Constants.numberOfSquares), Pather.Common.Constants.numberOfSquares - 1);
@@ -820,7 +996,7 @@ ss.initClass($Pather_Servers_GameSegment_OldGameServer_ServerNetworkManager, $as
 		}
 	}
 });
-ss.initClass($Pather_Servers_GameSegment_OldGameServer_ServerStepManager, $asm, {
+ss.initClass($Pather_Servers_GameSegment_Old_ServerStepManager, $asm, {
 	sendActionServer: function(action) {
 		var serAction = Pather.Common.SerializableAction.$ctor();
 		serAction.data = action.get_data();
@@ -861,7 +1037,7 @@ ss.initClass($Pather_Servers_GameSegmentCluster_GameSegmentCluster, $asm, {
 		var m = fs.openSync('./out.log', 'a', null);
 		var out = fs.openSync('./out.log', 'a', null);
 		var err = fs.openSync('./out.log', 'a', null);
-		this.get_pushPop().blockingPop(createGameSegment.gameSegmentId, 10).then(ss.mkdel(this, function(content) {
+		this.get_pushPop().blockingPop(createGameSegment.gameSegmentId, Pather.Common.Constants.gameSegmentCreationWait).then(ss.mkdel(this, function(content) {
 			var $t2 = this.$pubsub;
 			var $t3 = $Pather_Servers_Common_PubSub_PubSubChannels.gameWorld;
 			var $t1 = Pather.Common.Models.GameWorld.CreateGameSegmentResponseGameWorldPubSubMessage.$ctor();
@@ -974,7 +1150,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 	createGameSegment: function() {
 		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_Servers_GameWorldServer_GameSegment, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
 		var $t1 = Pather.Common.Models.GameSegmentCluster.CreateGameSegmentGameSegmentClusterPubSubMessage.$ctor();
-		$t1.gameSegmentId = 'gamesegment-' + Pather.Common.Common.uniqueId();
+		$t1.gameSegmentId = Pather.Common.Common.uniqueId();
 		$t1.messageId = Pather.Common.Common.uniqueId();
 		var createGameMessage = $t1;
 		this.gameWorldPubSub.publishToGameSegmentWithCallback(Pather.Common.Models.GameWorld.CreateGameSegmentResponseGameWorldPubSubMessage).call(this.gameWorldPubSub, createGameMessage).then(ss.mkdel(this, function(createGameMessageResponse) {
@@ -1029,7 +1205,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldPubSub, $asm, {
 			var gameWorldPubSubMessage = JSON.parse(message);
 			var possibleMessageReqRes = gameWorldPubSubMessage;
 			if (!(typeof(possibleMessageReqRes.messageId) === 'undefined')) {
-				if (gameWorldPubSubMessage.type === 1) {
+				if (gameWorldPubSubMessage.type === 'createGameSegmentResponse') {
 					if (!this.deferredMessages.containsKey(possibleMessageReqRes.messageId)) {
 						console.log('Received message that I didnt ask for.');
 						throw new ss.Exception('Received message that I didnt ask for.');
@@ -1044,6 +1220,9 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldPubSub, $asm, {
 	publishToGameSegment: function(message) {
 		this.pubSub.publish$1($Pather_Servers_Common_PubSub_PubSubChannels.gameSegmentCluster + 1, message);
 	},
+	publishToTickServer: function(message) {
+		this.pubSub.publish$1($Pather_Servers_Common_PubSub_PubSubChannels.tick, message);
+	},
 	publishToGameSegmentWithCallback: function(T) {
 		return function(message) {
 			var deferred = Pather.Common.Utils.Promises.Q.defer$2(T, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
@@ -1051,26 +1230,55 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldPubSub, $asm, {
 			this.deferredMessages.add(message.messageId, deferred);
 			return deferred.promise;
 		};
+	},
+	publishToGatewayServer: function(gatewayId, message) {
+		this.pubSub.publish$1(gatewayId, message);
 	}
 });
 ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 	$pubsubReady: function() {
-		var gameSegmentClusterPubSub = new $Pather_Servers_GameWorldServer_GameWorldPubSub(this.$pubSub);
-		gameSegmentClusterPubSub.init();
-		gameSegmentClusterPubSub.message = ss.delegateCombine(gameSegmentClusterPubSub.message, ss.mkdel(this, this.$gameWorldMessage));
-		this.gameWorld = new $Pather_Servers_GameWorldServer_GameWorld(gameSegmentClusterPubSub);
+		this.$gameSegmentClusterPubSub = new $Pather_Servers_GameWorldServer_GameWorldPubSub(this.$pubSub);
+		this.$gameSegmentClusterPubSub.init();
+		this.$gameSegmentClusterPubSub.message = ss.delegateCombine(this.$gameSegmentClusterPubSub.message, ss.mkdel(this, this.$gameWorldMessage));
+		this.gameWorld = new $Pather_Servers_GameWorldServer_GameWorld(this.$gameSegmentClusterPubSub);
+		this.clientTickManager = new $Pather_Servers_Common_ClientTickManager();
+		this.clientTickManager.init$1(ss.mkdel(this, this.$sendPing), function() {
+			console.log('Connected To Tick Server');
+		});
+		this.clientTickManager.startPing();
 	},
-	$gameWorldMessage: function(gameworldMessage) {
-		switch (gameworldMessage.type) {
-			case 0: {
-				this.$userJoined(gameworldMessage).then(ss.mkdel(this, function(gwUser) {
-					var $t2 = this.$pubSub;
-					var $t3 = gwUser.gatewayServer;
+	$sendPing: function() {
+		var $t2 = this.$gameSegmentClusterPubSub;
+		var $t1 = Pather.Common.Models.Tick.PingTickPubSubMessage.$ctor();
+		$t1.origin = $Pather_Servers_Common_PubSub_PubSubChannels.gameWorld;
+		$t1.originType = 1;
+		$t2.publishToTickServer($t1);
+	},
+	$gameWorldMessage: function(message) {
+		switch (message.type) {
+			case 'userJoined': {
+				this.$userJoined(message).then(ss.mkdel(this, function(gwUser) {
+					var $t2 = this.$gameSegmentClusterPubSub;
+					var $t3 = $Pather_Servers_Common_PubSub_PubSubChannels.gateway + gwUser.gatewayServer;
 					var $t1 = Pather.Common.Models.Gateway.UserJoinedGatewayPubSubMessage.$ctor();
 					$t1.gameSegmentId = gwUser.gameSegment.gameSegmentId;
 					$t1.userId = gwUser.userId;
-					$t2.publish$1($t3, $t1);
+					$t2.publishToGatewayServer($t3, $t1);
 				}));
+				break;
+			}
+			case 'createGameSegmentResponse': {
+				console.log('Create game segment response, not handled', message);
+				break;
+			}
+			case 'pong': {
+				var pongMessage = message;
+				this.clientTickManager.onPongReceived();
+				break;
+			}
+			case 'tickSync': {
+				var tickSyncMessage = message;
+				this.clientTickManager.setLockStepTick(tickSyncMessage.lockstepTickNumber);
 				break;
 			}
 			default: {
@@ -1128,7 +1336,7 @@ ss.initClass($Pather_Servers_GameWorldServer_Tests_GameWorldServerTests, $asm, {
 		global.$overwiteMethodCallForMocker$(ss.mkdel(pubSubTest, pubSubTest.subscribe), function(channel, callback) {
 			Pather.Common.TestFramework.DeferredAssert.that(testDeferred, channel).get_does().equal($Pather_Servers_Common_PubSub_PubSubChannels.gameWorld);
 			var userJoinedGameWorldPubSubMessage = Pather.Common.Models.GameWorld.UserJoinedGameWorldPubSubMessage.$ctor();
-			userJoinedGameWorldPubSubMessage.type = 0;
+			userJoinedGameWorldPubSubMessage.type = 'userJoined';
 			userJoinedGameWorldPubSubMessage.userToken = 'abcd';
 			userJoinedGameWorldPubSubMessage.gatewayChannel = 'Gateway 1';
 			callback(JSON.stringify(userJoinedGameWorldPubSubMessage));
@@ -1154,27 +1362,79 @@ ss.initClass($Pather_Servers_GatewayServer_$GatewayUser, $asm, {
 		this.$1$UserTokenField = value;
 	}
 });
+ss.initClass($Pather_Servers_GatewayServer_GatewayPubSub, $asm, {
+	get_gatewayId: function() {
+		return this.$1$GatewayIdField;
+	},
+	set_gatewayId: function(value) {
+		this.$1$GatewayIdField = value;
+	},
+	init: function() {
+		this.pubSub.subscribe($Pather_Servers_Common_PubSub_PubSubChannels.gateway, ss.mkdel(this, function(message) {
+			var gameWorldPubSubAllMessage = JSON.parse(message);
+			this.onAllMessage(gameWorldPubSubAllMessage);
+		}));
+		this.pubSub.subscribe($Pather_Servers_Common_PubSub_PubSubChannels.gateway + this.get_gatewayId(), ss.mkdel(this, function(message1) {
+			var gameWorldPubSubMessage = JSON.parse(message1);
+			this.onMessage(gameWorldPubSubMessage);
+		}));
+	},
+	publishToTickServer: function(message) {
+		this.pubSub.publish$1($Pather_Servers_Common_PubSub_PubSubChannels.tick, message);
+	},
+	publishToGameWorld: function(message) {
+		this.pubSub.publish$1($Pather_Servers_Common_PubSub_PubSubChannels.gameWorld, message);
+	}
+});
 ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
-	get_pubsub: function() {
-		return this.$1$PubsubField;
+	$sendPing: function() {
+		var $t2 = this.gatewayPubSub;
+		var $t1 = Pather.Common.Models.Tick.PingTickPubSubMessage.$ctor();
+		$t1.origin = $Pather_Servers_Common_PubSub_PubSubChannels.gateway + this.gatewayId;
+		$t1.originType = 1;
+		$t2.publishToTickServer($t1);
 	},
-	set_pubsub: function(value) {
-		this.$1$PubsubField = value;
+	$onAllMessage: function(message) {
+		switch (message.type) {
+			case 'tickSync': {
+				var tickSyncMessage = message;
+				this.clientTickManager.setLockStepTick(tickSyncMessage.lockstepTickNumber);
+				break;
+			}
+			default: {
+				throw new ss.ArgumentOutOfRangeException();
+			}
+		}
 	},
-	get_serverCommunicator: function() {
-		return this.$1$ServerCommunicatorField;
-	},
-	set_serverCommunicator: function(value) {
-		this.$1$ServerCommunicatorField = value;
+	$onMessage: function(message) {
+		switch (message.type) {
+			case 'userJoined': {
+				var userJoinedMessage = message;
+				for (var $t1 = 0; $t1 < this.$users.length; $t1++) {
+					var gatewayUser = this.$users[$t1];
+					if (ss.referenceEquals(gatewayUser.get_$userToken(), userJoinedMessage.userId)) {
+						this.serverCommunicator.sendMessage(gatewayUser.get_$socket(), 'Gateway.Join.Success', userJoinedMessage);
+						break;
+					}
+				}
+				break;
+			}
+			case 'pong': {
+				var pongMessage = message;
+				this.clientTickManager.onPongReceived();
+				break;
+			}
+			default: {
+				throw new ss.ArgumentOutOfRangeException();
+			}
+		}
 	},
 	$pubsubReady: function() {
 		console.log('pubsub ready');
-		this.get_pubsub().subscribe(this.gatewayName, ss.mkdel(this, this.$gatewayMessage));
-		var $t1 = this.get_serverCommunicator();
-		$t1.onDisconnectConnection = ss.delegateCombine($t1.onDisconnectConnection, ss.mkdel(this, function(socket) {
+		this.serverCommunicator.onDisconnectConnection = ss.delegateCombine(this.serverCommunicator.onDisconnectConnection, ss.mkdel(this, function(socket) {
 			console.log('Disconnect', this.$users.length);
-			for (var $t2 = 0; $t2 < this.$users.length; $t2++) {
-				var gatewayUser = this.$users[$t2];
+			for (var $t1 = 0; $t1 < this.$users.length; $t1++) {
+				var gatewayUser = this.$users[$t1];
 				if (ss.referenceEquals(gatewayUser.get_$socket(), socket)) {
 					console.log('Left');
 					ss.remove(this.$users, gatewayUser);
@@ -1182,49 +1442,24 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 				}
 			}
 		}));
-		var $t3 = this.get_serverCommunicator();
-		$t3.onNewConnection = ss.delegateCombine($t3.onNewConnection, ss.mkdel(this, function(socket1) {
-			var $t4 = new $Pather_Servers_GatewayServer_$GatewayUser();
-			$t4.set_$socket(socket1);
-			var user = $t4;
+		this.serverCommunicator.onNewConnection = ss.delegateCombine(this.serverCommunicator.onNewConnection, ss.mkdel(this, function(socket1) {
+			var $t2 = new $Pather_Servers_GatewayServer_$GatewayUser();
+			$t2.set_$socket(socket1);
+			var user = $t2;
 			this.$users.push(user);
-			var $t5 = this.get_serverCommunicator();
-			$t5.listenOnChannel(Pather.Common.Models.Gateway.GatewaySocketMessageModel).call($t5, socket1, 'Gateway.Message', function(cSocket, data) {
+			this.serverCommunicator.listenOnChannel(Pather.Common.Models.Gateway.GatewaySocketMessageModel).call(this.serverCommunicator, socket1, 'Gateway.Message', function(cSocket, data) {
 				console.log('Socket message ', data);
 			});
-			var $t6 = this.get_serverCommunicator();
-			$t6.listenOnChannel(Pather.Common.Models.Gateway.GatewayJoinModel).call($t6, socket1, 'Gateway.Join', ss.mkdel(this, function(cSocket1, data1) {
+			this.serverCommunicator.listenOnChannel(Pather.Common.Models.Gateway.GatewayJoinModel).call(this.serverCommunicator, socket1, 'Gateway.Join', ss.mkdel(this, function(cSocket1, data1) {
 				user.set_$userToken(data1.userToken);
-				var $t8 = this.get_pubsub();
-				var $t9 = $Pather_Servers_Common_PubSub_PubSubChannels.gameWorld;
-				var $t7 = Pather.Common.Models.GameWorld.UserJoinedGameWorldPubSubMessage.$ctor();
-				$t7.type = 0;
-				$t7.gatewayChannel = this.gatewayName;
-				$t7.userToken = data1.userToken;
-				$t8.publish$1($t9, $t7);
+				var $t4 = this.gatewayPubSub;
+				var $t3 = Pather.Common.Models.GameWorld.UserJoinedGameWorldPubSubMessage.$ctor();
+				$t3.type = 'userJoined';
+				$t3.gatewayChannel = this.gatewayId;
+				$t3.userToken = data1.userToken;
+				$t4.publishToGameWorld($t3);
 			}));
 		}));
-	},
-	$gatewayMessage: function(message) {
-		console.log('message:', message);
-		var gMessage = JSON.parse(message);
-		switch (gMessage.type) {
-			case 0: {
-				var userJoinedMessage = gMessage;
-				for (var $t1 = 0; $t1 < this.$users.length; $t1++) {
-					var gatewayUser = this.$users[$t1];
-					if (ss.referenceEquals(gatewayUser.get_$userToken(), userJoinedMessage.userId)) {
-						//                            this is only sending once idk why
-						this.get_serverCommunicator().sendMessage(gatewayUser.get_$socket(), 'Gateway.Join.Success', userJoinedMessage);
-						break;
-					}
-				}
-				break;
-			}
-			default: {
-				throw new ss.ArgumentOutOfRangeException();
-			}
-		}
 	}
 });
 ss.initClass($Pather_Servers_GatewayServer_Tests_GatewayServerTests, $asm, {
@@ -1277,7 +1512,7 @@ ss.initClass($Pather_Servers_GatewayServer_Tests_GatewayServerTests, $asm, {
 			}
 		});
 		var gts = new $Pather_Servers_GatewayServer_GatewayServer(pubSub, socketManager);
-		gatewayName = gts.gatewayName;
+		gatewayName = gts.gatewayId;
 		var pubSubTest = global.$instantiateInterface$($Pather_Servers_Common_PubSub_IPubSub);
 		var databaseQueriesTest = global.$instantiateInterface$($Pather_Servers_Database_IDatabaseQueries);
 		global.$overwiteMethodCallForMocker$(ss.mkdel(databaseQueriesTest, databaseQueriesTest.getUserByToken), function(utoken) {
@@ -1303,32 +1538,6 @@ ss.initClass($Pather_Servers_GatewayServer_Tests_GatewayServerTests, $asm, {
 			publishData(channel5, data2);
 		});
 		var gws = new $Pather_Servers_GameWorldServer_GameWorldServer(pubSubTest, databaseQueriesTest);
-	}
-});
-ss.initClass($Pather_Servers_TickServer_TickManager, $asm, {
-	init: function(currentLockstepTickNumber) {
-		this.lockstepTickNumber = currentLockstepTickNumber;
-		this.curLockstepTime = (new Date()).getTime();
-		setTimeout(ss.mkdel(this, this.$tick), 1);
-	},
-	$tick: function() {
-		setTimeout(ss.mkdel(this, this.$tick), 1);
-		var vc = (new Date()).getTime();
-		var l = vc - this.curLockstepTime;
-		while (l > Pather.Common.Constants.lockstepTicks) {
-			l -= Pather.Common.Constants.lockstepTicks;
-			this.curLockstepTime += Pather.Common.Constants.lockstepTicks;
-			this.lockstepTickNumber++;
-			console.log('Lockstep', this.lockstepTickNumber, (new Date()).getTime());
-			this.$processLockstep(this.lockstepTickNumber);
-		}
-	},
-	$processLockstep: function(lockstepTickNumber) {
-		if (lockstepTickNumber % 15 === 0) {
-			this.tickPubSub.publishToAllGameSegments(Pather.Common.Models.GameSegment.TickSyncGameSegmentPubSubMessage.$ctor(lockstepTickNumber));
-			this.tickPubSub.publishToAllGateways(Pather.Common.Models.Gateway.TickSyncGatewayPubSubMessage.$ctor(lockstepTickNumber));
-			this.tickPubSub.publishToGameWorld(Pather.Common.Models.GameWorld.TickSyncGameWorldPubSubMessage.$ctor(lockstepTickNumber));
-		}
 	}
 });
 ss.initClass($Pather_Servers_TickServer_TickPubSub, $asm, {
@@ -1359,15 +1568,33 @@ ss.initClass($Pather_Servers_TickServer_TickPubSub, $asm, {
 });
 ss.initClass($Pather_Servers_TickServer_TickServer, $asm, {
 	$ready: function() {
-		this.tickManager = new $Pather_Servers_TickServer_TickManager(this.tickPubSub);
+		this.tickManager = new $Pather_Servers_TickServer_TickServerTickManager(this.tickPubSub);
 		this.tickManager.init(0);
 		this.tickPubSub.onMessage = ss.delegateCombine(this.tickPubSub.onMessage, ss.mkdel(this, this.$pubSubMessage));
 	},
 	$pubSubMessage: function(message) {
 		switch (message.type) {
-			case 0: {
+			case 'ping': {
 				var pingMessage = message;
-				this.tickPubSub.publishToOrigin(pingMessage.origin, null);
+				var returnMessage;
+				switch (pingMessage.originType) {
+					case 0: {
+						returnMessage = Pather.Common.Models.GameSegment.PongGameSegmentPubSubMessage.$ctor();
+						break;
+					}
+					case 1: {
+						returnMessage = Pather.Common.Models.GameWorld.PongGameWorldPubSubMessage.$ctor();
+						break;
+					}
+					case 2: {
+						returnMessage = Pather.Common.Models.Gateway.PongGatewayPubSubMessage.$ctor();
+						break;
+					}
+					default: {
+						throw new ss.ArgumentOutOfRangeException();
+					}
+				}
+				this.tickPubSub.publishToOrigin(pingMessage.origin, returnMessage);
 				break;
 			}
 			default: {
@@ -1376,6 +1603,15 @@ ss.initClass($Pather_Servers_TickServer_TickServer, $asm, {
 		}
 	}
 });
+ss.initClass($Pather_Servers_TickServer_TickServerTickManager, $asm, {
+	processLockstep: function(lockstepTickNumber) {
+		if (lockstepTickNumber % 15 === 0) {
+			this.tickPubSub.publishToAllGameSegments(Pather.Common.Models.GameSegment.TickSyncGameSegmentPubSubAllMessage.$ctor(lockstepTickNumber));
+			this.tickPubSub.publishToAllGateways(Pather.Common.Models.Gateway.TickSyncGatewayPubSubAllMessage.$ctor(lockstepTickNumber));
+			this.tickPubSub.publishToGameWorld(Pather.Common.Models.GameWorld.TickSyncGameWorldPubSubMessage.$ctor(lockstepTickNumber));
+		}
+	}
+}, $Pather_Servers_Common_TickManager);
 ss.initClass($Pather_Servers_Utils_ServerHelper, $asm, {});
 ss.setMetadata($Pather_Servers_GameSegmentCluster_Tests_GameSegmentClusterTest, { attr: [new Pather.Common.TestFramework.TestClassAttribute()], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'CreateGameSegment', type: 8, sname: 'createGameSegment', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
 ss.setMetadata($Pather_Servers_GameWorldServer_Tests_GameWorldServerTests, { attr: [new Pather.Common.TestFramework.TestClassAttribute()], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'UserShouldJoin', type: 8, sname: 'userShouldJoin', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });

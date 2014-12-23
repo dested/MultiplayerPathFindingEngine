@@ -6,7 +6,7 @@ using Pather.Common.Models.Game;
 using Pather.Servers.Common;
 using Pather.Servers.Common.SocketManager;
 
-namespace Pather.Servers.GameSegment.OldGameServer
+namespace Pather.Servers.GameSegment.Old
 {
     public class ServerNetworkManager
     {

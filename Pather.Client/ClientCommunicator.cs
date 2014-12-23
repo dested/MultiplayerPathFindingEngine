@@ -17,7 +17,11 @@ namespace Pather.Client
 
             if (Constants.TestServer)
             {
-                Socket = Global.Require<Func<string, SocketIOClient>>("socket.io-client")(url);
+                Socket = Global.Require<Func<string,object, SocketIOClient>>("socket.io-client")(url,
+                    new
+                    {
+                        reconnection = false
+                    });
                 Socket.On("connect", () =>
                 {
                     Global.Console.Log("hi");
@@ -25,7 +29,10 @@ namespace Pather.Client
             }
             else
             {
-                Socket = SocketIOClient.Connect(url);
+                Socket = SocketIOClient.Connect(url, new
+                {
+                    reconnection = false
+                });
             }
         }
 

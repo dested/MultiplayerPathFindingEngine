@@ -1,4 +1,5 @@
 ﻿using System.Serialization;
+using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameSegmentCluster;
 using Pather.Common.Models.GameWorld;
@@ -52,7 +53,7 @@ namespace Pather.Servers.GameSegmentCluster
             var err = fs.OpenSync("./out.log", "a", null);
 
 
-            PushPop.BlockingPop(createGameSegment.GameSegmentId, 10).Then((content) =>
+            PushPop.BlockingPop(createGameSegment.GameSegmentId, Constants.GameSegmentCreationWait).Then((content) =>
             {
                 pubsub.Publish(PubSubChannels.GameWorld, new CreateGameSegmentResponseGameWorldPubSubMessage()
                 {

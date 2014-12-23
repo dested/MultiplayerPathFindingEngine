@@ -79,6 +79,7 @@ namespace Pather.Servers.Common.PubSub
 
         public void Subscribe(string channel, Action<string> callback)
         {
+            Global.Console.Log("Pubsub Subscribed to", channel);
             subClient.Subscribe(channel);
             subbed[channel] = callback;
         }

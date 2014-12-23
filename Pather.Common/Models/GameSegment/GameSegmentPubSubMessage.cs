@@ -7,4 +7,18 @@ namespace Pather.Common.Models.GameSegment
     {
         public GameSegmentPubSubMessageType Type;
     }
+    [Serializable]
+    public class GameSegmentPubSubAllMessage
+    {
+        public GameSegmentPubSubAllMessageType Type;
+    }
+
+    [Serializable]
+    public class PongGameSegmentPubSubMessage : GameSegmentPubSubMessage
+    {
+        public PongGameSegmentPubSubMessage()
+        {
+            Type=GameSegmentPubSubMessageType.Pong;
+        }
+    }
 }

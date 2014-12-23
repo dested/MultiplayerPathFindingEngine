@@ -1,7 +1,7 @@
 ﻿using Pather.Common;
 using Pather.Servers.Common.SocketManager;
 
-namespace Pather.Servers.GameSegment.OldGameServer
+namespace Pather.Servers.GameSegment.Old
 {
     public class ServerEntity : Entity
     {

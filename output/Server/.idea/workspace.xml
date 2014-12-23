@@ -28,17 +28,17 @@
         <entry file="file://$PROJECT_DIR$/app.js">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="221">
-              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Pather.ServerManager.js" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/js/Pather.ServerManager.js">
+      <file leaf-file-name="Pather.Servers.js" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/js/Pather.Servers.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.7070485" vertical-offset="359" max-vertical-offset="22066">
-              <caret line="40" column="0" selection-start-line="40" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.5947136" vertical-offset="13381" max-vertical-offset="26350">
+              <caret line="803" column="31" selection-start-line="803" selection-start-column="31" selection-end-line="803" selection-end-column="31" />
               <folding />
             </state>
           </provider>
@@ -67,8 +67,8 @@
       <file leaf-file-name="mscorlib.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/libs/mscorlib.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="56055" max-vertical-offset="66164">
-              <caret line="3308" column="4" selection-start-line="3308" selection-start-column="4" selection-end-line="3308" selection-end-column="4" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="35031" max-vertical-offset="66164">
+              <caret line="2071" column="0" selection-start-line="2071" selection-start-column="0" selection-end-line="2071" selection-end-column="0" />
               <folding />
             </state>
           </provider>
@@ -77,76 +77,10 @@
       <file leaf-file-name="Pather.Common.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/Pather.Common.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="12948" max-vertical-offset="23001">
-              <caret line="771" column="0" selection-start-line="771" selection-start-column="0" selection-end-line="771" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="13141" max-vertical-offset="25976">
+              <caret line="773" column="0" selection-start-line="773" selection-start-column="0" selection-end-line="773" selection-end-column="0" />
               <folding>
-                <marker date="1419239015090" expanded="true" signature="17009:17146" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="17300:17565" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="36359:36429" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="36442:36463" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="36613:37098" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="37355:39649" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="37310:37927" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="38117:39553" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="38067:38530" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="38329:38373" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="38607:38971" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="38638:38640" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="38773:38818" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="39053:39195" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="39093:39096" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="39106:39157" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="39234:39370" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="39272:39348" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="39404:39543" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="39438:39441" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="39451:39503" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="39566:39594" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="39607:39616" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="39851:39875" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="40115:40218" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="40100:40139" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="40350:40421" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="40330:40418" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="40535:40607" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="40678:41297" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="40642:41265" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="40840:41014" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="40965:41002" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="41126:41152" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="41410:41762" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="41425:41569" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="41488:41533" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="41854:41885" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="42027:42171" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="42032:42143" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="44234:45339" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="44534:44751" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="44976:44981" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="45724:46152" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="45846:46008" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="45905:45937" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="46229:46389" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="46309:46340" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="46479:46510" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="46575:47778" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="46632:46688" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="46730:46773" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="46879:47104" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="47317:47678" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="47386:47488" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="48572:48699" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="48995:49035" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="49090:49095" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="49207:49236" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="49442:50541" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="49791:49888" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="50048:50129" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="50215:50400" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="50227:50297" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="50590:51085" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="50677:50701" placeholder="{...}" />
-                <marker date="1419239015090" expanded="true" signature="50869:50909" placeholder="{...}" />
+                <marker date="1419311660634" expanded="true" signature="68886:70197" placeholder="{...}" />
               </folding>
             </state>
           </provider>
@@ -158,6 +92,7 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/js/Pather.ServerManager.js" />
+        <option value="$PROJECT_DIR$/js/Pather.Servers.js" />
       </list>
     </option>
   </component>
@@ -235,17 +170,22 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="HbShouldOpenHtmlAsHb" value="" />
     <property name="recentsLimit" value="5" />
+    <property name="restartRequiresConfirmation" value="true" />
   </component>
   <component name="RunManager" selected="Node.js.app.js">
-    <configuration default="false" name="app.js" type="NodeJSConfigurationType" factoryName="Node.js" temporary="true" path-to-node="C:/Program Files/nodejs/node" path-to-js-file="app.js" application-parameters="gw" working-dir="$PROJECT_DIR$">
+    <configuration default="false" name="app.js" type="NodeJSConfigurationType" factoryName="Node.js" temporary="true" path-to-node="C:/Program Files/nodejs/node" path-to-js-file="app.js" application-parameters="gs abcdef" working-dir="$PROJECT_DIR$">
       <RunnerSettings RunnerId="debuggableProgram" />
       <ConfigurationWrapper RunnerId="debuggableProgram" />
+      <method />
+    </configuration>
+    <configuration default="true" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application">
       <method />
     </configuration>
     <configuration default="true" type="DartUnitRunConfigurationType" factoryName="DartUnit">
       <method />
     </configuration>
-    <configuration default="true" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application">
+    <configuration default="true" type="JavaScriptTestRunnerKarma" factoryName="Karma" config-file="">
+      <envs />
       <method />
     </configuration>
     <configuration default="true" type="JSTestDriver:ConfigurationType" factoryName="JsTestDriver">
@@ -253,10 +193,6 @@
       <setting name="settingsFile" value="" />
       <setting name="serverType" value="INTERNAL" />
       <setting name="preferredDebugBrowser" value="Chrome" />
-      <method />
-    </configuration>
-    <configuration default="true" type="JavaScriptTestRunnerKarma" factoryName="Karma" config-file="">
-      <envs />
       <method />
     </configuration>
     <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
@@ -272,6 +208,11 @@
       <method />
     </configuration>
     <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
+      <node-options />
+      <gulpfile />
+      <tasks />
+      <pass-parent-envs>true</pass-parent-envs>
+      <envs />
       <method />
     </configuration>
     <list size="1">
@@ -297,24 +238,24 @@
     <frame x="-8" y="-8" width="1936" height="972" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.39976826" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -337,132 +278,26 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/js/Pather.ServerManager.js</url>
-          <line>944</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/js/Pather.ServerManager.js</url>
-          <line>981</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/js/Pather.ServerManager.js</url>
-          <line>895</line>
-          <option name="timeStamp" value="4" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
           <url>file://$USER_HOME$/.WebStorm8/system/extLibs/nodejs-v0.10.28-src/core-modules-sources/lib/events.js</url>
           <line>73</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/js/Pather.ServerManager.js</url>
-          <line>980</line>
-          <option name="timeStamp" value="10" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/js/Pather.ServerManager.js</url>
-          <line>521</line>
-          <option name="timeStamp" value="15" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/js/Pather.ServerManager.js</url>
-          <line>1000</line>
-          <option name="timeStamp" value="16" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="javascript">
-          <url>file://$PROJECT_DIR$/js/Pather.ServerManager.js</url>
-          <line>999</line>
-          <option name="timeStamp" value="17" />
+          <url>file://$PROJECT_DIR$/js/Pather.Servers.js</url>
+          <line>786</line>
+          <option name="timeStamp" value="19" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="18" />
+      <option name="time" value="22" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/app.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="837">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="100">
           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/js/Pather.Common.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="12948" max-vertical-offset="23001">
-          <caret line="771" column="0" selection-start-line="771" selection-start-column="0" selection-end-line="771" selection-end-column="0" />
-          <folding>
-            <marker date="1419239015090" expanded="true" signature="17009:17146" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="17300:17565" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="36359:36429" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="36442:36463" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="36613:37098" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="37355:39649" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="37310:37927" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="38117:39553" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="38067:38530" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="38329:38373" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="38607:38971" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="38638:38640" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="38773:38818" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="39053:39195" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="39093:39096" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="39106:39157" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="39234:39370" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="39272:39348" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="39404:39543" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="39438:39441" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="39451:39503" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="39566:39594" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="39607:39616" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="39851:39875" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="40115:40218" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="40100:40139" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="40350:40421" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="40330:40418" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="40535:40607" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="40678:41297" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="40642:41265" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="40840:41014" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="40965:41002" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="41126:41152" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="41410:41762" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="41425:41569" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="41488:41533" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="41854:41885" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="42027:42171" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="42032:42143" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="44234:45339" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="44534:44751" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="44976:44981" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="45724:46152" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="45846:46008" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="45905:45937" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="46229:46389" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="46309:46340" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="46479:46510" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="46575:47778" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="46632:46688" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="46730:46773" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="46879:47104" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="47317:47678" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="47386:47488" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="48572:48699" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="48995:49035" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="49090:49095" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="49207:49236" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="49442:50541" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="49791:49888" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="50048:50129" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="50215:50400" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="50227:50297" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="50590:51085" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="50677:50701" placeholder="{...}" />
-            <marker date="1419239015090" expanded="true" signature="50869:50909" placeholder="{...}" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -490,10 +325,62 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/js/Pather.ServerManager.js">
+    <entry file="file://$PROJECT_DIR$/js/Pather.Common.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.7070485" vertical-offset="359" max-vertical-offset="22066">
-          <caret line="40" column="0" selection-start-line="40" selection-start-column="0" selection-end-line="41" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="13107" max-vertical-offset="25942">
+          <caret line="771" column="0" selection-start-line="771" selection-start-column="0" selection-end-line="771" selection-end-column="0" />
+          <folding>
+            <marker date="1419311660634" expanded="true" signature="68886:70197" placeholder="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/Pather.Common.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="13141" max-vertical-offset="25976">
+          <caret line="773" column="0" selection-start-line="773" selection-start-column="0" selection-end-line="773" selection-end-column="0" />
+          <folding>
+            <marker date="1419311660634" expanded="true" signature="68886:70197" placeholder="{...}" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$USER_HOME$/.WebStorm8/system/extLibs/nodejs-v0.10.28-src/core-modules-sources/lib/events.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="550" max-vertical-offset="4811">
+          <caret line="78" column="0" selection-start-line="78" selection-start-column="0" selection-end-line="78" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/node_modules/redis/index.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="9084" max-vertical-offset="21930">
+          <caret line="552" column="0" selection-start-line="552" selection-start-column="0" selection-end-line="552" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="221">
+          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/libs/mscorlib.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="35031" max-vertical-offset="66164">
+          <caret line="2071" column="0" selection-start-line="2071" selection-start-column="0" selection-end-line="2071" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/js/Pather.Servers.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5947136" vertical-offset="13381" max-vertical-offset="26350">
+          <caret line="803" column="31" selection-start-line="803" selection-start-column="31" selection-end-line="803" selection-end-column="31" />
           <folding />
         </state>
       </provider>

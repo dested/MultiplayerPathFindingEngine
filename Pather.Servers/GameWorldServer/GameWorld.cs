@@ -101,7 +101,6 @@ namespace Pather.Servers.GameWorldServer
 
 
             deferred.Resolve();
-
             return deferred.Promise;
         }
 
@@ -112,7 +111,7 @@ namespace Pather.Servers.GameWorldServer
 
             var createGameMessage = new CreateGameSegmentGameSegmentClusterPubSubMessage()
             {
-                GameSegmentId = "gamesegment-" + Pather.Common.Common.UniqueId(),
+                GameSegmentId = Pather.Common.Common.UniqueId(),
                 MessageId = Pather.Common.Common.UniqueId()
             };
 

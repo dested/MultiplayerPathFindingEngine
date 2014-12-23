@@ -33,8 +33,7 @@ namespace Pather.Client
                     Window.SetInterval(TriggerPingTest, 1000*60);
                 });
 
-            ClientCommunicator.ListenOnChannel<PlayerSyncModel>(
-                SocketChannels.ServerChannel(SocketChannels.Server.PlayerSync),
+            ClientCommunicator.ListenOnChannel<PlayerSyncModel>(SocketChannels.ServerChannel(SocketChannels.Server.PlayerSync),
                 (model) =>
                 {
                     if (model.JoinedPlayers != null)
@@ -45,8 +44,7 @@ namespace Pather.Client
                 });
 
 
-            ClientCommunicator.ListenOnChannel<PingPongModel>(
-                SocketChannels.ServerChannel(SocketChannels.Server.Pong),
+            ClientCommunicator.ListenOnChannel<PingPongModel>(SocketChannels.ServerChannel(SocketChannels.Server.Pong),
                 (model) =>
                 {
                     var cur = new DateTime().GetTime();
@@ -73,16 +71,14 @@ namespace Pather.Client
                 });
 
 
-            ClientCommunicator.ListenOnChannel<SyncLockstepModel>(
-                SocketChannels.ServerChannel(SocketChannels.Server.SyncLockstep),
+            ClientCommunicator.ListenOnChannel<SyncLockstepModel>(SocketChannels.ServerChannel(SocketChannels.Server.SyncLockstep),
                 (model) =>
                 {
                     OnSetLockStep(model);
                 });
 
 
-            ClientCommunicator.ListenOnChannel<SerializableAction>(
-                SocketChannels.ServerChannel(SocketChannels.Server.PostAction),
+            ClientCommunicator.ListenOnChannel<SerializableAction>(SocketChannels.ServerChannel(SocketChannels.Server.PostAction),
                 (model) =>
                 {
                     ReceiveAction(model);

@@ -1,7 +1,15 @@
+using System.Runtime.CompilerServices;
+
 namespace Pather.Common.Models.GameSegment
 {
+    [NamedValues]
     public enum GameSegmentPubSubMessageType
     {
-        TickSync
+        Pong
+    }
+    [NamedValues]
+    public enum GameSegmentPubSubAllMessageType
+    {
+        TickSync,
     }
 }

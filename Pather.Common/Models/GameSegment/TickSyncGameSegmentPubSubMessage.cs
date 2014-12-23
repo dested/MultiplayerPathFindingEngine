@@ -3,11 +3,11 @@ using System;
 namespace Pather.Common.Models.GameSegment
 {
     [Serializable]
-    public class TickSyncGameSegmentPubSubMessage : GameSegmentPubSubMessage
+    public class TickSyncGameSegmentPubSubAllMessage : GameSegmentPubSubAllMessage
     {
-        public TickSyncGameSegmentPubSubMessage(long lockstepTickNumber)
+        public TickSyncGameSegmentPubSubAllMessage(long lockstepTickNumber)
         {
-            Type = GameSegmentPubSubMessageType.TickSync;
+            Type = GameSegmentPubSubAllMessageType.TickSync;
             LockstepTickNumber = lockstepTickNumber;
         }
 
