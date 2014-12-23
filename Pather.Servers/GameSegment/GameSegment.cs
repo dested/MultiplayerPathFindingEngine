@@ -55,7 +55,7 @@ namespace Pather.Servers.GameSegment
 
         private void SendPing()
         {
-            GameSegmentPubSub.PublishToTickServer(new PingTickPubSubMessage() { Origin = PubSubChannels.GameSegment + GameSegmentId, OriginType = PingTickPubSubMessageOriginType.GameSegment });
+            GameSegmentPubSub.PublishToTickServer(new PingTickPubSubMessage() { Origin = PubSubChannels.GameSegment(GameSegmentId), OriginType = PingTickPubSubMessageOriginType.GameSegment });
         }
 
         private void RegisterGameSegmentWithCluster()

@@ -25,13 +25,13 @@ namespace Pather.Servers.GameSegment
         {
             var deferred = Q.Defer();
 
-            PubSub.Subscribe(PubSubChannels.GameSegment, (message) =>
+            PubSub.Subscribe(PubSubChannels.GameSegment(), (message) =>
             {
                 var gameSegmentPubSubMessage = Json.Parse<GameSegmentPubSubAllMessage>(message);
                 OnAllMessage(gameSegmentPubSubMessage);
             });
 
-            PubSub.Subscribe(PubSubChannels.GameSegment + GameSegmentId, (message) =>
+            PubSub.Subscribe(PubSubChannels.GameSegment(GameSegmentId), (message) =>
             {
                 var gameSegmentPubSubMessage = Json.Parse<GameSegmentPubSubMessage>(message);
                 OnMessage(gameSegmentPubSubMessage);
@@ -42,7 +42,7 @@ namespace Pather.Servers.GameSegment
         }
         public void PublishToTickServer(TickPubSubMessage message)
         {
-            PubSub.Publish(PubSubChannels.Tick, message);
+            PubSub.Publish(PubSubChannels.Tick(), message);
         }
     }
 }

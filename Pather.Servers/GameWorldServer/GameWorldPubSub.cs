@@ -25,7 +25,7 @@ namespace Pather.Servers.GameWorldServer
 
         public void Init()
         {
-            PubSub.Subscribe(PubSubChannels.GameWorld, (message) =>
+            PubSub.Subscribe(PubSubChannels.GameWorld(), (message) =>
             {
                 var gameWorldPubSubMessage = Json.Parse<GameWorldPubSubMessage>(message);
 
@@ -50,21 +50,21 @@ namespace Pather.Servers.GameWorldServer
             });
         }
 
-        public void PublishToGameSegment(GameSegmentClusterPubSubMessage message)
+        public void PublishToGameSegment(string gameSegmentId,GameSegmentClusterPubSubMessage message)
         {
-            PubSub.Publish(PubSubChannels.GameSegmentCluster + 1, message);
+            PubSub.Publish(PubSubChannels.GameSegmentCluster(gameSegmentId), message);
         }
 
         public void PublishToTickServer(TickPubSubMessage message)
         {
-            PubSub.Publish(PubSubChannels.Tick, message);
+            PubSub.Publish(PubSubChannels.Tick(), message);
         }
 
 
-        public Promise<T, UndefinedPromiseError> PublishToGameSegmentWithCallback<T>(IPubSubReqResMessage message)
+        public Promise<T, UndefinedPromiseError> PublishToGameSegmentClusterWithCallback<T>(string gameSegmentClusterId,IPubSubReqResMessage message)
         {
             var deferred = Q.Defer<T, UndefinedPromiseError>();
-            PubSub.Publish(PubSubChannels.GameSegmentCluster + 1, message);
+            PubSub.Publish(PubSubChannels.GameSegmentCluster(gameSegmentClusterId), message);
             deferredMessages.Add(message.MessageId, Script.Reinterpret<Deferred<object, UndefinedPromiseError>>(deferred));
             return deferred.Promise;
         }

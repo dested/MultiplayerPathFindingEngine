@@ -71,7 +71,7 @@ namespace Pather.Servers.GatewayServer.Tests
 
             Mocker.StubMethodCall<string, UserJoinedGameWorldPubSubMessage>(pubSub.Publish, ((channel, data) =>
             {
-                if (channel == PubSubChannels.GameWorld)
+                if (channel == PubSubChannels.GameWorld())
                 {
                     sendMessageToGameWorld(data);
                 }

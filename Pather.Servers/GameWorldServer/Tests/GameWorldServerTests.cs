@@ -42,7 +42,7 @@ namespace Pather.Servers.GameWorldServer.Tests
 
             Mocker.StubMethodCall<string, Action<string>>(pubSubTest.Subscribe, ((channel, callback) =>
             {
-                DeferredAssert.That(testDeferred, channel).Does.Equal(PubSubChannels.GameWorld);
+                DeferredAssert.That(testDeferred, channel).Does.Equal(PubSubChannels.GameWorld());
                 var userJoinedGameWorldPubSubMessage = new UserJoinedGameWorldPubSubMessage();
                 userJoinedGameWorldPubSubMessage.Type = GameWorldPubSubMessageType.UserJoined;
                 userJoinedGameWorldPubSubMessage.UserToken = "abcd";

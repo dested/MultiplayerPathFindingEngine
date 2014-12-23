@@ -27,13 +27,13 @@ namespace Pather.Servers.GatewayServer
 
         public void Init()
         {
-            PubSub.Subscribe(PubSubChannels.Gateway, (message) =>
+            PubSub.Subscribe(PubSubChannels.Gateway(), (message) =>
             {
                 var gameWorldPubSubAllMessage = Json.Parse<GatewayPubSubAllMessage>(message);
                 OnAllMessage(gameWorldPubSubAllMessage);
             });
-            
-            PubSub.Subscribe(PubSubChannels.Gateway + GatewayId, (message) =>
+
+            PubSub.Subscribe(PubSubChannels.Gateway(GatewayId), (message) =>
             {
                 var gameWorldPubSubMessage = Json.Parse<GatewayPubSubMessage>(message);
                 OnMessage(gameWorldPubSubMessage);
@@ -44,12 +44,12 @@ namespace Pather.Servers.GatewayServer
 
         public void PublishToTickServer(TickPubSubMessage message)
         {
-            PubSub.Publish(PubSubChannels.Tick, message);
+            PubSub.Publish(PubSubChannels.Tick(), message);
         }
 
         public void PublishToGameWorld(GameWorldPubSubMessage message)
         {
-            PubSub.Publish(PubSubChannels.GameWorld, message);
+            PubSub.Publish(PubSubChannels.GameWorld(), message);
         }
     }
 }

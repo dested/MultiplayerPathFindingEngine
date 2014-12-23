@@ -24,7 +24,7 @@ namespace Pather.Servers.TickServer
         {
             var deferred = Q.Defer();
 
-            PubSub.Subscribe(PubSubChannels.Tick, (message) =>
+            PubSub.Subscribe(PubSubChannels.Tick(), (message) =>
             {
                 var tickPubSubMessage = Json.Parse<TickPubSubMessage>(message);
                 OnMessage(tickPubSubMessage);
@@ -37,20 +37,20 @@ namespace Pather.Servers.TickServer
         public void PublishToAllGameSegments(GameSegmentPubSubAllMessage message)
         {
             //todo test if its faster for redis to have one "tick" subscription for all relevent clients or not
-            PubSub.Publish(PubSubChannels.GameSegment, message);
+            PubSub.Publish(PubSubChannels.GameSegment(), message);
         }
 
 
         public void PublishToAllGateways(GatewayPubSubAllMessage message)
         {
             //todo test if its faster for redis to have one "tick" subscription for all relevent clients or not
-            PubSub.Publish(PubSubChannels.Gateway, message);
+            PubSub.Publish(PubSubChannels.Gateway(), message);
         }
 
         public void PublishToGameWorld(GameWorldPubSubMessage message)
         {
             //todo test if its faster for redis to have one "tick" subscription for all relevent clients or not
-            PubSub.Publish(PubSubChannels.GameWorld, message);
+            PubSub.Publish(PubSubChannels.GameWorld(), message);
         }
 
         public void PublishToOrigin(string origin, object message)

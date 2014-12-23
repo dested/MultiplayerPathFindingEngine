@@ -19,6 +19,8 @@ namespace Pather.Servers.TickServer
 
         public override void ProcessLockstep(long lockstepTickNumber)
         {
+            base.ProcessLockstep(lockstepTickNumber);
+
             if (lockstepTickNumber % 15 == 0)
             {
                 TickPubSub.PublishToAllGameSegments(new TickSyncGameSegmentPubSubAllMessage(lockstepTickNumber));

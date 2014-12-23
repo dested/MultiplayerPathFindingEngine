@@ -10,38 +10,43 @@ namespace Pather.Servers.Common
         public TickManager()
         {
         }
-        
-        public long CurLockstepTime;
+
         public long LockstepTickNumber;
-        public void Init(long currentLockstepTickNumber)
+
+        private long CurrentLockstepTime;
+        private long CurrentServerLatency;
+        public virtual void Init(long currentLockstepTickNumber)
         {
             LockstepTickNumber = currentLockstepTickNumber;
 
-            CurLockstepTime = new DateTime().GetTime();
+            CurrentLockstepTime = new DateTime().GetTime();
             Global.SetTimeout(tick, 1);
         }
 
         public virtual void SetLockStepTick(long lockStepTickNumber)
         {
             LockstepTickNumber = lockStepTickNumber;
+            CurrentLockstepTime = new DateTime().GetTime() - CurrentServerLatency;
+
             //todo resolve if current > or < lockstep
         }
         public virtual void SetServerLatency(long latency)
         {
-            CurLockstepTime = new DateTime().GetTime() - latency;
+            CurrentServerLatency = latency;
         }
+
 
         private void tick()
         {
             Global.SetTimeout(tick, 1);
 
             var vc = new DateTime().GetTime();
-            var l = (vc - CurLockstepTime);
+            var l = (vc - CurrentLockstepTime);
 
             while (l > Constants.LockstepTicks)
             {
                 l -= Constants.LockstepTicks;
-                CurLockstepTime += Constants.LockstepTicks;
+                CurrentLockstepTime += Constants.LockstepTicks;
                 LockstepTickNumber++;
                 ProcessLockstep(LockstepTickNumber);
             }

@@ -14,6 +14,7 @@ namespace Pather.Servers.GameWorldServer
         public GameWorldPubSub GameWorldPubSub;
         public List<GameWorldUser> Users;
         public List<GameSegment> GameSegments;
+        private string gameSegmentClusterId="TODO:DEFAULTGAMESEGMENT";
 
         public GameWorld(GameWorldPubSub gameWorldPubSub)
         {
@@ -115,7 +116,7 @@ namespace Pather.Servers.GameWorldServer
                 MessageId = Pather.Common.Common.UniqueId()
             };
 
-            GameWorldPubSub.PublishToGameSegmentWithCallback<CreateGameSegmentResponseGameWorldPubSubMessage>(createGameMessage)
+            GameWorldPubSub.PublishToGameSegmentClusterWithCallback<CreateGameSegmentResponseGameWorldPubSubMessage>(gameSegmentClusterId,createGameMessage)
                 .Then((createGameMessageResponse) =>
                 {
                     var gs = new GameSegment();

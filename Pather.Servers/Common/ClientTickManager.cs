@@ -11,11 +11,11 @@ namespace Pather.Servers.Common
         {
         }
 
-        public void Init(Action sendPing, Action tickManagerReady)
+        public void Init(Action sendPing, Action onTickManagerReady)
         {
             this.sendPing = sendPing;
-            this.tickManagerReady = tickManagerReady;
-            Global.SetTimeout(StartPing, Constants.LatencyPingInterval);
+            this.onTickManagerReady = onTickManagerReady;
+            Global.SetInterval(StartPing, Constants.LatencyPingInterval);
         }
 
         public void StartPing()
@@ -29,7 +29,7 @@ namespace Pather.Servers.Common
         private List<long> pingSent;
 
         private Action sendPing;
-        private Action tickManagerReady;
+        private Action onTickManagerReady;
 
         public void OnPongReceived()
         {
@@ -68,7 +68,7 @@ namespace Pather.Servers.Common
             if (hasLatency && hasLockstep && !tickManagerInitialized)
             {
                 tickManagerInitialized = true;
-                tickManagerReady();
+                TickManagerReady();
             }
         }
 
@@ -80,9 +80,15 @@ namespace Pather.Servers.Common
             if (hasLatency && hasLockstep && !tickManagerInitialized)
             {
                 tickManagerInitialized = true;
-                tickManagerReady();
+                TickManagerReady();
             }
 
+        }
+
+        private void TickManagerReady()
+        {
+            Init(LockstepTickNumber);
+            onTickManagerReady();
         }
     }
 }

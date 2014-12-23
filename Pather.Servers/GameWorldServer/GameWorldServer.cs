@@ -42,7 +42,7 @@ namespace Pather.Servers.GameWorldServer
 
         private void SendPing()
         {
-            gameSegmentClusterPubSub.PublishToTickServer(new PingTickPubSubMessage() { Origin = PubSubChannels.GameWorld, OriginType = PingTickPubSubMessageOriginType.GameWorld });
+            gameSegmentClusterPubSub.PublishToTickServer(new PingTickPubSubMessage() { Origin = PubSubChannels.GameWorld(), OriginType = PingTickPubSubMessageOriginType.GameWorld });
         }
 
 
@@ -53,7 +53,7 @@ namespace Pather.Servers.GameWorldServer
                 case GameWorldPubSubMessageType.UserJoined:
                     UserJoined((UserJoinedGameWorldPubSubMessage)message).Then(gwUser =>
                     {
-                        gameSegmentClusterPubSub.PublishToGatewayServer(PubSubChannels.Gateway+ gwUser.GatewayServer, new UserJoinedGatewayPubSubMessage()
+                        gameSegmentClusterPubSub.PublishToGatewayServer(PubSubChannels.Gateway(gwUser.GatewayServer), new UserJoinedGatewayPubSubMessage()
                         {
                             GameSegmentId = gwUser.GameSegment.GameSegmentId,
                             UserId = gwUser.UserId,

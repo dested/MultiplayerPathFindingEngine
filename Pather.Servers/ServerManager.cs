@@ -52,7 +52,7 @@ namespace Pather.Servers
                         break;
                     case "gsc":
                     case "GameSegmentCluster":
-                        new GameSegmentCluster.GameSegmentCluster(new PubSub(), new PushPop());
+                        new GameSegmentCluster.GameSegmentCluster(new PubSub(), new PushPop(), "TODO:DEFAULTGAMESEGMENT");
                         break;
                     case "gs":
                     case "game":

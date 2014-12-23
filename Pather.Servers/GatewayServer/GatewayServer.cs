@@ -48,7 +48,7 @@ namespace Pather.Servers.GatewayServer
 
         private void SendPing()
         {
-            GatewayPubSub.PublishToTickServer(new PingTickPubSubMessage() { Origin = PubSubChannels.Gateway + GatewayId, OriginType = PingTickPubSubMessageOriginType.GameWorld });
+            GatewayPubSub.PublishToTickServer(new PingTickPubSubMessage() { Origin = PubSubChannels.Gateway(GatewayId), OriginType = PingTickPubSubMessageOriginType.GameWorld });
         }
 
         private void OnAllMessage(GatewayPubSubAllMessage message)

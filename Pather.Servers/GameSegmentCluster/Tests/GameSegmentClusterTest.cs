@@ -18,6 +18,8 @@ namespace Pather.Servers.GameSegmentCluster.Tests
         [TestMethod]
         public void CreateGameSegment(Deferred testDeferred)
         {
+            var gameSegmentId = Pather.Common.Common.UniqueId();
+
             var pubSub = new StubPubSub();
             var pushPop = new PushPop();
 
@@ -28,9 +30,9 @@ namespace Pather.Servers.GameSegmentCluster.Tests
             {
             });
 
-            var gts = new GameSegmentCluster(pubSub, pushPop);
+            var gts = new GameSegmentCluster(pubSub, pushPop, gameSegmentId);
 
-            pubSub.ReceivedMessage(PubSubChannels.GameSegmentCluster + 0, Json.Stringify(new CreateGameSegmentGameSegmentClusterPubSubMessage()
+            pubSub.ReceivedMessage(PubSubChannels.GameSegmentCluster(gameSegmentId), Json.Stringify(new CreateGameSegmentGameSegmentClusterPubSubMessage()
             {
                 Type = GameSegmentClusterPubSubMessageType.CreateGameSegment
             }));
