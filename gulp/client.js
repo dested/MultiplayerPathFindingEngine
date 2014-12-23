@@ -95,10 +95,20 @@ gulp.task('client.express', function () {
     var app = express();
     app.set('port', 4000);
     app.use(express.static('output/Client'));
-
-
-
     http.createServer(app).listen(app.get('port'), function () {
-        console.log('Express server listening on port ' + app.get('port'));
+        console.log('Client Server listening on port ' + app.get('port'));
     });
+
+
+
+
+    var app2 = express();
+    app2.set('port', 5000);
+    app2.use(express.static('output/Monitor'));
+    http.createServer(app2).listen(app2.get('port'), function () {
+        console.log('Monitor Server listening on port ' + app2.get('port'));
+    });
+
+
+
 });

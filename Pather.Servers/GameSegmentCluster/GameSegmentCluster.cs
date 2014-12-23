@@ -6,19 +6,21 @@ using Pather.Common.Models.GameWorld;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common.PubSub;
 using Pather.Servers.Common.PushPop;
+using Pather.Servers.Common.ServerLogger;
 
 namespace Pather.Servers.GameSegmentCluster
 {
     public class GameSegmentCluster
     {
         public IPushPop PushPop { get; set; }
-        public string GameSegmentId { get; set; }
+        public string GameSegmentClusterId { get; set; }
         private readonly IPubSub pubsub;
 
-        public GameSegmentCluster(IPubSub pubsub, IPushPop pushPop, string gameSegmentId)
+        public GameSegmentCluster(IPubSub pubsub, IPushPop pushPop, string gameSegmentClusterId)
         {
+            ServerLogger.InitLogger("GameSegmentCluster", gameSegmentClusterId);
             PushPop = pushPop;
-            GameSegmentId = gameSegmentId;
+            GameSegmentClusterId = gameSegmentClusterId;
             this.pubsub = pubsub;
 
             Q.All(pubsub.Init(), pushPop.Init()).Then(pubsubsConnected);
@@ -26,7 +28,7 @@ namespace Pather.Servers.GameSegmentCluster
 
         private void pubsubsConnected()
         {
-            pubsub.Subscribe(PubSubChannels.GameSegmentCluster(GameSegmentId), receiveMessage);
+            pubsub.Subscribe(PubSubChannels.GameSegmentCluster(GameSegmentClusterId), receiveMessage);
         }
 
         private void receiveMessage(string message)

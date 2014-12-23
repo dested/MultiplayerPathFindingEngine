@@ -4,6 +4,7 @@ using Pather.Common.Models.GameWorld;
 using Pather.Common.Models.Gateway;
 using Pather.Common.Models.Tick;
 using Pather.Servers.Common.PubSub;
+using Pather.Servers.Common.ServerLogger;
 
 namespace Pather.Servers.TickServer
 {
@@ -15,6 +16,7 @@ namespace Pather.Servers.TickServer
 
         public TickServer(IPubSub pubSub)
         {
+            ServerLogger.InitLogger("Tick", "Tick");
             PubSub = pubSub;
 
             pubSub.Init().Then(() =>
@@ -29,6 +31,7 @@ namespace Pather.Servers.TickServer
             TickManager = new TickServerTickManager(TickPubSub);
             TickManager.Init(0);
 
+            ServerLogger.LogInformation("Tick Server Ready.");
             TickPubSub.OnMessage += pubSubMessage;
         }
 
@@ -37,6 +40,7 @@ namespace Pather.Servers.TickServer
             switch (message.Type)
             {
                 case Tick_PubSub_MessageType.Ping:
+                    ServerLogger.LogInformation("Received Ping",message);
 
                     var pingMessage = (Ping_Tick_PubSub_Message) message;
 

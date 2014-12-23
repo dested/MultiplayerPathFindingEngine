@@ -8,6 +8,7 @@ using Pather.Common.Utils.Promises;
 using Pather.Servers.Common;
 using Pather.Servers.Common.PubSub;
 using Pather.Servers.Common.PushPop;
+using Pather.Servers.Common.ServerLogger;
 using Pather.Servers.Common.SocketManager;
 
 namespace Pather.Servers.GameSegment
@@ -23,6 +24,7 @@ namespace Pather.Servers.GameSegment
 
         public GameSegment(ISocketManager socketManager, IPubSub pubsub, IPushPop pushPop, string gameSegmentId)
         {
+            ServerLogger.InitLogger("GameSegment", gameSegmentId);
             SocketManager = socketManager;
             Pubsub = pubsub;
             PushPop = pushPop;

@@ -40,6 +40,7 @@
     <Compile Include="Common\PubSub\PubSubChannels.cs" />
     <Compile Include="Common\PushPop\IPushPop.cs" />
     <Compile Include="Common\PushPop\PushPop.cs" />
+    <Compile Include="Common\ServerLogger\ServerLogger.cs" />
     <Compile Include="Common\SocketManager\SocketIOManager.cs" />
     <Compile Include="Common\SocketManager\ISocket.cs" />
     <Compile Include="Common\SocketManager\ISocketManager.cs" />
@@ -66,6 +67,7 @@
     <Compile Include="GameWorldServer\UserJoinError.cs" />
     <Compile Include="GameWorldServer\Tests\GameWorldServerTests.cs" />
     <Compile Include="GameSegmentCluster\GameSegmentCluster.cs" />
+    <Compile Include="MonitorServer\MonitorServer.cs" />
     <Compile Include="TickServer\TickServerTickManager.cs" />
     <Compile Include="TickServer\TickPubSub.cs" />
     <Compile Include="TickServer\TickServer.cs" />

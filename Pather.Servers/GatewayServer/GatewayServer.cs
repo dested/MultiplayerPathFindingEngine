@@ -6,6 +6,7 @@ using Pather.Common.Models.Gateway;
 using Pather.Common.Models.Tick;
 using Pather.Servers.Common;
 using Pather.Servers.Common.PubSub;
+using Pather.Servers.Common.ServerLogger;
 using Pather.Servers.Common.SocketManager;
 
 namespace Pather.Servers.GatewayServer
@@ -18,9 +19,11 @@ namespace Pather.Servers.GatewayServer
         public ClientTickManager ClientTickManager;
 
 
-        public GatewayServer(IPubSub pubsub, ISocketManager socketManager)
+        public GatewayServer(IPubSub pubsub, ISocketManager socketManager,string gatewayId)
         {
-            GatewayId = Pather.Common.Common.UniqueId();
+            GatewayId = gatewayId;
+            ServerLogger.InitLogger("Gateway", GatewayId); 
+
             Global.Console.Log(GatewayId);
 
             var port = 1800 + Math.Truncate((Math.Random()*4000d));

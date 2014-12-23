@@ -6,6 +6,7 @@ using Pather.Common.Models.Tick;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common;
 using Pather.Servers.Common.PubSub;
+using Pather.Servers.Common.ServerLogger;
 using Pather.Servers.Database;
 
 namespace Pather.Servers.GameWorldServer
@@ -20,6 +21,7 @@ namespace Pather.Servers.GameWorldServer
 
         public GameWorldServer(IPubSub pubSub, IDatabaseQueries dbQueries)
         {
+            ServerLogger.InitLogger("GameWorld", "GameWorld");
             this.pubSub = pubSub;
             DatabaseQueries = dbQueries;
             pubSub.Init().Then(pubsubReady);

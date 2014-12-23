@@ -89,7 +89,7 @@ namespace Pather.Servers.GatewayServer.Tests
                     testDeferred.Resolve();
                 }
             });
-            var gts = new GatewayServer(pubSub, socketManager);
+            var gts = new GatewayServer(pubSub, socketManager,"gatewayServer1");
             gatewayName = gts.GatewayId;
 
 

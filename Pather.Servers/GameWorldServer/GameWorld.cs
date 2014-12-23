@@ -14,7 +14,7 @@ namespace Pather.Servers.GameWorldServer
         public GameWorldPubSub GameWorldPubSub;
         public List<GameWorldUser> Users;
         public List<GameSegment> GameSegments;
-        private string gameSegmentClusterId = "TODO:DEFAULTGAMESEGMENT";
+        private string gameSegmentClusterId = "TODO:DEFAULTGAMESEGMENTCLUSTER";
 
         public GameWorld(GameWorldPubSub gameWorldPubSub)
         {

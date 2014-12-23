@@ -44,15 +44,19 @@ namespace Pather.Servers
                 {
                     case "gt":
                     case "gateway":
-                        new GatewayServer.GatewayServer(new PubSub(), new SocketIOManager());
+                        new GatewayServer.GatewayServer(new PubSub(), new SocketIOManager(), "TODO:DEFAULTGATEWAY");
                         break;
                     case "au":
                     case "auth":
                         new AuthServer.AuthServer();
                         break;
+                    case "m":
+                    case "monitor":
+                        new MonitorServer.MonitorServer();
+                        break;
                     case "gsc":
                     case "GameSegmentCluster":
-                        new GameSegmentCluster.GameSegmentCluster(new PubSub(), new PushPop(), "TODO:DEFAULTGAMESEGMENT");
+                        new GameSegmentCluster.GameSegmentCluster(new PubSub(), new PushPop(), "TODO:DEFAULTGAMESEGMENTCLUSTER");
                         break;
                     case "gs":
                     case "game":

@@ -5,6 +5,7 @@
         private static string tick = "Tick";
         private static string gameWorld = "GameWorld";
         private static string gameSegmentCluster = "GameSegmentCluster";
+        private static string serverLogger = "ServerLogger";
         private static string gameSegment = "GameSegment";
         private static string gateway = "Gateway";
 
@@ -47,6 +48,11 @@
         public static string Gateway()
         {
             return gateway;
+        }
+
+        public static string ServerLogger(string serverType)
+        {
+            return serverLogger + serverType;
         }
     }
 }
