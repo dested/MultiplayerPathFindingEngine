@@ -5,9 +5,11 @@
 	global.Pather.Common = global.Pather.Common || {};
 	global.Pather.Common.Models = global.Pather.Common.Models || {};
 	global.Pather.Common.Models.Game = global.Pather.Common.Models.Game || {};
+	global.Pather.Common.Models.GameSegment = global.Pather.Common.Models.GameSegment || {};
 	global.Pather.Common.Models.GameSegmentCluster = global.Pather.Common.Models.GameSegmentCluster || {};
 	global.Pather.Common.Models.GameWorld = global.Pather.Common.Models.GameWorld || {};
 	global.Pather.Common.Models.Gateway = global.Pather.Common.Models.Gateway || {};
+	global.Pather.Common.Models.Tick = global.Pather.Common.Models.Tick || {};
 	global.Pather.Common.TestFramework = global.Pather.Common.TestFramework || {};
 	global.Pather.Common.Utils = global.Pather.Common.Utils || {};
 	global.Pather.Common.Utils.Promises = global.Pather.Common.Utils.Promises || {};
@@ -362,27 +364,54 @@
 	};
 	global.Pather.Common.Models.Game.SyncLockstepModel = $Pather_Common_Models_Game_SyncLockstepModel;
 	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.Models.GameSegmentCluster.CreateGameServerGameSegmentClusterPubSubMessage
-	var $Pather_Common_Models_GameSegmentCluster_CreateGameServerGameSegmentClusterPubSubMessage = function() {
+	// Pather.Common.Models.GameSegment.GameSegmentPubSubMessage
+	var $Pather_Common_Models_GameSegment_GameSegmentPubSubMessage = function() {
 	};
-	$Pather_Common_Models_GameSegmentCluster_CreateGameServerGameSegmentClusterPubSubMessage.__typeName = 'Pather.Common.Models.GameSegmentCluster.CreateGameServerGameSegmentClusterPubSubMessage';
-	$Pather_Common_Models_GameSegmentCluster_CreateGameServerGameSegmentClusterPubSubMessage.createInstance = function() {
-		return $Pather_Common_Models_GameSegmentCluster_CreateGameServerGameSegmentClusterPubSubMessage.$ctor();
+	$Pather_Common_Models_GameSegment_GameSegmentPubSubMessage.__typeName = 'Pather.Common.Models.GameSegment.GameSegmentPubSubMessage';
+	$Pather_Common_Models_GameSegment_GameSegmentPubSubMessage.createInstance = function() {
+		return $Pather_Common_Models_GameSegment_GameSegmentPubSubMessage.$ctor();
 	};
-	$Pather_Common_Models_GameSegmentCluster_CreateGameServerGameSegmentClusterPubSubMessage.$ctor = function() {
+	$Pather_Common_Models_GameSegment_GameSegmentPubSubMessage.$ctor = function() {
+		var $this = {};
+		$this.type = 0;
+		return $this;
+	};
+	global.Pather.Common.Models.GameSegment.GameSegmentPubSubMessage = $Pather_Common_Models_GameSegment_GameSegmentPubSubMessage;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.GameSegment.GameSegmentPubSubMessageType
+	var $Pather_Common_Models_GameSegment_GameSegmentPubSubMessageType = function() {
+	};
+	$Pather_Common_Models_GameSegment_GameSegmentPubSubMessageType.__typeName = 'Pather.Common.Models.GameSegment.GameSegmentPubSubMessageType';
+	global.Pather.Common.Models.GameSegment.GameSegmentPubSubMessageType = $Pather_Common_Models_GameSegment_GameSegmentPubSubMessageType;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.GameSegment.TickSyncGameSegmentPubSubMessage
+	var $Pather_Common_Models_GameSegment_TickSyncGameSegmentPubSubMessage = function() {
+	};
+	$Pather_Common_Models_GameSegment_TickSyncGameSegmentPubSubMessage.__typeName = 'Pather.Common.Models.GameSegment.TickSyncGameSegmentPubSubMessage';
+	$Pather_Common_Models_GameSegment_TickSyncGameSegmentPubSubMessage.$ctor = function(lockstepTickNumber) {
+		var $this = $Pather_Common_Models_GameSegment_GameSegmentPubSubMessage.$ctor();
+		$this.lockstepTickNumber = 0;
+		$this.type = 0;
+		$this.lockstepTickNumber = lockstepTickNumber;
+		return $this;
+	};
+	global.Pather.Common.Models.GameSegment.TickSyncGameSegmentPubSubMessage = $Pather_Common_Models_GameSegment_TickSyncGameSegmentPubSubMessage;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.GameSegmentCluster.CreateGameSegmentGameSegmentClusterPubSubMessage
+	var $Pather_Common_Models_GameSegmentCluster_CreateGameSegmentGameSegmentClusterPubSubMessage = function() {
+	};
+	$Pather_Common_Models_GameSegmentCluster_CreateGameSegmentGameSegmentClusterPubSubMessage.__typeName = 'Pather.Common.Models.GameSegmentCluster.CreateGameSegmentGameSegmentClusterPubSubMessage';
+	$Pather_Common_Models_GameSegmentCluster_CreateGameSegmentGameSegmentClusterPubSubMessage.createInstance = function() {
+		return $Pather_Common_Models_GameSegmentCluster_CreateGameSegmentGameSegmentClusterPubSubMessage.$ctor();
+	};
+	$Pather_Common_Models_GameSegmentCluster_CreateGameSegmentGameSegmentClusterPubSubMessage.$ctor = function() {
 		var $this = $Pather_Common_Models_GameSegmentCluster_GameSegmentClusterPubSubMessage.$ctor();
 		$this.gameSegmentId = null;
 		$this.messageId = null;
 		$this.type = 0;
 		return $this;
 	};
-	global.Pather.Common.Models.GameSegmentCluster.CreateGameServerGameSegmentClusterPubSubMessage = $Pather_Common_Models_GameSegmentCluster_CreateGameServerGameSegmentClusterPubSubMessage;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.Models.GameSegmentCluster.GameSegmentClusterMessageType
-	var $Pather_Common_Models_GameSegmentCluster_GameSegmentClusterMessageType = function() {
-	};
-	$Pather_Common_Models_GameSegmentCluster_GameSegmentClusterMessageType.__typeName = 'Pather.Common.Models.GameSegmentCluster.GameSegmentClusterMessageType';
-	global.Pather.Common.Models.GameSegmentCluster.GameSegmentClusterMessageType = $Pather_Common_Models_GameSegmentCluster_GameSegmentClusterMessageType;
+	global.Pather.Common.Models.GameSegmentCluster.CreateGameSegmentGameSegmentClusterPubSubMessage = $Pather_Common_Models_GameSegmentCluster_CreateGameSegmentGameSegmentClusterPubSubMessage;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.GameSegmentCluster.GameSegmentClusterPubSubMessage
 	var $Pather_Common_Models_GameSegmentCluster_GameSegmentClusterPubSubMessage = function() {
@@ -398,33 +427,33 @@
 	};
 	global.Pather.Common.Models.GameSegmentCluster.GameSegmentClusterPubSubMessage = $Pather_Common_Models_GameSegmentCluster_GameSegmentClusterPubSubMessage;
 	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.GameSegmentCluster.GameSegmentClusterPubSubMessageType
+	var $Pather_Common_Models_GameSegmentCluster_GameSegmentClusterPubSubMessageType = function() {
+	};
+	$Pather_Common_Models_GameSegmentCluster_GameSegmentClusterPubSubMessageType.__typeName = 'Pather.Common.Models.GameSegmentCluster.GameSegmentClusterPubSubMessageType';
+	global.Pather.Common.Models.GameSegmentCluster.GameSegmentClusterPubSubMessageType = $Pather_Common_Models_GameSegmentCluster_GameSegmentClusterPubSubMessageType;
+	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.GameSegmentCluster.IPubSubReqResMessage
 	var $Pather_Common_Models_GameSegmentCluster_IPubSubReqResMessage = function() {
 	};
 	$Pather_Common_Models_GameSegmentCluster_IPubSubReqResMessage.__typeName = 'Pather.Common.Models.GameSegmentCluster.IPubSubReqResMessage';
 	global.Pather.Common.Models.GameSegmentCluster.IPubSubReqResMessage = $Pather_Common_Models_GameSegmentCluster_IPubSubReqResMessage;
 	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.Models.GameWorld.CreateGameServerResponseGameWorldPubSubMessage
-	var $Pather_Common_Models_GameWorld_CreateGameServerResponseGameWorldPubSubMessage = function() {
+	// Pather.Common.Models.GameWorld.CreateGameSegmentResponseGameWorldPubSubMessage
+	var $Pather_Common_Models_GameWorld_CreateGameSegmentResponseGameWorldPubSubMessage = function() {
 	};
-	$Pather_Common_Models_GameWorld_CreateGameServerResponseGameWorldPubSubMessage.__typeName = 'Pather.Common.Models.GameWorld.CreateGameServerResponseGameWorldPubSubMessage';
-	$Pather_Common_Models_GameWorld_CreateGameServerResponseGameWorldPubSubMessage.createInstance = function() {
-		return $Pather_Common_Models_GameWorld_CreateGameServerResponseGameWorldPubSubMessage.$ctor();
+	$Pather_Common_Models_GameWorld_CreateGameSegmentResponseGameWorldPubSubMessage.__typeName = 'Pather.Common.Models.GameWorld.CreateGameSegmentResponseGameWorldPubSubMessage';
+	$Pather_Common_Models_GameWorld_CreateGameSegmentResponseGameWorldPubSubMessage.createInstance = function() {
+		return $Pather_Common_Models_GameWorld_CreateGameSegmentResponseGameWorldPubSubMessage.$ctor();
 	};
-	$Pather_Common_Models_GameWorld_CreateGameServerResponseGameWorldPubSubMessage.$ctor = function() {
+	$Pather_Common_Models_GameWorld_CreateGameSegmentResponseGameWorldPubSubMessage.$ctor = function() {
 		var $this = $Pather_Common_Models_GameWorld_GameWorldPubSubMessage.$ctor();
 		$this.gameSegmentId = null;
 		$this.messageId = null;
 		$this.type = 1;
 		return $this;
 	};
-	global.Pather.Common.Models.GameWorld.CreateGameServerResponseGameWorldPubSubMessage = $Pather_Common_Models_GameWorld_CreateGameServerResponseGameWorldPubSubMessage;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.Models.GameWorld.GameWorldMessageType
-	var $Pather_Common_Models_GameWorld_GameWorldMessageType = function() {
-	};
-	$Pather_Common_Models_GameWorld_GameWorldMessageType.__typeName = 'Pather.Common.Models.GameWorld.GameWorldMessageType';
-	global.Pather.Common.Models.GameWorld.GameWorldMessageType = $Pather_Common_Models_GameWorld_GameWorldMessageType;
+	global.Pather.Common.Models.GameWorld.CreateGameSegmentResponseGameWorldPubSubMessage = $Pather_Common_Models_GameWorld_CreateGameSegmentResponseGameWorldPubSubMessage;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.GameWorld.GameWorldPubSubMessage
 	var $Pather_Common_Models_GameWorld_GameWorldPubSubMessage = function() {
@@ -439,6 +468,25 @@
 		return $this;
 	};
 	global.Pather.Common.Models.GameWorld.GameWorldPubSubMessage = $Pather_Common_Models_GameWorld_GameWorldPubSubMessage;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.GameWorld.GameWorldPubSubMessageType
+	var $Pather_Common_Models_GameWorld_GameWorldPubSubMessageType = function() {
+	};
+	$Pather_Common_Models_GameWorld_GameWorldPubSubMessageType.__typeName = 'Pather.Common.Models.GameWorld.GameWorldPubSubMessageType';
+	global.Pather.Common.Models.GameWorld.GameWorldPubSubMessageType = $Pather_Common_Models_GameWorld_GameWorldPubSubMessageType;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.GameWorld.TickSyncGameWorldPubSubMessage
+	var $Pather_Common_Models_GameWorld_TickSyncGameWorldPubSubMessage = function() {
+	};
+	$Pather_Common_Models_GameWorld_TickSyncGameWorldPubSubMessage.__typeName = 'Pather.Common.Models.GameWorld.TickSyncGameWorldPubSubMessage';
+	$Pather_Common_Models_GameWorld_TickSyncGameWorldPubSubMessage.$ctor = function(lockstepTickNumber) {
+		var $this = $Pather_Common_Models_GameWorld_GameWorldPubSubMessage.$ctor();
+		$this.lockstepTickNumber = 0;
+		$this.type = 2;
+		$this.lockstepTickNumber = lockstepTickNumber;
+		return $this;
+	};
+	global.Pather.Common.Models.GameWorld.TickSyncGameWorldPubSubMessage = $Pather_Common_Models_GameWorld_TickSyncGameWorldPubSubMessage;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.GameWorld.UserJoinedGameWorldPubSubMessage
 	var $Pather_Common_Models_GameWorld_UserJoinedGameWorldPubSubMessage = function() {
@@ -469,12 +517,6 @@
 	};
 	global.Pather.Common.Models.Gateway.GatewayJoinModel = $Pather_Common_Models_Gateway_GatewayJoinModel;
 	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.Models.Gateway.GatewayMessageType
-	var $Pather_Common_Models_Gateway_GatewayMessageType = function() {
-	};
-	$Pather_Common_Models_Gateway_GatewayMessageType.__typeName = 'Pather.Common.Models.Gateway.GatewayMessageType';
-	global.Pather.Common.Models.Gateway.GatewayMessageType = $Pather_Common_Models_Gateway_GatewayMessageType;
-	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.Gateway.GatewayPubSubMessage
 	var $Pather_Common_Models_Gateway_GatewayPubSubMessage = function() {
 	};
@@ -488,6 +530,12 @@
 		return $this;
 	};
 	global.Pather.Common.Models.Gateway.GatewayPubSubMessage = $Pather_Common_Models_Gateway_GatewayPubSubMessage;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.Gateway.GatewayPubSubMessageType
+	var $Pather_Common_Models_Gateway_GatewayPubSubMessageType = function() {
+	};
+	$Pather_Common_Models_Gateway_GatewayPubSubMessageType.__typeName = 'Pather.Common.Models.Gateway.GatewayPubSubMessageType';
+	global.Pather.Common.Models.Gateway.GatewayPubSubMessageType = $Pather_Common_Models_Gateway_GatewayPubSubMessageType;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.Gateway.GatewaySocketMessageModel
 	var $Pather_Common_Models_Gateway_GatewaySocketMessageModel = function() {
@@ -504,6 +552,19 @@
 	};
 	global.Pather.Common.Models.Gateway.GatewaySocketMessageModel = $Pather_Common_Models_Gateway_GatewaySocketMessageModel;
 	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.Gateway.TickSyncGatewayPubSubMessage
+	var $Pather_Common_Models_Gateway_TickSyncGatewayPubSubMessage = function() {
+	};
+	$Pather_Common_Models_Gateway_TickSyncGatewayPubSubMessage.__typeName = 'Pather.Common.Models.Gateway.TickSyncGatewayPubSubMessage';
+	$Pather_Common_Models_Gateway_TickSyncGatewayPubSubMessage.$ctor = function(lockstepTickNumber) {
+		var $this = $Pather_Common_Models_Gateway_GatewayPubSubMessage.$ctor();
+		$this.lockstepTickNumber = 0;
+		$this.type = 1;
+		$this.lockstepTickNumber = lockstepTickNumber;
+		return $this;
+	};
+	global.Pather.Common.Models.Gateway.TickSyncGatewayPubSubMessage = $Pather_Common_Models_Gateway_TickSyncGatewayPubSubMessage;
+	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.Gateway.UserJoinedGatewayPubSubMessage
 	var $Pather_Common_Models_Gateway_UserJoinedGatewayPubSubMessage = function() {
 	};
@@ -513,11 +574,46 @@
 	};
 	$Pather_Common_Models_Gateway_UserJoinedGatewayPubSubMessage.$ctor = function() {
 		var $this = $Pather_Common_Models_Gateway_GatewayPubSubMessage.$ctor();
-		$this.gameServerId = null;
+		$this.gameSegmentId = null;
 		$this.userId = null;
 		return $this;
 	};
 	global.Pather.Common.Models.Gateway.UserJoinedGatewayPubSubMessage = $Pather_Common_Models_Gateway_UserJoinedGatewayPubSubMessage;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.Tick.PingTickPubSubMessage
+	var $Pather_Common_Models_Tick_PingTickPubSubMessage = function() {
+	};
+	$Pather_Common_Models_Tick_PingTickPubSubMessage.__typeName = 'Pather.Common.Models.Tick.PingTickPubSubMessage';
+	$Pather_Common_Models_Tick_PingTickPubSubMessage.createInstance = function() {
+		return $Pather_Common_Models_Tick_PingTickPubSubMessage.$ctor();
+	};
+	$Pather_Common_Models_Tick_PingTickPubSubMessage.$ctor = function() {
+		var $this = $Pather_Common_Models_Tick_TickPubSubMessage.$ctor();
+		$this.origin = null;
+		$this.type = 0;
+		return $this;
+	};
+	global.Pather.Common.Models.Tick.PingTickPubSubMessage = $Pather_Common_Models_Tick_PingTickPubSubMessage;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.Tick.TickPubSubMessage
+	var $Pather_Common_Models_Tick_TickPubSubMessage = function() {
+	};
+	$Pather_Common_Models_Tick_TickPubSubMessage.__typeName = 'Pather.Common.Models.Tick.TickPubSubMessage';
+	$Pather_Common_Models_Tick_TickPubSubMessage.createInstance = function() {
+		return $Pather_Common_Models_Tick_TickPubSubMessage.$ctor();
+	};
+	$Pather_Common_Models_Tick_TickPubSubMessage.$ctor = function() {
+		var $this = {};
+		$this.type = 0;
+		return $this;
+	};
+	global.Pather.Common.Models.Tick.TickPubSubMessage = $Pather_Common_Models_Tick_TickPubSubMessage;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.Tick.TickPubSubMessageType
+	var $Pather_Common_Models_Tick_TickPubSubMessageType = function() {
+	};
+	$Pather_Common_Models_Tick_TickPubSubMessageType.__typeName = 'Pather.Common.Models.Tick.TickPubSubMessageType';
+	global.Pather.Common.Models.Tick.TickPubSubMessageType = $Pather_Common_Models_Tick_TickPubSubMessageType;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.TestFramework.Assert
 	var $Pather_Common_TestFramework_Assert = function() {
@@ -1182,19 +1278,27 @@
 	ss.initClass($Pather_Common_Models_Game_PlayerModel, $asm, {});
 	ss.initClass($Pather_Common_Models_Game_PlayerSyncModel, $asm, {});
 	ss.initClass($Pather_Common_Models_Game_SyncLockstepModel, $asm, {});
+	ss.initClass($Pather_Common_Models_GameSegment_GameSegmentPubSubMessage, $asm, {});
+	ss.initEnum($Pather_Common_Models_GameSegment_GameSegmentPubSubMessageType, $asm, { tickSync: 0 });
+	ss.initClass($Pather_Common_Models_GameSegment_TickSyncGameSegmentPubSubMessage, $asm, {}, $Pather_Common_Models_GameSegment_GameSegmentPubSubMessage);
 	ss.initClass($Pather_Common_Models_GameSegmentCluster_GameSegmentClusterPubSubMessage, $asm, {});
 	ss.initInterface($Pather_Common_Models_GameSegmentCluster_IPubSubReqResMessage, $asm, {});
-	ss.initClass($Pather_Common_Models_GameSegmentCluster_CreateGameServerGameSegmentClusterPubSubMessage, $asm, {}, $Pather_Common_Models_GameSegmentCluster_GameSegmentClusterPubSubMessage, [$Pather_Common_Models_GameSegmentCluster_IPubSubReqResMessage]);
-	ss.initEnum($Pather_Common_Models_GameSegmentCluster_GameSegmentClusterMessageType, $asm, { createGameSegment: 0 });
+	ss.initClass($Pather_Common_Models_GameSegmentCluster_CreateGameSegmentGameSegmentClusterPubSubMessage, $asm, {}, $Pather_Common_Models_GameSegmentCluster_GameSegmentClusterPubSubMessage, [$Pather_Common_Models_GameSegmentCluster_IPubSubReqResMessage]);
+	ss.initEnum($Pather_Common_Models_GameSegmentCluster_GameSegmentClusterPubSubMessageType, $asm, { createGameSegment: 0 });
 	ss.initClass($Pather_Common_Models_GameWorld_GameWorldPubSubMessage, $asm, {});
-	ss.initClass($Pather_Common_Models_GameWorld_CreateGameServerResponseGameWorldPubSubMessage, $asm, {}, $Pather_Common_Models_GameWorld_GameWorldPubSubMessage, [$Pather_Common_Models_GameSegmentCluster_IPubSubReqResMessage]);
-	ss.initEnum($Pather_Common_Models_GameWorld_GameWorldMessageType, $asm, { userJoined: 0, createGameServerResponse: 1 });
+	ss.initClass($Pather_Common_Models_GameWorld_CreateGameSegmentResponseGameWorldPubSubMessage, $asm, {}, $Pather_Common_Models_GameWorld_GameWorldPubSubMessage, [$Pather_Common_Models_GameSegmentCluster_IPubSubReqResMessage]);
+	ss.initEnum($Pather_Common_Models_GameWorld_GameWorldPubSubMessageType, $asm, { userJoined: 0, createGameSegmentResponse: 1, tickSync: 2 });
+	ss.initClass($Pather_Common_Models_GameWorld_TickSyncGameWorldPubSubMessage, $asm, {}, $Pather_Common_Models_GameWorld_GameWorldPubSubMessage);
 	ss.initClass($Pather_Common_Models_GameWorld_UserJoinedGameWorldPubSubMessage, $asm, {}, $Pather_Common_Models_GameWorld_GameWorldPubSubMessage);
 	ss.initClass($Pather_Common_Models_Gateway_GatewayJoinModel, $asm, {});
-	ss.initEnum($Pather_Common_Models_Gateway_GatewayMessageType, $asm, { userJoined: 0 });
 	ss.initClass($Pather_Common_Models_Gateway_GatewayPubSubMessage, $asm, {});
+	ss.initEnum($Pather_Common_Models_Gateway_GatewayPubSubMessageType, $asm, { userJoined: 0, tickSync: 1 });
 	ss.initClass($Pather_Common_Models_Gateway_GatewaySocketMessageModel, $asm, {});
+	ss.initClass($Pather_Common_Models_Gateway_TickSyncGatewayPubSubMessage, $asm, {}, $Pather_Common_Models_Gateway_GatewayPubSubMessage);
 	ss.initClass($Pather_Common_Models_Gateway_UserJoinedGatewayPubSubMessage, $asm, {}, $Pather_Common_Models_Gateway_GatewayPubSubMessage);
+	ss.initClass($Pather_Common_Models_Tick_TickPubSubMessage, $asm, {});
+	ss.initClass($Pather_Common_Models_Tick_PingTickPubSubMessage, $asm, {}, $Pather_Common_Models_Tick_TickPubSubMessage);
+	ss.initEnum($Pather_Common_Models_Tick_TickPubSubMessageType, $asm, { ping: 0 });
 	ss.initClass($Pather_Common_TestFramework_Assert, $asm, {});
 	ss.initClass($Pather_Common_TestFramework_AssertException, $asm, {
 		get_failedAssertion: function() {

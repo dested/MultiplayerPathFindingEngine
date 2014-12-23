@@ -4,4 +4,4 @@ global.Graph = astar.Graph;
 global.astar = astar.astar;
 
 require('./js/Pather.Common');
-require('./js/Pather.ServerManager');
+require('./js/Pather.Servers');

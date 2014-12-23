@@ -10,7 +10,7 @@ var watch = require('gulp-watch');
 
 var codePaths = [
     'Pather.Common/bin/Debug/**/*.js',
-    'Pather.ServerManager/bin/Debug/**/*.js',
+    'Pather.Servers/bin/Debug/**/*.js',
 ];
 
 var libPaths = ['packages/Saltarelle.Runtime.2.6.2/mscorlib.js'];
