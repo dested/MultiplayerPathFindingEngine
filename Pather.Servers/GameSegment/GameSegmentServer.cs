@@ -81,9 +81,9 @@ namespace Pather.Servers.GameSegment
         {
             switch (message.Type)
             {
-                //todo MAKE THIS CALL INDIVIDUAL METHODS
+                    //todo MAKE THIS CALL INDIVIDUAL METHODS
                 case GameSegment_PubSub_MessageType.UserJoin:
-                    var userJoinMessage = (UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message)message;
+                    var userJoinMessage = (UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message) message;
                     MySegmentUsers.Add(new GameSegmentUser()
                     {
                         UserId = userJoinMessage.UserId,
@@ -100,7 +100,7 @@ namespace Pather.Servers.GameSegment
 
                     break;
                 case GameSegment_PubSub_MessageType.TellUserJoin:
-                    var tellUserJoinMessage = (TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message)message;
+                    var tellUserJoinMessage = (TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message) message;
                     OtherSegmentUsers.Add(new GameSegmentUser()
                     {
                         UserId = tellUserJoinMessage.UserId,
@@ -117,7 +117,7 @@ namespace Pather.Servers.GameSegment
 
                     break;
                 case GameSegment_PubSub_MessageType.TellUserLeft:
-                    var tellUserLeftMessage = (TellUserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message)message;
+                    var tellUserLeftMessage = (TellUserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message) message;
                     var luser = OtherSegmentUsers.First(u => u.UserId == tellUserLeftMessage.UserId);
 
                     if (luser == null)
@@ -137,7 +137,7 @@ namespace Pather.Servers.GameSegment
                     break;
 
                 case GameSegment_PubSub_MessageType.UserLeft:
-                    var userLeftMessage = (UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message)message;
+                    var userLeftMessage = (UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message) message;
                     var user = MySegmentUsers.First(u => u.UserId == userLeftMessage.UserId);
 
                     if (user == null)
@@ -156,7 +156,7 @@ namespace Pather.Servers.GameSegment
 
                     break;
                 case GameSegment_PubSub_MessageType.Pong:
-                    var pongMessage = (Pong_Tick_GameSegment_PubSub_Message)message;
+                    var pongMessage = (Pong_Tick_GameSegment_PubSub_Message) message;
                     ClientTickManager.OnPongReceived();
                     break;
                 default:
@@ -169,7 +169,7 @@ namespace Pather.Servers.GameSegment
             switch (message.Type)
             {
                 case GameSegment_PubSub_AllMessageType.TickSync:
-                    var tickSyncMessage = (TickSync_GameSegment_PubSub_AllMessage)message;
+                    var tickSyncMessage = (TickSync_GameSegment_PubSub_AllMessage) message;
                     ClientTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;
                 default:

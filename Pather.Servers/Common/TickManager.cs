@@ -1,7 +1,6 @@
 using System;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Servers.Common.ServerLogging;
 
 namespace Pather.Servers.Common
 {
@@ -42,8 +41,6 @@ namespace Pather.Servers.Common
                     LockstepTickNumber++;
                     //           TODO     Game.StepManager.ProcessAction(Game.LockstepTickNumber);
                 }
-
-                
             }
 
 

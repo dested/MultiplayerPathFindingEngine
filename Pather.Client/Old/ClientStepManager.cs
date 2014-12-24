@@ -61,7 +61,6 @@ namespace Pather.Client.Old
                         Game.LockstepTickNumber++;
                         Game.StepManager.ProcessAction(Game.LockstepTickNumber);
                     }
-
                 }
             }
         }

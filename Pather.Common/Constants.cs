@@ -10,7 +10,7 @@ namespace Pather.Common
             SquareSize = 8;
             DrawFps = 60;
             NumberOfSquares = 150;
-            DrawTicks = 1000 / DrawFps;
+            DrawTicks = 1000/DrawFps;
             AnimationSteps = 5;
 
             GameFps = 10;
@@ -41,8 +41,7 @@ namespace Pather.Common
 
         public static bool TestServer
         {
-            get { return ((dynamic)Window.Instance).TestServer; }
+            get { return ((dynamic) Window.Instance).TestServer; }
         }
-
     }
 }

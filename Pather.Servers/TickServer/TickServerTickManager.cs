@@ -20,7 +20,7 @@ namespace Pather.Servers.TickServer
         {
             base.ProcessLockstep(lockstepTickNumber);
 
-            if (lockstepTickNumber % 15 == 0 || forceOnNextTick)
+            if (lockstepTickNumber%15 == 0 || forceOnNextTick)
             {
                 forceOnNextTick = false;
                 ServerLogger.LogInformation("Pushed Lockstep Tick", lockstepTickNumber);

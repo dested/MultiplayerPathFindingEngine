@@ -57,7 +57,6 @@ namespace Pather.Servers.GameWorldServer
 
                             defer.Resolve(gwUser);
                         });
-
                 });
             return defer.Promise;
         }
@@ -74,8 +73,8 @@ namespace Pather.Servers.GameWorldServer
             }
 
             var promises = GameSegments
-                        .Where(seg => seg != gwUser.GameSegment)
-                        .Select(seg => seg.TellSegmentAboutRemoveUser(gwUser));
+                .Where(seg => seg != gwUser.GameSegment)
+                .Select(seg => seg.TellSegmentAboutRemoveUser(gwUser));
 
             promises.Add(gwUser.GameSegment.RemoveUserFromGameSegment(gwUser));
 
@@ -88,20 +87,17 @@ namespace Pather.Servers.GameWorldServer
                 });
 
 
-
-
             return deferred.Promise;
         }
 
 
         private Promise<GameSegment, UndefinedPromiseError> DetermineGameSegment(GameWorldUser gwUser)
         {
-
             var deferred = Q.Defer<GameSegment, UndefinedPromiseError>();
             var neighbors = buildNeighborCollection(gwUser);
 
-            bool noneFound = true;
-            for (int i = 0; i < neighbors.Count; i++)
+            var noneFound = true;
+            for (var i = 0; i < neighbors.Count; i++)
             {
                 //todo REORG GAME SEGMENTS????
 
@@ -135,7 +131,6 @@ namespace Pather.Servers.GameWorldServer
 
             return deferred.Promise;
         }
-         
 
 
         public Promise<GameSegment, UndefinedPromiseError> CreateGameSegment()
@@ -175,10 +170,9 @@ namespace Pather.Servers.GameWorldServer
 
         private List<GameWorldNeighbor> buildNeighborCollection(GameWorldUser pUser)
         {
-
             var count = Users.Count;
 
-            List<GameWorldNeighbor> neighbors = new List<GameWorldNeighbor>();
+            var neighbors = new List<GameWorldNeighbor>();
 
             for (var c = 0; c < count; c++)
             {
@@ -186,7 +180,7 @@ namespace Pather.Servers.GameWorldServer
                 var distance = PointDistance(pUser, cUser);
                 neighbors.Add(new GameWorldNeighbor(cUser, distance));
             }
-            neighbors.Sort((a, b) => (int)(a.Distance - b.Distance));
+            neighbors.Sort((a, b) => (int) (a.Distance - b.Distance));
             return neighbors;
         }
 
@@ -218,7 +212,7 @@ namespace Pather.Servers.GameWorldServer
             var _x = (cx - mx);
             var _y = (cy - my);
 
-            var dis = Math.Sqrt((_x * _x) + (_y * _y));
+            var dis = Math.Sqrt((_x*_x) + (_y*_y));
             return dis;
         }
     }

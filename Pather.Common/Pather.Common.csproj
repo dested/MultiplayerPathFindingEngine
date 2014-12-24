@@ -84,11 +84,15 @@
     <Compile Include="Models\GameSegment\Base\GameSegment_PubSub_AllMessage.cs" />
     <Compile Include="Models\GameSegment\Base\GameSegment_PubSub_ReqRes_Message.cs" />
     <Compile Include="Models\GameSegment\Pong_Tick_GameSegment_PubSub_Message.cs" />
+    <Compile Include="Models\GameSegment\TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message.cs" />
+    <Compile Include="Models\GameSegment\TellUserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message.cs" />
     <Compile Include="Models\GameSegment\TickSync_GameSegment_PubSub_AllMessage.cs" />
     <Compile Include="Models\GameSegment\UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message.cs" />
     <Compile Include="Models\GameSegment\UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message.cs" />
     <Compile Include="Models\GameWorld\Base\GameWorld_PubSub_ReqRes_Message.cs" />
     <Compile Include="Models\GameWorld\Pong_Tick_GameWorld_PubSub_Message.cs" />
+    <Compile Include="Models\GameWorld\TellUserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message.cs" />
+    <Compile Include="Models\GameWorld\TellUserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message.cs" />
     <Compile Include="Models\GameWorld\TickSync_Tick_GameWorld_PubSub_Message.cs" />
     <Compile Include="Models\GameWorld\UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message.cs" />
     <Compile Include="Models\GameWorld\UserLeft_Gateway_GameWorld_PubSub_Message.cs" />

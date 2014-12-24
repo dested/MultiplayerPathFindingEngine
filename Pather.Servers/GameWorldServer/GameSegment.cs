@@ -21,11 +21,9 @@ namespace Pather.Servers.GameWorldServer
         public string GameSegmentId;
 
 
-
-
         public bool CanAcceptNewUsers()
         {
-            return this.Users.Count < Constants.UsersPerGameSegment;
+            return Users.Count < Constants.UsersPerGameSegment;
         }
 
 
@@ -90,7 +88,6 @@ namespace Pather.Servers.GameWorldServer
 
 
             return deferred.Promise;
-
         }
 
         public Promise TellSegmentAboutRemoveUser(GameWorldUser gwUser)
@@ -111,7 +108,6 @@ namespace Pather.Servers.GameWorldServer
             });
 
             return deferred.Promise;
-
         }
     }
 }

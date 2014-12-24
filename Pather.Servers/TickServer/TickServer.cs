@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameWorld;
@@ -38,7 +37,7 @@ namespace Pather.Servers.TickServer
             TickPubSub.OnMessage += pubSubMessage;
         }
 
-        private JsDictionary<string, bool> recievedOriginHash = new JsDictionary<string, bool>();
+        private readonly JsDictionary<string, bool> recievedOriginHash = new JsDictionary<string, bool>();
 
         private void pubSubMessage(Tick_PubSub_Message message)
         {

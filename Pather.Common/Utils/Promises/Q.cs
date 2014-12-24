@@ -27,7 +27,7 @@ namespace Pather.Common.Utils.Promises
 
             var resolves = new List<TResolve>();
 
-            var resolveCallback = (Action<TResolve>)((resolve) =>
+            var resolveCallback = (Action<TResolve>) ((resolve) =>
             {
                 count++;
                 resolves.Add(resolve);
@@ -37,7 +37,7 @@ namespace Pather.Common.Utils.Promises
                 }
             });
 
-            var rejectCallback = (Action<TError>)(deferred.Reject);
+            var rejectCallback = (Action<TError>) (deferred.Reject);
             foreach (var promise in promises)
             {
                 promise.Then(resolveCallback).Error(rejectCallback);
@@ -51,7 +51,7 @@ namespace Pather.Common.Utils.Promises
             var count = 0;
 
             var resolves = new List<TResolve>();
-            var rejectCallback = (Action<TError>)(deferred.Reject);
+            var rejectCallback = (Action<TError>) (deferred.Reject);
             Action<TResolve> resolveCallback = null;
             resolveCallback = (resolve) =>
             {
@@ -72,12 +72,13 @@ namespace Pather.Common.Utils.Promises
             promises[0].Then(resolveCallback).Error(rejectCallback);
             return deferred.Promise;
         }
+
         public static Promise AllSequential(params Promise[] promises)
         {
             var deferred = Defer();
             var count = 0;
 
-            var rejectCallback = (Action)(deferred.Reject);
+            var rejectCallback = (Action) (deferred.Reject);
             Action resolveCallback = null;
             resolveCallback = () =>
             {
@@ -103,7 +104,7 @@ namespace Pather.Common.Utils.Promises
         {
             var deferred = Defer();
             var count = 0;
-            var resolveCallback = (Action)(() =>
+            var resolveCallback = (Action) (() =>
             {
                 count++;
                 if (count == promises.Length)
@@ -112,17 +113,19 @@ namespace Pather.Common.Utils.Promises
                 }
             });
 
-            var rejectCallback = (Action)(deferred.Reject);
+            var rejectCallback = (Action) (deferred.Reject);
             foreach (var promise in promises)
             {
                 promise.Then(resolveCallback).Error(rejectCallback);
             }
             return deferred.Promise;
         }
+
         public static Promise All(List<Promise> promises)
         {
             return All(promises.ToArray());
         }
+
         public static Promise AllSequential(List<Promise> promises)
         {
             return AllSequential(promises.ToArray());

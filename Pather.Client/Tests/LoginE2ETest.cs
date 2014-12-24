@@ -15,23 +15,23 @@ namespace Pather.Client.Tests
         [TestMethod]
         public void Test1(Deferred defer)
         {
-            List<Promise<ClientCommunicator, UndefinedPromiseError>> users = new List<Promise<ClientCommunicator, UndefinedPromiseError>>();
+            var users = new List<Promise<ClientCommunicator, UndefinedPromiseError>>();
 
 
-            List<long> averageTimes = new List<long>();
+            var averageTimes = new List<long>();
 
             var done = 0;
-            int i2 = 100;
-            for (int i = 0; i < i2; i++)
+            var i2 = 100;
+            for (var i = 0; i < i2; i++)
             {
-                int i1 = i;
+                var i1 = i;
                 Global.SetTimeout(() =>
                 {
                     var startTime = new DateTime().GetTime();
 
                     JoinUser("salvatore" + i1).Then((communicator) =>
                     {
-                        long joinTime = new DateTime().GetTime() - startTime;
+                        var joinTime = new DateTime().GetTime() - startTime;
                         Global.Console.Log("Join Time", joinTime);
 
                         averageTimes.Add(joinTime);
@@ -41,25 +41,22 @@ namespace Pather.Client.Tests
                             done++;
                             if (done == i2)
                             {
+                                var average = averageTimes.Average(a => a);
 
-                                var average=averageTimes.Average(a => a);
-
-                                Global.Console.Log("Average join time:",average,"ms");
+                                Global.Console.Log("Average join time:", average, "ms");
                                 defer.Resolve();
-
                             }
-                        }, (int)(Math.Random() * 5000));
+                        }, (int) (Math.Random()*5000));
                     });
-                }, (int)(Math.Random() * 5000));
+                }, (int) (Math.Random()*5000));
             }
-
         }
 
         private static Promise<ClientCommunicator, UndefinedPromiseError> JoinUser(string userToken)
         {
             var deferred = Q.Defer<ClientCommunicator, UndefinedPromiseError>();
 
-            double b = Math.Random();
+            var b = Math.Random();
             int port;
             if (b <= .3)
             {
@@ -73,7 +70,7 @@ namespace Pather.Client.Tests
             {
                 port = 1802;
             }
-            string url = "http://127.0.0.1:" + port;
+            var url = "http://127.0.0.1:" + port;
 //            Global.Console.Log("Connecting to", url);
             var clientCommunicator = new ClientCommunicator(url);
             clientCommunicator.ListenOnChannel<string>("Gateway.Join.Success", (item) =>

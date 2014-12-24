@@ -21,7 +21,7 @@ namespace Pather.Servers.GatewayServer
         public ClientTickManager ClientTickManager;
 
 
-        public GatewayServer(IPubSub pubsub, ISocketManager socketManager, string gatewayId,int port_)
+        public GatewayServer(IPubSub pubsub, ISocketManager socketManager, string gatewayId, int port_)
         {
             GatewayId = gatewayId;
             ServerLogger.InitLogger("Gateway", GatewayId);

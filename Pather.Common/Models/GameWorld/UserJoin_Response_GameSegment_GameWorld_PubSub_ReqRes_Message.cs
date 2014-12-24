@@ -11,20 +11,4 @@ namespace Pather.Common.Models.GameWorld
             Type = GameWorld_PubSub_MessageType.UserJoinResponse;
         }
     }
-    [Serializable]
-    public class TellUserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message : GameWorld_PubSub_ReqRes_Message
-    {
-        public TellUserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message()
-        {
-            Type = GameWorld_PubSub_MessageType.TellUserJoinResponse;
-        }
-    }
-    [Serializable]
-    public class TellUserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message : GameWorld_PubSub_ReqRes_Message
-    {
-        public TellUserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message()
-        {
-            Type = GameWorld_PubSub_MessageType.TellUserJoinResponse;
-        }
-    }
 }

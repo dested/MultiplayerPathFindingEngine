@@ -20,7 +20,7 @@ namespace Pather.Client.Utils
                 Socket = Global.Require<Func<string, object, SocketIOClient>>("socket.io-client")(url,
                     new
                     {
-                        reconnection =false,
+                        reconnection = false,
                         forceNew = true
                     });
                 Socket.On("connect", () =>

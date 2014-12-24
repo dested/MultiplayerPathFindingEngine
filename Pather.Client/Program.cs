@@ -15,7 +15,6 @@ namespace Pather.Client
             }
 
 
-
             var game = new ClientGame();
             game.Init();
         }

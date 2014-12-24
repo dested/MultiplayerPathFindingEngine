@@ -74,6 +74,7 @@ namespace Pather.Common.Utils
             }
             return default(T);
         }
+
         public static double Average<T>(this IEnumerable<T> items, Func<T, double> clause)
         {
             double sum = 0;

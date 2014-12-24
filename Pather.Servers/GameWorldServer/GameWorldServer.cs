@@ -63,7 +63,7 @@ namespace Pather.Servers.GameWorldServer
             switch (message.Type)
             {
                 case GameWorld_PubSub_MessageType.UserJoined:
-                    UserJoined((UserJoined_Gateway_GameWorld_PubSub_Message)message).Then(gwUser =>
+                    UserJoined((UserJoined_Gateway_GameWorld_PubSub_Message) message).Then(gwUser =>
                     {
                         gameSegmentClusterPubSub.PublishToGatewayServer(PubSubChannels.Gateway(gwUser.GatewayServer), new UserJoined_GameWorld_Gateway_PubSub_Message()
                         {
@@ -73,17 +73,17 @@ namespace Pather.Servers.GameWorldServer
                     });
                     break;
                 case GameWorld_PubSub_MessageType.UserLeft:
-                    UserLeft((UserLeft_Gateway_GameWorld_PubSub_Message)message).Then(() =>
+                    UserLeft((UserLeft_Gateway_GameWorld_PubSub_Message) message).Then(() =>
                     {
                         //todo idk
                     });
                     break;
                 case GameWorld_PubSub_MessageType.Pong:
-                    var pongMessage = (Pong_Tick_GameWorld_PubSub_Message)message;
+                    var pongMessage = (Pong_Tick_GameWorld_PubSub_Message) message;
                     ClientTickManager.OnPongReceived();
                     break;
                 case GameWorld_PubSub_MessageType.TickSync:
-                    var tickSyncMessage = (TickSync_Tick_GameWorld_PubSub_Message)message;
+                    var tickSyncMessage = (TickSync_Tick_GameWorld_PubSub_Message) message;
                     ClientTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;
                 default:
@@ -91,8 +91,9 @@ namespace Pather.Servers.GameWorldServer
             }
         }
 
-        private List<Tuple<UserJoined_Gateway_GameWorld_PubSub_Message, Promise<GameWorldUser, UserJoinError>>>
+        private readonly List<Tuple<UserJoined_Gateway_GameWorld_PubSub_Message, Promise<GameWorldUser, UserJoinError>>>
             usersWaitingToJoin = new List<Tuple<UserJoined_Gateway_GameWorld_PubSub_Message, Promise<GameWorldUser, UserJoinError>>>();
+
         private bool currentlyJoiningUser = false;
 
         private Promise<GameWorldUser, UserJoinError> UserJoined(UserJoined_Gateway_GameWorld_PubSub_Message message)
@@ -108,7 +109,6 @@ namespace Pather.Servers.GameWorldServer
                         GameWorld.UserJoined(message.GatewayChannel, dbUser).PassThrough(deferred.Promise).Finally(QueueNextJoiningUser);
                         //TODO THEN ADD USER TO TABLE OSMETHING IDK
                     });
-
             }
             else
             {
@@ -126,7 +126,7 @@ namespace Pather.Servers.GameWorldServer
             {
                 var nextUserWaitingToJoin = usersWaitingToJoin[0];
                 usersWaitingToJoin.Remove(nextUserWaitingToJoin);
-                Global.Console.Log("Joining next user", usersWaitingToJoin.Count,"still waiting");
+                Global.Console.Log("Joining next user", usersWaitingToJoin.Count, "still waiting");
                 UserJoined(nextUserWaitingToJoin.Item1).PassThrough(nextUserWaitingToJoin.Item2);
             }
         }

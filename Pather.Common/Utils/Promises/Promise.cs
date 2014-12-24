@@ -138,7 +138,7 @@ namespace Pather.Common.Utils.Promises
             foreach (var resolve in resolves)
             {
                 resolve();
-            } 
+            }
             foreach (var @finally in finallys)
             {
                 @finally();
