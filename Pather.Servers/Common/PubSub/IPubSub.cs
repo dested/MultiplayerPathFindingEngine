@@ -14,5 +14,6 @@ namespace Pather.Servers.Common.PubSub
         void Subscribe(string channel, Action<string> callback);
         Promise Init();
         void ReceivedMessage(string channel, string message);
+        void DontLog();
     }
 }

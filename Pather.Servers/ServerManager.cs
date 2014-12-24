@@ -6,6 +6,7 @@ using Pather.Servers.Common.PubSub;
 using Pather.Servers.Common.PushPop;
 using Pather.Servers.Common.SocketManager;
 using Pather.Servers.Database;
+using Pather.Servers.GameSegment;
 
 namespace Pather.Servers
 {
@@ -60,7 +61,7 @@ namespace Pather.Servers
                         break;
                     case "gs":
                     case "game":
-                        new GameSegment.GameSegment(new SocketIOManager(), new PubSub(), new PushPop(), Global.Process.Arguments[3]);
+                        new GameSegmentServer(new SocketIOManager(), new PubSub(), new PushPop(), Global.Process.Arguments[3]);
                         break;
                     case "gw":
                     case "gameworld":

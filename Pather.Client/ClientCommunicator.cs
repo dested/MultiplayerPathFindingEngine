@@ -45,5 +45,10 @@ namespace Pather.Client
         {
             Socket.Emit(channel, new DataObject<object>(obj));
         }
+
+        public void Disconnect()
+        {
+            Socket.Disconnect();
+        }
     }
 }

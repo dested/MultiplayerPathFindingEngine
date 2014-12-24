@@ -1,13 +1,15 @@
 ﻿using System;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameWorld;
+using Pather.Common.Models.GameWorld.Base;
 using Pather.Common.Models.Gateway;
 using Pather.Common.Models.Tick;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common;
 using Pather.Servers.Common.PubSub;
-using Pather.Servers.Common.ServerLogger;
+using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Database;
+using Pather.Servers.GameWorldServer.Models;
 
 namespace Pather.Servers.GameWorldServer
 {
@@ -60,21 +62,27 @@ namespace Pather.Servers.GameWorldServer
             switch (message.Type)
             {
                 case GameWorld_PubSub_MessageType.UserJoined:
-                    UserJoined((UserJoined_GameWorld_PubSub_Message) message).Then(gwUser =>
+                    UserJoined((UserJoined_Gateway_GameWorld_PubSub_Message) message).Then(gwUser =>
                     {
-                        gameSegmentClusterPubSub.PublishToGatewayServer(PubSubChannels.Gateway(gwUser.GatewayServer), new UserJoined_Gateway_PubSub_Message()
+                        gameSegmentClusterPubSub.PublishToGatewayServer(PubSubChannels.Gateway(gwUser.GatewayServer), new UserJoined_GameWorld_Gateway_PubSub_Message()
                         {
                             GameSegmentId = gwUser.GameSegment.GameSegmentId,
                             UserId = gwUser.UserId,
                         });
                     });
                     break;
+                case GameWorld_PubSub_MessageType.UserLeft:
+                    UserLeft((UserLeft_Gateway_GameWorld_PubSub_Message) message).Then(() =>
+                    {
+                        //todo idk
+                    });
+                    break;
                 case GameWorld_PubSub_MessageType.Pong:
-                    var pongMessage = (Pong_GameWorld_PubSub_Message) message;
+                    var pongMessage = (Pong_Tick_GameWorld_PubSub_Message) message;
                     ClientTickManager.OnPongReceived();
                     break;
                 case GameWorld_PubSub_MessageType.TickSync:
-                    var tickSyncMessage = (TickSync_GameWorld_PubSub_Message) message;
+                    var tickSyncMessage = (TickSync_Tick_GameWorld_PubSub_Message) message;
                     ClientTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;
                 default:
@@ -82,14 +90,30 @@ namespace Pather.Servers.GameWorldServer
             }
         }
 
-        private Promise<GameWorldUser, UserJoinError> UserJoined(UserJoined_GameWorld_PubSub_Message userJoinedMessage)
+        private Promise<GameWorldUser, UserJoinError> UserJoined(UserJoined_Gateway_GameWorld_PubSub_Message message)
         {
             var deferred = Q.Defer<GameWorldUser, UserJoinError>();
 
-            //query database for user
-            DatabaseQueries.GetUserByToken(userJoinedMessage.UserToken).Then(dbUser =>
+            DatabaseQueries.GetUserByToken(message.UserToken).Then(dbUser =>
             {
-                deferred.PassPromiseThrough(GameWorld.UserJoined(userJoinedMessage.GatewayChannel, dbUser));
+                GameWorld.UserJoined(message.GatewayChannel, dbUser).PassThrough(deferred.Promise);
+
+                //TODO THEN ADD USER TO TABLE OSMETHING IDK
+            });
+            return deferred.Promise;
+        }
+
+        private Promise UserLeft(UserLeft_Gateway_GameWorld_PubSub_Message message)
+        {
+            var deferred = Q.Defer();
+
+            //todo REMOVE USER FROM TABLE IDK
+
+            DatabaseQueries.GetUserByToken(message.UserId).Then(dbUser =>
+            {
+                GameWorld.UserLeft(dbUser).PassThrough(deferred.Promise);
+
+                //TODO THEN ADD USER TO TABLE OSMETHING IDK
             });
             return deferred.Promise;
         }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Servers.Common.ServerLogging;
 
 namespace Pather.Servers.Common
 {
@@ -76,7 +77,8 @@ namespace Pather.Servers.Common
         public override void SetServerLatency(long latency)
         {
             base.SetServerLatency(latency);
-            Global.Console.Log("Severy latency is ", latency, "ms");
+
+            ServerLogger.LogInformation("Severy latency is ", latency, "ms");
             hasLatency = true;
             if (hasLatency && hasLockstep && !tickManagerInitialized)
             {

@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameWorld;
 using Pather.Common.Models.Gateway;
+using Pather.Common.Models.Gateway.Base;
 using Pather.Common.Models.Tick;
+using Pather.Common.Utils;
 using Pather.Servers.Common;
 using Pather.Servers.Common.PubSub;
-using Pather.Servers.Common.ServerLogger;
+using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Common.SocketManager;
 
 namespace Pather.Servers.GatewayServer
@@ -19,10 +21,10 @@ namespace Pather.Servers.GatewayServer
         public ClientTickManager ClientTickManager;
 
 
-        public GatewayServer(IPubSub pubsub, ISocketManager socketManager,string gatewayId)
+        public GatewayServer(IPubSub pubsub, ISocketManager socketManager, string gatewayId)
         {
             GatewayId = gatewayId;
-            ServerLogger.InitLogger("Gateway", GatewayId); 
+            ServerLogger.InitLogger("Gateway", GatewayId);
 
             Global.Console.Log(GatewayId);
 
@@ -65,7 +67,7 @@ namespace Pather.Servers.GatewayServer
             switch (message.Type)
             {
                 case Gateway_PubSub_AllMessageType.TickSync:
-                    var tickSyncMessage = (TickSync_Gateway_PubSub_AllMessage) message;
+                    var tickSyncMessage = (TickSync_Tick_Gateway_PubSub_AllMessage) message;
                     ClientTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;
                 default:
@@ -78,21 +80,14 @@ namespace Pather.Servers.GatewayServer
             switch (message.Type)
             {
                 case Gateway_PubSub_MessageType.UserJoined:
-                    var userJoinedMessage = (UserJoined_Gateway_PubSub_Message) message;
-
-
-                    foreach (var gatewayUser in Users)
-                    {
-                        if (gatewayUser.UserToken == userJoinedMessage.UserId)
-                        {
-                            ServerCommunicator.SendMessage(gatewayUser.Socket, "Gateway.Join.Success", userJoinedMessage);
-                            break;
-                        }
-                    }
+                    var userJoinedMessage = (UserJoined_GameWorld_Gateway_PubSub_Message) message;
+                    var gatewayUser = Users.First(user => user.UserId == userJoinedMessage.UserId);
+                    gatewayUser.GameSegmentId = userJoinedMessage.GameSegmentId;
+                    ServerCommunicator.SendMessage(gatewayUser.Socket, "Gateway.Join.Success", userJoinedMessage);
 
                     break;
                 case Gateway_PubSub_MessageType.Pong:
-                    var pongMessage = (Pong_Gateway_PubSub_Message) message;
+                    var pongMessage = (Pong_Tick_Gateway_PubSub_Message) message;
                     ClientTickManager.OnPongReceived();
 
                     break;
@@ -112,17 +107,19 @@ namespace Pather.Servers.GatewayServer
             ServerCommunicator.OnDisconnectConnection += (socket) =>
             {
                 Global.Console.Log("Disconnect", Users.Count);
-                foreach (var gatewayUser in Users)
+
+                var gatewayUser = Users.First(a => a.Socket == socket);
+
+                if (gatewayUser != null)
                 {
-                    if (gatewayUser.Socket == socket)
+                    Global.Console.Log("Left");
+                    GatewayPubSub.PublishToGameWorld(new UserLeft_Gateway_GameWorld_PubSub_Message()
                     {
-                        Global.Console.Log("Left");
-                        Users.Remove(gatewayUser);
-                        break;
-                    }
+                        UserId = gatewayUser.UserId
+                    });
+                    Users.Remove(gatewayUser);
                 }
             };
-
 
             ServerCommunicator.OnNewConnection += (socket) =>
             {
@@ -140,10 +137,9 @@ namespace Pather.Servers.GatewayServer
                 ServerCommunicator.ListenOnChannel(socket, "Gateway.Join",
                     (ISocket cSocket, GatewayJoinModel data) =>
                     {
-                        user.UserToken = data.UserToken;
-                        GatewayPubSub.PublishToGameWorld(new UserJoined_GameWorld_PubSub_Message()
+                        user.UserId = data.UserToken;
+                        GatewayPubSub.PublishToGameWorld(new UserJoined_Gateway_GameWorld_PubSub_Message()
                         {
-                            Type = GameWorld_PubSub_MessageType.UserJoined,
                             GatewayChannel = GatewayId,
                             UserToken = data.UserToken
                         });

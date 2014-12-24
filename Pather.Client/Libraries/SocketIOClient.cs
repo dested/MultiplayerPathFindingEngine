@@ -13,5 +13,10 @@ namespace Pather.Client.Libraries
         {
             return null;
         }
+
+        [ScriptName("disconnect")]
+        public void Disconnect()
+        {
+        }
     }
 }

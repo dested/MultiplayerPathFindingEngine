@@ -33,5 +33,10 @@ namespace Pather.Servers.GameSegmentCluster.Tests
         {
             channels[channel](message);
         }
+
+        public void DontLog()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

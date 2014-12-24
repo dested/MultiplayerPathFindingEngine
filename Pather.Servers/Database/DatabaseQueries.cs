@@ -8,6 +8,7 @@ namespace Pather.Servers.Database
     {
         public Promise<DBUser, DatabaseError> GetUserByToken(string token)
         {
+            //todo IMPLEMENT DATABASE FOOL
             var deferred = Q.Defer<DBUser, DatabaseError>();
             Global.SetTimeout(() =>
             {

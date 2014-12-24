@@ -3,8 +3,9 @@ using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameWorld;
 using Pather.Common.Models.Gateway;
 using Pather.Common.Models.Tick;
+using Pather.Common.Models.Tick.Base;
 using Pather.Servers.Common.PubSub;
-using Pather.Servers.Common.ServerLogger;
+using Pather.Servers.Common.ServerLogging;
 
 namespace Pather.Servers.TickServer
 {
@@ -40,7 +41,7 @@ namespace Pather.Servers.TickServer
             switch (message.Type)
             {
                 case Tick_PubSub_MessageType.Ping:
-                    ServerLogger.LogInformation("Received Ping",message);
+                    ServerLogger.LogInformation("Received Ping", message);
 
                     var pingMessage = (Ping_Tick_PubSub_Message) message;
 
@@ -49,13 +50,13 @@ namespace Pather.Servers.TickServer
                     switch (pingMessage.OriginType)
                     {
                         case Ping_Tick_PubSub_Message_OriginType.GameSegment:
-                            returnMessage = new Pong_GameSegment_PubSub_Message();
+                            returnMessage = new Pong_Tick_GameSegment_PubSub_Message();
                             break;
                         case Ping_Tick_PubSub_Message_OriginType.GameWorld:
-                            returnMessage = new Pong_GameWorld_PubSub_Message();
+                            returnMessage = new Pong_Tick_GameWorld_PubSub_Message();
                             break;
                         case Ping_Tick_PubSub_Message_OriginType.Gateway:
-                            returnMessage = new Pong_Gateway_PubSub_Message();
+                            returnMessage = new Pong_Tick_Gateway_PubSub_Message();
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();

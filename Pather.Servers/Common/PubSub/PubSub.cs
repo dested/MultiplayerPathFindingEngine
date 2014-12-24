@@ -4,6 +4,7 @@ using System.Serialization;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Utils.Promises;
+using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Libraries.Redis;
 
 namespace Pather.Servers.Common.PubSub
@@ -15,6 +16,7 @@ namespace Pather.Servers.Common.PubSub
         private bool sready;
         private RedisClient subClient;
         private JsDictionary<string, Action<string>> subbed;
+        private bool dontLog;
 
         public PubSub()
         {
@@ -56,30 +58,50 @@ namespace Pather.Servers.Common.PubSub
 
         public void ReceivedMessage(string channel, string message)
         {
-            Global.Console.Log("Pubsub Message Received", channel, message);
-            var channelCallback = subbed[channel];
-            if (channelCallback != null)
-                channelCallback(message);
+            try
+            {
+                if (!dontLog)
+                    ServerLogger.LogTransport("Pubsub Message Received", channel, message);
+                var channelCallback = subbed[channel];
+                if (channelCallback != null)
+                    channelCallback(message);
+            }
+            catch (Exception e)
+            {
+                Global.Console.Log("An exception has occured", e, e.Stack);
+                Global.Console.Log("Payload Dump", channel, message);
+                ServerLogger.LogError("Exception", e, e.Stack, channel, message);
+            }
+        }
+
+        public void DontLog()
+        {
+            dontLog = true;
         }
 
 
         public void Publish(string channel, string message)
         {
-            Global.Console.Log("Pubsub Message Sent", channel, message);
+            if (!dontLog)
+                ServerLogger.LogTransport("Pubsub Message Sent", channel, message);
             pubClient.Publish(channel, message);
         }
 
         public void Publish<T>(string channel, T message)
         {
+            if (!dontLog)
+                ServerLogger.LogTransport("Pubsub Message Sent", channel, message);
+
+
             var stringMessage = Json.Stringify(message);
-            Global.Console.Log("Pubsub Message Sent", channel, stringMessage);
             pubClient.Publish(channel, stringMessage);
         }
 
 
         public void Subscribe(string channel, Action<string> callback)
         {
-            Global.Console.Log("Pubsub Subscribed to", channel);
+            if (!dontLog)
+                ServerLogger.LogDebug("Pubsub Subscribed to", channel);
             subClient.Subscribe(channel);
             subbed[channel] = callback;
         }

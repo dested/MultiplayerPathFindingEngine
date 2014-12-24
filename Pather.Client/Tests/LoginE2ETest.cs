@@ -16,6 +16,7 @@ namespace Pather.Client.Tests
             {
                 Global.Console.Log(item);
 
+                clientCommunicator.Disconnect();
                 defer.Resolve();
             });
 

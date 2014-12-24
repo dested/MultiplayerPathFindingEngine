@@ -1,8 +1,7 @@
 user authorizes using regular auth means
 user hits gateway with player token 
 '/gateway registers user to gameworld 
-'/gameworld determines which player is closest to our new user, 
-	and adds him to that game server, so as not to reorg on every new join
+'/gameworld determines which player is closest to our new user, adds him to that game server, so as not to reorg on every new join
 
 '/gameworld tells gateway which game server to send user to 
 
@@ -12,6 +11,20 @@ gateway publishes user join to users game server
 gateway publishes user join knowledge to all other game servers
 	gameserver adds user to his inactive watch list
 	gameserver runs update neighbors
+
+
+
+'/gateway publishes user join to gameworld
+	'/gameworld publishes user join to users game server
+		gameserver adds user to his active watch list
+		gameserver runs update neighbors	
+	gameworld publishes user join knowledge to all other game servers
+		gameserver adds user to his inactive watch list
+		gameserver runs update neighbors
+
+
+
+
 
 game server sends ready to gateway
 gateway sends ready to user

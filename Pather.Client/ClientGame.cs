@@ -19,7 +19,7 @@ namespace Pather.Client
 
         public ClientGame()
         {
-            MyPlayerId = Guid.NewGuid().ToString();
+            MyPlayerId = Common.Common.UniqueId();
 
 
             StepManager = new ClientStepManager(this, new ClientNetworkManager());

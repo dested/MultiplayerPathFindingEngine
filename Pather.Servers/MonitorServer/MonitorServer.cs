@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Servers.Common;
-using Pather.Servers.Common.ServerLogger;
+using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Libraries.Socket.IO;
 using Pather.Servers.Utils;
 
@@ -9,7 +8,6 @@ namespace Pather.Servers.MonitorServer
 {
     public class MonitorServer
     {
-
         public MonitorServer()
         {
             //ExtensionMethods.debugger("");
@@ -20,13 +18,16 @@ namespace Pather.Servers.MonitorServer
             var io = SocketIO.Listen(app);
             var port = 9991;
 
-            string currentIP = ServerHelper.GetNetworkIPs()[0];
+            var currentIP = ServerHelper.GetNetworkIPs()[0];
             Global.Console.Log(currentIP);
 
             app.Listen(port);
             io.Set("log level", 0);
-            string[] serverTypes = { "GameSegment", "GameSegmentCluster", "GameWorld", "Gateway", "Chat", "Tick", "Auth" };
-            List<SocketIOConnection> connections = new List<SocketIOConnection>();
+            string[] serverTypes =
+            {
+                "GameSegment", "GameSegmentCluster", "GameWorld", "Gateway", "Chat", "Tick", "Auth"
+            };
+            var connections = new List<SocketIOConnection>();
 
             foreach (var serverType in serverTypes)
             {
@@ -37,22 +38,18 @@ namespace Pather.Servers.MonitorServer
                         socketIoConnection.Emit(mess.ServerType, mess);
                     }
                 });
-
             }
             io.Sockets.On("connection",
-                         (SocketIOConnection socket) =>
-                         {
-                             Global.Console.Log("User Joined");
-                             connections.Add(socket);
-                             socket.On("disconnect",
-                                       (string data) =>
-                                       {
-                                           connections.Remove(socket);
-
-                                       });
-                         });
+                (SocketIOConnection socket) =>
+                {
+                    Global.Console.Log("User Joined");
+                    connections.Add(socket);
+                    socket.On("disconnect",
+                        (string data) =>
+                        {
+                            connections.Remove(socket);
+                        });
+                });
         }
-
-
     }
 }

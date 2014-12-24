@@ -16,11 +16,13 @@ figure out action priming (player is halfway between X and Y, deterministically 
 todo test if its faster for redis to have one "tick" subscription for all relevent clients or not
 
 
+FIX 2 todos a day
+
 look into rabbitMQ
 
 unref child in gsc
 
-ignore ping/lockstep/keepalive in pubsub
+'/ignore ping/lockstep/keepalive in pubsub
 
 '/ add teh webpage logger from shuffly
 

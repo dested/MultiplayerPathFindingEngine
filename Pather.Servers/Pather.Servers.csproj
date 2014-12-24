@@ -40,7 +40,9 @@
     <Compile Include="Common\PubSub\PubSubChannels.cs" />
     <Compile Include="Common\PushPop\IPushPop.cs" />
     <Compile Include="Common\PushPop\PushPop.cs" />
-    <Compile Include="Common\ServerLogger\ServerLogger.cs" />
+    <Compile Include="Common\ServerLogging\ServerLogger.cs" />
+    <Compile Include="Common\ServerLogging\ServerLogListener.cs" />
+    <Compile Include="Common\ServerLogging\ServerLogMessage.cs" />
     <Compile Include="Common\SocketManager\SocketIOManager.cs" />
     <Compile Include="Common\SocketManager\ISocket.cs" />
     <Compile Include="Common\SocketManager\ISocketManager.cs" />
@@ -59,13 +61,13 @@
     <Compile Include="GameSegment\Old\GameSegmentUser.cs" />
     <Compile Include="GameWorldServer\GameSegment.cs" />
     <Compile Include="GameWorldServer\GameWorld.cs" />
-    <Compile Include="GameWorldServer\GameWorldNeighbor.cs" />
     <Compile Include="GameWorldServer\GameWorldPubSub.cs" />
-    <Compile Include="GameWorldServer\GameWorldUser.cs" />
+    <Compile Include="GameWorldServer\Models\GameWorldNeighbor.cs" />
+    <Compile Include="GameWorldServer\Models\GameWorldUser.cs" />
+    <Compile Include="GameWorldServer\Models\UserJoinError.cs" />
     <Compile Include="GatewayServer\GatewayPubSub.cs" />
     <Compile Include="GatewayServer\GatewayUser.cs" />
     <Compile Include="GatewayServer\Tests\GatewayServerTests.cs" />
-    <Compile Include="GameWorldServer\UserJoinError.cs" />
     <Compile Include="GameWorldServer\Tests\GameWorldServerTests.cs" />
     <Compile Include="GameSegmentCluster\GameSegmentCluster.cs" />
     <Compile Include="MonitorServer\MonitorServer.cs" />
@@ -86,7 +88,7 @@
     <Compile Include="Libraries\Socket.IO\SocketIoClient.cs" />
     <Compile Include="Libraries\Socket.IO\SocketIOConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="GameSegment\GameSegment.cs" />
+    <Compile Include="GameSegment\GameSegmentServer.cs" />
     <Compile Include="Common\ServerCommunicator.cs" />
     <Compile Include="GameSegment\Old\ServerEntity.cs" />
     <Compile Include="GameSegment\Old\ServerGame.cs" />

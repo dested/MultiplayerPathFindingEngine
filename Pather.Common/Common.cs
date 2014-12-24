@@ -36,7 +36,7 @@ namespace Pather.Common
 
         public static string UniqueId()
         {
-            return Guid.NewGuid().ToString();
+            return Guid.NewGuid().ToString("N");
         }
     }
 }

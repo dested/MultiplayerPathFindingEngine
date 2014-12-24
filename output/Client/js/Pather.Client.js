@@ -57,7 +57,7 @@
 		this.$sentMovementForThisLockstep = false;
 		this.$hasGrid = false;
 		Pather.Common.Game.call(this);
-		this.myPlayerId = ss.Guid.newGuid().toString();
+		this.myPlayerId = Pather.Common.Common.uniqueId();
 		this.stepManager = new $Pather_Client_ClientStepManager(this, new $Pather_Client_ClientNetworkManager());
 		this.$randomMoveMeTo();
 		if (!Pather.Common.Constants.get_testServer()) {
@@ -168,6 +168,9 @@
 		},
 		sendMessage: function(channel, obj) {
 			this.socket.emit(channel, ss.makeGenericType(Pather.Common.Utils.DataObject$1, [Object]).$ctor(obj));
+		},
+		disconnect: function() {
+			this.socket.disconnect();
 		}
 	});
 	ss.initClass($Pather_Client_ClientEntity, $asm, {
@@ -386,6 +389,7 @@
 			var clientCommunicator = new $Pather_Client_ClientCommunicator('http://127.0.0.1:1800');
 			clientCommunicator.listenOnChannel(String).call(clientCommunicator, 'Gateway.Join.Success', function(item) {
 				console.log(item);
+				clientCommunicator.disconnect();
 				defer.resolve();
 			});
 			var $t1 = Pather.Common.Models.Gateway.GatewayJoinModel.$ctor();

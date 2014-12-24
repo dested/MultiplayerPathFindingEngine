@@ -20,12 +20,6 @@ namespace Pather.Common.Utils.Promises
         }
 
         public Promise<TResolve, TError> Promise;
-
-        public Promise<TResolve, TError> PassPromiseThrough(Promise<TResolve, TError> passThrough)
-        {
-            passThrough.Then((resolve) => Promise.Resolve(resolve)).Error((reject) => Promise.Reject(reject));
-            return Promise;
-        }
     }
 
     public class Deferred
@@ -52,11 +46,6 @@ namespace Pather.Common.Utils.Promises
         {
             //todo basically a testmethod
             Global.SetTimeout(() => Promise.Resolve(), 0);
-        }
-
-        public Promise PassThrough(Promise passThrough)
-        {
-            return passThrough.Then(Promise.Resolve).Error(Promise.Reject);
         }
     }
 }

@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameWorld;
 using Pather.Common.Utils.Promises;
+using Pather.Servers.GameWorldServer.Models;
 
 namespace Pather.Servers.GameWorldServer
 {
@@ -22,22 +22,39 @@ namespace Pather.Servers.GameWorldServer
         public Promise AddUserToSegment(GameWorldUser gwUser)
         {
             var deferred = Q.Defer();
-            Global.Console.Log("User added to game segment");
 
-            GameWorld.GameWorldPubSub.PublishToGameSegmentWithCallback<UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message>(GameSegmentId, new UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message()
+            var userJoinGameWorldGameSegmentPubSubReqResMessage = new UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message()
             {
                 X = gwUser.X,
                 Y = gwUser.Y,
                 GatewayServer = gwUser.GatewayServer,
                 UserId = gwUser.UserId
-            }).Then((userJoinResponse) =>
+            };
+            GameWorld.GameWorldPubSub.PublishToGameSegmentWithCallback<UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message>(GameSegmentId, userJoinGameWorldGameSegmentPubSubReqResMessage).Then((userJoinResponse) =>
             {
-                Global.Console.Log("User added to game segment");
                 Users.Add(gwUser);
                 gwUser.GameSegment = this;
                 deferred.Resolve();
             });
 
+
+            return deferred.Promise;
+        }
+
+        public Promise RemoveUserFromGameSegment(GameWorldUser gwUser)
+        {
+            var deferred = Q.Defer();
+
+            var userJoinGameWorldGameSegmentPubSubReqResMessage = new UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message()
+            {
+                UserId = gwUser.UserId
+            };
+            GameWorld.GameWorldPubSub.PublishToGameSegmentWithCallback<UserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message>(GameSegmentId, userJoinGameWorldGameSegmentPubSubReqResMessage).Then((userJoinResponse) =>
+            {
+                Users.Remove(gwUser);
+                gwUser.GameSegment = null;
+                deferred.Resolve();
+            });
 
             return deferred.Promise;
         }

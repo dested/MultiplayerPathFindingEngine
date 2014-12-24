@@ -1,8 +1,9 @@
 using System;
 using System.Serialization;
-using Pather.Common.Models.GameWorld;
-using Pather.Common.Models.Gateway;
-using Pather.Common.Models.Tick;
+using Pather.Common.Models.GameSegment.Base;
+using Pather.Common.Models.GameWorld.Base;
+using Pather.Common.Models.Gateway.Base;
+using Pather.Common.Models.Tick.Base;
 using Pather.Servers.Common.PubSub;
 
 namespace Pather.Servers.GatewayServer
@@ -45,6 +46,11 @@ namespace Pather.Servers.GatewayServer
         public void PublishToGameWorld(GameWorld_PubSub_Message message)
         {
             PubSub.Publish(PubSubChannels.GameWorld(), message);
+        }
+
+        public void PublishToGameSegment(string gameSegmentId, GameSegment_PubSub_Message message)
+        {
+            PubSub.Publish(PubSubChannels.GameSegment(gameSegmentId), message);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Pather.Servers.Common.ServerLogger;
+﻿using Pather.Servers.Common.ServerLogging;
 
 namespace Pather.Servers.AuthServer
 {

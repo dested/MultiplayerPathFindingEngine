@@ -1,6 +1,7 @@
 using System;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Servers.Common.ServerLogging;
 
 namespace Pather.Servers.Common
 {
@@ -25,10 +26,22 @@ namespace Pather.Servers.Common
 
         public virtual void SetLockStepTick(long lockStepTickNumber)
         {
-            LockstepTickNumber = lockStepTickNumber;
-            CurrentLockstepTime = new DateTime().GetTime() - CurrentServerLatency;
-
             //todo resolve if current > or < lockstep
+            if (LockstepTickNumber > lockStepTickNumber)
+            {
+                LockstepTickNumber = lockStepTickNumber;
+                Global.Console.Log("Force Lockstep", lockStepTickNumber);
+//           TODO     Game.StepManager.ProcessAction(Game.LockstepTickNumber);
+            }
+            while (LockstepTickNumber < lockStepTickNumber)
+            {
+                LockstepTickNumber++;
+                Global.Console.Log("Force Lockstep", lockStepTickNumber);
+//           TODO     Game.StepManager.ProcessAction(Game.LockstepTickNumber);
+            }
+
+
+            CurrentLockstepTime = new DateTime().GetTime() - CurrentServerLatency;
         }
 
         public virtual void SetServerLatency(long latency)
@@ -55,7 +68,7 @@ namespace Pather.Servers.Common
 
         public virtual void ProcessLockstep(long lockstepTickNumber)
         {
-            Global.Console.Log("Lockstep", LockstepTickNumber, new DateTime().GetTime());
+            ServerLogger.LogInformation("Lockstep", LockstepTickNumber, new DateTime().GetTime());
         }
     }
 }

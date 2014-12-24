@@ -6,13 +6,11 @@ namespace Pather.Common.Utils.Promises
     public class Promise<TResolve, TError>
     {
         private readonly List<Action<TResolve>> resolves = new List<Action<TResolve>>();
-        //        private List<Func<TResolve, Promise<TResolve, TError>>> promsiedResolves = new List<Func<TResolve, Promise<TResolve, TError>>>();
         private readonly List<Action<TError>> rejects = new List<Action<TError>>();
         private readonly List<Action> finallys = new List<Action>();
 
         public Promise()
         {
-            //            promsiedResolves = new List<Func<TResolve, Promise<TResolve, TError>>>();
             resolves = new List<Action<TResolve>>();
             rejects = new List<Action<TError>>();
             finallys = new List<Action>();
@@ -37,10 +35,6 @@ namespace Pather.Common.Utils.Promises
             {
                 resolve(item);
             }
-            /*      foreach (var resolve in promsiedResolves)
-                  {
-                      resolve(item).
-                  }*/
         }
 
         internal void Reject(TError item)
@@ -105,26 +99,23 @@ namespace Pather.Common.Utils.Promises
             return this;
         }
 
-        /*
-                public Promise<TResolve, TError> Then(Func<TResolve,Promise<TResolve, TError>> resolve)
-                {
-                    promsiedResolves.Add(resolve);
-                    return this;
-                }
-        */
+
+        public Promise<TResolve, TError> PassThrough(Promise<TResolve, TError> passThrough)
+        {
+            Then(passThrough.Resolve).Error(passThrough.Reject);
+            return passThrough;
+        }
     }
 
 
     public class Promise
     {
         private readonly List<Action> resolves = new List<Action>();
-        //        private List<Func<Promise>> promsiedResolves = new List<Func<Promise>>();
         private readonly List<Action> rejects = new List<Action>();
         private readonly List<Action> finallys = new List<Action>();
 
         public Promise()
         {
-            //            promsiedResolves = new List<Func<TResolve, Promise<TResolve, TError>>>();
             resolves = new List<Action>();
             rejects = new List<Action>();
             finallys = new List<Action>();
@@ -144,10 +135,6 @@ namespace Pather.Common.Utils.Promises
             {
                 resolve();
             }
-            /*      foreach (var resolve in promsiedResolves)
-                  {
-                      resolve(item).
-                  }*/
         }
 
         protected internal void Reject()
@@ -210,12 +197,10 @@ namespace Pather.Common.Utils.Promises
             return this;
         }
 
-        /*
-                public Promise Then(Func<Promise> resolve)
-                {
-                    promsiedResolves.Add(resolve);
-                    return this;
-                }
-        */
+        public Promise PassThrough(Promise passThrough)
+        {
+            Then(passThrough.Resolve).Error(passThrough.Reject);
+            return passThrough;
+        }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using Pather.Common.Models.Tick.Base;
 
 namespace Pather.Common.Models.Tick
 {

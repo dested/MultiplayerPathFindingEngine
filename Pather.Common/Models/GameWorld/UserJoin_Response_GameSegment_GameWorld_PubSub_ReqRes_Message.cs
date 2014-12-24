@@ -1,4 +1,5 @@
 using System;
+using Pather.Common.Models.GameWorld.Base;
 
 namespace Pather.Common.Models.GameWorld
 {

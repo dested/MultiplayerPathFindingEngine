@@ -3,6 +3,7 @@ using System.Serialization;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameWorld;
 using Pather.Common.Models.Gateway;
+using Pather.Common.Models.Gateway.Base;
 using Pather.Common.TestFramework;
 using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
@@ -25,7 +26,7 @@ namespace Pather.Servers.GatewayServer.Tests
             var userToken = "abcdef";
 
             Action<string, Gateway_PubSub_Message> publishData = null;
-            Action<UserJoined_GameWorld_PubSub_Message> sendMessageToGameWorld = null;
+            Action<UserJoined_Gateway_GameWorld_PubSub_Message> sendMessageToGameWorld = null;
 
 
             var socketManager = Mocker.InstantiateInterface<ISocketManager>();
@@ -69,7 +70,7 @@ namespace Pather.Servers.GatewayServer.Tests
             });
 
 
-            Mocker.StubMethodCall<string, UserJoined_GameWorld_PubSub_Message>(pubSub.Publish, ((channel, data) =>
+            Mocker.StubMethodCall<string, UserJoined_Gateway_GameWorld_PubSub_Message>(pubSub.Publish, ((channel, data) =>
             {
                 if (channel == PubSubChannels.GameWorld())
                 {
@@ -83,13 +84,13 @@ namespace Pather.Servers.GatewayServer.Tests
             {
                 if (channel == gatewayName)
                 {
-                    var userJoined = Json.Parse<UserJoined_Gateway_PubSub_Message>(message);
+                    var userJoined = Json.Parse<UserJoined_GameWorld_Gateway_PubSub_Message>(message);
 
                     DeferredAssert.That(testDeferred, userJoined.UserId).Does.Equal(userToken);
                     testDeferred.Resolve();
                 }
             });
-            var gts = new GatewayServer(pubSub, socketManager,"gatewayServer1");
+            var gts = new GatewayServer(pubSub, socketManager, "gatewayServer1");
             gatewayName = gts.GatewayId;
 
 
@@ -124,7 +125,7 @@ namespace Pather.Servers.GatewayServer.Tests
 
             Mocker.StubMethodCall<string, Gateway_PubSub_Message>(pubSubTest.Publish, ((channel, data) =>
             {
-                DeferredAssert.That(testDeferred, ((UserJoined_Gateway_PubSub_Message) data).UserId).Does.Equal(userToken);
+                DeferredAssert.That(testDeferred, ((UserJoined_GameWorld_Gateway_PubSub_Message) data).UserId).Does.Equal(userToken);
 
                 publishData(channel, data);
             }));

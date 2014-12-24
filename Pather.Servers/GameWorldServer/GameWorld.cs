@@ -4,8 +4,10 @@ using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameSegmentCluster;
 using Pather.Common.Models.GameWorld;
+using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Database;
+using Pather.Servers.GameWorldServer.Models;
 
 namespace Pather.Servers.GameWorldServer
 {
@@ -42,13 +44,36 @@ namespace Pather.Servers.GameWorldServer
                         .Then(() =>
                         {
                             Users.Add(gwUser);
-                            Global.Console.Log("", "Gameworld has added a new user to game segment", gameSegment.GameSegmentId, "bring the total number of players to", Users.Count, ". The game segment has", gameSegment.Users.Count, "users.");
+                            Global.Console.Log("", "Gameworld added user to game segment", gameSegment.GameSegmentId, "Total Players:", Users.Count, "Game Segment Players:", gameSegment.Users.Count);
 
                             defer.Resolve(gwUser);
                         });
                 });
             return defer.Promise;
         }
+
+        public Promise UserLeft(DBUser dbUser)
+        {
+            var deferred = Q.Defer();
+
+            var gwUser = Users.First(a => a.UserId == dbUser.UserId);
+
+            if (gwUser == null)
+            {
+                throw new Exception("IDK WHO THIS USER IS");
+            }
+
+            gwUser.GameSegment.RemoveUserFromGameSegment(gwUser).Then(() =>
+            {
+                Users.Remove(gwUser);
+                Global.Console.Log("User left", gwUser.UserId);
+
+                deferred.Resolve();
+            });
+
+            return deferred.Promise;
+        }
+
 
         private Promise<GameSegment, UndefinedPromiseError> DetermineGameSegment(GameWorldUser gwUser)
         {
@@ -66,7 +91,7 @@ namespace Pather.Servers.GameWorldServer
             }
             else
             {
-                deferred.PassPromiseThrough(FindBestGameSegment(gwUser));
+                FindBestGameSegment(gwUser).PassThrough(deferred.Promise);
             }
 
             return deferred.Promise;
@@ -98,7 +123,7 @@ namespace Pather.Servers.GameWorldServer
         private Promise AddUserToSegment(GameWorldUser gwUser, GameSegment gameSegment)
         {
             var deferred = Q.Defer();
-            deferred.PassThrough(gameSegment.AddUserToSegment(gwUser));
+            gameSegment.AddUserToSegment(gwUser).PassThrough(deferred.Promise);
             return deferred.Promise;
         }
 
@@ -107,12 +132,12 @@ namespace Pather.Servers.GameWorldServer
         {
             var deferred = Q.Defer<GameSegment, UndefinedPromiseError>();
 
-            var createGameMessage = new CreateGameSegment_GameSegmentCluster_PubSub_ReqRes_Message()
+            var createGameMessage = new CreateGameSegment_GameWorld_GameSegmentCluster_PubSub_ReqRes_Message()
             {
                 GameSegmentId = Pather.Common.Common.UniqueId(),
             };
 
-            GameWorldPubSub.PublishToGameSegmentClusterWithCallback<CreateGameSegment_Response_GameWorld_PubSub_Message>(gameSegmentClusterId, createGameMessage)
+            GameWorldPubSub.PublishToGameSegmentClusterWithCallback<CreateGameSegment_Response_GameSegmentCluster_GameWorld_PubSub_Message>(gameSegmentClusterId, createGameMessage)
                 .Then((createGameMessageResponse) =>
                 {
                     var gs = new GameSegment(this);
