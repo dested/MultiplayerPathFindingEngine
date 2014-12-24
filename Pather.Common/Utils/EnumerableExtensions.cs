@@ -154,7 +154,7 @@ namespace Pather.Common.Utils
         }
 
 
-        public static T2[] Select<T, T2>(this T[] items, Func<T, T2> clause)
+        public static List<T2> Select<T, T2>(this T[] items, Func<T, T2> clause)
         {
             var items2 = new List<T2>();
 
@@ -162,7 +162,7 @@ namespace Pather.Common.Utils
             {
                 items2.Add(clause(item));
             }
-            return items2.ToArray();
+            return items2;
         }
 
 

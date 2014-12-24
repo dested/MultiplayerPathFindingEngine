@@ -8,6 +8,8 @@ namespace Pather.Common.Models.GameWorld.Base
         UserJoined,
         CreateGameSegmentResponse,
         UserJoinResponse,
+        TellUserJoinResponse,
+        TellUserLeftResponse,
         TickSync,
         UserLeft,
         Pong

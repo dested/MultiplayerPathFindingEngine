@@ -6,7 +6,7 @@ figure out auth
 data base
 verify move
 
-logout of gameworld server
+'/logout of gameworld server
     spin down game segment
 
 figure out action priming (player is halfway between X and Y, deterministically determine where he is and continue moving there)
@@ -15,8 +15,14 @@ figure out action priming (player is halfway between X and Y, deterministically 
 
 todo test if its faster for redis to have one "tick" subscription for all relevent clients or not
 
+only one user can join at a time
 
-FIX 2 todos a day
+figure out what happens when you start the servers in different orders
+
+many users join at the same time?
+
+**FIX 2 todos a day**
+
 
 look into rabbitMQ
 
@@ -29,9 +35,5 @@ unref child in gsc
 decide how to spin up gateways
 decide how to spin up gsc
 
-change gamesegmentcluster to new pubsub model
+'/ change gamesegmentcluster to new pubsub model
 
-
-TypeError: Cannot call method 'push' of null
-    at ss.initClass.onPongReceived (C:\code\github\dested\MultiplayerPathFindingEngine\output\Server\js\Pather.Serve
-rs.js:642:18)

@@ -9,6 +9,7 @@ namespace Pather.Servers.TickServer
     public class TickServerTickManager : TickManager
     {
         public TickPubSub TickPubSub;
+        private bool forceOnNextTick;
 
         public TickServerTickManager(TickPubSub tickPubSub)
         {
@@ -19,13 +20,19 @@ namespace Pather.Servers.TickServer
         {
             base.ProcessLockstep(lockstepTickNumber);
 
-            if (lockstepTickNumber%15 == 0)
+            if (lockstepTickNumber % 15 == 0 || forceOnNextTick)
             {
+                forceOnNextTick = false;
                 ServerLogger.LogInformation("Pushed Lockstep Tick", lockstepTickNumber);
                 TickPubSub.PublishToAllGameSegments(new TickSync_GameSegment_PubSub_AllMessage(lockstepTickNumber));
                 TickPubSub.PublishToAllGateways(new TickSync_Tick_Gateway_PubSub_AllMessage(lockstepTickNumber));
                 TickPubSub.PublishToGameWorld(new TickSync_Tick_GameWorld_PubSub_Message(lockstepTickNumber));
             }
+        }
+
+        public void ForceOnNextTick()
+        {
+            forceOnNextTick = true;
         }
     }
 }

@@ -35,6 +35,10 @@ namespace Pather.Common.Utils.Promises
             {
                 resolve(item);
             }
+            foreach (var @finally in finallys)
+            {
+                @finally();
+            }
         }
 
         internal void Reject(TError item)
@@ -71,7 +75,7 @@ namespace Pather.Common.Utils.Promises
             return this;
         }
 
-        internal Promise<TResolve, TError> Finally(Action @finally)
+        public Promise<TResolve, TError> Finally(Action @finally)
         {
             if (IsRejected || IsResolved)
             {
@@ -134,6 +138,10 @@ namespace Pather.Common.Utils.Promises
             foreach (var resolve in resolves)
             {
                 resolve();
+            } 
+            foreach (var @finally in finallys)
+            {
+                @finally();
             }
         }
 

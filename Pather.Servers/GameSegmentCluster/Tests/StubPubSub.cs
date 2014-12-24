@@ -7,10 +7,6 @@ namespace Pather.Servers.GameSegmentCluster.Tests
 {
     public class StubPubSub : IPubSub
     {
-        public void Publish(string channel, string content)
-        {
-            throw new NotImplementedException();
-        }
 
         public void Publish<T>(string channel, T content)
         {

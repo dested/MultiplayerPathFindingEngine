@@ -22,7 +22,8 @@ namespace Pather.Servers.GameSegment
         private readonly IPubSub Pubsub;
         private readonly IPushPop PushPop;
         private readonly string GameSegmentId;
-        public List<GameSegmentUser> Users = new List<GameSegmentUser>();
+        public List<GameSegmentUser> MySegmentUsers = new List<GameSegmentUser>();
+        public List<GameSegmentUser> OtherSegmentUsers = new List<GameSegmentUser>();
 
         public GameSegmentServer(ISocketManager socketManager, IPubSub pubsub, IPushPop pushPop, string gameSegmentId)
         {
@@ -80,35 +81,74 @@ namespace Pather.Servers.GameSegment
         {
             switch (message.Type)
             {
-                    //todo MAKE THIS CALL INDIVIDUAL METHODS
+                //todo MAKE THIS CALL INDIVIDUAL METHODS
                 case GameSegment_PubSub_MessageType.UserJoin:
-                    var userJoinMessage = (UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message) message;
-                    Users.Add(new GameSegmentUser()
+                    var userJoinMessage = (UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message)message;
+                    MySegmentUsers.Add(new GameSegmentUser()
                     {
                         UserId = userJoinMessage.UserId,
                         GatewayServer = userJoinMessage.GatewayServer,
                         X = userJoinMessage.X,
                         Y = userJoinMessage.Y,
                     });
-                    Global.Console.Log("User Joined Game Segment", GameSegmentId, "User count now: ", Users.Count);
+                    ServerLogger.LogInformation("User Joined Game Segment", "User count now: ", MySegmentUsers.Count);
+                    Global.Console.Log(GameSegmentId, "User Joined Game Segment", "User count now: ", MySegmentUsers.Count);
                     GameSegmentPubSub.PublishToGameWorld(new UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message()
                     {
                         MessageId = userJoinMessage.MessageId
                     });
 
                     break;
+                case GameSegment_PubSub_MessageType.TellUserJoin:
+                    var tellUserJoinMessage = (TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message)message;
+                    OtherSegmentUsers.Add(new GameSegmentUser()
+                    {
+                        UserId = tellUserJoinMessage.UserId,
+                        GatewayServer = tellUserJoinMessage.GatewayServer,
+                        X = tellUserJoinMessage.X,
+                        Y = tellUserJoinMessage.Y,
+                    });
+                    ServerLogger.LogInformation("User Joined A Different Game Segment");
+                    Global.Console.Log(GameSegmentId, "User Joined A Different Game Segment");
+                    GameSegmentPubSub.PublishToGameWorld(new TellUserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message()
+                    {
+                        MessageId = tellUserJoinMessage.MessageId
+                    });
+
+                    break;
+                case GameSegment_PubSub_MessageType.TellUserLeft:
+                    var tellUserLeftMessage = (TellUserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message)message;
+                    var luser = OtherSegmentUsers.First(u => u.UserId == tellUserLeftMessage.UserId);
+
+                    if (luser == null)
+                    {
+                        throw new Exception("IDK Who this user is:" + tellUserLeftMessage.UserId);
+                    }
+
+                    OtherSegmentUsers.Remove(luser);
+
+                    ServerLogger.LogInformation("User Left Other Game Segment");
+                    Global.Console.Log(GameSegmentId, "User Left Other Game Segment");
+                    GameSegmentPubSub.PublishToGameWorld(new TellUserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message()
+                    {
+                        MessageId = tellUserLeftMessage.MessageId
+                    });
+
+                    break;
+
                 case GameSegment_PubSub_MessageType.UserLeft:
-                    var userLeftMessage = (UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message) message;
-                    var user = Users.First(u => u.UserId == userLeftMessage.UserId);
+                    var userLeftMessage = (UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message)message;
+                    var user = MySegmentUsers.First(u => u.UserId == userLeftMessage.UserId);
 
                     if (user == null)
                     {
                         throw new Exception("IDK Who this user is:" + userLeftMessage.UserId);
                     }
 
-                    Users.Remove(user);
+                    MySegmentUsers.Remove(user);
 
-                    Global.Console.Log("User Left Game Segment", GameSegmentId, "User count now: ", Users.Count);
+                    ServerLogger.LogInformation("User Left Game Segment", "User count now: ", MySegmentUsers.Count);
+                    Global.Console.Log(GameSegmentId, "User Left Game Segment", "User count now: ", MySegmentUsers.Count);
                     GameSegmentPubSub.PublishToGameWorld(new UserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message()
                     {
                         MessageId = userLeftMessage.MessageId
@@ -116,7 +156,7 @@ namespace Pather.Servers.GameSegment
 
                     break;
                 case GameSegment_PubSub_MessageType.Pong:
-                    var pongMessage = (Pong_Tick_GameSegment_PubSub_Message) message;
+                    var pongMessage = (Pong_Tick_GameSegment_PubSub_Message)message;
                     ClientTickManager.OnPongReceived();
                     break;
                 default:
@@ -129,7 +169,7 @@ namespace Pather.Servers.GameSegment
             switch (message.Type)
             {
                 case GameSegment_PubSub_AllMessageType.TickSync:
-                    var tickSyncMessage = (TickSync_GameSegment_PubSub_AllMessage) message;
+                    var tickSyncMessage = (TickSync_GameSegment_PubSub_AllMessage)message;
                     ClientTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;
                 default:

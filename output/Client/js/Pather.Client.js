@@ -3,7 +3,9 @@
 	var $asm = {};
 	global.Pather = global.Pather || {};
 	global.Pather.Client = global.Pather.Client || {};
+	global.Pather.Client.Old = global.Pather.Client.Old || {};
 	global.Pather.Client.Tests = global.Pather.Client.Tests || {};
+	global.Pather.Client.Utils = global.Pather.Client.Utils || {};
 	ss.initAssembly($asm, 'Pather.Client');
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Client.Program
@@ -15,39 +17,21 @@
 			Pather.Common.TestFramework.TestFramework.runTests(null);
 			return;
 		}
-		var game = new $Pather_Client_ClientGame();
+		var game = new $Pather_Client_Old_ClientGame();
 		game.init();
 	};
 	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Client.ClientCommunicator
-	var $Pather_Client_ClientCommunicator = function(url) {
-		this.socket = null;
-		//            var url = "http://198.211.107.101:8991";
-		url = ss.coalesce(url, 'http://127.0.0.1:8991');
-		if (Pather.Common.Constants.get_testServer()) {
-			this.socket = require('socket.io-client')(url, { reconnection: false });
-			this.socket.on('connect', function() {
-				console.log('hi');
-			});
-		}
-		else {
-			this.socket = io.connect(url, { reconnection: false });
-		}
-	};
-	$Pather_Client_ClientCommunicator.__typeName = 'Pather.Client.ClientCommunicator';
-	global.Pather.Client.ClientCommunicator = $Pather_Client_ClientCommunicator;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Client.ClientEntity
-	var $Pather_Client_ClientEntity = function(game, playerId) {
+	// Pather.Client.Old.ClientEntity
+	var $Pather_Client_Old_ClientEntity = function(game, playerId) {
 		this.$clientGame = null;
 		Pather.Common.Entity.call(this, game, playerId);
 		this.$clientGame = game;
 	};
-	$Pather_Client_ClientEntity.__typeName = 'Pather.Client.ClientEntity';
-	global.Pather.Client.ClientEntity = $Pather_Client_ClientEntity;
+	$Pather_Client_Old_ClientEntity.__typeName = 'Pather.Client.Old.ClientEntity';
+	global.Pather.Client.Old.ClientEntity = $Pather_Client_Old_ClientEntity;
 	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Client.ClientGame
-	var $Pather_Client_ClientGame = function() {
+	// Pather.Client.Old.ClientGame
+	var $Pather_Client_Old_ClientGame = function() {
 		this.canvas = null;
 		this.context = null;
 		this.backCanvas = null;
@@ -58,7 +42,7 @@
 		this.$hasGrid = false;
 		Pather.Common.Game.call(this);
 		this.myPlayerId = Pather.Common.Common.uniqueId();
-		this.stepManager = new $Pather_Client_ClientStepManager(this, new $Pather_Client_ClientNetworkManager());
+		this.stepManager = new $Pather_Client_Old_ClientStepManager(this, new $Pather_Client_Old_ClientNetworkManager());
 		this.$randomMoveMeTo();
 		if (!Pather.Common.Constants.get_testServer()) {
 			var $t1 = document.getElementById('backCanvas');
@@ -81,11 +65,11 @@
 			});
 		}
 	};
-	$Pather_Client_ClientGame.__typeName = 'Pather.Client.ClientGame';
-	global.Pather.Client.ClientGame = $Pather_Client_ClientGame;
+	$Pather_Client_Old_ClientGame.__typeName = 'Pather.Client.Old.ClientGame';
+	global.Pather.Client.Old.ClientGame = $Pather_Client_Old_ClientGame;
 	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Client.ClientNetworkManager
-	var $Pather_Client_ClientNetworkManager = function() {
+	// Pather.Client.Old.ClientNetworkManager
+	var $Pather_Client_Old_ClientNetworkManager = function() {
 		this.clientCommunicator = null;
 		this.networkPlayers = 0;
 		this.onReceiveAction = null;
@@ -95,7 +79,7 @@
 		this.onSetLatency = null;
 		this.$lastPing = 0;
 		this.$pingSent = null;
-		this.clientCommunicator = new $Pather_Client_ClientCommunicator(null);
+		this.clientCommunicator = new $Pather_Client_Utils_ClientCommunicator(null);
 		this.networkPlayers = 0;
 		this.clientCommunicator.listenOnChannel(Pather.Common.Models.Game.Old.ConnectedModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('connect'), ss.mkdel(this, function(model) {
 			this.onConnected(model);
@@ -135,11 +119,11 @@
 			this.receiveAction(model4);
 		}));
 	};
-	$Pather_Client_ClientNetworkManager.__typeName = 'Pather.Client.ClientNetworkManager';
-	global.Pather.Client.ClientNetworkManager = $Pather_Client_ClientNetworkManager;
+	$Pather_Client_Old_ClientNetworkManager.__typeName = 'Pather.Client.Old.ClientNetworkManager';
+	global.Pather.Client.Old.ClientNetworkManager = $Pather_Client_Old_ClientNetworkManager;
 	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Client.ClientStepManager
-	var $Pather_Client_ClientStepManager = function(game, clientNetworkManager) {
+	// Pather.Client.Old.ClientStepManager
+	var $Pather_Client_Old_ClientStepManager = function(game, clientNetworkManager) {
 		this.clientNetworkManager = null;
 		Pather.Common.StepManager.call(this, game);
 		this.clientNetworkManager = clientNetworkManager;
@@ -149,31 +133,46 @@
 		this.clientNetworkManager.onSetLockStep = ss.mkdel(this, this.$onSetLockstep);
 		this.clientNetworkManager.onSetLatency = ss.mkdel(this, this.$onSetLatency);
 	};
-	$Pather_Client_ClientStepManager.__typeName = 'Pather.Client.ClientStepManager';
-	global.Pather.Client.ClientStepManager = $Pather_Client_ClientStepManager;
+	$Pather_Client_Old_ClientStepManager.__typeName = 'Pather.Client.Old.ClientStepManager';
+	global.Pather.Client.Old.ClientStepManager = $Pather_Client_Old_ClientStepManager;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Client.Tests.LoginE2ETest
 	var $Pather_Client_Tests_LoginE2ETest = function() {
 	};
 	$Pather_Client_Tests_LoginE2ETest.__typeName = 'Pather.Client.Tests.LoginE2ETest';
+	$Pather_Client_Tests_LoginE2ETest.$joinUser = function(userToken) {
+		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_Client_Utils_ClientCommunicator, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
+		var clientCommunicator = new $Pather_Client_Utils_ClientCommunicator('http://127.0.0.1:1800');
+		clientCommunicator.listenOnChannel(String).call(clientCommunicator, 'Gateway.Join.Success', function(item) {
+			console.log(item);
+			deferred.resolve(clientCommunicator);
+		});
+		var $t1 = Pather.Common.Models.Gateway.GatewayJoinModel.$ctor();
+		$t1.userToken = userToken;
+		clientCommunicator.sendMessage('Gateway.Join', $t1);
+		return deferred.promise;
+	};
 	global.Pather.Client.Tests.LoginE2ETest = $Pather_Client_Tests_LoginE2ETest;
-	ss.initClass($Pather_Client_$Program, $asm, {});
-	ss.initClass($Pather_Client_ClientCommunicator, $asm, {
-		listenOnChannel: function(T) {
-			return function(channel, callback) {
-				this.socket.on(channel, function(obj) {
-					callback(obj.data);
-				});
-			};
-		},
-		sendMessage: function(channel, obj) {
-			this.socket.emit(channel, ss.makeGenericType(Pather.Common.Utils.DataObject$1, [Object]).$ctor(obj));
-		},
-		disconnect: function() {
-			this.socket.disconnect();
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Client.Utils.ClientCommunicator
+	var $Pather_Client_Utils_ClientCommunicator = function(url) {
+		this.socket = null;
+		//            var url = "http://198.211.107.101:8991";
+		url = ss.coalesce(url, 'http://127.0.0.1:8991');
+		if (Pather.Common.Constants.get_testServer()) {
+			this.socket = require('socket.io-client')(url, { reconnection: false, forceNew: true });
+			this.socket.on('connect', function() {
+				console.log('hi');
+			});
 		}
-	});
-	ss.initClass($Pather_Client_ClientEntity, $asm, {
+		else {
+			this.socket = io.connect(url, { reconnection: false, forceNew: true });
+		}
+	};
+	$Pather_Client_Utils_ClientCommunicator.__typeName = 'Pather.Client.Utils.ClientCommunicator';
+	global.Pather.Client.Utils.ClientCommunicator = $Pather_Client_Utils_ClientCommunicator;
+	ss.initClass($Pather_Client_$Program, $asm, {});
+	ss.initClass($Pather_Client_Old_ClientEntity, $asm, {
 		draw: function(context, interpolatedTime) {
 			context.save();
 			if (interpolatedTime < 0) {
@@ -210,7 +209,7 @@
 			context.restore();
 		}
 	}, Pather.Common.Entity);
-	ss.initClass($Pather_Client_ClientGame, $asm, {
+	ss.initClass($Pather_Client_Old_ClientGame, $asm, {
 		$randomMoveMeTo: function() {
 			window.setTimeout(ss.mkdel(this, function() {
 				this.$randomMoveMeTo();
@@ -231,7 +230,7 @@
 			else {
 				lockstepNumber += 1;
 			}
-			var $t2 = ss.cast(this.stepManager, $Pather_Client_ClientStepManager);
+			var $t2 = ss.cast(this.stepManager, $Pather_Client_Old_ClientStepManager);
 			var $t1 = Pather.Common.Models.Game.Old.MoveModel.$ctor();
 			$t1.x = squareX;
 			$t1.y = squareY;
@@ -247,7 +246,7 @@
 			}
 		},
 		createPlayer: function(playerId) {
-			return new $Pather_Client_ClientEntity(this, playerId);
+			return new $Pather_Client_Old_ClientEntity(this, playerId);
 		},
 		drawBack: function() {
 			this.backContext.save();
@@ -295,7 +294,7 @@
 			this.myPlayer = player;
 		}
 	}, Pather.Common.Game);
-	ss.initClass($Pather_Client_ClientNetworkManager, $asm, {
+	ss.initClass($Pather_Client_Old_ClientNetworkManager, $asm, {
 		$triggerPingTest: function() {
 			this.$pingSent = [];
 			this.$lastPing = (new Date()).getTime();
@@ -315,7 +314,7 @@
 			$t2.sendMessage($t3, $t1);
 		}
 	});
-	ss.initClass($Pather_Client_ClientStepManager, $asm, {
+	ss.initClass($Pather_Client_Old_ClientStepManager, $asm, {
 		get_networkPlayers: function() {
 			return this.clientNetworkManager.networkPlayers;
 		},
@@ -337,10 +336,12 @@
 					console.log('Force Lockstep', this.game.lockstepTickNumber);
 					this.game.stepManager.processAction(this.game.lockstepTickNumber);
 				}
-				while (this.game.lockstepTickNumber < model.lockstepTickNumber) {
-					this.game.lockstepTickNumber++;
+				if (this.game.lockstepTickNumber < model.lockstepTickNumber) {
 					console.log('Force Lockstep', this.game.lockstepTickNumber);
-					this.game.stepManager.processAction(this.game.lockstepTickNumber);
+					while (this.game.lockstepTickNumber < model.lockstepTickNumber) {
+						this.game.lockstepTickNumber++;
+						this.game.stepManager.processAction(this.game.lockstepTickNumber);
+					}
 				}
 			}
 		},
@@ -348,7 +349,7 @@
 			this.game.grid = model.grid;
 			this.game.aStarGraph = new Graph(this.game.grid);
 			this.game.players = [];
-			this.clientNetworkManager.joinPlayer(ss.cast(this.game, $Pather_Client_ClientGame).myPlayerId);
+			this.clientNetworkManager.joinPlayer(ss.cast(this.game, $Pather_Client_Old_ClientGame).myPlayerId);
 		},
 		$playerSync: function(model) {
 			if (ss.isValue(model.joinedPlayers)) {
@@ -357,8 +358,8 @@
 					var player = this.game.createPlayer(playerModel.playerId);
 					player.init(playerModel.x, playerModel.y);
 					this.game.players.push(player);
-					if (ss.referenceEquals(ss.cast(this.game, $Pather_Client_ClientGame).myPlayerId, playerModel.playerId)) {
-						ss.cast(this.game, $Pather_Client_ClientGame).localPlayerJoined(player);
+					if (ss.referenceEquals(ss.cast(this.game, $Pather_Client_Old_ClientGame).myPlayerId, playerModel.playerId)) {
+						ss.cast(this.game, $Pather_Client_Old_ClientGame).localPlayerJoined(player);
 					}
 				}
 			}
@@ -386,15 +387,34 @@
 	}, Pather.Common.StepManager);
 	ss.initClass($Pather_Client_Tests_LoginE2ETest, $asm, {
 		test1: function(defer) {
-			var clientCommunicator = new $Pather_Client_ClientCommunicator('http://127.0.0.1:1800');
-			clientCommunicator.listenOnChannel(String).call(clientCommunicator, 'Gateway.Join.Success', function(item) {
-				console.log(item);
-				clientCommunicator.disconnect();
-				defer.resolve();
+			var users = [];
+			for (var i = 0; i < 15; i++) {
+				users.push($Pather_Client_Tests_LoginE2ETest.$joinUser('salvatore' + i));
+			}
+			Pather.Common.Utils.Promises.Q.allSequential$3($Pather_Client_Utils_ClientCommunicator, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null, users).then(function(clientCommunicators) {
+				setTimeout(function() {
+					for (var $t1 = 0; $t1 < clientCommunicators.length; $t1++) {
+						var clientCommunicator = clientCommunicators[$t1];
+						clientCommunicator.disconnect();
+					}
+					defer.resolve();
+				}, 2000);
 			});
-			var $t1 = Pather.Common.Models.Gateway.GatewayJoinModel.$ctor();
-			$t1.userToken = 'salvatore';
-			clientCommunicator.sendMessage('Gateway.Join', $t1);
+		}
+	});
+	ss.initClass($Pather_Client_Utils_ClientCommunicator, $asm, {
+		listenOnChannel: function(T) {
+			return function(channel, callback) {
+				this.socket.on(channel, function(obj) {
+					callback(obj.data);
+				});
+			};
+		},
+		sendMessage: function(channel, obj) {
+			this.socket.emit(channel, ss.makeGenericType(Pather.Common.Utils.DataObject$1, [Object]).$ctor(obj));
+		},
+		disconnect: function() {
+			this.socket.disconnect();
 		}
 	});
 	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute()], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'Test1', type: 8, sname: 'test1', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });

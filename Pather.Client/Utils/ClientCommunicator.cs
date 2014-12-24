@@ -4,7 +4,7 @@ using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Utils;
 
-namespace Pather.Client
+namespace Pather.Client.Utils
 {
     public class ClientCommunicator
     {
@@ -20,7 +20,8 @@ namespace Pather.Client
                 Socket = Global.Require<Func<string, object, SocketIOClient>>("socket.io-client")(url,
                     new
                     {
-                        reconnection = false
+                        reconnection =false,
+                        forceNew = true
                     });
                 Socket.On("connect", () =>
                 {
@@ -31,7 +32,8 @@ namespace Pather.Client
             {
                 Socket = SocketIOClient.Connect(url, new
                 {
-                    reconnection = false
+                    reconnection = false,
+                    forceNew = true
                 });
             }
         }

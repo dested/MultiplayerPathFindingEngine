@@ -4,7 +4,7 @@ using System.Html.Media.Graphics;
 using Pather.Common;
 using Pather.Common.Models.Game.Old;
 
-namespace Pather.Client
+namespace Pather.Client.Old
 {
     public class ClientGame : Game
     {

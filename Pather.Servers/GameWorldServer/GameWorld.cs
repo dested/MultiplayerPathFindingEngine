@@ -40,14 +40,24 @@ namespace Pather.Servers.GameWorldServer
             DetermineGameSegment(gwUser)
                 .Then(gameSegment =>
                 {
-                    AddUserToSegment(gwUser, gameSegment)
+                    var promises = GameSegments
+                        .Where(seg => seg != gameSegment)
+                        .Select(seg => seg.TellSegmentAboutUser(gwUser));
+
+                    promises.Add(gameSegment.AddUserToSegment(gwUser));
+
+                    Q.All(promises)
                         .Then(() =>
                         {
                             Users.Add(gwUser);
-                            Global.Console.Log("", "Gameworld added user to game segment", gameSegment.GameSegmentId, "Total Players:", Users.Count, "Game Segment Players:", gameSegment.Users.Count);
+                            Global.Console.Log("",
+                                "Gameworld added user to game segment", gameSegment.GameSegmentId,
+                                "Total Players:", Users.Count,
+                                "Game Segment Players:", gameSegment.Users.Count);
 
                             defer.Resolve(gwUser);
                         });
+
                 });
             return defer.Promise;
         }
@@ -63,13 +73,22 @@ namespace Pather.Servers.GameWorldServer
                 throw new Exception("IDK WHO THIS USER IS");
             }
 
-            gwUser.GameSegment.RemoveUserFromGameSegment(gwUser).Then(() =>
-            {
-                Users.Remove(gwUser);
-                Global.Console.Log("User left", gwUser.UserId);
+            var promises = GameSegments
+                        .Where(seg => seg != gwUser.GameSegment)
+                        .Select(seg => seg.TellSegmentAboutRemoveUser(gwUser));
 
-                deferred.Resolve();
-            });
+            promises.Add(gwUser.GameSegment.RemoveUserFromGameSegment(gwUser));
+
+            Q.All(promises)
+                .Then(() =>
+                {
+                    Users.Remove(gwUser);
+                    Global.Console.Log("User left", gwUser.UserId);
+                    deferred.Resolve();
+                });
+
+
+
 
             return deferred.Promise;
         }
@@ -77,10 +96,10 @@ namespace Pather.Servers.GameWorldServer
 
         private Promise<GameSegment, UndefinedPromiseError> DetermineGameSegment(GameWorldUser gwUser)
         {
-            var deferred = Q.Defer<GameSegment, UndefinedPromiseError>();
 
             if (Users.Count == 0)
             {
+                var deferred = Q.Defer<GameSegment, UndefinedPromiseError>();
                 Global.Console.Log("Creating new segment.");
                 CreateGameSegment()
                     .Then((gameSegment) =>
@@ -88,42 +107,31 @@ namespace Pather.Servers.GameWorldServer
                         Global.Console.Log("New segment created.");
                         deferred.Resolve(gameSegment);
                     });
+                return deferred.Promise;
             }
             else
             {
-                FindBestGameSegment(gwUser).PassThrough(deferred.Promise);
+                return FindBestGameSegment(gwUser);
             }
-
-            return deferred.Promise;
         }
 
         private Promise<GameSegment, UndefinedPromiseError> FindBestGameSegment(GameWorldUser gwUser)
         {
             var deferred = Q.Defer<GameSegment, UndefinedPromiseError>();
-            var neighbor = DetermineClosestNeighbor(gwUser);
+            var neighbor = determineClosestNeighbor(gwUser);
 
             var neighborGameSegment = neighbor.User.GameSegment;
-            if (CanAcceptNewUsers(neighborGameSegment))
+            if (neighborGameSegment.CanAcceptNewUsers())
             {
                 deferred.Resolve(neighborGameSegment);
             }
             else
             {
-                throw new NotImplementedException("todo split gamesegment up?");
+                //TODO PRObably find the second closest user and add to him lol
+                //todo REORG GAME SEGMENTS?
+                return CreateGameSegment();
             }
 
-            return deferred.Promise;
-        }
-
-        private bool CanAcceptNewUsers(GameSegment gameSegment)
-        {
-            return gameSegment.Users.Count < Constants.UsersPerGameSegment;
-        }
-
-        private Promise AddUserToSegment(GameWorldUser gwUser, GameSegment gameSegment)
-        {
-            var deferred = Q.Defer();
-            gameSegment.AddUserToSegment(gwUser).PassThrough(deferred.Promise);
             return deferred.Promise;
         }
 
@@ -163,7 +171,7 @@ namespace Pather.Servers.GameWorldServer
             }
         }
 
-        private GameWorldNeighbor DetermineClosestNeighbor(GameWorldUser pUser)
+        private GameWorldNeighbor determineClosestNeighbor(GameWorldUser pUser)
         {
             var closestNeighbor = pUser.ClosestNeighbor();
 
@@ -217,7 +225,7 @@ namespace Pather.Servers.GameWorldServer
             var _x = (cx - mx);
             var _y = (cy - my);
 
-            var dis = Math.Sqrt((_x*_x) + (_y*_y));
+            var dis = Math.Sqrt((_x * _x) + (_y * _y));
             return dis;
         }
     }

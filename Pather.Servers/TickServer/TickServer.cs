@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
 using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameWorld;
 using Pather.Common.Models.Gateway;
@@ -36,6 +38,8 @@ namespace Pather.Servers.TickServer
             TickPubSub.OnMessage += pubSubMessage;
         }
 
+        private JsDictionary<string, bool> recievedOriginHash = new JsDictionary<string, bool>();
+
         private void pubSubMessage(Tick_PubSub_Message message)
         {
             switch (message.Type)
@@ -44,7 +48,11 @@ namespace Pather.Servers.TickServer
                     ServerLogger.LogInformation("Received Ping", message);
 
                     var pingMessage = (Ping_Tick_PubSub_Message) message;
-
+                    if (!recievedOriginHash.ContainsKey(pingMessage.Origin))
+                    {
+                        TickManager.ForceOnNextTick();
+                        recievedOriginHash[pingMessage.Origin] = true;
+                    }
                     object returnMessage;
 
                     switch (pingMessage.OriginType)

@@ -14,7 +14,7 @@ namespace Pather.Servers.Common
         public long LockstepTickNumber;
 
         private long CurrentLockstepTime;
-        private long CurrentServerLatency;
+        protected long CurrentServerLatency;
 
         public virtual void Init(long currentLockstepTickNumber)
         {
@@ -33,11 +33,17 @@ namespace Pather.Servers.Common
                 Global.Console.Log("Force Lockstep", lockStepTickNumber);
 //           TODO     Game.StepManager.ProcessAction(Game.LockstepTickNumber);
             }
-            while (LockstepTickNumber < lockStepTickNumber)
+
+            if (LockstepTickNumber < lockStepTickNumber)
             {
-                LockstepTickNumber++;
                 Global.Console.Log("Force Lockstep", lockStepTickNumber);
-//           TODO     Game.StepManager.ProcessAction(Game.LockstepTickNumber);
+                while (LockstepTickNumber < lockStepTickNumber)
+                {
+                    LockstepTickNumber++;
+                    //           TODO     Game.StepManager.ProcessAction(Game.LockstepTickNumber);
+                }
+
+                
             }
 
 
@@ -68,7 +74,7 @@ namespace Pather.Servers.Common
 
         public virtual void ProcessLockstep(long lockstepTickNumber)
         {
-            ServerLogger.LogInformation("Lockstep", LockstepTickNumber, new DateTime().GetTime());
+//            ServerLogger.LogInformation("Lockstep", LockstepTickNumber, new DateTime().GetTime());
         }
     }
 }

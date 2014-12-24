@@ -61,7 +61,10 @@ namespace Pather.Servers.Common.PubSub
             try
             {
                 if (!dontLog)
-                    ServerLogger.LogTransport("Pubsub Message Received", channel, message);
+                {
+                    if (channel != PubSubChannels.Tick() && !message.Contains("pong") && !message.Contains("tickSync")/*todo this pong stuff aint gonna fly when you remove namedvalues*/)
+                        ServerLogger.LogTransport("Pubsub Message Received", channel, message);
+                }
                 var channelCallback = subbed[channel];
                 if (channelCallback != null)
                     channelCallback(message);
@@ -80,17 +83,12 @@ namespace Pather.Servers.Common.PubSub
         }
 
 
-        public void Publish(string channel, string message)
-        {
-            if (!dontLog)
-                ServerLogger.LogTransport("Pubsub Message Sent", channel, message);
-            pubClient.Publish(channel, message);
-        }
 
         public void Publish<T>(string channel, T message)
         {
             if (!dontLog)
-                ServerLogger.LogTransport("Pubsub Message Sent", channel, message);
+                if (channel != PubSubChannels.Tick())
+                    ServerLogger.LogTransport("Pubsub Message Sent", channel, message);
 
 
             var stringMessage = Json.Stringify(message);
@@ -101,7 +99,8 @@ namespace Pather.Servers.Common.PubSub
         public void Subscribe(string channel, Action<string> callback)
         {
             if (!dontLog)
-                ServerLogger.LogDebug("Pubsub Subscribed to", channel);
+                if (channel != PubSubChannels.Tick())
+                    ServerLogger.LogDebug("Pubsub Subscribed to", channel);
             subClient.Subscribe(channel);
             subbed[channel] = callback;
         }

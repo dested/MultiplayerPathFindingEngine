@@ -6,6 +6,8 @@ namespace Pather.Common.Models.GameSegment.Base
     public enum GameSegment_PubSub_MessageType
     {
         Pong,
+        TellUserJoin,
+        TellUserLeft,
         UserJoin,
         UserLeft
     }

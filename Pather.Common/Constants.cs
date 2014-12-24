@@ -6,20 +6,21 @@ namespace Pather.Common
     {
         static Constants()
         {
+            //CLIENT
             SquareSize = 8;
-            NumberOfSquares = 150;
             DrawFps = 60;
-            DrawTicks = 1000/DrawFps;
+            NumberOfSquares = 150;
+            DrawTicks = 1000 / DrawFps;
+            AnimationSteps = 5;
+
             GameFps = 10;
             GameTicks = 1000/GameFps;
             LockstepFps = 2;
             LockstepTicks = 1000/LockstepFps;
-            AnimationSteps = 5;
 
             LatencyPingInterval = 6*1000;
             NeighborDistance = 20;
-            UsersPerGameSegment = 50;
-
+            UsersPerGameSegment = 4;
             GameSegmentCreationWait = 60;
         }
 
@@ -33,17 +34,15 @@ namespace Pather.Common
         public static int NumberOfSquares;
         public static int GameTicks;
         public static int NeighborDistance;
+        public static int GameSegmentCreationWait;
+        public static int LatencyPingInterval;
+        public static int UsersPerGameSegment;
 
 
         public static bool TestServer
         {
-            get { return ((dynamic) Window.Instance).TestServer; }
+            get { return ((dynamic)Window.Instance).TestServer; }
         }
 
-        public static int GameSegmentCreationWait;
-
-        public static int LatencyPingInterval;
-
-        public static int UsersPerGameSegment;
     }
 }

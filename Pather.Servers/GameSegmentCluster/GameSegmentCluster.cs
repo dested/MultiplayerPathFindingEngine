@@ -40,9 +40,7 @@ namespace Pather.Servers.GameSegmentCluster
             switch (message.Type)
             {
                 case GameSegmentCluster_PubSub_MessageType.CreateGameSegment:
-
                     CreateGameSegment(((CreateGameSegment_GameWorld_GameSegmentCluster_PubSub_ReqRes_Message) message));
-
                     break;
             }
         }

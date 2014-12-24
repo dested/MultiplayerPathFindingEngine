@@ -76,9 +76,11 @@ namespace Pather.Servers.Common
 
         public override void SetServerLatency(long latency)
         {
+            if (CurrentServerLatency != latency)
+            {
+                ServerLogger.LogInformation("Severy latency is ", latency, "ms");
+            }
             base.SetServerLatency(latency);
-
-            ServerLogger.LogInformation("Severy latency is ", latency, "ms");
             hasLatency = true;
             if (hasLatency && hasLockstep && !tickManagerInitialized)
             {

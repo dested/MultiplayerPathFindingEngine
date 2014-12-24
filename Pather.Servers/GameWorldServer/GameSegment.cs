@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Pather.Common;
 using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameWorld;
 using Pather.Common.Utils.Promises;
@@ -18,6 +19,15 @@ namespace Pather.Servers.GameWorldServer
 
         public List<GameWorldUser> Users;
         public string GameSegmentId;
+
+
+
+
+        public bool CanAcceptNewUsers()
+        {
+            return this.Users.Count < Constants.UsersPerGameSegment;
+        }
+
 
         public Promise AddUserToSegment(GameWorldUser gwUser)
         {
@@ -45,18 +55,63 @@ namespace Pather.Servers.GameWorldServer
         {
             var deferred = Q.Defer();
 
-            var userJoinGameWorldGameSegmentPubSubReqResMessage = new UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message()
+            var userJoin = new UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message()
             {
                 UserId = gwUser.UserId
             };
-            GameWorld.GameWorldPubSub.PublishToGameSegmentWithCallback<UserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message>(GameSegmentId, userJoinGameWorldGameSegmentPubSubReqResMessage).Then((userJoinResponse) =>
+            GameWorld.GameWorldPubSub.PublishToGameSegmentWithCallback<UserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message>(GameSegmentId, userJoin)
+                .Then((userJoinResponse) =>
+                {
+                    Users.Remove(gwUser);
+                    gwUser.GameSegment = null;
+                    deferred.Resolve();
+                });
+
+            return deferred.Promise;
+        }
+
+        public Promise TellSegmentAboutUser(GameWorldUser gwUser)
+        {
+            var deferred = Q.Defer();
+
+            var tellUserJoin = new TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message()
             {
-                Users.Remove(gwUser);
-                gwUser.GameSegment = null;
+                X = gwUser.X,
+                Y = gwUser.Y,
+                GatewayServer = gwUser.GatewayServer,
+                UserId = gwUser.UserId
+            };
+            GameWorld.GameWorldPubSub.PublishToGameSegmentWithCallback<TellUserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message>(GameSegmentId, tellUserJoin)
+                .Then((userJoinResponse) =>
+                {
+                    //todo IDK
+                    deferred.Resolve();
+                });
+
+
+            return deferred.Promise;
+
+        }
+
+        public Promise TellSegmentAboutRemoveUser(GameWorldUser gwUser)
+        {
+            var deferred = Q.Defer();
+
+            var userJoinGameWorldGameSegmentPubSubReqResMessage = new TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message()
+            {
+                X = gwUser.X,
+                Y = gwUser.Y,
+                GatewayServer = gwUser.GatewayServer,
+                UserId = gwUser.UserId
+            };
+            GameWorld.GameWorldPubSub.PublishToGameSegmentWithCallback<TellUserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message>(GameSegmentId, userJoinGameWorldGameSegmentPubSubReqResMessage).Then((userJoinResponse) =>
+            {
+                //todo IDK
                 deferred.Resolve();
             });
 
             return deferred.Promise;
+
         }
     }
 }

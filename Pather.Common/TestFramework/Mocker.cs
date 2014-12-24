@@ -66,6 +66,10 @@ global.$instantiateInterface$=function ($type$) {
         public static void StubMethodCall<T, T2, T3>(Action<T, T2, T3> call)
         {
         }
+        [InlineCode("global.$overwiteMethodCallForMocker$({call},function(){})")]
+        public static void StubMethodCall<T, T2, T3,T4>(Action<T, T2, T3,T4> call)
+        {
+        }
 
 
         [InlineCode("global.$overwiteMethodCallForMocker$({call},{overwrite})")]

@@ -5,15 +5,6 @@ user hits gateway with player token
 
 '/gameworld tells gateway which game server to send user to 
 
-gateway publishes user join to users game server
-	gameserver adds user to his active watch list
-	gameserver runs update neighbors	
-gateway publishes user join knowledge to all other game servers
-	gameserver adds user to his inactive watch list
-	gameserver runs update neighbors
-
-
-
 '/gateway publishes user join to gameworld
 	'/gameworld publishes user join to users game server
 		gameserver adds user to his active watch list
@@ -26,8 +17,8 @@ gateway publishes user join knowledge to all other game servers
 
 
 
-game server sends ready to gateway
-gateway sends ready to user
+'/ game server sends ready to gateway
+'/ gateway sends ready to user
 
 
 

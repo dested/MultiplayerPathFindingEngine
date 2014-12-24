@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Html;
+using Pather.Client.Utils;
 using Pather.Common;
 using Pather.Common.Models.Game.Old;
 
-namespace Pather.Client
+namespace Pather.Client.Old
 {
     public class ClientNetworkManager
     {

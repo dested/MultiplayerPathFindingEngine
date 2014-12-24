@@ -1,7 +1,7 @@
 using System.Html.Media.Graphics;
 using Pather.Common;
 
-namespace Pather.Client
+namespace Pather.Client.Old
 {
     public class ClientEntity : Entity
     {

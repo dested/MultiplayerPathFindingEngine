@@ -5,7 +5,7 @@ using Pather.Common.Definitions.AStar;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Game.Old;
 
-namespace Pather.Client
+namespace Pather.Client.Old
 {
     public class ClientStepManager : StepManager
     {
@@ -53,11 +53,15 @@ namespace Pather.Client
                     Global.Console.Log("Force Lockstep", Game.LockstepTickNumber);
                     Game.StepManager.ProcessAction(Game.LockstepTickNumber);
                 }
-                while (Game.LockstepTickNumber < model.LockstepTickNumber)
+                if (Game.LockstepTickNumber < model.LockstepTickNumber)
                 {
-                    Game.LockstepTickNumber++;
                     Global.Console.Log("Force Lockstep", Game.LockstepTickNumber);
-                    Game.StepManager.ProcessAction(Game.LockstepTickNumber);
+                    while (Game.LockstepTickNumber < model.LockstepTickNumber)
+                    {
+                        Game.LockstepTickNumber++;
+                        Game.StepManager.ProcessAction(Game.LockstepTickNumber);
+                    }
+
                 }
             }
         }

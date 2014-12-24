@@ -1,4 +1,5 @@
 ﻿using System.Html;
+using Pather.Client.Old;
 using Pather.Common.TestFramework;
 
 namespace Pather.Client
@@ -12,6 +13,7 @@ namespace Pather.Client
                 TestFramework.RunTests((string) null);
                 return;
             }
+
 
 
             var game = new ClientGame();
