@@ -1179,6 +1179,24 @@
 			return ss.getDefaultValue(T);
 		};
 	};
+	$Pather_Common_Utils_EnumerableExtensions.average = function(T) {
+		return function(items, clause) {
+			var sum = 0;
+			var count = 0;
+			var $t1 = ss.getEnumerator(items);
+			try {
+				while ($t1.moveNext()) {
+					var item = $t1.current();
+					count++;
+					sum += clause(item);
+				}
+			}
+			finally {
+				$t1.dispose();
+			}
+			return sum / count;
+		};
+	};
 	$Pather_Common_Utils_EnumerableExtensions.all = function(T) {
 		return function(items, clause) {
 			for (var $t1 = 0; $t1 < items.length; $t1++) {
@@ -1989,7 +2007,7 @@
 		$Pather_Common_Constants.lockstepTicks = ss.Int32.div(1000, $Pather_Common_Constants.lockstepFps);
 		$Pather_Common_Constants.latencyPingInterval = 6000;
 		$Pather_Common_Constants.neighborDistance = 20;
-		$Pather_Common_Constants.usersPerGameSegment = 4;
+		$Pather_Common_Constants.usersPerGameSegment = 10;
 		$Pather_Common_Constants.gameSegmentCreationWait = 60;
 	})();
 	(function() {

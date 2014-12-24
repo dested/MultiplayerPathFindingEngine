@@ -21,7 +21,7 @@ namespace Pather.Servers.GatewayServer
         public ClientTickManager ClientTickManager;
 
 
-        public GatewayServer(IPubSub pubsub, ISocketManager socketManager, string gatewayId)
+        public GatewayServer(IPubSub pubsub, ISocketManager socketManager, string gatewayId,int port_)
         {
             GatewayId = gatewayId;
             ServerLogger.InitLogger("Gateway", GatewayId);
@@ -29,7 +29,7 @@ namespace Pather.Servers.GatewayServer
             Global.Console.Log(GatewayId);
 
             var port = 1800 + Math.Truncate((Math.Random()*4000d));
-            port = 1800;
+            port = port_;
 
             ServerCommunicator = new ServerCommunicator(socketManager, port);
 

@@ -45,7 +45,7 @@ namespace Pather.Servers
                 {
                     case "gt":
                     case "gateway":
-                        new GatewayServer.GatewayServer(new PubSub(), new SocketIOManager(), "TODO:DEFAULTGATEWAY");
+                        new GatewayServer.GatewayServer(new PubSub(), new SocketIOManager(), Global.Process.Arguments[3], int.Parse(Global.Process.Arguments[4]));
                         break;
                     case "au":
                     case "auth":

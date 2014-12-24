@@ -74,6 +74,18 @@ namespace Pather.Common.Utils
             }
             return default(T);
         }
+        public static double Average<T>(this IEnumerable<T> items, Func<T, double> clause)
+        {
+            double sum = 0;
+            var count = 0;
+
+            foreach (var item in items)
+            {
+                count++;
+                sum += clause(item);
+            }
+            return sum/count;
+        }
 
         public static bool All<T>(this List<T> items, Func<T, bool> clause)
         {

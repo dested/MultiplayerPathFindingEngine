@@ -49,7 +49,7 @@ $Pather_Servers_ServerManager.main = function() {
 		switch (arg) {
 			case 'gt':
 			case 'gateway': {
-				new $Pather_Servers_GatewayServer_GatewayServer(new $Pather_Servers_Common_PubSub_PubSub(), new $Pather_Servers_Common_SocketManager_SocketIOManager(), 'TODO:DEFAULTGATEWAY');
+				new $Pather_Servers_GatewayServer_GatewayServer(new $Pather_Servers_Common_PubSub_PubSub(), new $Pather_Servers_Common_SocketManager_SocketIOManager(), global.process.argv[3], parseInt(global.process.argv[4]));
 				break;
 			}
 			case 'au':
@@ -591,7 +591,7 @@ $Pather_Servers_GatewayServer_GatewayPubSub.__typeName = 'Pather.Servers.Gateway
 global.Pather.Servers.GatewayServer.GatewayPubSub = $Pather_Servers_GatewayServer_GatewayPubSub;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GatewayServer.GatewayServer
-var $Pather_Servers_GatewayServer_GatewayServer = function(pubsub, socketManager, gatewayId) {
+var $Pather_Servers_GatewayServer_GatewayServer = function(pubsub, socketManager, gatewayId, port_) {
 	this.gatewayId = null;
 	this.serverCommunicator = null;
 	this.gatewayPubSub = null;
@@ -601,7 +601,7 @@ var $Pather_Servers_GatewayServer_GatewayServer = function(pubsub, socketManager
 	$Pather_Servers_Common_ServerLogging_ServerLogger.initLogger('Gateway', this.gatewayId);
 	console.log(this.gatewayId);
 	var port = 1800 + (Math.random() * 4000 | 0);
-	port = 1800;
+	port = port_;
 	this.serverCommunicator = new $Pather_Servers_Common_ServerCommunicator(socketManager, port);
 	pubsub.init().then(ss.mkdel(this, function() {
 		this.gatewayPubSub = new $Pather_Servers_GatewayServer_GatewayPubSub(pubsub, this.gatewayId);
@@ -1479,29 +1479,30 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 		return deferred.promise;
 	},
 	$determineGameSegment: function(gwUser) {
-		if (this.users.length === 0) {
-			var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_Servers_GameWorldServer_GameSegment, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
-			console.log('Creating new segment.');
-			this.createGameSegment().then(function(gameSegment) {
-				console.log('New segment created.');
-				deferred.resolve(gameSegment);
-			});
-			return deferred.promise;
-		}
-		else {
-			return this.$findBestGameSegment(gwUser);
-		}
-	},
-	$findBestGameSegment: function(gwUser) {
 		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_Servers_GameWorldServer_GameSegment, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
-		var neighbor = this.$determineClosestNeighbor(gwUser);
-		var neighborGameSegment = neighbor.user.gameSegment;
-		if (neighborGameSegment.canAcceptNewUsers()) {
-			deferred.resolve(neighborGameSegment);
+		var neighbors = this.$buildNeighborCollection(gwUser);
+		var noneFound = true;
+		for (var i = 0; i < neighbors.length; i++) {
+			//todo REORG GAME SEGMENTS????
+			var neighbor = neighbors[i];
+			var neighborGameSegment = neighbor.user.gameSegment;
+			if (neighborGameSegment.canAcceptNewUsers()) {
+				deferred.resolve(neighborGameSegment);
+				noneFound = false;
+				break;
+			}
 		}
-		else {
-			//TODO PRObably find the second closest user and add to him lol
-			//todo REORG GAME SEGMENTS?
+		if (noneFound) {
+			for (var $t1 = 0; $t1 < this.gameSegments.length; $t1++) {
+				var gameSegment = this.gameSegments[$t1];
+				if (gameSegment.canAcceptNewUsers()) {
+					deferred.resolve(gameSegment);
+					noneFound = false;
+					break;
+				}
+			}
+		}
+		if (noneFound) {
 			return this.createGameSegment();
 		}
 		return deferred.promise;
@@ -1527,22 +1528,18 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 			this.$buildNeighbors(pUser, i);
 		}
 	},
-	$determineClosestNeighbor: function(pUser) {
-		var closestNeighbor = pUser.closestNeighbor();
-		if (ss.isValue(closestNeighbor)) {
-			return closestNeighbor;
-		}
+	$buildNeighborCollection: function(pUser) {
 		var count = this.users.length;
-		var closestDistance = Number.MAX_VALUE;
+		var neighbors = [];
 		for (var c = 0; c < count; c++) {
 			var cUser = this.users[c];
 			var distance = $Pather_Servers_GameWorldServer_GameWorld.$pointDistance(pUser, cUser);
-			if (distance < closestDistance) {
-				closestNeighbor = new $Pather_Servers_GameWorldServer_Models_GameWorldNeighbor(cUser, distance);
-				closestDistance = distance;
-			}
+			neighbors.push(new $Pather_Servers_GameWorldServer_Models_GameWorldNeighbor(cUser, distance));
 		}
-		return closestNeighbor;
+		neighbors.sort(function(a, b) {
+			return ss.Int32.trunc(a.distance - b.distance);
+		});
+		return neighbors;
 	},
 	$buildNeighbors: function(pUser, i) {
 		var count = this.users.length;
@@ -1915,7 +1912,7 @@ ss.initClass($Pather_Servers_GatewayServer_Tests_GatewayServerTests, $asm, {
 				testDeferred.resolve();
 			}
 		});
-		var gts = new $Pather_Servers_GatewayServer_GatewayServer(pubSub, socketManager, 'gatewayServer1');
+		var gts = new $Pather_Servers_GatewayServer_GatewayServer(pubSub, socketManager, 'gatewayServer1', 1800);
 		gatewayName = gts.gatewayId;
 		var pubSubTest = global.$instantiateInterface$($Pather_Servers_Common_PubSub_IPubSub);
 		var databaseQueriesTest = global.$instantiateInterface$($Pather_Servers_Database_IDatabaseQueries);

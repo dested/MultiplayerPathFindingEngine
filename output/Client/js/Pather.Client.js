@@ -142,9 +142,22 @@
 	$Pather_Client_Tests_LoginE2ETest.__typeName = 'Pather.Client.Tests.LoginE2ETest';
 	$Pather_Client_Tests_LoginE2ETest.$joinUser = function(userToken) {
 		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_Client_Utils_ClientCommunicator, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
-		var clientCommunicator = new $Pather_Client_Utils_ClientCommunicator('http://127.0.0.1:1800');
+		var b = Math.random();
+		var port;
+		if (b <= 0.3) {
+			port = 1800;
+		}
+		else if (b <= 0.6) {
+			port = 1801;
+		}
+		else {
+			port = 1802;
+		}
+		var url = 'http://127.0.0.1:' + port;
+		//            Global.Console.Log("Connecting to", url);
+		var clientCommunicator = new $Pather_Client_Utils_ClientCommunicator(url);
 		clientCommunicator.listenOnChannel(String).call(clientCommunicator, 'Gateway.Join.Success', function(item) {
-			console.log(item);
+			//                Global.Console.Log(item);
 			deferred.resolve(clientCommunicator);
 		});
 		var $t1 = Pather.Common.Models.Gateway.GatewayJoinModel.$ctor();
@@ -388,18 +401,31 @@
 	ss.initClass($Pather_Client_Tests_LoginE2ETest, $asm, {
 		test1: function(defer) {
 			var users = [];
-			for (var i = 0; i < 15; i++) {
-				users.push($Pather_Client_Tests_LoginE2ETest.$joinUser('salvatore' + i));
+			var averageTimes = [];
+			var done = 0;
+			var i2 = 100;
+			for (var i = 0; i < i2; i++) {
+				var i1 = { $: i };
+				setTimeout(ss.mkdel({ i1: i1 }, function() {
+					var startTime = (new Date()).getTime();
+					$Pather_Client_Tests_LoginE2ETest.$joinUser('salvatore' + this.i1.$).then(function(communicator) {
+						var joinTime = (new Date()).getTime() - startTime;
+						console.log('Join Time', joinTime);
+						averageTimes.push(joinTime);
+						setTimeout(function() {
+							communicator.disconnect();
+							done++;
+							if (done === i2) {
+								var average = Pather.Common.Utils.EnumerableExtensions.average(ss.Int32).call(null, averageTimes, function(a) {
+									return a;
+								});
+								console.log('Average join time:', average, 'ms');
+								defer.resolve();
+							}
+						}, ss.Int32.trunc(Math.random() * 5000));
+					});
+				}), ss.Int32.trunc(Math.random() * 5000));
 			}
-			Pather.Common.Utils.Promises.Q.allSequential$3($Pather_Client_Utils_ClientCommunicator, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null, users).then(function(clientCommunicators) {
-				setTimeout(function() {
-					for (var $t1 = 0; $t1 < clientCommunicators.length; $t1++) {
-						var clientCommunicator = clientCommunicators[$t1];
-						clientCommunicator.disconnect();
-					}
-					defer.resolve();
-				}, 2000);
-			});
 		}
 	});
 	ss.initClass($Pather_Client_Utils_ClientCommunicator, $asm, {

@@ -15,11 +15,11 @@ figure out action priming (player is halfway between X and Y, deterministically 
 
 todo test if its faster for redis to have one "tick" subscription for all relevent clients or not
 
-only one user can join at a time
 
 figure out what happens when you start the servers in different orders
 
-many users join at the same time?
+'/many users join at the same time?
+    '/only one user can join at a time
 
 **FIX 2 todos a day**
 

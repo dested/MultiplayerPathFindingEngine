@@ -97,43 +97,45 @@ namespace Pather.Servers.GameWorldServer
         private Promise<GameSegment, UndefinedPromiseError> DetermineGameSegment(GameWorldUser gwUser)
         {
 
-            if (Users.Count == 0)
-            {
-                var deferred = Q.Defer<GameSegment, UndefinedPromiseError>();
-                Global.Console.Log("Creating new segment.");
-                CreateGameSegment()
-                    .Then((gameSegment) =>
-                    {
-                        Global.Console.Log("New segment created.");
-                        deferred.Resolve(gameSegment);
-                    });
-                return deferred.Promise;
-            }
-            else
-            {
-                return FindBestGameSegment(gwUser);
-            }
-        }
-
-        private Promise<GameSegment, UndefinedPromiseError> FindBestGameSegment(GameWorldUser gwUser)
-        {
             var deferred = Q.Defer<GameSegment, UndefinedPromiseError>();
-            var neighbor = determineClosestNeighbor(gwUser);
+            var neighbors = buildNeighborCollection(gwUser);
 
-            var neighborGameSegment = neighbor.User.GameSegment;
-            if (neighborGameSegment.CanAcceptNewUsers())
+            bool noneFound = true;
+            for (int i = 0; i < neighbors.Count; i++)
             {
-                deferred.Resolve(neighborGameSegment);
+                //todo REORG GAME SEGMENTS????
+
+                var neighbor = neighbors[i];
+                var neighborGameSegment = neighbor.User.GameSegment;
+                if (neighborGameSegment.CanAcceptNewUsers())
+                {
+                    deferred.Resolve(neighborGameSegment);
+                    noneFound = false;
+                    break;
+                }
             }
-            else
+
+            if (noneFound)
             {
-                //TODO PRObably find the second closest user and add to him lol
-                //todo REORG GAME SEGMENTS?
+                foreach (var gameSegment in GameSegments)
+                {
+                    if (gameSegment.CanAcceptNewUsers())
+                    {
+                        deferred.Resolve(gameSegment);
+                        noneFound = false;
+                        break;
+                    }
+                }
+            }
+
+            if (noneFound)
+            {
                 return CreateGameSegment();
             }
 
             return deferred.Promise;
         }
+         
 
 
         public Promise<GameSegment, UndefinedPromiseError> CreateGameSegment()
@@ -171,30 +173,21 @@ namespace Pather.Servers.GameWorldServer
             }
         }
 
-        private GameWorldNeighbor determineClosestNeighbor(GameWorldUser pUser)
+        private List<GameWorldNeighbor> buildNeighborCollection(GameWorldUser pUser)
         {
-            var closestNeighbor = pUser.ClosestNeighbor();
-
-            if (closestNeighbor != null)
-            {
-                return closestNeighbor;
-            }
-
 
             var count = Users.Count;
-            var closestDistance = double.MaxValue;
+
+            List<GameWorldNeighbor> neighbors = new List<GameWorldNeighbor>();
 
             for (var c = 0; c < count; c++)
             {
                 var cUser = Users[c];
                 var distance = PointDistance(pUser, cUser);
-                if (distance < closestDistance)
-                {
-                    closestNeighbor = new GameWorldNeighbor(cUser, distance);
-                    closestDistance = distance;
-                }
+                neighbors.Add(new GameWorldNeighbor(cUser, distance));
             }
-            return closestNeighbor;
+            neighbors.Sort((a, b) => (int)(a.Distance - b.Distance));
+            return neighbors;
         }
 
 
