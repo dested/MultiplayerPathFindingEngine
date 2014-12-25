@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Serialization;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models.GameWorld;
-using Pather.Common.Models.Gateway;
-using Pather.Common.Models.Gateway.Base;
+using Pather.Common.Models.GameWorld.Gateway;
+using Pather.Common.Models.Gateway.PubSub;
+using Pather.Common.Models.Gateway.PubSub.Base;
+using Pather.Common.Models.Gateway.Socket;
 using Pather.Common.TestFramework;
 using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;

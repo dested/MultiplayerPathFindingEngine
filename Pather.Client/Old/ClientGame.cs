@@ -19,7 +19,7 @@ namespace Pather.Client.Old
 
         public ClientGame()
         {
-            MyPlayerId = Common.Common.UniqueId();
+            MyPlayerId = Utilities.UniqueId();
 
 
             StepManager = new ClientStepManager(this, new ClientNetworkManager());

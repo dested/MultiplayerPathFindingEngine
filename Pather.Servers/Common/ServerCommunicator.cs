@@ -12,7 +12,10 @@ namespace Pather.Servers.Common
 
         public void ListenOnChannel<T>(ISocket socket, string channel, Action<ISocket, T> callback)
         {
-            socket.On<DataObject<T>>(channel, obj => callback(socket, obj.Data));
+            socket.On<DataObject<T>>(channel, obj =>
+            {
+                callback(socket, obj.Data);
+            });
         }
 
         public void SendMessage(ISocket socket, string channel, object obj)

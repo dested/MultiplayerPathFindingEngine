@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models.GameWorld;
-using Pather.Common.Models.Gateway;
-using Pather.Common.Models.Gateway.Base;
+using Pather.Common.Models.GameSegment.Base;
+using Pather.Common.Models.GameWorld.Gateway;
+using Pather.Common.Models.Gateway.PubSub;
+using Pather.Common.Models.Gateway.PubSub.Base;
+using Pather.Common.Models.Gateway.Socket;
+using Pather.Common.Models.Gateway.Socket.Base;
 using Pather.Common.Models.Tick;
 using Pather.Common.Utils;
 using Pather.Servers.Common;
@@ -106,18 +110,16 @@ namespace Pather.Servers.GatewayServer
 
             ServerCommunicator.OnDisconnectConnection += (socket) =>
             {
-                Global.Console.Log("Disconnect", Users.Count);
-
                 var gatewayUser = Users.First(a => a.Socket == socket);
 
                 if (gatewayUser != null)
                 {
-                    Global.Console.Log("Left");
                     GatewayPubSub.PublishToGameWorld(new UserLeft_Gateway_GameWorld_PubSub_Message()
                     {
                         UserId = gatewayUser.UserId
                     });
                     Users.Remove(gatewayUser);
+                    Global.Console.Log("Left", Users.Count);
                 }
             };
 
@@ -128,10 +130,15 @@ namespace Pather.Servers.GatewayServer
                     Socket = socket
                 };
                 Users.Add(user);
+                Global.Console.Log("Joined", Users.Count);
                 ServerCommunicator.ListenOnChannel(socket, "Gateway.Message",
-                    (ISocket cSocket, GatewaySocketMessageModel data) =>
+                    (ISocket cSocket, Gateway_Socket_Message message) =>
                     {
-                        Global.Console.Log("Socket message ", data);
+                        if (Utilities.HasField<User_Gateway_Socket_Message>(message, m => m.UserMessageType))
+                        {
+                            Global.Console.Log("Socket message ", message);
+                            HandleUserMessage(user, (User_Gateway_Socket_Message) message);
+                        }
                     });
 
                 ServerCommunicator.ListenOnChannel(socket, "Gateway.Join",
@@ -145,6 +152,27 @@ namespace Pather.Servers.GatewayServer
                         });
                     });
             };
+        }
+
+        private void HandleUserMessage(GatewayUser user, User_Gateway_Socket_Message message)
+        {
+            switch (message.UserMessageType)
+            {
+                case User_Socket_MessageType.Move:
+                    var moveToLocationMessage = ((MoveToLocation_User_Gateway_Socket_Message) message);
+
+                    GatewayPubSub.PublishToGameSegment(user.GameSegmentId, new UserMoved_Gateway_GameSegment_PubSub_Message()
+                    {
+                        UserId = user.UserId,
+                        LockstepTick = moveToLocationMessage.LockstepTick,
+                        X = moveToLocationMessage.X,
+                        Y = moveToLocationMessage.Y,
+                    });
+
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Serialization;
+using Pather.Common;
 using Pather.Common.Models.GameSegmentCluster;
 using Pather.Common.Models.GameSegmentCluster.Base;
 using Pather.Common.TestFramework;
@@ -19,7 +20,7 @@ namespace Pather.Servers.GameSegmentCluster.Tests
         [TestMethod]
         public void CreateGameSegment(Deferred testDeferred)
         {
-            var gameSegmentClusterId = Pather.Common.Common.UniqueId();
+            var gameSegmentClusterId = Utilities.UniqueId();
 
             var pubSub = new StubPubSub();
             var pushPop = new PushPop();

@@ -2,7 +2,7 @@
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameSegmentCluster;
 using Pather.Common.Models.GameSegmentCluster.Base;
-using Pather.Common.Models.GameWorld;
+using Pather.Common.Models.GameWorld.GameSegmentCluster;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common.PubSub;
 using Pather.Servers.Common.PushPop;

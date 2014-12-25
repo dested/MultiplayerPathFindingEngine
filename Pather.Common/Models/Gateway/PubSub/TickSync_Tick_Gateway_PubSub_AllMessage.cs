@@ -1,7 +1,7 @@
 using System;
-using Pather.Common.Models.Gateway.Base;
+using Pather.Common.Models.Gateway.PubSub.Base;
 
-namespace Pather.Common.Models.Gateway
+namespace Pather.Common.Models.Gateway.PubSub
 {
     [Serializable]
     public class TickSync_Tick_Gateway_PubSub_AllMessage : Gateway_PubSub_AllMessage

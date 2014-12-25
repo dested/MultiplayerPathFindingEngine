@@ -8,7 +8,7 @@ namespace Pather.Common.Models.GameSegment.Base
     {
         public GameSegment_PubSub_ReqRes_Message()
         {
-            MessageId = Pather.Common.Common.UniqueId();
+            MessageId = Utilities.UniqueId();
         }
 
         public string MessageId { get; set; }

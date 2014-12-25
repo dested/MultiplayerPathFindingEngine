@@ -1,27 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using Pather.Client.Utils;
+using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models.Gateway;
+using Pather.Common.Models.Gateway.Socket;
+using Pather.Common.Models.Gateway.Socket.Base;
 using Pather.Common.TestFramework;
 using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
 
 namespace Pather.Client.Tests
 {
-    [TestClass]
+    [TestClass()]
     public class LoginE2ETest
     {
-        [TestMethod]
-        public void Test1(Deferred defer)
+        [TestMethod(disable: true)]
+        public void SlamWWithUsers(Deferred defer)
         {
             var users = new List<Promise<ClientCommunicator, UndefinedPromiseError>>();
 
 
             var averageTimes = new List<long>();
-
+            var id = Utilities.UniqueId();
             var done = 0;
-            var i2 = 100;
+            var i2 = 500;
             for (var i = 0; i < i2; i++)
             {
                 var i1 = i;
@@ -29,7 +31,7 @@ namespace Pather.Client.Tests
                 {
                     var startTime = new DateTime().GetTime();
 
-                    JoinUser("salvatore" + i1).Then((communicator) =>
+                    JoinUser(id + "   " + i1).Then((communicator) =>
                     {
                         var joinTime = new DateTime().GetTime() - startTime;
                         Global.Console.Log("Join Time", joinTime);
@@ -46,11 +48,36 @@ namespace Pather.Client.Tests
                                 Global.Console.Log("Average join time:", average, "ms");
                                 defer.Resolve();
                             }
-                        }, (int) (Math.Random()*5000));
+                        }, (int) (Math.Random()*2000));
                     });
-                }, (int) (Math.Random()*5000));
+                }, (int) (Math.Random()*15000));
             }
         }
+
+
+        [TestMethod]
+        public void LoginAndMove(Deferred defer)
+        {
+            var users = new List<Promise<ClientCommunicator, UndefinedPromiseError>>();
+            var m = new MoveToLocation_User_Gateway_Socket_Message()
+            {
+                X = 12,
+                Y = 25
+            };
+
+
+            var averageTimes = new List<long>();
+            var id = Utilities.UniqueId();
+            JoinUser(id).Then(communicator =>
+            {
+                communicator.SendMessage("Gateway.Message", new MoveToLocation_User_Gateway_Socket_Message()
+                {
+                    X = 12,
+                    Y = 25
+                });
+            });
+        }
+
 
         private static Promise<ClientCommunicator, UndefinedPromiseError> JoinUser(string userToken)
         {

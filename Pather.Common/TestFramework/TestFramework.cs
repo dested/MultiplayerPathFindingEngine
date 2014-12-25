@@ -28,7 +28,8 @@ namespace Pather.Common.TestFramework
 
             foreach (var methodInfo in methods)
             {
-                if (methodInfo.GetCustomAttributes(typeof (TestMethodAttribute)).Length > 0)
+                var customAttributes = methodInfo.GetCustomAttributes(typeof (TestMethodAttribute));
+                if (customAttributes.Length > 0 && !((TestMethodAttribute) customAttributes[0]).Disable)
                 {
                     testMethods.Add(methodInfo);
                 }
@@ -151,7 +152,8 @@ namespace Pather.Common.TestFramework
             {
                 foreach (var type in assembly.GetTypes())
                 {
-                    if (type.GetCustomAttributes(typeof (TestClassAttribute), true).Length > 0)
+                    var customAttributes = type.GetCustomAttributes(typeof (TestClassAttribute), true);
+                    if (customAttributes.Length > 0 && !((TestClassAttribute) customAttributes[0]).Disable)
                     {
                         if (string.IsNullOrEmpty(testClass) || type.Name == testClass)
                         {

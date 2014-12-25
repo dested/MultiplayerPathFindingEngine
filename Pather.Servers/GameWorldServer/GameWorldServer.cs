@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models.GameWorld;
 using Pather.Common.Models.GameWorld.Base;
-using Pather.Common.Models.Gateway;
+using Pather.Common.Models.GameWorld.Gateway;
+using Pather.Common.Models.GameWorld.Tick;
+using Pather.Common.Models.Gateway.PubSub;
 using Pather.Common.Models.Tick;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common;
@@ -57,6 +58,13 @@ namespace Pather.Servers.GameWorldServer
             });
         }
 
+        /*   when a user gets Action succesful join, he should get his xy, and can send an updated xy to the Game server
+            send the data to neighbors
+                update neighbors preiodically
+            then handle the path finding aspect
+
+        then maybe reorg?
+*/
 
         private void gameWorldMessage(GameWorld_PubSub_Message message)
         {

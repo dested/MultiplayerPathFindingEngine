@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameSegmentCluster;
-using Pather.Common.Models.GameWorld;
+using Pather.Common.Models.GameWorld.GameSegmentCluster;
 using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Database;
@@ -139,7 +139,7 @@ namespace Pather.Servers.GameWorldServer
 
             var createGameMessage = new CreateGameSegment_GameWorld_GameSegmentCluster_PubSub_ReqRes_Message()
             {
-                GameSegmentId = Pather.Common.Common.UniqueId(),
+                GameSegmentId = Utilities.UniqueId(),
             };
 
             GameWorldPubSub.PublishToGameSegmentClusterWithCallback<CreateGameSegment_Response_GameSegmentCluster_GameWorld_PubSub_Message>(gameSegmentClusterId, createGameMessage)

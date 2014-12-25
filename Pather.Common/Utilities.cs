@@ -2,7 +2,7 @@ using System;
 
 namespace Pather.Common
 {
-    public static class Common
+    public static class Utilities
     {
         public static string ShortDate()
         {
@@ -37,6 +37,12 @@ namespace Pather.Common
         public static string UniqueId()
         {
             return Guid.NewGuid().ToString("N");
+        }
+
+        public static bool HasField<T>(object message, Func<T, object> predicate)
+        {
+            var m = predicate(Script.Reinterpret<T>(message));
+            return !Script.IsUndefined(m);
         }
     }
 }

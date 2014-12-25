@@ -1,7 +1,7 @@
 using System;
-using Pather.Common.Models.Gateway.Base;
+using Pather.Common.Models.Gateway.PubSub.Base;
 
-namespace Pather.Common.Models.Gateway
+namespace Pather.Common.Models.Gateway.PubSub
 {
     [Serializable]
     public class UserJoined_GameWorld_Gateway_PubSub_Message : Gateway_PubSub_Message

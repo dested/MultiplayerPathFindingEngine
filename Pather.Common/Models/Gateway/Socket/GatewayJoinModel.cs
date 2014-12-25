@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pather.Common.Models.Gateway
+namespace Pather.Common.Models.Gateway.Socket
 {
     [Serializable]
     public class GatewayJoinModel

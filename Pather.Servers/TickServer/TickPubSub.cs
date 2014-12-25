@@ -2,7 +2,7 @@
 using System.Serialization;
 using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.GameWorld.Base;
-using Pather.Common.Models.Gateway.Base;
+using Pather.Common.Models.Gateway.PubSub.Base;
 using Pather.Common.Models.Tick.Base;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common.PubSub;

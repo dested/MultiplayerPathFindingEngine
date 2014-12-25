@@ -41,7 +41,7 @@
 		this.$sentMovementForThisLockstep = false;
 		this.$hasGrid = false;
 		Pather.Common.Game.call(this);
-		this.myPlayerId = Pather.Common.Common.uniqueId();
+		this.myPlayerId = Pather.Common.Utilities.uniqueId();
 		this.stepManager = new $Pather_Client_Old_ClientStepManager(this, new $Pather_Client_Old_ClientNetworkManager());
 		this.$randomMoveMeTo();
 		if (!Pather.Common.Constants.get_testServer()) {
@@ -160,7 +160,7 @@
 			//                Global.Console.Log(item);
 			deferred.resolve(clientCommunicator);
 		});
-		var $t1 = Pather.Common.Models.Gateway.GatewayJoinModel.$ctor();
+		var $t1 = Pather.Common.Models.Gateway.Socket.GatewayJoinModel.$ctor();
 		$t1.userToken = userToken;
 		clientCommunicator.sendMessage('Gateway.Join', $t1);
 		return deferred.promise;
@@ -399,16 +399,17 @@
 		}
 	}, Pather.Common.StepManager);
 	ss.initClass($Pather_Client_Tests_LoginE2ETest, $asm, {
-		test1: function(defer) {
+		slamWWithUsers: function(defer) {
 			var users = [];
 			var averageTimes = [];
+			var id = Pather.Common.Utilities.uniqueId();
 			var done = 0;
-			var i2 = 100;
+			var i2 = 500;
 			for (var i = 0; i < i2; i++) {
 				var i1 = { $: i };
 				setTimeout(ss.mkdel({ i1: i1 }, function() {
 					var startTime = (new Date()).getTime();
-					$Pather_Client_Tests_LoginE2ETest.$joinUser('salvatore' + this.i1.$).then(function(communicator) {
+					$Pather_Client_Tests_LoginE2ETest.$joinUser(id + '   ' + this.i1.$).then(function(communicator) {
 						var joinTime = (new Date()).getTime() - startTime;
 						console.log('Join Time', joinTime);
 						averageTimes.push(joinTime);
@@ -422,10 +423,25 @@
 								console.log('Average join time:', average, 'ms');
 								defer.resolve();
 							}
-						}, ss.Int32.trunc(Math.random() * 5000));
+						}, ss.Int32.trunc(Math.random() * 2000));
 					});
-				}), ss.Int32.trunc(Math.random() * 5000));
+				}), ss.Int32.trunc(Math.random() * 15000));
 			}
+		},
+		loginAndMove: function(defer) {
+			var users = [];
+			var $t1 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
+			$t1.x = 12;
+			$t1.y = 25;
+			var m = $t1;
+			var averageTimes = [];
+			var id = Pather.Common.Utilities.uniqueId();
+			$Pather_Client_Tests_LoginE2ETest.$joinUser(id).then(function(communicator) {
+				var $t2 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
+				$t2.x = 12;
+				$t2.y = 25;
+				communicator.sendMessage('Gateway.Message', $t2);
+			});
 		}
 	});
 	ss.initClass($Pather_Client_Utils_ClientCommunicator, $asm, {
@@ -443,6 +459,6 @@
 			this.socket.disconnect();
 		}
 	});
-	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute()], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute()], name: 'Test1', type: 8, sname: 'test1', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
+	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'LoginAndMove', type: 8, sname: 'loginAndMove', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'SlamWWithUsers', type: 8, sname: 'slamWWithUsers', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
 	$Pather_Client_$Program.$main();
 })();

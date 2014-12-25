@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Pather.Common;
 using Pather.Common.Models.GameSegment;
-using Pather.Common.Models.GameWorld;
+using Pather.Common.Models.GameWorld.GameSegment;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.GameWorldServer.Models;
 

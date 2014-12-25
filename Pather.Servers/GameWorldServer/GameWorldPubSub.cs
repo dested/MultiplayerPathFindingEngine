@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Serialization;
+using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Common;
 using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.GameSegmentCluster.Base;
 using Pather.Common.Models.GameWorld.Base;
-using Pather.Common.Models.Gateway.Base;
+using Pather.Common.Models.Gateway.PubSub.Base;
 using Pather.Common.Models.Tick.Base;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common.PubSub;
@@ -30,10 +31,10 @@ namespace Pather.Servers.GameWorldServer
             PubSub.Subscribe(PubSubChannels.GameWorld(), (message) =>
             {
                 var gameWorldPubSubMessage = Json.Parse<GameWorld_PubSub_Message>(message);
-                var possibleMessageReqRes = Script.Reinterpret<IPubSub_ReqRes_Message>(gameWorldPubSubMessage);
 
-                if (!Script.IsUndefined(possibleMessageReqRes.MessageId))
+                if (Utilities.HasField<IPubSub_ReqRes_Message>(gameWorldPubSubMessage, m => m.MessageId))
                 {
+                    var possibleMessageReqRes = (IPubSub_ReqRes_Message) gameWorldPubSubMessage;
                     if (!deferredMessages.ContainsKey(possibleMessageReqRes.MessageId))
                     {
                         Global.Console.Log("Received message that I didnt ask for.");

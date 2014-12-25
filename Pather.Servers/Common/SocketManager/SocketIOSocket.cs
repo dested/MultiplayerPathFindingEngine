@@ -1,5 +1,4 @@
 using System;
-using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Utils;
 using Pather.Servers.Libraries.Socket.IO;
 
@@ -21,11 +20,7 @@ namespace Pather.Servers.Common.SocketManager
 
         public void Disconnect(Action callback)
         {
-            Socket.On("disconnect", () =>
-            {
-                Global.Console.Log("Disconnectesion");
-                callback();
-            });
+            Socket.On("disconnect", callback);
         }
 
         public void Emit<T>(string channel, DataObject<T> dataObject)

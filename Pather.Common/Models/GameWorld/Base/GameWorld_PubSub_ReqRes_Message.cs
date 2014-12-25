@@ -8,7 +8,7 @@ namespace Pather.Common.Models.GameWorld.Base
     {
         public GameWorld_PubSub_ReqRes_Message()
         {
-            MessageId = Pather.Common.Common.UniqueId();
+            MessageId = Utilities.UniqueId();
         }
 
         public string MessageId { get; set; }

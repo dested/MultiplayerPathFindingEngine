@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Pather.Common.Models.GameSegment;
-using Pather.Common.Models.GameWorld;
-using Pather.Common.Models.Gateway;
+using Pather.Common.Models.GameWorld.Tick;
+using Pather.Common.Models.Gateway.PubSub;
 using Pather.Common.Models.Tick;
 using Pather.Common.Models.Tick.Base;
 using Pather.Servers.Common.PubSub;
