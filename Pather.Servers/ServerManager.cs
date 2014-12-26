@@ -101,7 +101,7 @@ namespace Pather.Servers
 
         private static void CreateGameSegmentServer(string gameSegmentId)
         {
-            new GameSegmentServer(new SocketIOManager(), new PubSub(), new PushPop(), gameSegmentId);
+            new GameSegmentServer( new PubSub(), new PushPop(), gameSegmentId);
         }
 
         private static void CreateGameClusterServer(string gameSegmentClusterId)

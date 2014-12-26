@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameWorld.Base;
+using Pather.Common.Models.GameWorld.GameSegment;
 using Pather.Common.Models.GameWorld.Gateway;
 using Pather.Common.Models.GameWorld.Tick;
 using Pather.Common.Models.Gateway.PubSub;
 using Pather.Common.Models.Tick;
+using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common;
 using Pather.Servers.Common.PubSub;
@@ -71,9 +74,9 @@ namespace Pather.Servers.GameWorldServer
             switch (message.Type)
             {
                 case GameWorld_PubSub_MessageType.UserJoined:
-                    UserJoined((UserJoined_Gateway_GameWorld_PubSub_Message) message).Then(gwUser =>
+                    UserJoined((UserJoined_Gateway_GameWorld_PubSub_Message)message).Then(gwUser =>
                     {
-                        gameSegmentClusterPubSub.PublishToGatewayServer(PubSubChannels.Gateway(gwUser.GatewayServer), new UserJoined_GameWorld_Gateway_PubSub_Message()
+                        gameSegmentClusterPubSub.PublishToGatewayServer(PubSubChannels.Gateway(gwUser.GatewayId), new UserJoined_GameWorld_Gateway_PubSub_Message()
                         {
                             GameSegmentId = gwUser.GameSegment.GameSegmentId,
                             UserId = gwUser.UserId,
@@ -81,18 +84,43 @@ namespace Pather.Servers.GameWorldServer
                     });
                     break;
                 case GameWorld_PubSub_MessageType.UserLeft:
-                    UserLeft((UserLeft_Gateway_GameWorld_PubSub_Message) message).Then(() =>
+                    UserLeft((UserLeft_Gateway_GameWorld_PubSub_Message)message).Then(() =>
                     {
                         //todo idk
                     });
                     break;
                 case GameWorld_PubSub_MessageType.Pong:
-                    var pongMessage = (Pong_Tick_GameWorld_PubSub_Message) message;
+                    var pongMessage = (Pong_Tick_GameWorld_PubSub_Message)message;
                     ClientTickManager.OnPongReceived();
                     break;
                 case GameWorld_PubSub_MessageType.TickSync:
-                    var tickSyncMessage = (TickSync_Tick_GameWorld_PubSub_Message) message;
+                    var tickSyncMessage = (TickSync_Tick_GameWorld_PubSub_Message)message;
                     ClientTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
+                    break;
+                case GameWorld_PubSub_MessageType.CreateGameSegmentResponse:
+                    break;
+                case GameWorld_PubSub_MessageType.UserJoinResponse:
+                    break;
+                case GameWorld_PubSub_MessageType.TellUserJoinResponse:
+                    break;
+                case GameWorld_PubSub_MessageType.TellUserLeftResponse:
+                    break;
+                case GameWorld_PubSub_MessageType.InitializeGameSegment:
+                    var getAllGameSegments= ((InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message)message);
+                    gameSegmentClusterPubSub.PublishToGameSegment(getAllGameSegments.OriginGameSegment,
+                        new InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message()
+                        {
+                            MessageId=getAllGameSegments.MessageId,
+                            GameSegmentIds = GameWorld.GameSegments.Select(a=>a.GameSegmentId),
+                            AllUsers = GameWorld.Users.Select(user=>new InitialGameUser()
+                            {
+                                GameSegmentId = user.GameSegment.GameSegmentId,
+                                UserId = user.UserId,
+                                GatewayId = user.GatewayId,
+                                X = user.X,
+                                Y = user.Y,
+                            })
+                        });
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

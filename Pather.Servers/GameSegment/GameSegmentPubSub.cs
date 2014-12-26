@@ -1,5 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Serialization;
+using Pather.Common;
+using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.Common;
 using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.GameWorld.Base;
@@ -23,6 +27,7 @@ namespace Pather.Servers.GameSegment
 
         public Action<GameSegment_PubSub_Message> OnMessage;
         public Action<GameSegment_PubSub_AllMessage> OnAllMessage;
+        public Dictionary<string, Deferred<object, UndefinedPromiseError>> deferredMessages = new Dictionary<string, Deferred<object, UndefinedPromiseError>>();
 
         public Promise Init()
         {
@@ -37,6 +42,19 @@ namespace Pather.Servers.GameSegment
             PubSub.Subscribe(PubSubChannels.GameSegment(GameSegmentId), (message) =>
             {
                 var gameSegmentPubSubMessage = Json.Parse<GameSegment_PubSub_Message>(message);
+                if (Utilities.HasField<GameSegment_PubSub_ReqRes_Message>(gameSegmentPubSubMessage, m => m.MessageId) && ((GameSegment_PubSub_ReqRes_Message)gameSegmentPubSubMessage).Response)
+                {
+                    var possibleMessageReqRes = (GameSegment_PubSub_ReqRes_Message)gameSegmentPubSubMessage;
+                    if (!deferredMessages.ContainsKey(possibleMessageReqRes.MessageId))
+                    {
+                        Global.Console.Log("Received message that I didnt ask for.", message);
+                        throw new Exception("Received message that I didnt ask for.");
+                    }
+                    deferredMessages[possibleMessageReqRes.MessageId].Resolve(gameSegmentPubSubMessage);
+                    return;
+                }
+
+
                 OnMessage(gameSegmentPubSubMessage);
             });
 
@@ -57,6 +75,13 @@ namespace Pather.Servers.GameSegment
         public void PublishToGameWorld(GameWorld_PubSub_Message message)
         {
             PubSub.Publish(PubSubChannels.GameWorld(), message);
+        }
+        public Promise<T, UndefinedPromiseError> PublishToGameWorldWithCallback<T>(GameWorld_PubSub_ReqRes_Message message)
+        {
+            var deferred = Q.Defer<T, UndefinedPromiseError>();
+            PubSub.Publish(PubSubChannels.GameWorld(), message);
+            deferredMessages.Add(message.MessageId, Script.Reinterpret<Deferred<object, UndefinedPromiseError>>(deferred));
+            return deferred.Promise;
         }
 
         public void PublishToGameSegment(string gameSegmentId, GameSegment_PubSub_Message message)

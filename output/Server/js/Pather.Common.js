@@ -407,6 +407,41 @@
 	};
 	global.Pather.Common.Models.Game.Old.SyncLockstepModel = $Pather_Common_Models_Game_Old_SyncLockstepModel;
 	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.GameSegment.InitialGameUser
+	var $Pather_Common_Models_GameSegment_InitialGameUser = function() {
+	};
+	$Pather_Common_Models_GameSegment_InitialGameUser.__typeName = 'Pather.Common.Models.GameSegment.InitialGameUser';
+	$Pather_Common_Models_GameSegment_InitialGameUser.createInstance = function() {
+		return $Pather_Common_Models_GameSegment_InitialGameUser.$ctor();
+	};
+	$Pather_Common_Models_GameSegment_InitialGameUser.$ctor = function() {
+		var $this = {};
+		$this.userId = null;
+		$this.x = 0;
+		$this.y = 0;
+		$this.gatewayId = null;
+		$this.gameSegmentId = null;
+		return $this;
+	};
+	global.Pather.Common.Models.GameSegment.InitialGameUser = $Pather_Common_Models_GameSegment_InitialGameUser;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.GameSegment.InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message
+	var $Pather_Common_Models_GameSegment_InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message = function() {
+	};
+	$Pather_Common_Models_GameSegment_InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message.__typeName = 'Pather.Common.Models.GameSegment.InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message';
+	$Pather_Common_Models_GameSegment_InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message.createInstance = function() {
+		return $Pather_Common_Models_GameSegment_InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message.$ctor();
+	};
+	$Pather_Common_Models_GameSegment_InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message.$ctor = function() {
+		var $this = $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message.$ctor();
+		$this.gameSegmentIds = null;
+		$this.allUsers = null;
+		$this.type = 'initializeGameSegmentResponse';
+		$this.response = true;
+		return $this;
+	};
+	global.Pather.Common.Models.GameSegment.InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message = $Pather_Common_Models_GameSegment_InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message;
+	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.GameSegment.Pong_Tick_GameSegment_PubSub_Message
 	var $Pather_Common_Models_GameSegment_Pong_Tick_GameSegment_PubSub_Message = function() {
 	};
@@ -433,7 +468,8 @@
 		$this.userId = null;
 		$this.x = 0;
 		$this.y = 0;
-		$this.gatewayServer = null;
+		$this.gatewayId = null;
+		$this.gameSegmentId = null;
 		$this.type = 'tellUserJoin';
 		return $this;
 	};
@@ -497,7 +533,7 @@
 		$this.userId = null;
 		$this.x = 0;
 		$this.y = 0;
-		$this.gatewayServer = null;
+		$this.gatewayId = null;
 		$this.type = 'userJoin';
 		return $this;
 	};
@@ -577,6 +613,7 @@
 	$Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message.$ctor = function() {
 		var $this = $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message.$ctor();
 		$this.messageId = null;
+		$this.response = false;
 		$this.messageId = $Pather_Common_Utilities.uniqueId();
 		return $this;
 	};
@@ -651,9 +688,6 @@
 	var $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message = function() {
 	};
 	$Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message.__typeName = 'Pather.Common.Models.GameWorld.Base.GameWorld_PubSub_Message';
-	$Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message.createInstance = function() {
-		return $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message.$ctor();
-	};
 	$Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message.$ctor = function() {
 		var $this = {};
 		$this.type = null;
@@ -676,11 +710,28 @@
 	};
 	$Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message.$ctor = function() {
 		var $this = $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message.$ctor();
+		$this.response = false;
 		$this.messageId = null;
 		$this.messageId = $Pather_Common_Utilities.uniqueId();
 		return $this;
 	};
 	global.Pather.Common.Models.GameWorld.Base.GameWorld_PubSub_ReqRes_Message = $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.GameWorld.GameSegment.InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message
+	var $Pather_Common_Models_GameWorld_GameSegment_InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message = function() {
+	};
+	$Pather_Common_Models_GameWorld_GameSegment_InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message.__typeName = 'Pather.Common.Models.GameWorld.GameSegment.InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message';
+	$Pather_Common_Models_GameWorld_GameSegment_InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message.createInstance = function() {
+		return $Pather_Common_Models_GameWorld_GameSegment_InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message.$ctor();
+	};
+	$Pather_Common_Models_GameWorld_GameSegment_InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message.$ctor = function() {
+		var $this = $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message.$ctor();
+		$this.originGameSegment = null;
+		$this.type = 'initializeGameSegment';
+		$this.response = false;
+		return $this;
+	};
+	global.Pather.Common.Models.GameWorld.GameSegment.InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message = $Pather_Common_Models_GameWorld_GameSegment_InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.GameWorld.GameSegment.TellUserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message
 	var $Pather_Common_Models_GameWorld_GameSegment_TellUserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message = function() {
@@ -692,6 +743,7 @@
 	$Pather_Common_Models_GameWorld_GameSegment_TellUserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message.$ctor = function() {
 		var $this = $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message.$ctor();
 		$this.type = 'tellUserJoinResponse';
+		$this.response = true;
 		return $this;
 	};
 	global.Pather.Common.Models.GameWorld.GameSegment.TellUserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message = $Pather_Common_Models_GameWorld_GameSegment_TellUserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message;
@@ -706,6 +758,7 @@
 	$Pather_Common_Models_GameWorld_GameSegment_TellUserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message.$ctor = function() {
 		var $this = $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message.$ctor();
 		$this.type = 'tellUserJoinResponse';
+		$this.response = true;
 		return $this;
 	};
 	global.Pather.Common.Models.GameWorld.GameSegment.TellUserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message = $Pather_Common_Models_GameWorld_GameSegment_TellUserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message;
@@ -720,6 +773,7 @@
 	$Pather_Common_Models_GameWorld_GameSegment_UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message.$ctor = function() {
 		var $this = $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message.$ctor();
 		$this.type = 'userJoinResponse';
+		$this.response = true;
 		return $this;
 	};
 	global.Pather.Common.Models.GameWorld.GameSegment.UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message = $Pather_Common_Models_GameWorld_GameSegment_UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message;
@@ -735,6 +789,7 @@
 		var $this = $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message.$ctor();
 		$this.userId = null;
 		$this.type = 'userLeft';
+		$this.response = true;
 		return $this;
 	};
 	global.Pather.Common.Models.GameWorld.GameSegment.UserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message = $Pather_Common_Models_GameWorld_GameSegment_UserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message;
@@ -750,6 +805,7 @@
 		var $this = $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message.$ctor();
 		$this.gameSegmentId = null;
 		$this.type = 'createGameSegmentResponse';
+		$this.response = true;
 		return $this;
 	};
 	global.Pather.Common.Models.GameWorld.GameSegmentCluster.CreateGameSegment_Response_GameSegmentCluster_GameWorld_PubSub_Message = $Pather_Common_Models_GameWorld_GameSegmentCluster_CreateGameSegment_Response_GameSegmentCluster_GameWorld_PubSub_Message;
@@ -1709,19 +1765,24 @@
 	$Pather_Common_Utils_Promises_Q.all$1 = function(TResolve, TError) {
 		return function(promises) {
 			var deferred = $Pather_Common_Utils_Promises_Q.defer$2(Array, TError).call(null);
-			var count = 0;
-			var resolves = [];
-			var resolveCallback = function(resolve) {
-				count++;
-				resolves.push(resolve);
-				if (count === promises.length) {
-					deferred.resolve(Array.prototype.slice.call(resolves));
+			if (promises.length === 0) {
+				deferred.resolve([]);
+			}
+			else {
+				var count = 0;
+				var resolves = [];
+				var resolveCallback = function(resolve) {
+					count++;
+					resolves.push(resolve);
+					if (count === promises.length) {
+						deferred.resolve(Array.prototype.slice.call(resolves));
+					}
+				};
+				var rejectCallback = ss.mkdel(deferred, deferred.reject);
+				for (var $t1 = 0; $t1 < promises.length; $t1++) {
+					var promise = promises[$t1];
+					promise.then(resolveCallback).error(rejectCallback);
 				}
-			};
-			var rejectCallback = ss.mkdel(deferred, deferred.reject);
-			for (var $t1 = 0; $t1 < promises.length; $t1++) {
-				var promise = promises[$t1];
-				promise.then(resolveCallback).error(rejectCallback);
 			}
 			return deferred.promise;
 		};
@@ -1729,54 +1790,69 @@
 	$Pather_Common_Utils_Promises_Q.allSequential$1 = function(TResolve, TError) {
 		return function(promises) {
 			var deferred = $Pather_Common_Utils_Promises_Q.defer$2(Array, TError).call(null);
+			if (promises.length === 0) {
+				deferred.resolve([]);
+			}
+			else {
+				var count = 0;
+				var resolves = [];
+				var rejectCallback = ss.mkdel(deferred, deferred.reject);
+				var resolveCallback = null;
+				resolveCallback = function(resolve) {
+					count++;
+					resolves.push(resolve);
+					if (count === promises.length) {
+						deferred.resolve(Array.prototype.slice.call(resolves));
+					}
+					else {
+						promises[count].then(resolveCallback).error(rejectCallback);
+					}
+				};
+				promises[0].then(resolveCallback).error(rejectCallback);
+			}
+			return deferred.promise;
+		};
+	};
+	$Pather_Common_Utils_Promises_Q.allSequential = function(promises) {
+		var deferred = $Pather_Common_Utils_Promises_Q.defer();
+		if (promises.length === 0) {
+			deferred.resolve();
+		}
+		else {
 			var count = 0;
-			var resolves = [];
 			var rejectCallback = ss.mkdel(deferred, deferred.reject);
 			var resolveCallback = null;
-			resolveCallback = function(resolve) {
+			resolveCallback = function() {
 				count++;
-				resolves.push(resolve);
 				if (count === promises.length) {
-					deferred.resolve(Array.prototype.slice.call(resolves));
+					deferred.resolve();
 				}
 				else {
 					promises[count].then(resolveCallback).error(rejectCallback);
 				}
 			};
 			promises[0].then(resolveCallback).error(rejectCallback);
-			return deferred.promise;
-		};
-	};
-	$Pather_Common_Utils_Promises_Q.allSequential = function(promises) {
-		var deferred = $Pather_Common_Utils_Promises_Q.defer();
-		var count = 0;
-		var rejectCallback = ss.mkdel(deferred, deferred.reject);
-		var resolveCallback = null;
-		resolveCallback = function() {
-			count++;
-			if (count === promises.length) {
-				deferred.resolve();
-			}
-			else {
-				promises[count].then(resolveCallback).error(rejectCallback);
-			}
-		};
-		promises[0].then(resolveCallback).error(rejectCallback);
+		}
 		return deferred.promise;
 	};
 	$Pather_Common_Utils_Promises_Q.all = function(promises) {
 		var deferred = $Pather_Common_Utils_Promises_Q.defer();
-		var count = 0;
-		var resolveCallback = function() {
-			count++;
-			if (count === promises.length) {
-				deferred.resolve();
+		if (promises.length === 0) {
+			deferred.resolve();
+		}
+		else {
+			var count = 0;
+			var resolveCallback = function() {
+				count++;
+				if (count === promises.length) {
+					deferred.resolve();
+				}
+			};
+			var rejectCallback = ss.mkdel(deferred, deferred.reject);
+			for (var $t1 = 0; $t1 < promises.length; $t1++) {
+				var promise = promises[$t1];
+				promise.then(resolveCallback).error(rejectCallback);
 			}
-		};
-		var rejectCallback = ss.mkdel(deferred, deferred.reject);
-		for (var $t1 = 0; $t1 < promises.length; $t1++) {
-			var promise = promises[$t1];
-			promise.then(resolveCallback).error(rejectCallback);
 		}
 		return deferred.promise;
 	};
@@ -2035,9 +2111,11 @@
 	ss.initClass($Pather_Common_Models_Game_Old_PlayerModel, $asm, {});
 	ss.initClass($Pather_Common_Models_Game_Old_PlayerSyncModel, $asm, {});
 	ss.initClass($Pather_Common_Models_Game_Old_SyncLockstepModel, $asm, {});
+	ss.initClass($Pather_Common_Models_GameSegment_InitialGameUser, $asm, {});
 	ss.initClass($Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message, $asm, {});
-	ss.initClass($Pather_Common_Models_GameSegment_Pong_Tick_GameSegment_PubSub_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message);
 	ss.initClass($Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
+	ss.initClass($Pather_Common_Models_GameSegment_InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
+	ss.initClass($Pather_Common_Models_GameSegment_Pong_Tick_GameSegment_PubSub_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message);
 	ss.initClass($Pather_Common_Models_GameSegment_TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameSegment_TellUserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameSegment_TellUserMoved_GameSegment_GameSegment_PubSub_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message);
@@ -2047,15 +2125,16 @@
 	ss.initClass($Pather_Common_Models_GameSegment_UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameSegment_UserMovedCollection_GameSegment_GameSegment_PubSub_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message);
 	ss.initEnum($Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_AllMessageType, $asm, { tickSync: 'tickSync' }, true);
-	ss.initEnum($Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_MessageType, $asm, { pong: 'pong', tellUserJoin: 'tellUserJoin', tellUserLeft: 'tellUserLeft', userJoin: 'userJoin', userLeft: 'userLeft', userMoved: 'userMoved', tellUserMoved: 'tellUserMoved', userMovedCollection: 'userMovedCollection' }, true);
+	ss.initEnum($Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_MessageType, $asm, { pong: 'pong', tellUserJoin: 'tellUserJoin', initializeGameSegmentResponse: 'initializeGameSegmentResponse', tellUserLeft: 'tellUserLeft', userJoin: 'userJoin', userLeft: 'userLeft', userMoved: 'userMoved', tellUserMoved: 'tellUserMoved', userMovedCollection: 'userMovedCollection' }, true);
 	ss.initClass($Pather_Common_Models_GameSegment_Base_UserMoved_Gateway_GameSegment_PubSub_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message);
 	ss.initClass($Pather_Common_Models_GameSegmentCluster_Base_GameSegmentCluster_PubSub_Message, $asm, {});
 	ss.initClass($Pather_Common_Models_GameSegmentCluster_Base_GameSegmentCluster_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegmentCluster_Base_GameSegmentCluster_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameSegmentCluster_CreateGameSegment_GameWorld_GameSegmentCluster_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegmentCluster_Base_GameSegmentCluster_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initEnum($Pather_Common_Models_GameSegmentCluster_Base_GameSegmentCluster_PubSub_MessageType, $asm, { createGameSegment: 'createGameSegment' }, true);
 	ss.initClass($Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message, $asm, {});
-	ss.initEnum($Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_MessageType, $asm, { userJoined: 'userJoined', createGameSegmentResponse: 'createGameSegmentResponse', userJoinResponse: 'userJoinResponse', tellUserJoinResponse: 'tellUserJoinResponse', tellUserLeftResponse: 'tellUserLeftResponse', tickSync: 'tickSync', userLeft: 'userLeft', pong: 'pong' }, true);
+	ss.initEnum($Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_MessageType, $asm, { userJoined: 'userJoined', createGameSegmentResponse: 'createGameSegmentResponse', userJoinResponse: 'userJoinResponse', tellUserJoinResponse: 'tellUserJoinResponse', tellUserLeftResponse: 'tellUserLeftResponse', tickSync: 'tickSync', userLeft: 'userLeft', pong: 'pong', initializeGameSegment: 'initializeGameSegment' }, true);
 	ss.initClass($Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
+	ss.initClass($Pather_Common_Models_GameWorld_GameSegment_InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameWorld_GameSegment_TellUserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameWorld_GameSegment_TellUserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameWorld_GameSegment_UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);

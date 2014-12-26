@@ -7,6 +7,7 @@ namespace Pather.Common.Models.GameSegment.Base
     {
         Pong,
         TellUserJoin,
+        InitializeGameSegmentResponse,
         TellUserLeft,
         UserJoin,
         UserLeft,

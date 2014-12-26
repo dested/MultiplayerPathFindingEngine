@@ -9,6 +9,7 @@ namespace Pather.Common.Models.GameWorld.GameSegmentCluster
         public CreateGameSegment_Response_GameSegmentCluster_GameWorld_PubSub_Message()
         {
             Type = GameWorld_PubSub_MessageType.CreateGameSegmentResponse;
+            Response = true;
         }
 
         public string GameSegmentId;

@@ -7,4 +7,4 @@ namespace Pather.Common.Models.Common
     {
         string MessageId { get; set; }
     }
-}
+} 

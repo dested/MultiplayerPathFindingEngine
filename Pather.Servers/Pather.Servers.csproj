@@ -56,6 +56,7 @@
     <Compile Include="GameSegmentCluster\Tests\GameSegmentClusterTest.cs" />
     <Compile Include="GameSegmentCluster\Tests\StubPubSub.cs" />
     <Compile Include="Common\ClientTickManager.cs" />
+    <Compile Include="GameSegment\GameSegment.cs" />
     <Compile Include="GameSegment\GameSegmentPubSub.cs" />
     <Compile Include="GameSegment\Models\GameSegmentNeighbor.cs" />
     <Compile Include="GameSegment\Models\GameSegmentUser.cs" />

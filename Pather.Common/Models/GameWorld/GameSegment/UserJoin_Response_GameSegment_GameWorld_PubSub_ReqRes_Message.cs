@@ -9,6 +9,7 @@ namespace Pather.Common.Models.GameWorld.GameSegment
         public UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message()
         {
             Type = GameWorld_PubSub_MessageType.UserJoinResponse;
+            Response = true;
         }
     }
 

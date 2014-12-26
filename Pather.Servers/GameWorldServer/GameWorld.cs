@@ -34,29 +34,34 @@ namespace Pather.Servers.GameWorldServer
             gwUser.X = dbUser.X;
             gwUser.Y = dbUser.Y;
             gwUser.Neighbors = new List<GameWorldNeighbor>();
-            gwUser.GatewayServer = gatewayChannel;
+            gwUser.GatewayId = gatewayChannel;
             BuildNeighbors(gwUser);
 
             DetermineGameSegment(gwUser)
                 .Then(gameSegment =>
                 {
-                    var promises = GameSegments
-                        .Where(seg => seg != gameSegment)
-                        .Select(seg => seg.TellSegmentAboutUser(gwUser));
 
-                    promises.Add(gameSegment.AddUserToSegment(gwUser));
 
-                    Q.All(promises)
-                        .Then(() =>
-                        {
-                            Users.Add(gwUser);
-                            Global.Console.Log("",
-                                "Gameworld added user to game segment", gameSegment.GameSegmentId,
-                                "Total Players:", Users.Count,
-                                "Game Segment Players:", gameSegment.Users.Count);
+                    gameSegment.AddUserToSegment(gwUser).Then(() =>
+                    {
+                        var promises = GameSegments
+                            .Where(seg => seg != gameSegment)
+                            .Select(seg => seg.TellSegmentAboutUser(gwUser));
 
-                            defer.Resolve(gwUser);
-                        });
+                        Q.All(promises)
+                            .Then(() =>
+                            {
+                                Users.Add(gwUser);
+                                Global.Console.Log("",
+                                    "Gameworld added user to game segment", gameSegment.GameSegmentId,
+                                    "Total Players:", Users.Count,
+                                    "Game Segment Players:", gameSegment.Users.Count);
+
+                                defer.Resolve(gwUser);
+                            });
+                    });
+
+
                 });
             return defer.Promise;
         }
@@ -180,7 +185,7 @@ namespace Pather.Servers.GameWorldServer
                 var distance = PointDistance(pUser, cUser);
                 neighbors.Add(new GameWorldNeighbor(cUser, distance));
             }
-            neighbors.Sort((a, b) => (int) (a.Distance - b.Distance));
+            neighbors.Sort((a, b) => (int)(a.Distance - b.Distance));
             return neighbors;
         }
 
@@ -212,7 +217,7 @@ namespace Pather.Servers.GameWorldServer
             var _x = (cx - mx);
             var _y = (cy - my);
 
-            var dis = Math.Sqrt((_x*_x) + (_y*_y));
+            var dis = Math.Sqrt((_x * _x) + (_y * _y));
             return dis;
         }
     }

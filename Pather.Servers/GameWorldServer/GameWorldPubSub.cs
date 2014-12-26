@@ -32,12 +32,13 @@ namespace Pather.Servers.GameWorldServer
             {
                 var gameWorldPubSubMessage = Json.Parse<GameWorld_PubSub_Message>(message);
 
-                if (Utilities.HasField<IPubSub_ReqRes_Message>(gameWorldPubSubMessage, m => m.MessageId))
+                if (Utilities.HasField<GameWorld_PubSub_ReqRes_Message>(gameWorldPubSubMessage, m => m.MessageId) && ((GameWorld_PubSub_ReqRes_Message)gameWorldPubSubMessage).Response)
                 {
-                    var possibleMessageReqRes = (IPubSub_ReqRes_Message) gameWorldPubSubMessage;
+                    Global.Console.Log("message", message);
+                    var possibleMessageReqRes = (GameWorld_PubSub_ReqRes_Message)gameWorldPubSubMessage;
                     if (!deferredMessages.ContainsKey(possibleMessageReqRes.MessageId))
                     {
-                        Global.Console.Log("Received message that I didnt ask for.");
+                        Global.Console.Log("Received message that I didnt ask for.",message);
                         throw new Exception("Received message that I didnt ask for.");
                     }
                     deferredMessages[possibleMessageReqRes.MessageId].Resolve(gameWorldPubSubMessage);

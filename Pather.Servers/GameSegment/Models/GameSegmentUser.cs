@@ -6,11 +6,16 @@ namespace Pather.Servers.GameSegment.Models
     public class GameSegmentUser
     {
         public string GameSegmentId;
-        public string GatewayServer;
+        public string GatewayId;
         public int X;
         public int Y;
         public string UserId;
         public List<GameSegmentNeighbor> Neighbors;
+
+        public GameSegmentUser()
+        {
+            Neighbors = new List<GameSegmentNeighbor>();
+        }
 
         public bool MoveTo(int x, int y, long lockstepTick)
         {

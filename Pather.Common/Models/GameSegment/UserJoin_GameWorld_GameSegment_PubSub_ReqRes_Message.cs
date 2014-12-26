@@ -14,6 +14,6 @@ namespace Pather.Common.Models.GameSegment
         public string UserId;
         public int X;
         public int Y;
-        public string GatewayServer;
+        public string GatewayId;
     }
 }

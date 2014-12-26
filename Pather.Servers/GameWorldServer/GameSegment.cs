@@ -1,9 +1,11 @@
 using System.Collections.Generic;
 using Pather.Common;
+using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameWorld.GameSegment;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.GameWorldServer.Models;
+using Console = System.Console;
 
 namespace Pather.Servers.GameWorldServer
 {
@@ -35,11 +37,12 @@ namespace Pather.Servers.GameWorldServer
             {
                 X = gwUser.X,
                 Y = gwUser.Y,
-                GatewayServer = gwUser.GatewayServer,
+                GatewayId = gwUser.GatewayId,
                 UserId = gwUser.UserId
             };
             GameWorld.GameWorldPubSub.PublishToGameSegmentWithCallback<UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message>(GameSegmentId, userJoinGameWorldGameSegmentPubSubReqResMessage).Then((userJoinResponse) =>
             {
+                Global.Console.Log("User joined!");
                 Users.Add(gwUser);
                 gwUser.GameSegment = this;
                 deferred.Resolve();
@@ -76,12 +79,14 @@ namespace Pather.Servers.GameWorldServer
             {
                 X = gwUser.X,
                 Y = gwUser.Y,
-                GatewayServer = gwUser.GatewayServer,
+                GatewayId = gwUser.GatewayId,
+                GameSegmentId = gwUser.GameSegment.GameSegmentId,
                 UserId = gwUser.UserId
             };
             GameWorld.GameWorldPubSub.PublishToGameSegmentWithCallback<TellUserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message>(GameSegmentId, tellUserJoin)
                 .Then((userJoinResponse) =>
                 {
+                    Global.Console.Log(6, "User joining: tell", gwUser);
                     //todo IDK
                     deferred.Resolve();
                 });
@@ -98,7 +103,7 @@ namespace Pather.Servers.GameWorldServer
             {
                 X = gwUser.X,
                 Y = gwUser.Y,
-                GatewayServer = gwUser.GatewayServer,
+                GatewayId = gwUser.GatewayId,
                 UserId = gwUser.UserId
             };
             GameWorld.GameWorldPubSub.PublishToGameSegmentWithCallback<TellUserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message>(GameSegmentId, userJoinGameWorldGameSegmentPubSubReqResMessage).Then((userJoinResponse) =>

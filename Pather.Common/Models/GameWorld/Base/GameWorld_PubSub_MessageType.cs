@@ -12,6 +12,7 @@ namespace Pather.Common.Models.GameWorld.Base
         TellUserLeftResponse,
         TickSync,
         UserLeft,
-        Pong
+        Pong,
+        InitializeGameSegment
     }
 }
