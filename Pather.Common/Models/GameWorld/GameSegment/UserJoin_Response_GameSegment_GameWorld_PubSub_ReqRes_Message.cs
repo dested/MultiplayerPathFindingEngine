@@ -11,4 +11,5 @@ namespace Pather.Common.Models.GameWorld.GameSegment
             Type = GameWorld_PubSub_MessageType.UserJoinResponse;
         }
     }
+
 }

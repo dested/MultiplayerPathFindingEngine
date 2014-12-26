@@ -6,6 +6,7 @@ namespace Pather.Common.Models.Gateway.PubSub.Base
     public enum Gateway_PubSub_MessageType
     {
         UserJoined,
-        Pong
+        Pong,
+        UserMoved
     }
 }
