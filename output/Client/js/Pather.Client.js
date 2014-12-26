@@ -81,12 +81,12 @@
 		this.$pingSent = null;
 		this.clientCommunicator = new $Pather_Client_Utils_ClientCommunicator(null);
 		this.networkPlayers = 0;
-		this.clientCommunicator.listenOnChannel(Pather.Common.Models.Game.Old.ConnectedModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('connect'), ss.mkdel(this, function(model) {
+		this.clientCommunicator.oldListenOnChannel(Pather.Common.Models.Game.Old.ConnectedModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('connect'), ss.mkdel(this, function(model) {
 			this.onConnected(model);
 			this.$triggerPingTest();
 			window.setInterval(ss.mkdel(this, this.$triggerPingTest), 60000);
 		}));
-		this.clientCommunicator.listenOnChannel(Pather.Common.Models.Game.Old.PlayerSyncModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('playerSync'), ss.mkdel(this, function(model1) {
+		this.clientCommunicator.oldListenOnChannel(Pather.Common.Models.Game.Old.PlayerSyncModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('playerSync'), ss.mkdel(this, function(model1) {
 			if (ss.isValue(model1.joinedPlayers)) {
 				this.networkPlayers += model1.joinedPlayers.length;
 			}
@@ -95,12 +95,12 @@
 			}
 			this.onPlayerSync(model1);
 		}));
-		this.clientCommunicator.listenOnChannel(Pather.Common.Models.Game.Old.PingPongModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('pong'), ss.mkdel(this, function(model2) {
+		this.clientCommunicator.oldListenOnChannel(Pather.Common.Models.Game.Old.PingPongModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('pong'), ss.mkdel(this, function(model2) {
 			var cur = (new Date()).getTime();
 			this.$pingSent.push(cur - this.$lastPing);
 			this.$lastPing = cur;
 			if (this.$pingSent.length < 6) {
-				this.clientCommunicator.sendMessage(Pather.Common.SocketChannels.clientChannel('ping'), Pather.Common.Models.Game.Old.PingPongModel.$ctor());
+				this.clientCommunicator.oldSendMessage(Pather.Common.SocketChannels.clientChannel('ping'), Pather.Common.Models.Game.Old.PingPongModel.$ctor());
 			}
 			else {
 				var average = 0;
@@ -112,10 +112,10 @@
 				this.$pingSent = null;
 			}
 		}));
-		this.clientCommunicator.listenOnChannel(Pather.Common.Models.Game.Old.SyncLockstepModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('syncLockstep'), ss.mkdel(this, function(model3) {
+		this.clientCommunicator.oldListenOnChannel(Pather.Common.Models.Game.Old.SyncLockstepModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('syncLockstep'), ss.mkdel(this, function(model3) {
 			this.onSetLockStep(model3);
 		}));
-		this.clientCommunicator.listenOnChannel(Pather.Common.SerializableAction).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('postAction'), ss.mkdel(this, function(model4) {
+		this.clientCommunicator.oldListenOnChannel(Pather.Common.SerializableAction).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('postAction'), ss.mkdel(this, function(model4) {
 			this.receiveAction(model4);
 		}));
 	};
@@ -144,7 +144,7 @@
 		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_Client_Utils_ClientCommunicator, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
 		var b = Math.random();
 		var port;
-		if (b <= 0.3) {
+		if (b <= 1) {
 			port = 1800;
 		}
 		else if (b <= 0.6) {
@@ -156,13 +156,23 @@
 		var url = 'http://127.0.0.1:' + port;
 		//            Global.Console.Log("Connecting to", url);
 		var clientCommunicator = new $Pather_Client_Utils_ClientCommunicator(url);
-		clientCommunicator.listenOnChannel(String).call(clientCommunicator, 'Gateway.Join.Success', function(item) {
-			//                Global.Console.Log(item);
-			deferred.resolve(clientCommunicator);
+		clientCommunicator.listenForGatewayMessage(function(message) {
+			switch (message.gatewayUserMessageType) {
+				case 'move': {
+					break;
+				}
+				case 'userJoined': {
+					deferred.resolve(clientCommunicator);
+					break;
+				}
+				default: {
+					throw new ss.ArgumentOutOfRangeException();
+				}
+			}
 		});
-		var $t1 = Pather.Common.Models.Gateway.Socket.GatewayJoinModel.$ctor();
+		var $t1 = Pather.Common.Models.Gateway.Socket.Base.UserJoined_User_Gateway_Socket_Message.$ctor();
 		$t1.userToken = userToken;
-		clientCommunicator.sendMessage('Gateway.Join', $t1);
+		clientCommunicator.sendMessage($t1);
 		return deferred.promise;
 	};
 	global.Pather.Client.Tests.LoginE2ETest = $Pather_Client_Tests_LoginE2ETest;
@@ -311,10 +321,10 @@
 		$triggerPingTest: function() {
 			this.$pingSent = [];
 			this.$lastPing = (new Date()).getTime();
-			this.clientCommunicator.sendMessage(Pather.Common.SocketChannels.clientChannel('ping'), Pather.Common.Models.Game.Old.PingPongModel.$ctor());
+			this.clientCommunicator.oldSendMessage(Pather.Common.SocketChannels.clientChannel('ping'), Pather.Common.Models.Game.Old.PingPongModel.$ctor());
 		},
 		sendAction: function(serAction) {
-			this.clientCommunicator.sendMessage(Pather.Common.SocketChannels.clientChannel('postAction'), serAction);
+			this.clientCommunicator.oldSendMessage(Pather.Common.SocketChannels.clientChannel('postAction'), serAction);
 		},
 		receiveAction: function(serAction) {
 			this.onReceiveAction(serAction);
@@ -324,7 +334,7 @@
 			var $t3 = Pather.Common.SocketChannels.clientChannel('joinPlayer');
 			var $t1 = Pather.Common.Models.Game.Old.PlayerJoinModel.$ctor();
 			$t1.playerId = myPlayerId;
-			$t2.sendMessage($t3, $t1);
+			$t2.oldSendMessage($t3, $t1);
 		}
 	});
 	ss.initClass($Pather_Client_Old_ClientStepManager, $asm, {
@@ -429,31 +439,33 @@
 			}
 		},
 		loginAndMove: function(defer) {
-			var users = [];
-			var $t1 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
-			$t1.x = 12;
-			$t1.y = 25;
-			var m = $t1;
-			var averageTimes = [];
 			var id = Pather.Common.Utilities.uniqueId();
 			$Pather_Client_Tests_LoginE2ETest.$joinUser(id).then(function(communicator) {
-				var $t2 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
-				$t2.x = 12;
-				$t2.y = 25;
-				communicator.sendMessage('Gateway.Message', $t2);
+				var $t1 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
+				$t1.x = 12;
+				$t1.y = 25;
+				communicator.sendMessage($t1);
 			});
 		}
 	});
 	ss.initClass($Pather_Client_Utils_ClientCommunicator, $asm, {
-		listenOnChannel: function(T) {
+		listenForGatewayMessage: function(callback) {
+			this.socket.on('Gateway.Message', function(obj) {
+				callback(obj.data);
+			});
+		},
+		oldListenOnChannel: function(T) {
 			return function(channel, callback) {
 				this.socket.on(channel, function(obj) {
 					callback(obj.data);
 				});
 			};
 		},
-		sendMessage: function(channel, obj) {
+		oldSendMessage: function(channel, obj) {
 			this.socket.emit(channel, ss.makeGenericType(Pather.Common.Utils.DataObject$1, [Object]).$ctor(obj));
+		},
+		sendMessage: function(obj) {
+			this.socket.emit('Gateway.Message', ss.makeGenericType(Pather.Common.Utils.DataObject$1, [Object]).$ctor(obj));
 		},
 		disconnect: function() {
 			this.socket.disconnect();

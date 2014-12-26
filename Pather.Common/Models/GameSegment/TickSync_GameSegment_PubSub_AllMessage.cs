@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Pather.Common.Models.Common;
 using Pather.Common.Models.GameSegment.Base;
 
 namespace Pather.Common.Models.GameSegment
@@ -14,4 +16,30 @@ namespace Pather.Common.Models.GameSegment
 
         public long LockstepTickNumber;
     }
+
+
+    [Serializable]
+    public class UserMovedCollection_GameSegment_GameSegment_PubSub_Message : GameSegment_PubSub_Message
+    {
+        public UserMovedCollection_GameSegment_GameSegment_PubSub_Message()
+        {
+            Type = GameSegment_PubSub_MessageType.UserMovedCollection;
+        }
+
+        public List<UserMovedMessage> Items;
+    }
+    [Serializable]
+    public class TellUserMoved_GameSegment_GameSegment_PubSub_Message : GameSegment_PubSub_Message
+    {
+        public TellUserMoved_GameSegment_GameSegment_PubSub_Message()
+        {
+            Type = GameSegment_PubSub_MessageType.TellUserMoved;
+        }
+        public string UserId;
+        public int X;
+        public int Y;
+        public long LockstepTick;
+    }
+
+
 }

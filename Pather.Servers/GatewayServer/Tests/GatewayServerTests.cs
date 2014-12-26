@@ -5,6 +5,7 @@ using Pather.Common.Models.GameWorld.Gateway;
 using Pather.Common.Models.Gateway.PubSub;
 using Pather.Common.Models.Gateway.PubSub.Base;
 using Pather.Common.Models.Gateway.Socket;
+using Pather.Common.Models.Gateway.Socket.Base;
 using Pather.Common.TestFramework;
 using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
@@ -38,14 +39,14 @@ namespace Pather.Servers.GatewayServer.Tests
                 var socket = Mocker.InstantiateInterface<ISocket>();
 
                 Mocker.StubMethodCall<Action>(socket.Disconnect);
-                Mocker.StubMethodCall<string, Action<DataObject<GatewayJoinModel>>>(socket.On, (channel, onCallback) =>
+                Mocker.StubMethodCall<string, Action<DataObject<UserJoined_User_Gateway_Socket_Message>>>(socket.On, (channel, onCallback) =>
                 {
                     if (channel == "Gateway.Join")
                     {
                         Global.SetTimeout(() =>
                         {
                             //user logged in via socketio
-                            onCallback(new DataObject<GatewayJoinModel>(new GatewayJoinModel()
+                            onCallback(new DataObject<UserJoined_User_Gateway_Socket_Message>(new UserJoined_User_Gateway_Socket_Message()
                             {
                                 UserToken = userToken
                             }));

@@ -1,5 +1,6 @@
 using System;
 using System.Serialization;
+using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.GameWorld.Base;
 using Pather.Common.Models.Gateway.PubSub.Base;
@@ -56,6 +57,11 @@ namespace Pather.Servers.GameSegment
         public void PublishToGameWorld(GameWorld_PubSub_Message message)
         {
             PubSub.Publish(PubSubChannels.GameWorld(), message);
+        }
+
+        public void PublishToGameSegment(string gameSegmentId, GameSegment_PubSub_Message message)
+        {
+            PubSub.Publish(PubSubChannels.GameSegment(gameSegmentId), message);
         }
     }
 }

@@ -14,6 +14,20 @@ namespace Pather.Common.Utils
             }
             return -1;
         }
+        public static JsDictionary<TKey, List<TItem>> GroupBy<TKey, TItem>(this List<TItem> items, Func<TItem, TKey> callback)
+        {
+            JsDictionary<TKey, List<TItem>> kitems = new JsDictionary<TKey, List<TItem>>();
+            foreach (var item in items)
+            {
+                var k = callback(item);
+                if (!kitems.ContainsKey(k))
+                {
+                    kitems[k] = new List<TItem>();
+                }
+                kitems[k].Add(item);
+            }
+            return kitems;
+        }
 
         public static int IndexOfFast(this int[] items, int ind)
         {
@@ -85,7 +99,7 @@ namespace Pather.Common.Utils
                 count++;
                 sum += clause(item);
             }
-            return sum/count;
+            return sum / count;
         }
 
         public static bool All<T>(this List<T> items, Func<T, bool> clause)
@@ -193,7 +207,7 @@ namespace Pather.Common.Utils
             return items2.ToArray();
         }
 
-        public static T2[] Select<T, T2>(this List<T> items, Func<T, T2> clause)
+        public static List<T2> Select<T, T2>(this List<T> items, Func<T, T2> clause)
         {
             var items2 = new List<T2>();
 
@@ -201,7 +215,7 @@ namespace Pather.Common.Utils
             {
                 items2.Add(clause(item));
             }
-            return items2.ToArray();
+            return items2;
         }
     }
 }

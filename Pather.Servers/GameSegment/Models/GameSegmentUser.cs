@@ -14,6 +14,7 @@ namespace Pather.Servers.GameSegment.Models
 
         public bool MoveTo(int x, int y, long lockstepTick)
         {
+            //todo pathfind here
 
             X = x;
             Y = y;

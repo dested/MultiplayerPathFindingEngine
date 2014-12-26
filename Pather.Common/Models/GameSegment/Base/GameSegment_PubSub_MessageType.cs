@@ -10,6 +10,8 @@ namespace Pather.Common.Models.GameSegment.Base
         TellUserLeft,
         UserJoin,
         UserLeft,
-        UserMoved
+        UserMoved,
+        TellUserMoved,
+        UserMovedCollection
     }
 }

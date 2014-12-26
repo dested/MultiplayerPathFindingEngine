@@ -29,7 +29,7 @@ namespace Pather.Servers.GameSegment.Old
             {
                 foreach (var socketIoConnection in forceSyncNextLockstep)
                 {
-                    ServerCommunicator.SendMessage(socketIoConnection,
+                    ServerCommunicator.OldSendMessage(socketIoConnection,
                         SocketChannels.ServerChannel(SocketChannels.Server.SyncLockstep),
                         new SyncLockstepModel()
                         {
@@ -41,7 +41,7 @@ namespace Pather.Servers.GameSegment.Old
                 {
                     if (forceSyncNextLockstep.IndexOf(player.Socket) == -1)
                     {
-                        ServerCommunicator.SendMessage(player.Socket,
+                        ServerCommunicator.OldSendMessage(player.Socket,
                             SocketChannels.ServerChannel(SocketChannels.Server.SyncLockstep),
                             new SyncLockstepModel()
                             {
@@ -58,26 +58,26 @@ namespace Pather.Servers.GameSegment.Old
 
         private void OnNewConnection(ISocket socketIoConnection)
         {
-            ServerCommunicator.SendMessage(socketIoConnection,
+            ServerCommunicator.OldSendMessage(socketIoConnection,
                 SocketChannels.ServerChannel(SocketChannels.Server.Connect), new ConnectedModel()
                 {
                     Grid = Game.Grid
                 });
             forceSyncNextLockstep.Add(socketIoConnection);
 
-            ServerCommunicator.ListenOnChannel<PlayerJoinModel>(socketIoConnection,
+            ServerCommunicator.OldListenOnChannel<PlayerJoinModel>(socketIoConnection,
                 SocketChannels.ClientChannel(SocketChannels.Client.JoinPlayer), JoinPlayer);
 
-            ServerCommunicator.ListenOnChannel<SerializableAction>(socketIoConnection,
+            ServerCommunicator.OldListenOnChannel<SerializableAction>(socketIoConnection,
                 SocketChannels.ClientChannel(SocketChannels.Client.PostAction), PostAction);
 
-            ServerCommunicator.ListenOnChannel<PingPongModel>(socketIoConnection,
+            ServerCommunicator.OldListenOnChannel<PingPongModel>(socketIoConnection,
                 SocketChannels.ClientChannel(SocketChannels.Client.Ping), Pong);
         }
 
         private void Pong(ISocket socket, PingPongModel pingPongModel)
         {
-            ServerCommunicator.SendMessage(socket, SocketChannels.ServerChannel(SocketChannels.Server.Pong), pingPongModel);
+            ServerCommunicator.OldSendMessage(socket, SocketChannels.ServerChannel(SocketChannels.Server.Pong), pingPongModel);
         }
 
 
@@ -114,7 +114,7 @@ namespace Pather.Servers.GameSegment.Old
 
             foreach (ServerEntity entity in Game.Players)
             {
-                ServerCommunicator.SendMessage(entity.Socket, SocketChannels.ServerChannel(SocketChannels.Server.PlayerSync), playerSyncModel);
+                ServerCommunicator.OldSendMessage(entity.Socket, SocketChannels.ServerChannel(SocketChannels.Server.PlayerSync), playerSyncModel);
             }
         }
 
@@ -129,7 +129,7 @@ namespace Pather.Servers.GameSegment.Old
         {
             foreach (ServerEntity player in Game.Players)
             {
-                ServerCommunicator.SendMessage(player.Socket, SocketChannels.ServerChannel(SocketChannels.Server.PostAction), action);
+                ServerCommunicator.OldSendMessage(player.Socket, SocketChannels.ServerChannel(SocketChannels.Server.PostAction), action);
             }
         }
 
@@ -148,7 +148,7 @@ namespace Pather.Servers.GameSegment.Old
             {
                 if (entity.PlayerId != player.PlayerId)
                 {
-                    ServerCommunicator.SendMessage(entity.Socket, SocketChannels.ServerChannel(SocketChannels.Server.PlayerSync),
+                    ServerCommunicator.OldSendMessage(entity.Socket, SocketChannels.ServerChannel(SocketChannels.Server.PlayerSync),
                         new PlayerSyncModel()
                         {
                             JoinedPlayers = new List<PlayerModel>()
@@ -164,7 +164,7 @@ namespace Pather.Servers.GameSegment.Old
                 }
                 else
                 {
-                    ServerCommunicator.SendMessage(socket, SocketChannels.ServerChannel(SocketChannels.Server.PlayerSync),
+                    ServerCommunicator.OldSendMessage(socket, SocketChannels.ServerChannel(SocketChannels.Server.PlayerSync),
                         new PlayerSyncModel()
                         {
                             JoinedPlayers = Game.Players.Map(p => new PlayerModel()

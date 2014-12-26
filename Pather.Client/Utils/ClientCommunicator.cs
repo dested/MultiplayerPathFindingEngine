@@ -2,6 +2,7 @@
 using Pather.Client.Libraries;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.Gateway.Socket.Base;
 using Pather.Common.Utils;
 
 namespace Pather.Client.Utils
@@ -38,14 +39,23 @@ namespace Pather.Client.Utils
             }
         }
 
-        public void ListenOnChannel<T>(string channel, Action<T> callback)
+        public void ListenForGatewayMessage( Action<Gateway_User_Socket_Message> callback)
+        {
+            Socket.On<DataObject<Gateway_User_Socket_Message>>("Gateway.Message", obj => callback(obj.Data));
+        }
+
+        public void OldListenOnChannel<T>(string channel, Action<T> callback)
         {
             Socket.On<DataObject<T>>(channel, obj => callback(obj.Data));
         }
 
-        public void SendMessage(string channel, object obj)
+        public void OldSendMessage(string channel, object obj)
         {
             Socket.Emit(channel, new DataObject<object>(obj));
+        }
+        public void SendMessage(User_Gateway_Socket_Message obj)
+        {
+            Socket.Emit("Gateway.Message", new DataObject<object>(obj));
         }
 
         public void Disconnect()

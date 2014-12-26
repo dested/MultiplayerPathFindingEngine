@@ -14,7 +14,6 @@ namespace Pather.Servers
     {
         public static void Main()
         {
-            Debugger.Break();
             var arg = Global.Process.Arguments[2];
 
             if (string.IsNullOrEmpty(arg))
@@ -43,33 +42,41 @@ namespace Pather.Servers
             {
                 switch (arg)
                 {
+                    case "all":
+                        CreateTickServer();
+                        CreateMonitorServer();
+                        CreateAuthServer();
+                        createGatewayServer("DEFAULTGATEWAYID",1800);
+                        CreateGameClusterServer("TODO:DEFAULTGAMESEGMENTCLUSTER");
+                        CreateGameWorldServer();
+                        break;
                     case "gt":
                     case "gateway":
-                        new GatewayServer.GatewayServer(new PubSub(), new SocketIOManager(), Global.Process.Arguments[3], int.Parse(Global.Process.Arguments[4]));
+                        createGatewayServer(Global.Process.Arguments[3], int.Parse(Global.Process.Arguments[4]));
                         break;
                     case "au":
                     case "auth":
-                        new AuthServer.AuthServer();
+                        CreateAuthServer();
                         break;
                     case "m":
                     case "monitor":
-                        new MonitorServer.MonitorServer();
+                        CreateMonitorServer();
                         break;
                     case "gsc":
                     case "gamesegmentcluster":
-                        new GameSegmentCluster.GameSegmentCluster(new PubSub(), new PushPop(), "TODO:DEFAULTGAMESEGMENTCLUSTER");
+                        CreateGameClusterServer("TODO:DEFAULTGAMESEGMENTCLUSTER");
                         break;
                     case "gs":
                     case "game":
-                        new GameSegmentServer(new SocketIOManager(), new PubSub(), new PushPop(), Global.Process.Arguments[3]);
+                        CreateGameSegmentServer(Global.Process.Arguments[3]);
                         break;
                     case "gw":
                     case "gameworld":
-                        new GameWorldServer.GameWorldServer(new PubSub(), new DatabaseQueries());
+                        CreateGameWorldServer();
                         break;
                     case "t":
                     case "tick":
-                        new TickServer.TickServer(new PubSub());
+                        CreateTickServer();
                         break;
                     default:
                         Global.Console.Log("Failed to load: ", Global.Process.Arguments[2]);
@@ -80,6 +87,41 @@ namespace Pather.Servers
             {
                 Global.Console.Log("CRITICAL FAILURE: ", exc);
             }
+        }
+
+        private static void CreateTickServer()
+        {
+            new TickServer.TickServer(new PubSub());
+        }
+
+        private static void CreateGameWorldServer()
+        {
+            new GameWorldServer.GameWorldServer(new PubSub(), new DatabaseQueries());
+        }
+
+        private static void CreateGameSegmentServer(string gameSegmentId)
+        {
+            new GameSegmentServer(new SocketIOManager(), new PubSub(), new PushPop(), gameSegmentId);
+        }
+
+        private static void CreateGameClusterServer(string gameSegmentClusterId)
+        {
+            new GameSegmentCluster.GameSegmentCluster(new PubSub(), new PushPop(), gameSegmentClusterId);
+        }
+
+        private static void CreateMonitorServer()
+        {
+            new MonitorServer.MonitorServer();
+        }
+
+        private static void CreateAuthServer()
+        {
+            new AuthServer.AuthServer();
+        }
+
+        private static void createGatewayServer(string gatewayId, int port)
+        {
+            new GatewayServer.GatewayServer(new PubSub(), new SocketIOManager(), gatewayId,port);
         }
     }
 }

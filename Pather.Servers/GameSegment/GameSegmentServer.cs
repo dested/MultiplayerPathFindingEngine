@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.Common;
 using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.GameWorld.GameSegment;
 using Pather.Common.Models.Gateway.PubSub;
 using Pather.Common.Models.Gateway.PubSub.Base;
 using Pather.Common.Models.Tick;
+using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common;
 using Pather.Servers.Common.PubSub;
@@ -14,6 +17,7 @@ using Pather.Servers.Common.PushPop;
 using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Common.SocketManager;
 using Pather.Servers.GameSegment.Models;
+using Pather.Servers.GameWorldServer.Models;
 
 namespace Pather.Servers.GameSegment
 {
@@ -26,6 +30,8 @@ namespace Pather.Servers.GameSegment
         private readonly string GameSegmentId;
         public JsDictionary<string, GameSegmentUser> MySegmentUsers = new JsDictionary<string, GameSegmentUser>();
         public JsDictionary<string, GameSegmentUser> OtherSegmentUsers = new JsDictionary<string, GameSegmentUser>();
+
+        public List<GameSegmentUser> Users;
 
         public GameSegmentServer(ISocketManager socketManager, IPubSub pubsub, IPushPop pushPop, string gameSegmentId)
         {
@@ -48,8 +54,11 @@ namespace Pather.Servers.GameSegment
                     GameSegmentPubSub.OnMessage += onMessage;
                     GameSegmentPubSub.Init().Then(ready);
                 });
-        }
+            Users = new List<GameSegmentUser>();
 
+
+            Global.SetInterval(BuildNeighbors, 3000);
+        }
 
         private void ready()
         {
@@ -101,10 +110,17 @@ namespace Pather.Servers.GameSegment
                 case GameSegment_PubSub_MessageType.Pong:
                     OnMessagePong((Pong_Tick_GameSegment_PubSub_Message)message);
                     break;
+                case GameSegment_PubSub_MessageType.TellUserMoved:
+                    OnMessageTellUserMoved((TellUserMoved_GameSegment_GameSegment_PubSub_Message)message);
+                    break;
+                case GameSegment_PubSub_MessageType.UserMovedCollection:
+                    OnMessageUserMovedCollection((UserMovedCollection_GameSegment_GameSegment_PubSub_Message)message);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
+
 
         private void OnMessagePong(Pong_Tick_GameSegment_PubSub_Message message)
         {
@@ -114,12 +130,13 @@ namespace Pather.Servers.GameSegment
         private void OnMessageUserLeft(UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message message)
         {
             var user = MySegmentUsers[message.UserId];
-
             if (user == null)
             {
                 throw new Exception("IDK Who this user is:" + message.UserId);
             }
 
+
+            Users.Remove(user);
             MySegmentUsers.Remove(message.UserId);
 
             ServerLogger.LogInformation("User Left Game Segment", "User count now: ", MySegmentUsers.Count);
@@ -128,17 +145,19 @@ namespace Pather.Servers.GameSegment
             {
                 MessageId = message.MessageId
             });
+
+            BuildNeighbors();
         }
 
         private void OnMessageTellUserLeft(TellUserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message message)
         {
             var luser = OtherSegmentUsers[message.UserId];
-
             if (luser == null)
             {
                 throw new Exception("IDK Who this user is:" + message.UserId);
             }
 
+            Users.Remove(luser);
             OtherSegmentUsers.Remove(message.UserId);
 
             ServerLogger.LogInformation("User Left Other Game Segment");
@@ -147,40 +166,55 @@ namespace Pather.Servers.GameSegment
             {
                 MessageId = message.MessageId
             });
+
+            BuildNeighbors();
         }
 
         private void OnMessageTellUserJoin(TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message message)
         {
-            OtherSegmentUsers[message.UserId] = (new GameSegmentUser()
+            var otherSegmentUser = new GameSegmentUser()
             {
                 UserId = message.UserId,
                 GatewayServer = message.GatewayServer,
                 X = message.X,
                 Y = message.Y,
-            });
+            };
+            OtherSegmentUsers[message.UserId] = otherSegmentUser;
+
+            Users.Add(otherSegmentUser);
+
             ServerLogger.LogInformation("User Joined A Different Game Segment");
             Global.Console.Log(GameSegmentId, "User Joined A Different Game Segment");
             GameSegmentPubSub.PublishToGameWorld(new TellUserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message()
             {
                 MessageId = message.MessageId
             });
+
+            BuildNeighbors();
         }
 
         private void OnMessageUserJoin(UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message message)
         {
-            MySegmentUsers[message.UserId] = (new GameSegmentUser()
+            var gameSegmentUser = new GameSegmentUser()
             {
                 UserId = message.UserId,
                 GatewayServer = message.GatewayServer,
                 X = message.X,
                 Y = message.Y,
-            });
+            };
+
+
+            MySegmentUsers[message.UserId] = gameSegmentUser;
+            Users.Add(gameSegmentUser);
+
             ServerLogger.LogInformation("User Joined Game Segment", "User count now: ", MySegmentUsers.Count);
             Global.Console.Log(GameSegmentId, "User Joined Game Segment", "User count now: ", MySegmentUsers.Count);
             GameSegmentPubSub.PublishToGameWorld(new UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message()
             {
                 MessageId = message.MessageId
             });
+
+            BuildNeighbors();
         }
 
         private void OnMessageUserMoved(UserMoved_Gateway_GameSegment_PubSub_Message message)
@@ -194,41 +228,122 @@ namespace Pather.Servers.GameSegment
 
             if (user.MoveTo(message.X, message.Y, message.LockstepTick))
             {
-                List<string> gateways = new List<string>();
-                List<string> neighborGameSegments = new List<string>();
                 List<string> otherGameSegments = new List<string>(AllGameSegments);
 
-                var myGameSegment = this.GameSegmentId;
-                foreach (var gameSegmentNeighbor in user.Neighbors)
+                var gateways = user.Neighbors.GroupBy(a => a.User.GatewayServer);
+                var neighborGameSegments = user.Neighbors.GroupBy(a => a.User.GatewayServer);
+
+                foreach (var otherGameSegment in AllGameSegments)
                 {
-                    var neighborUser = gameSegmentNeighbor.User;
-                    if (!gateways.Contains(neighborUser.GatewayServer))
+                    if (!neighborGameSegments.ContainsKey(otherGameSegment))
                     {
-                        gateways.Add(neighborUser.GatewayServer);
-                    }
-                    if (myGameSegment!= neighborUser.GameSegmentId && !neighborGameSegments.Contains(neighborUser.GameSegmentId))
-                    {
-                        neighborGameSegments.Add(neighborUser.GameSegmentId);
+                        otherGameSegments.Add(otherGameSegment);
                     }
                 }
 
-                GameSegmentPubSub.PublishToGateway(neighborUser.GatewayServer, new UserMoved_GameSegment_Gateway_PubSub_Message()
+                foreach (var gateway in gateways)
+                {
+                    var userMovedCollection = new UserMovedCollection_GameSegment_Gateway_PubSub_Message()
+                    {
+                        Items = gateway.Value.Select(a => new UserMovedMessage()
+                        {
+                            UserId = user.UserId,
+                            X = user.X,
+                            Y = user.Y,
+                            LockstepTick = message.LockstepTick,
+                        })
+                    };
+                    GameSegmentPubSub.PublishToGateway(gateway.Key, userMovedCollection);
+                }
+
+                foreach (var neighborGameSegment in neighborGameSegments)
+                {
+                    GameSegmentPubSub.PublishToGameSegment(neighborGameSegment.Key, new UserMovedCollection_GameSegment_GameSegment_PubSub_Message()
+                    {
+                        Items = neighborGameSegment.Value.Select(a => new UserMovedMessage()
+                        {
+                            UserId = user.UserId,
+                            X = user.X,
+                            Y = user.Y,
+                            LockstepTick = message.LockstepTick,
+                        })
+                    });
+                }
+
+                var tellUserMoved = new TellUserMoved_GameSegment_GameSegment_PubSub_Message()
                 {
                     UserId = user.UserId,
                     X = user.X,
                     Y = user.Y,
                     LockstepTick = message.LockstepTick,
-                });
+                };
 
+                foreach (var otherGameSegment in otherGameSegments)
+                {
+                    GameSegmentPubSub.PublishToGameSegment(otherGameSegment, tellUserMoved);
+                }
             }
-            
-
-
-
-            //todo pathfind here
         }
 
-        public int AllGameSegments
+
+        private void OnMessageUserMovedCollection(UserMovedCollection_GameSegment_GameSegment_PubSub_Message message)
+        {
+
+        }
+
+        private void OnMessageTellUserMoved(TellUserMoved_GameSegment_GameSegment_PubSub_Message message)
+        {
+
+        }
+
+
+        public void BuildNeighbors()
+        {
+            for (int index = 0; index < Users.Count; index++)
+            {
+                var user = Users[index];
+                user.Neighbors.Clear();
+
+                if (MySegmentUsers.ContainsKey(user.UserId))
+                {
+                    BuildNeighbors(user, index);
+                }
+            }
+        }
+
+        private void BuildNeighbors(GameSegmentUser pUser, int i = 0)
+        {
+            var count = Users.Count;
+
+            for (var c = i; c < count; c++)
+            {
+                var cUser = Users[c];
+                var distance = PointDistance(pUser, cUser);
+                if (distance <= Constants.NeighborDistance)
+                {
+                    pUser.Neighbors.Add(new GameSegmentNeighbor(cUser, distance));
+                    cUser.Neighbors.Add(new GameSegmentNeighbor(pUser, distance));
+                }
+            }
+        }
+        private static double PointDistance(GameSegmentUser pUser, GameSegmentUser cUser)
+        {
+            var mx = pUser.X;
+            var my = pUser.Y;
+
+            var cx = cUser.X;
+            var cy = cUser.Y;
+
+            var _x = (cx - mx);
+            var _y = (cy - my);
+
+            var dis = Math.Sqrt((_x * _x) + (_y * _y));
+            return dis;
+        }
+
+
+
+        public List<string> AllGameSegments
         {
             get { throw new NotImplementedException("todo do this"); }
         }

@@ -37,6 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="ActionType.cs" />
+    <Compile Include="Models\Common\UserMovedMessage.cs" />
     <Compile Include="Utilities.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Definitions\AStar\AStar.cs" />

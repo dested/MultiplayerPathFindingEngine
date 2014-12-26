@@ -58,19 +58,10 @@ namespace Pather.Client.Tests
         [TestMethod]
         public void LoginAndMove(Deferred defer)
         {
-            var users = new List<Promise<ClientCommunicator, UndefinedPromiseError>>();
-            var m = new MoveToLocation_User_Gateway_Socket_Message()
-            {
-                X = 12,
-                Y = 25
-            };
-
-
-            var averageTimes = new List<long>();
             var id = Utilities.UniqueId();
             JoinUser(id).Then(communicator =>
             {
-                communicator.SendMessage("Gateway.Message", new MoveToLocation_User_Gateway_Socket_Message()
+                communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
                 {
                     X = 12,
                     Y = 25
@@ -85,7 +76,7 @@ namespace Pather.Client.Tests
 
             var b = Math.Random();
             int port;
-            if (b <= .3)
+            if (b <= 1)
             {
                 port = 1800;
             }
@@ -100,13 +91,21 @@ namespace Pather.Client.Tests
             var url = "http://127.0.0.1:" + port;
 //            Global.Console.Log("Connecting to", url);
             var clientCommunicator = new ClientCommunicator(url);
-            clientCommunicator.ListenOnChannel<string>("Gateway.Join.Success", (item) =>
+            clientCommunicator.ListenForGatewayMessage( (message) =>
             {
-//                Global.Console.Log(item);
-                deferred.Resolve(clientCommunicator);
+                switch (message.GatewayUserMessageType)
+                {
+                    case Gateway_User_Socket_MessageType.Move:
+                        break;
+                    case Gateway_User_Socket_MessageType.UserJoined:
+                        deferred.Resolve(clientCommunicator);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                } 
             });
 
-            clientCommunicator.SendMessage("Gateway.Join", new GatewayJoinModel()
+            clientCommunicator.SendMessage(new UserJoined_User_Gateway_Socket_Message()
             {
                 UserToken = userToken
             });
