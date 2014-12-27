@@ -1,5 +1,6 @@
 using System;
 using System.Serialization;
+using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.GameWorld.Base;
 using Pather.Common.Models.Gateway.PubSub.Base;

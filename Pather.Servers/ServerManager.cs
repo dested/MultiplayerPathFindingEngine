@@ -46,7 +46,9 @@ namespace Pather.Servers
                         CreateTickServer();
                         CreateMonitorServer();
                         CreateAuthServer();
-                        createGatewayServer("DEFAULTGATEWAYID",1800);
+                        createGatewayServer("DEFAULTGATEWAYID1",1800);
+                        createGatewayServer("DEFAULTGATEWAYID2",1801);
+                        createGatewayServer("DEFAULTGATEWAYID3",1802);
                         CreateGameClusterServer("TODO:DEFAULTGAMESEGMENTCLUSTER");
                         CreateGameWorldServer();
                         break;

@@ -14,8 +14,8 @@ namespace Pather.Client.Tests
     [TestClass()]
     public class LoginE2ETest
     {
-        [TestMethod(disable: true)]
-        public void SlamWWithUsers(Deferred defer)
+        [TestMethod()]
+        public void SlamWWithUsers(Deferred deferred)
         {
             var users = new List<Promise<ClientCommunicator, UndefinedPromiseError>>();
 
@@ -23,48 +23,106 @@ namespace Pather.Client.Tests
             var averageTimes = new List<long>();
             var id = Utilities.UniqueId();
             var done = 0;
-            var i2 = 500;
-            for (var i = 0; i < i2; i++)
+            var totalHits = 50;
+            int receivedCount = 0;
+            List<ClientCommunicator> communicators = new List<ClientCommunicator>();
+
+            for (var i = 0; i < totalHits; i++)
             {
                 var i1 = i;
                 Global.SetTimeout(() =>
                 {
                     var startTime = new DateTime().GetTime();
 
-                    JoinUser(id + "   " + i1).Then((communicator) =>
+                    string userToken = id + "-" + i1;
+                    JoinUser(userToken).Then((communicator) =>
                     {
+                        communicators.Add(communicator);
                         var joinTime = new DateTime().GetTime() - startTime;
                         Global.Console.Log("Join Time", joinTime);
-
                         averageTimes.Add(joinTime);
-                        Global.SetTimeout(() =>
-                        {
-                            communicator.Disconnect();
-                            done++;
-                            if (done == i2)
-                            {
-                                var average = averageTimes.Average(a => a);
 
-                                Global.Console.Log("Average join time:", average, "ms");
-                                defer.Resolve();
+
+                        var moveToLocation = new MoveToLocation_User_Gateway_Socket_Message()
+                        {
+                            X = (int)(Math.Random() * 50),
+                            Y = (int)(Math.Random() * 50)
+                        };
+
+
+                        communicator.ListenForGatewayMessage((message) =>
+                        {
+                            switch (message.GatewayUserMessageType)
+                            {
+                                case Gateway_User_Socket_MessageType.Move:
+                                    var moveToMessage = (MoveToLocation_Gateway_User_Socket_Message)message;
+                                    if (moveToMessage.UserId == userToken &&
+                                        moveToMessage.X == moveToLocation.X &&
+                                        moveToMessage.Y == moveToLocation.Y)
+                                    {
+
+                                        if (++receivedCount == totalHits)
+                                        {
+                                            foreach (var clientCommunicator in communicators)
+                                            {
+                                                ClientCommunicator communicator1 = clientCommunicator;
+                                                Global.SetTimeout(() =>
+                                                {
+                                                    communicator1.Disconnect();
+                                                    done++;
+                                                    if (done == totalHits)
+                                                    {
+                                                        var average = averageTimes.Average(a => a);
+                                                        Global.Console.Log("Average join time:", average, "ms");
+                                                        deferred.Resolve();
+
+                                                    }
+                                                }, (int)(Math.Random() * 2000));
+                                            }
+                                        }
+
+                                    }
+                                    break;
                             }
-                        }, (int) (Math.Random()*2000));
+                        });
+                        communicator.SendMessage(moveToLocation);
+
+
                     });
-                }, (int) (Math.Random()*15000));
+                }, (int)(Math.Random() * 15000));
             }
         }
 
 
-        [TestMethod]
+        [TestMethod(disable: true)]
         public void LoginAndMove(Deferred defer)
         {
             var id = Utilities.UniqueId();
+            int proposedX = 12;
+            int proposedY = 25;
             JoinUser(id).Then(communicator =>
             {
+                communicator.ListenForGatewayMessage((message) =>
+                {
+                    switch (message.GatewayUserMessageType)
+                    {
+                        case Gateway_User_Socket_MessageType.Move:
+                            var moveToMessage = (MoveToLocation_Gateway_User_Socket_Message)message;
+                            if (moveToMessage.X == proposedX && moveToMessage.Y == proposedY)
+                            {
+                                defer.Resolve();
+                            }
+                            else
+                            {
+                                defer.Reject();
+                            }
+                            break;
+                    }
+                });
                 communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
                 {
-                    X = 12,
-                    Y = 25
+                    X = proposedX,
+                    Y = proposedY
                 });
             });
         }
@@ -76,7 +134,7 @@ namespace Pather.Client.Tests
 
             var b = Math.Random();
             int port;
-            if (b <= 1)
+            if (b <= .3)
             {
                 port = 1800;
             }
@@ -89,20 +147,21 @@ namespace Pather.Client.Tests
                 port = 1802;
             }
             var url = "http://127.0.0.1:" + port;
-//            Global.Console.Log("Connecting to", url);
+            //            Global.Console.Log("Connecting to", url);
             var clientCommunicator = new ClientCommunicator(url);
-            clientCommunicator.ListenForGatewayMessage( (message) =>
+            clientCommunicator.ListenForGatewayMessage((message) =>
             {
                 switch (message.GatewayUserMessageType)
                 {
                     case Gateway_User_Socket_MessageType.Move:
+
                         break;
                     case Gateway_User_Socket_MessageType.UserJoined:
                         deferred.Resolve(clientCommunicator);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException();
-                } 
+                }
             });
 
             clientCommunicator.SendMessage(new UserJoined_User_Gateway_Socket_Message()

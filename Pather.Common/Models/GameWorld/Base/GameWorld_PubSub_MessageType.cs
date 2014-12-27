@@ -13,6 +13,7 @@ namespace Pather.Common.Models.GameWorld.Base
         TickSync,
         UserLeft,
         Pong,
-        InitializeGameSegment
+        InitializeGameSegment,
+        TellUserMoved
     }
 }

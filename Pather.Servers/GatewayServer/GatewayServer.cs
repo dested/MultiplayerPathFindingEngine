@@ -25,15 +25,13 @@ namespace Pather.Servers.GatewayServer
         public ClientTickManager ClientTickManager;
 
 
-        public GatewayServer(IPubSub pubsub, ISocketManager socketManager, string gatewayId, int port_)
+        public GatewayServer(IPubSub pubsub, ISocketManager socketManager, string gatewayId, int port)
         {
             GatewayId = gatewayId;
             ServerLogger.InitLogger("Gateway", GatewayId);
 
             Global.Console.Log(GatewayId);
 
-            var port = 1800 + Math.Truncate((Math.Random() * 4000d));
-            port = port_;
 
             ServerCommunicator = new ServerCommunicator(socketManager, port);
 
@@ -88,7 +86,7 @@ namespace Pather.Servers.GatewayServer
                     var userJoinedMessage = (UserJoined_GameWorld_Gateway_PubSub_Message)message;
                     gatewayUser = Users.First(user => user.UserId == userJoinedMessage.UserId);
                     gatewayUser.GameSegmentId = userJoinedMessage.GameSegmentId;
-
+                    Global.Console.Log(GatewayId,"Joined", gatewayUser.GameSegmentId, gatewayUser.UserId);
                     ServerCommunicator.SendMessage(gatewayUser.Socket,  new UserJoined_Gateway_User_Socket_Message()
                     {
                         GameSegmentId = userJoinedMessage.GameSegmentId,
@@ -105,9 +103,11 @@ namespace Pather.Servers.GatewayServer
                     var userMovedCollectionMessage = (UserMovedCollection_GameSegment_Gateway_PubSub_Message)message;
                     foreach (var userMovedMessage in userMovedCollectionMessage.Items)
                     {
+                        Global.Console.Log(GatewayId, "Moved", userMovedMessage.UserId);
                         gatewayUser = Users.First(user => user.UserId == userMovedMessage.UserId);
                         ServerCommunicator.SendMessage(gatewayUser.Socket, new MoveToLocation_Gateway_User_Socket_Message()
                         {
+                            UserId = userMovedMessage.UserThatMovedId,
                             LockstepTick = userMovedMessage.LockstepTick,
                             X = userMovedMessage.X,
                             Y = userMovedMessage.Y,
@@ -186,7 +186,7 @@ namespace Pather.Servers.GatewayServer
                     user.UserId = userJoinedMessage.UserToken;
                     GatewayPubSub.PublishToGameWorld(new UserJoined_Gateway_GameWorld_PubSub_Message()
                     {
-                        GatewayChannel = GatewayId,
+                        GatewayId = GatewayId,
                         UserToken = userJoinedMessage.UserToken
                     });
 

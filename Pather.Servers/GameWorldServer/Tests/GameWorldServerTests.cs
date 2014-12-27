@@ -48,7 +48,7 @@ namespace Pather.Servers.GameWorldServer.Tests
                 var userJoinedGameWorldPubSubMessage = new UserJoined_Gateway_GameWorld_PubSub_Message();
                 userJoinedGameWorldPubSubMessage.Type = GameWorld_PubSub_MessageType.UserJoined;
                 userJoinedGameWorldPubSubMessage.UserToken = "abcd";
-                userJoinedGameWorldPubSubMessage.GatewayChannel = "Gateway 1";
+                userJoinedGameWorldPubSubMessage.GatewayId = "Gateway 1";
                 callback(Json.Stringify(userJoinedGameWorldPubSubMessage));
             }));
 

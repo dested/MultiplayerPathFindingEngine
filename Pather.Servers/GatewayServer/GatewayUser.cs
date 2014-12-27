@@ -1,11 +1,13 @@
+using System;
 using Pather.Servers.Common.SocketManager;
 
 namespace Pather.Servers.GatewayServer
 {
+    [Serializable]
     internal class GatewayUser
     {
-        public ISocket Socket { get; set; }
-        public string UserId { get; set; }
-        public string GameSegmentId { get; set; }
+        public ISocket Socket;
+        public string UserId;
+        public string GameSegmentId;
     }
 }

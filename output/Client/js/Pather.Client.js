@@ -144,7 +144,7 @@
 		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_Client_Utils_ClientCommunicator, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
 		var b = Math.random();
 		var port;
-		if (b <= 1) {
+		if (b <= 0.3) {
 			port = 1800;
 		}
 		else if (b <= 0.6) {
@@ -409,41 +409,82 @@
 		}
 	}, Pather.Common.StepManager);
 	ss.initClass($Pather_Client_Tests_LoginE2ETest, $asm, {
-		slamWWithUsers: function(defer) {
+		slamWWithUsers: function(deferred) {
 			var users = [];
 			var averageTimes = [];
 			var id = Pather.Common.Utilities.uniqueId();
 			var done = 0;
-			var i2 = 500;
-			for (var i = 0; i < i2; i++) {
+			var totalHits = 50;
+			var receivedCount = 0;
+			var communicators = [];
+			for (var i = 0; i < totalHits; i++) {
 				var i1 = { $: i };
 				setTimeout(ss.mkdel({ i1: i1 }, function() {
 					var startTime = (new Date()).getTime();
-					$Pather_Client_Tests_LoginE2ETest.$joinUser(id + '   ' + this.i1.$).then(function(communicator) {
+					var userToken = id + '-' + this.i1.$;
+					$Pather_Client_Tests_LoginE2ETest.$joinUser(userToken).then(function(communicator) {
+						communicators.push(communicator);
 						var joinTime = (new Date()).getTime() - startTime;
 						console.log('Join Time', joinTime);
 						averageTimes.push(joinTime);
-						setTimeout(function() {
-							communicator.disconnect();
-							done++;
-							if (done === i2) {
-								var average = Pather.Common.Utils.EnumerableExtensions.average(ss.Int32).call(null, averageTimes, function(a) {
-									return a;
-								});
-								console.log('Average join time:', average, 'ms');
-								defer.resolve();
+						var $t1 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
+						$t1.x = ss.Int32.trunc(Math.random() * 50);
+						$t1.y = ss.Int32.trunc(Math.random() * 50);
+						var moveToLocation = $t1;
+						communicator.listenForGatewayMessage(function(message) {
+							switch (message.gatewayUserMessageType) {
+								case 'move': {
+									var moveToMessage = message;
+									if (ss.referenceEquals(moveToMessage.userId, userToken) && moveToMessage.x === moveToLocation.x && moveToMessage.y === moveToLocation.y) {
+										if (++receivedCount === totalHits) {
+											for (var $t2 = 0; $t2 < communicators.length; $t2++) {
+												var clientCommunicator = communicators[$t2];
+												var communicator1 = { $: clientCommunicator };
+												setTimeout(ss.mkdel({ communicator1: communicator1 }, function() {
+													this.communicator1.$.disconnect();
+													done++;
+													if (done === totalHits) {
+														var average = Pather.Common.Utils.EnumerableExtensions.average(averageTimes, function(a) {
+															return a;
+														});
+														console.log('Average join time:', average, 'ms');
+														deferred.resolve();
+													}
+												}), ss.Int32.trunc(Math.random() * 2000));
+											}
+										}
+									}
+									break;
+								}
 							}
-						}, ss.Int32.trunc(Math.random() * 2000));
+						});
+						communicator.sendMessage(moveToLocation);
 					});
 				}), ss.Int32.trunc(Math.random() * 15000));
 			}
 		},
 		loginAndMove: function(defer) {
 			var id = Pather.Common.Utilities.uniqueId();
+			var proposedX = 12;
+			var proposedY = 25;
 			$Pather_Client_Tests_LoginE2ETest.$joinUser(id).then(function(communicator) {
+				communicator.listenForGatewayMessage(function(message) {
+					switch (message.gatewayUserMessageType) {
+						case 'move': {
+							var moveToMessage = message;
+							if (moveToMessage.x === proposedX && moveToMessage.y === proposedY) {
+								defer.resolve();
+							}
+							else {
+								defer.reject();
+							}
+							break;
+						}
+					}
+				});
 				var $t1 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
-				$t1.x = 12;
-				$t1.y = 25;
+				$t1.x = proposedX;
+				$t1.y = proposedY;
 				communicator.sendMessage($t1);
 			});
 		}
@@ -471,6 +512,6 @@
 			this.socket.disconnect();
 		}
 	});
-	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'LoginAndMove', type: 8, sname: 'loginAndMove', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'SlamWWithUsers', type: 8, sname: 'slamWWithUsers', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
+	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'LoginAndMove', type: 8, sname: 'loginAndMove', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'SlamWWithUsers', type: 8, sname: 'slamWWithUsers', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
 	$Pather_Client_$Program.$main();
 })();

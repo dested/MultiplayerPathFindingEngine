@@ -13,5 +13,6 @@ namespace Pather.Common.Models.Gateway.Socket.Base
         public int X;
         public int Y;
         public long LockstepTick;
+        public string UserId;
     }
 }

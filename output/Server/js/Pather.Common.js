@@ -301,6 +301,7 @@
 		$this.x = 0;
 		$this.y = 0;
 		$this.lockstepTick = 0;
+		$this.userThatMovedId = null;
 		return $this;
 	};
 	global.Pather.Common.Models.Common.UserMovedMessage = $Pather_Common_Models_Common_UserMovedMessage;
@@ -441,6 +442,21 @@
 		return $this;
 	};
 	global.Pather.Common.Models.GameSegment.InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message = $Pather_Common_Models_GameSegment_InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.GameSegment.NewGameSegment_GameWorld_GameSegment_PubSub_Message
+	var $Pather_Common_Models_GameSegment_NewGameSegment_GameWorld_GameSegment_PubSub_Message = function() {
+	};
+	$Pather_Common_Models_GameSegment_NewGameSegment_GameWorld_GameSegment_PubSub_Message.__typeName = 'Pather.Common.Models.GameSegment.NewGameSegment_GameWorld_GameSegment_PubSub_Message';
+	$Pather_Common_Models_GameSegment_NewGameSegment_GameWorld_GameSegment_PubSub_Message.createInstance = function() {
+		return $Pather_Common_Models_GameSegment_NewGameSegment_GameWorld_GameSegment_PubSub_Message.$ctor();
+	};
+	$Pather_Common_Models_GameSegment_NewGameSegment_GameWorld_GameSegment_PubSub_Message.$ctor = function() {
+		var $this = $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message.$ctor();
+		$this.gameSegmentId = null;
+		$this.type = 'newGameSegment';
+		return $this;
+	};
+	global.Pather.Common.Models.GameSegment.NewGameSegment_GameWorld_GameSegment_PubSub_Message = $Pather_Common_Models_GameSegment_NewGameSegment_GameWorld_GameSegment_PubSub_Message;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.GameSegment.Pong_Tick_GameSegment_PubSub_Message
 	var $Pather_Common_Models_GameSegment_Pong_Tick_GameSegment_PubSub_Message = function() {
@@ -810,6 +826,24 @@
 	};
 	global.Pather.Common.Models.GameWorld.GameSegmentCluster.CreateGameSegment_Response_GameSegmentCluster_GameWorld_PubSub_Message = $Pather_Common_Models_GameWorld_GameSegmentCluster_CreateGameSegment_Response_GameSegmentCluster_GameWorld_PubSub_Message;
 	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.GameWorld.Gateway.TellUserMoved_GameSegment_GameWorld_PubSub_Message
+	var $Pather_Common_Models_GameWorld_Gateway_TellUserMoved_GameSegment_GameWorld_PubSub_Message = function() {
+	};
+	$Pather_Common_Models_GameWorld_Gateway_TellUserMoved_GameSegment_GameWorld_PubSub_Message.__typeName = 'Pather.Common.Models.GameWorld.Gateway.TellUserMoved_GameSegment_GameWorld_PubSub_Message';
+	$Pather_Common_Models_GameWorld_Gateway_TellUserMoved_GameSegment_GameWorld_PubSub_Message.createInstance = function() {
+		return $Pather_Common_Models_GameWorld_Gateway_TellUserMoved_GameSegment_GameWorld_PubSub_Message.$ctor();
+	};
+	$Pather_Common_Models_GameWorld_Gateway_TellUserMoved_GameSegment_GameWorld_PubSub_Message.$ctor = function() {
+		var $this = $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message.$ctor();
+		$this.userId = null;
+		$this.x = 0;
+		$this.y = 0;
+		$this.lockstepTick = 0;
+		$this.type = 'tellUserMoved';
+		return $this;
+	};
+	global.Pather.Common.Models.GameWorld.Gateway.TellUserMoved_GameSegment_GameWorld_PubSub_Message = $Pather_Common_Models_GameWorld_Gateway_TellUserMoved_GameSegment_GameWorld_PubSub_Message;
+	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.GameWorld.Gateway.UserJoined_Gateway_GameWorld_PubSub_Message
 	var $Pather_Common_Models_GameWorld_Gateway_UserJoined_Gateway_GameWorld_PubSub_Message = function() {
 	};
@@ -819,7 +853,7 @@
 	};
 	$Pather_Common_Models_GameWorld_Gateway_UserJoined_Gateway_GameWorld_PubSub_Message.$ctor = function() {
 		var $this = $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message.$ctor();
-		$this.gatewayChannel = null;
+		$this.gatewayId = null;
 		$this.userToken = null;
 		$this.type = 'userJoined';
 		return $this;
@@ -1005,6 +1039,7 @@
 		$this.x = 0;
 		$this.y = 0;
 		$this.lockstepTick = 0;
+		$this.userId = null;
 		$this.gatewayUserMessageType = 'move';
 		return $this;
 	};
@@ -1377,19 +1412,17 @@
 		}
 		return -1;
 	};
-	$Pather_Common_Utils_EnumerableExtensions.groupBy = function(TKey, TItem) {
-		return function(items, callback) {
-			var kitems = {};
-			for (var $t1 = 0; $t1 < items.length; $t1++) {
-				var item = items[$t1];
-				var k = callback(item);
-				if (!ss.keyExists(kitems, k)) {
-					kitems[k] = [];
-				}
-				kitems[k].push(item);
+	$Pather_Common_Utils_EnumerableExtensions.groupBy = function(items, callback) {
+		var kitems = {};
+		for (var $t1 = 0; $t1 < items.length; $t1++) {
+			var item = items[$t1];
+			var k = callback(item);
+			if (!ss.keyExists(kitems, k)) {
+				kitems[k] = [];
 			}
-			return kitems;
-		};
+			kitems[k].push(item);
+		}
+		return kitems;
 	};
 	$Pather_Common_Utils_EnumerableExtensions.indexOfFast$1 = function(items, ind) {
 		for (var index = 0; index < items.length; index++) {
@@ -1400,17 +1433,15 @@
 		}
 		return -1;
 	};
-	$Pather_Common_Utils_EnumerableExtensions.where$1 = function(T) {
-		return function(items, clause) {
-			var items2 = [];
-			for (var $t1 = 0; $t1 < items.length; $t1++) {
-				var item = items[$t1];
-				if (clause(item)) {
-					items2.push(item);
-				}
+	$Pather_Common_Utils_EnumerableExtensions.where$1 = function(items, clause) {
+		var items2 = [];
+		for (var $t1 = 0; $t1 < items.length; $t1++) {
+			var item = items[$t1];
+			if (clause(item)) {
+				items2.push(item);
 			}
-			return Array.prototype.slice.call(items2);
-		};
+		}
+		return Array.prototype.slice.call(items2);
 	};
 	$Pather_Common_Utils_EnumerableExtensions.first$1 = function(T) {
 		return function(items, clause) {
@@ -1423,16 +1454,14 @@
 			return ss.getDefaultValue(T);
 		};
 	};
-	$Pather_Common_Utils_EnumerableExtensions.all$1 = function(T) {
-		return function(items, clause) {
-			for (var $t1 = 0; $t1 < items.length; $t1++) {
-				var item = items[$t1];
-				if (!clause(item)) {
-					return false;
-				}
+	$Pather_Common_Utils_EnumerableExtensions.all$1 = function(items, clause) {
+		for (var $t1 = 0; $t1 < items.length; $t1++) {
+			var item = items[$t1];
+			if (!clause(item)) {
+				return false;
 			}
-			return true;
-		};
+		}
+		return true;
 	};
 	$Pather_Common_Utils_EnumerableExtensions.first = function(T) {
 		return function(items, clause) {
@@ -1451,154 +1480,128 @@
 			return ss.getDefaultValue(T);
 		};
 	};
-	$Pather_Common_Utils_EnumerableExtensions.average = function(T) {
-		return function(items, clause) {
-			var sum = 0;
-			var count = 0;
-			var $t1 = ss.getEnumerator(items);
-			try {
-				while ($t1.moveNext()) {
-					var item = $t1.current();
-					count++;
-					sum += clause(item);
-				}
+	$Pather_Common_Utils_EnumerableExtensions.average = function(items, clause) {
+		var sum = 0;
+		var count = 0;
+		var $t1 = ss.getEnumerator(items);
+		try {
+			while ($t1.moveNext()) {
+				var item = $t1.current();
+				count++;
+				sum += clause(item);
 			}
-			finally {
-				$t1.dispose();
-			}
-			return sum / count;
-		};
+		}
+		finally {
+			$t1.dispose();
+		}
+		return sum / count;
 	};
-	$Pather_Common_Utils_EnumerableExtensions.all = function(T) {
-		return function(items, clause) {
-			for (var $t1 = 0; $t1 < items.length; $t1++) {
-				var item = items[$t1];
-				if (!clause(item)) {
-					return false;
-				}
+	$Pather_Common_Utils_EnumerableExtensions.all = function(items, clause) {
+		for (var $t1 = 0; $t1 < items.length; $t1++) {
+			var item = items[$t1];
+			if (!clause(item)) {
+				return false;
 			}
-			return true;
-		};
+		}
+		return true;
 	};
-	$Pather_Common_Utils_EnumerableExtensions.any = function(T) {
-		return function(items, clause) {
-			var $t1 = ss.getEnumerator(items);
-			try {
-				while ($t1.moveNext()) {
-					var item = $t1.current();
-					if (clause(item)) {
-						return true;
-					}
-				}
-			}
-			finally {
-				$t1.dispose();
-			}
-			return false;
-		};
-	};
-	$Pather_Common_Utils_EnumerableExtensions.any$1 = function(T) {
-		return function(items, clause) {
-			for (var $t1 = 0; $t1 < items.length; $t1++) {
-				var item = items[$t1];
+	$Pather_Common_Utils_EnumerableExtensions.any = function(items, clause) {
+		var $t1 = ss.getEnumerator(items);
+		try {
+			while ($t1.moveNext()) {
+				var item = $t1.current();
 				if (clause(item)) {
 					return true;
 				}
 			}
-			return false;
-		};
+		}
+		finally {
+			$t1.dispose();
+		}
+		return false;
 	};
-	$Pather_Common_Utils_EnumerableExtensions.orderBy$3 = function(T) {
-		return function(items, clause) {
-			var j = ss.arrayClone(items);
-			j.sort(function(a, b) {
-				return ss.compare(clause(a), clause(b));
-			});
-			return j;
-		};
-	};
-	$Pather_Common_Utils_EnumerableExtensions.orderBy = function(T) {
-		return function(items, clause) {
-			var j = ss.arrayClone(Array.prototype.slice.call(items));
-			j.sort(function(a, b) {
-				return ss.compare(clause(a), clause(b));
-			});
-			return j;
-		};
-	};
-	$Pather_Common_Utils_EnumerableExtensions.orderBy$4 = function(T) {
-		return function(items, clause) {
-			var j = ss.arrayClone(items);
-			j.sort(function(a, b) {
-				return ss.compare(clause(a), clause(b));
-			});
-			return j;
-		};
-	};
-	$Pather_Common_Utils_EnumerableExtensions.orderBy$1 = function(T) {
-		return function(items, clause) {
-			var j = ss.arrayClone(Array.prototype.slice.call(items));
-			j.sort(function(a, b) {
-				return ss.compare(clause(a), clause(b));
-			});
-			return j;
-		};
-	};
-	$Pather_Common_Utils_EnumerableExtensions.orderBy$5 = function(T) {
-		return function(items, clause) {
-			var j = ss.arrayClone(items);
-			j.sort(function(a, b) {
-				return ss.compare(clause(a), clause(b));
-			});
-			return j;
-		};
-	};
-	$Pather_Common_Utils_EnumerableExtensions.orderBy$2 = function(T) {
-		return function(items, clause) {
-			var j = ss.arrayClone(Array.prototype.slice.call(items));
-			j.sort(function(a, b) {
-				return ss.compare(clause(a), clause(b));
-			});
-			return j;
-		};
-	};
-	$Pather_Common_Utils_EnumerableExtensions.select$1 = function(T, T2) {
-		return function(items, clause) {
-			var items2 = [];
-			for (var $t1 = 0; $t1 < items.length; $t1++) {
-				var item = items[$t1];
-				items2.push(clause(item));
+	$Pather_Common_Utils_EnumerableExtensions.any$1 = function(items, clause) {
+		for (var $t1 = 0; $t1 < items.length; $t1++) {
+			var item = items[$t1];
+			if (clause(item)) {
+				return true;
 			}
-			return items2;
-		};
+		}
+		return false;
 	};
-	$Pather_Common_Utils_EnumerableExtensions.where = function(T) {
-		return function(items, clause) {
-			var items2 = [];
-			var $t1 = ss.getEnumerator(items);
-			try {
-				while ($t1.moveNext()) {
-					var item = $t1.current();
-					if (clause(item)) {
-						items2.push(item);
-					}
+	$Pather_Common_Utils_EnumerableExtensions.orderBy$3 = function(items, clause) {
+		var j = ss.arrayClone(items);
+		j.sort(function(a, b) {
+			return ss.compare(clause(a), clause(b));
+		});
+		return j;
+	};
+	$Pather_Common_Utils_EnumerableExtensions.orderBy = function(items, clause) {
+		var j = ss.arrayClone(Array.prototype.slice.call(items));
+		j.sort(function(a, b) {
+			return ss.compare(clause(a), clause(b));
+		});
+		return j;
+	};
+	$Pather_Common_Utils_EnumerableExtensions.orderBy$4 = function(items, clause) {
+		var j = ss.arrayClone(items);
+		j.sort(function(a, b) {
+			return ss.compare(clause(a), clause(b));
+		});
+		return j;
+	};
+	$Pather_Common_Utils_EnumerableExtensions.orderBy$1 = function(items, clause) {
+		var j = ss.arrayClone(Array.prototype.slice.call(items));
+		j.sort(function(a, b) {
+			return ss.compare(clause(a), clause(b));
+		});
+		return j;
+	};
+	$Pather_Common_Utils_EnumerableExtensions.orderBy$5 = function(items, clause) {
+		var j = ss.arrayClone(items);
+		j.sort(function(a, b) {
+			return ss.compare(clause(a), clause(b));
+		});
+		return j;
+	};
+	$Pather_Common_Utils_EnumerableExtensions.orderBy$2 = function(items, clause) {
+		var j = ss.arrayClone(Array.prototype.slice.call(items));
+		j.sort(function(a, b) {
+			return ss.compare(clause(a), clause(b));
+		});
+		return j;
+	};
+	$Pather_Common_Utils_EnumerableExtensions.select$1 = function(items, clause) {
+		var items2 = [];
+		for (var $t1 = 0; $t1 < items.length; $t1++) {
+			var item = items[$t1];
+			items2.push(clause(item));
+		}
+		return items2;
+	};
+	$Pather_Common_Utils_EnumerableExtensions.where = function(items, clause) {
+		var items2 = [];
+		var $t1 = ss.getEnumerator(items);
+		try {
+			while ($t1.moveNext()) {
+				var item = $t1.current();
+				if (clause(item)) {
+					items2.push(item);
 				}
 			}
-			finally {
-				$t1.dispose();
-			}
-			return Array.prototype.slice.call(items2);
-		};
+		}
+		finally {
+			$t1.dispose();
+		}
+		return Array.prototype.slice.call(items2);
 	};
-	$Pather_Common_Utils_EnumerableExtensions.select = function(T, T2) {
-		return function(items, clause) {
-			var items2 = [];
-			for (var $t1 = 0; $t1 < items.length; $t1++) {
-				var item = items[$t1];
-				items2.push(clause(item));
-			}
-			return items2;
-		};
+	$Pather_Common_Utils_EnumerableExtensions.select = function(items, clause) {
+		var items2 = [];
+		for (var $t1 = 0; $t1 < items.length; $t1++) {
+			var item = items[$t1];
+			items2.push(clause(item));
+		}
+		return items2;
 	};
 	global.Pather.Common.Utils.EnumerableExtensions = $Pather_Common_Utils_EnumerableExtensions;
 	////////////////////////////////////////////////////////////////////////////////
@@ -2115,6 +2118,7 @@
 	ss.initClass($Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message, $asm, {});
 	ss.initClass($Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameSegment_InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
+	ss.initClass($Pather_Common_Models_GameSegment_NewGameSegment_GameWorld_GameSegment_PubSub_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message);
 	ss.initClass($Pather_Common_Models_GameSegment_Pong_Tick_GameSegment_PubSub_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message);
 	ss.initClass($Pather_Common_Models_GameSegment_TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameSegment_TellUserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
@@ -2125,14 +2129,14 @@
 	ss.initClass($Pather_Common_Models_GameSegment_UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameSegment_UserMovedCollection_GameSegment_GameSegment_PubSub_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message);
 	ss.initEnum($Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_AllMessageType, $asm, { tickSync: 'tickSync' }, true);
-	ss.initEnum($Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_MessageType, $asm, { pong: 'pong', tellUserJoin: 'tellUserJoin', initializeGameSegmentResponse: 'initializeGameSegmentResponse', tellUserLeft: 'tellUserLeft', userJoin: 'userJoin', userLeft: 'userLeft', userMoved: 'userMoved', tellUserMoved: 'tellUserMoved', userMovedCollection: 'userMovedCollection' }, true);
+	ss.initEnum($Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_MessageType, $asm, { pong: 'pong', tellUserJoin: 'tellUserJoin', initializeGameSegmentResponse: 'initializeGameSegmentResponse', tellUserLeft: 'tellUserLeft', userJoin: 'userJoin', userLeft: 'userLeft', userMoved: 'userMoved', tellUserMoved: 'tellUserMoved', userMovedCollection: 'userMovedCollection', newGameSegment: 'newGameSegment' }, true);
 	ss.initClass($Pather_Common_Models_GameSegment_Base_UserMoved_Gateway_GameSegment_PubSub_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message);
 	ss.initClass($Pather_Common_Models_GameSegmentCluster_Base_GameSegmentCluster_PubSub_Message, $asm, {});
 	ss.initClass($Pather_Common_Models_GameSegmentCluster_Base_GameSegmentCluster_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegmentCluster_Base_GameSegmentCluster_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameSegmentCluster_CreateGameSegment_GameWorld_GameSegmentCluster_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegmentCluster_Base_GameSegmentCluster_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initEnum($Pather_Common_Models_GameSegmentCluster_Base_GameSegmentCluster_PubSub_MessageType, $asm, { createGameSegment: 'createGameSegment' }, true);
 	ss.initClass($Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message, $asm, {});
-	ss.initEnum($Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_MessageType, $asm, { userJoined: 'userJoined', createGameSegmentResponse: 'createGameSegmentResponse', userJoinResponse: 'userJoinResponse', tellUserJoinResponse: 'tellUserJoinResponse', tellUserLeftResponse: 'tellUserLeftResponse', tickSync: 'tickSync', userLeft: 'userLeft', pong: 'pong', initializeGameSegment: 'initializeGameSegment' }, true);
+	ss.initEnum($Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_MessageType, $asm, { userJoined: 'userJoined', createGameSegmentResponse: 'createGameSegmentResponse', userJoinResponse: 'userJoinResponse', tellUserJoinResponse: 'tellUserJoinResponse', tellUserLeftResponse: 'tellUserLeftResponse', tickSync: 'tickSync', userLeft: 'userLeft', pong: 'pong', initializeGameSegment: 'initializeGameSegment', tellUserMoved: 'tellUserMoved' }, true);
 	ss.initClass($Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameWorld_GameSegment_InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameWorld_GameSegment_TellUserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
@@ -2140,6 +2144,7 @@
 	ss.initClass($Pather_Common_Models_GameWorld_GameSegment_UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameWorld_GameSegment_UserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameWorld_GameSegmentCluster_CreateGameSegment_Response_GameSegmentCluster_GameWorld_PubSub_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
+	ss.initClass($Pather_Common_Models_GameWorld_Gateway_TellUserMoved_GameSegment_GameWorld_PubSub_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message);
 	ss.initClass($Pather_Common_Models_GameWorld_Gateway_UserJoined_Gateway_GameWorld_PubSub_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message);
 	ss.initClass($Pather_Common_Models_GameWorld_Gateway_UserLeft_Gateway_GameWorld_PubSub_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message);
 	ss.initClass($Pather_Common_Models_GameWorld_Tick_Pong_Tick_GameWorld_PubSub_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message);

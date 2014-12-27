@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameSegmentCluster;
 using Pather.Common.Models.GameWorld.GameSegmentCluster;
 using Pather.Common.Utils;
@@ -40,9 +41,9 @@ namespace Pather.Servers.GameWorldServer
             DetermineGameSegment(gwUser)
                 .Then(gameSegment =>
                 {
-
-
-                    gameSegment.AddUserToSegment(gwUser).Then(() =>
+                    
+                    gameSegment.AddUserToSegment(gwUser)
+                        .Then(() =>
                     {
                         var promises = GameSegments
                             .Where(seg => seg != gameSegment)
@@ -153,6 +154,15 @@ namespace Pather.Servers.GameWorldServer
                     var gs = new GameSegment(this);
                     gs.GameSegmentId = createGameMessageResponse.GameSegmentId;
 
+
+                    foreach (var gameSegment in GameSegments)
+                    {
+                        GameWorldPubSub.PublishToGameSegment(gameSegment.GameSegmentId, new NewGameSegment_GameWorld_GameSegment_PubSub_Message()
+                        {
+                            GameSegmentId=gs.GameSegmentId
+                        });
+                    }
+
                     GameSegments.Add(gs);
                     deferred.Resolve(gs);
                 });
@@ -169,6 +179,10 @@ namespace Pather.Servers.GameWorldServer
             {
                 var pUser = Users[i];
                 pUser.Neighbors.Clear();
+            }
+            for (var i = 0; i < count; i++)
+            {
+                var pUser = Users[i];
                 BuildNeighbors(pUser, i);
             }
         }
@@ -219,6 +233,21 @@ namespace Pather.Servers.GameWorldServer
 
             var dis = Math.Sqrt((_x * _x) + (_y * _y));
             return dis;
+        }
+
+        public void UserMoved(string userId, int x, int y, long lockstepTick)
+        {
+
+            var gwUser = Users.First(a => a.UserId == userId);
+
+            if (gwUser == null)
+            {
+                throw new Exception("User not found: "+userId);
+            }
+
+            gwUser.X = x;
+            gwUser.Y = y;
+            //todo interpolate path find using setTimeout??
         }
     }
 }

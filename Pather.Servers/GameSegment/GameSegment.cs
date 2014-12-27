@@ -36,7 +36,7 @@ namespace Pather.Servers.GameSegment
         {
             Users[gameSegmentUser.UserId] = gameSegmentUser;
             ServerLogger.LogInformation("User Joined A Game Segment");
-            Global.Console.Log(GameSegmentId, "User Joined A Game Segment");
+            Global.Console.Log(GameSegmentId, "User Joined A Game Segment", gameSegmentUser.UserId, gameSegmentUser.GatewayId);
         }
     }
 }

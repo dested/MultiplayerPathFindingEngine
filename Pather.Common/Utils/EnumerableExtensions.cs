@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Pather.Common.Utils
 {
@@ -14,6 +15,7 @@ namespace Pather.Common.Utils
             }
             return -1;
         }
+        [IncludeGenericArguments(false)]
         public static JsDictionary<TKey, List<TItem>> GroupBy<TKey, TItem>(this List<TItem> items, Func<TItem, TKey> callback)
         {
             JsDictionary<TKey, List<TItem>> kitems = new JsDictionary<TKey, List<TItem>>();
@@ -39,6 +41,7 @@ namespace Pather.Common.Utils
             return -1;
         }
 
+        [IncludeGenericArguments(false)]
         public static T[] Where<T>(this T[] items, Func<T, bool> clause)
         {
             var items2 = new List<T>();
@@ -52,7 +55,7 @@ namespace Pather.Common.Utils
             }
             return items2.ToArray();
         }
-
+        
         public static T First<T>(this T[] items, Func<T, bool> clause)
         {
             foreach (var item in items)
@@ -65,6 +68,7 @@ namespace Pather.Common.Utils
             return default(T);
         }
 
+        [IncludeGenericArguments(false)]
         public static bool All<T>(this T[] items, Func<T, bool> clause)
         {
             foreach (var item in items)
@@ -89,6 +93,7 @@ namespace Pather.Common.Utils
             return default(T);
         }
 
+        [IncludeGenericArguments(false)]
         public static double Average<T>(this IEnumerable<T> items, Func<T, double> clause)
         {
             double sum = 0;
@@ -102,6 +107,7 @@ namespace Pather.Common.Utils
             return sum / count;
         }
 
+        [IncludeGenericArguments(false)]
         public static bool All<T>(this List<T> items, Func<T, bool> clause)
         {
             foreach (var item in items)
@@ -114,6 +120,7 @@ namespace Pather.Common.Utils
             return true;
         }
 
+        [IncludeGenericArguments(false)]
         public static bool Any<T>(this IEnumerable<T> items, Func<T, bool> clause)
         {
             foreach (var item in items)
@@ -126,6 +133,7 @@ namespace Pather.Common.Utils
             return false;
         }
 
+        [IncludeGenericArguments(false)]
         public static bool Any<T>(this T[] items, Func<T, bool> clause)
         {
             foreach (var item in items)
@@ -138,6 +146,7 @@ namespace Pather.Common.Utils
             return false;
         }
 
+        [IncludeGenericArguments(false)]
         public static T[] OrderBy<T>(this T[] items, Func<T, int> clause)
         {
             var j = items.Clone();
@@ -145,6 +154,7 @@ namespace Pather.Common.Utils
             return j;
         }
 
+        [IncludeGenericArguments(false)]
         public static T[] OrderBy<T>(this List<T> items, Func<T, int> clause)
         {
             var j = items.ToArray().Clone();
@@ -152,6 +162,7 @@ namespace Pather.Common.Utils
             return j;
         }
 
+        [IncludeGenericArguments(false)]
         public static T[] OrderBy<T>(this T[] items, Func<T, string> clause)
         {
             var j = items.Clone();
@@ -159,6 +170,7 @@ namespace Pather.Common.Utils
             return j;
         }
 
+        [IncludeGenericArguments(false)]
         public static T[] OrderBy<T>(this List<T> items, Func<T, string> clause)
         {
             var j = items.ToArray().Clone();
@@ -166,6 +178,7 @@ namespace Pather.Common.Utils
             return j;
         }
 
+        [IncludeGenericArguments(false)]
         public static T[] OrderBy<T>(this T[] items, Func<T, double> clause)
         {
             var j = items.Clone();
@@ -173,6 +186,7 @@ namespace Pather.Common.Utils
             return j;
         }
 
+        [IncludeGenericArguments(false)]
         public static T[] OrderBy<T>(this List<T> items, Func<T, double> clause)
         {
             var j = items.ToArray().Clone();
@@ -181,6 +195,7 @@ namespace Pather.Common.Utils
         }
 
 
+        [IncludeGenericArguments(false)]
         public static List<T2> Select<T, T2>(this T[] items, Func<T, T2> clause)
         {
             var items2 = new List<T2>();
@@ -193,6 +208,7 @@ namespace Pather.Common.Utils
         }
 
 
+        [IncludeGenericArguments(false)]
         public static T[] Where<T>(this IEnumerable<T> items, Func<T, bool> clause)
         {
             var items2 = new List<T>();
@@ -207,6 +223,7 @@ namespace Pather.Common.Utils
             return items2.ToArray();
         }
 
+        [IncludeGenericArguments(false)]
         public static List<T2> Select<T, T2>(this List<T> items, Func<T, T2> clause)
         {
             var items2 = new List<T2>();

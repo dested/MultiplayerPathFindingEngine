@@ -51,6 +51,7 @@ namespace Pather.Servers.GameSegment
                         throw new Exception("Received message that I didnt ask for.");
                     }
                     deferredMessages[possibleMessageReqRes.MessageId].Resolve(gameSegmentPubSubMessage);
+                    deferredMessages.Remove(possibleMessageReqRes.MessageId);
                     return;
                 }
 
@@ -69,7 +70,8 @@ namespace Pather.Servers.GameSegment
 
         public void PublishToGateway(string gatewayId, Gateway_PubSub_Message message)
         {
-            PubSub.Publish(PubSubChannels.Gateway(gatewayId), message);
+            string gateway = PubSubChannels.Gateway(gatewayId);
+            PubSub.Publish(gateway, message);
         }
 
         public void PublishToGameWorld(GameWorld_PubSub_Message message)

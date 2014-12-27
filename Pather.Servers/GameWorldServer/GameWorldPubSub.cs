@@ -28,6 +28,7 @@ namespace Pather.Servers.GameWorldServer
 
         public void Init()
         {
+
             PubSub.Subscribe(PubSubChannels.GameWorld(), (message) =>
             {
                 var gameWorldPubSubMessage = Json.Parse<GameWorld_PubSub_Message>(message);
@@ -42,6 +43,7 @@ namespace Pather.Servers.GameWorldServer
                         throw new Exception("Received message that I didnt ask for.");
                     }
                     deferredMessages[possibleMessageReqRes.MessageId].Resolve(gameWorldPubSubMessage);
+                    deferredMessages.Remove(possibleMessageReqRes.MessageId);
                     return;
                 }
 

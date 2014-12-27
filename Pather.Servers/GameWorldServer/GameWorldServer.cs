@@ -97,6 +97,10 @@ namespace Pather.Servers.GameWorldServer
                     var tickSyncMessage = (TickSync_Tick_GameWorld_PubSub_Message)message;
                     ClientTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;
+                case GameWorld_PubSub_MessageType.TellUserMoved:
+                    var tellUserMoved = (TellUserMoved_GameSegment_GameWorld_PubSub_Message)message;
+                    GameWorld.UserMoved(tellUserMoved.UserId, tellUserMoved.X, tellUserMoved.Y, tellUserMoved.LockstepTick);
+                    break;
                 case GameWorld_PubSub_MessageType.CreateGameSegmentResponse:
                     break;
                 case GameWorld_PubSub_MessageType.UserJoinResponse:
@@ -112,13 +116,19 @@ namespace Pather.Servers.GameWorldServer
                         {
                             MessageId=getAllGameSegments.MessageId,
                             GameSegmentIds = GameWorld.GameSegments.Select(a=>a.GameSegmentId),
-                            AllUsers = GameWorld.Users.Select(user=>new InitialGameUser()
+                            AllUsers = GameWorld.Users.Select(user =>
                             {
-                                GameSegmentId = user.GameSegment.GameSegmentId,
-                                UserId = user.UserId,
-                                GatewayId = user.GatewayId,
-                                X = user.X,
-                                Y = user.Y,
+                                Global.Console.Log("Sending out initial to", getAllGameSegments.OriginGameSegment, user.UserId, user.GatewayId);
+
+
+                                return new InitialGameUser()
+                                {
+                                    GameSegmentId = user.GameSegment.GameSegmentId,
+                                    UserId = user.UserId,
+                                    GatewayId = user.GatewayId,
+                                    X = user.X,
+                                    Y = user.Y,
+                                };
                             })
                         });
                     break;
@@ -135,21 +145,23 @@ namespace Pather.Servers.GameWorldServer
         private Promise<GameWorldUser, UserJoinError> UserJoined(UserJoined_Gateway_GameWorld_PubSub_Message message)
         {
             var deferred = Q.Defer<GameWorldUser, UserJoinError>();
-            var meWaitingToJoin = new Tuple<UserJoined_Gateway_GameWorld_PubSub_Message, Promise<GameWorldUser, UserJoinError>>(message, deferred.Promise);
+            var waitingToJoinMessage = new Tuple<UserJoined_Gateway_GameWorld_PubSub_Message, Promise<GameWorldUser, UserJoinError>>(message, deferred.Promise);
             if (!currentlyJoiningUser)
             {
                 currentlyJoiningUser = true;
+
+                Global.Console.Log("User Joined Game World", message.UserToken, message.GatewayId);
                 DatabaseQueries.GetUserByToken(message.UserToken)
                     .Then(dbUser =>
                     {
-                        GameWorld.UserJoined(message.GatewayChannel, dbUser).PassThrough(deferred.Promise).Finally(QueueNextJoiningUser);
+                        GameWorld.UserJoined(message.GatewayId, dbUser).PassThrough(deferred.Promise).Finally(QueueNextJoiningUser);
                         //TODO THEN ADD USER TO TABLE OSMETHING IDK
                     });
             }
             else
             {
                 Global.Console.Log("Adding user to pending");
-                usersWaitingToJoin.Add(meWaitingToJoin);
+                usersWaitingToJoin.Add(waitingToJoinMessage);
             }
 
             return deferred.Promise;

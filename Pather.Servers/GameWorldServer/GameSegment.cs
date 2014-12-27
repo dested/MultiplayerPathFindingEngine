@@ -86,7 +86,6 @@ namespace Pather.Servers.GameWorldServer
             GameWorld.GameWorldPubSub.PublishToGameSegmentWithCallback<TellUserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message>(GameSegmentId, tellUserJoin)
                 .Then((userJoinResponse) =>
                 {
-                    Global.Console.Log(6, "User joining: tell", gwUser);
                     //todo IDK
                     deferred.Resolve();
                 });
