@@ -41,9 +41,11 @@
     <Compile Include="Models\GameSegment\Base\UserMoved_Gateway_GameSegment_PubSub_Message.cs" />
     <Compile Include="Models\GameSegment\InitialGameUser.cs" />
     <Compile Include="Models\GameSegment\InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message.cs" />
+    <Compile Include="Models\GameSegment\NewGameSegment_GameWorld_GameSegment_PubSub_Message.cs" />
     <Compile Include="Models\GameSegment\TellUserMoved_GameSegment_GameSegment_PubSub_Message.cs" />
-    <Compile Include="Models\GameSegment\UserMovedCollection_GameSegment_GameSegment_PubSub_Message.cs" />
+    <Compile Include="Models\GameSegment\UserMoved_GameSegment_GameSegment_PubSub_Message.cs" />
     <Compile Include="Models\GameWorld\GameSegment\InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message.cs" />
+    <Compile Include="Models\GameWorld\Gateway\TellUserMoved_GameSegment_GameWorld_PubSub_Message.cs" />
     <Compile Include="Models\Gateway\PubSub\UserMovedCollection_GameSegment_Gateway_PubSub_Message.cs" />
     <Compile Include="Models\Gateway\Socket\Base\Gateway_Socket_Message.cs" />
     <Compile Include="Models\Gateway\Socket\Base\Gateway_User_Socket_Message.cs" />

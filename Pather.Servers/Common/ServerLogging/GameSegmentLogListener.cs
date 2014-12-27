@@ -1,24 +1,22 @@
 using System;
 using System.Serialization;
 using Pather.Servers.Common.PubSub;
+using Pather.Servers.GameSegment.Logger;
 
 namespace Pather.Servers.Common.ServerLogging
 {
-    public class ServerLogListener
+    public class GameSegmentLogListener
     {
         private readonly PubSub.PubSub pubsub;
 
-        public ServerLogListener(string[] serverTypes, Action<ServerLogMessage> callback)
+        public GameSegmentLogListener(Action<GameSegmentLogMessageContent> callback)
         {
             pubsub = new PubSub.PubSub();
             pubsub.DontLog();
             pubsub.Init()
                 .Then(() =>
                 {
-                    foreach (var serverType in serverTypes)
-                    {
-                        pubsub.Subscribe(PubSubChannels.ServerLogger(serverType), (content) => callback(Json.Parse<ServerLogMessage>(content)));
-                    }
+                    pubsub.Subscribe(PubSubChannels.GameSegmentLogger(), (content) => callback(Json.Parse<GameSegmentLogMessageContent>(content)));
                 });
         }
 

@@ -18,7 +18,8 @@ namespace Pather.Servers.Common
                 callback(socket, obj.Data);
             });
         }
-        public void OldListenOnChannel<T>(ISocket socket, string channel, Action<ISocket, T> callback)  
+
+        public void OldListenOnChannel<T>(ISocket socket, string channel, Action<ISocket, T> callback)
         {
             socket.On<DataObject<T>>(channel, obj =>
             {
@@ -30,6 +31,7 @@ namespace Pather.Servers.Common
         {
             socket.Emit("Gateway.Message", new DataObject<Socket_Message>(obj));
         }
+
         public void OldSendMessage<T>(ISocket socket, string channel, T obj)
         {
             socket.Emit(channel, new DataObject<T>(obj));

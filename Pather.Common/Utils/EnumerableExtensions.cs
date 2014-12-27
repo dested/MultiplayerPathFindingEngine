@@ -15,10 +15,11 @@ namespace Pather.Common.Utils
             }
             return -1;
         }
+
         [IncludeGenericArguments(false)]
         public static JsDictionary<TKey, List<TItem>> GroupBy<TKey, TItem>(this List<TItem> items, Func<TItem, TKey> callback)
         {
-            JsDictionary<TKey, List<TItem>> kitems = new JsDictionary<TKey, List<TItem>>();
+            var kitems = new JsDictionary<TKey, List<TItem>>();
             foreach (var item in items)
             {
                 var k = callback(item);
@@ -55,7 +56,7 @@ namespace Pather.Common.Utils
             }
             return items2.ToArray();
         }
-        
+
         public static T First<T>(this T[] items, Func<T, bool> clause)
         {
             foreach (var item in items)
@@ -104,7 +105,7 @@ namespace Pather.Common.Utils
                 count++;
                 sum += clause(item);
             }
-            return sum / count;
+            return sum/count;
         }
 
         [IncludeGenericArguments(false)]

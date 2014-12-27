@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.TestFramework;
 using Pather.Servers.Common.PubSub;
@@ -46,9 +45,9 @@ namespace Pather.Servers
                         CreateTickServer();
                         CreateMonitorServer();
                         CreateAuthServer();
-                        createGatewayServer("DEFAULTGATEWAYID1",1800);
-                        createGatewayServer("DEFAULTGATEWAYID2",1801);
-                        createGatewayServer("DEFAULTGATEWAYID3",1802);
+                        createGatewayServer("DEFAULTGATEWAYID1", 1800);
+                        createGatewayServer("DEFAULTGATEWAYID2", 1801);
+                        createGatewayServer("DEFAULTGATEWAYID3", 1802);
                         CreateGameClusterServer("TODO:DEFAULTGAMESEGMENTCLUSTER");
                         CreateGameWorldServer();
                         break;
@@ -103,7 +102,7 @@ namespace Pather.Servers
 
         private static void CreateGameSegmentServer(string gameSegmentId)
         {
-            new GameSegmentServer( new PubSub(), new PushPop(), gameSegmentId);
+            new GameSegmentServer(new PubSub(), new PushPop(), gameSegmentId);
         }
 
         private static void CreateGameClusterServer(string gameSegmentClusterId)
@@ -123,7 +122,7 @@ namespace Pather.Servers
 
         private static void createGatewayServer(string gatewayId, int port)
         {
-            new GatewayServer.GatewayServer(new PubSub(), new SocketIOManager(), gatewayId,port);
+            new GatewayServer.GatewayServer(new PubSub(), new SocketIOManager(), gatewayId, port);
         }
     }
 }

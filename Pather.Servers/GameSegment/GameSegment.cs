@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Servers.Common.ServerLogging;
-using Pather.Servers.GameSegment.Logger;
 using Pather.Servers.GameSegment.Models;
 
 namespace Pather.Servers.GameSegment
@@ -39,6 +38,5 @@ namespace Pather.Servers.GameSegment
             ServerLogger.LogInformation("User Joined A Game Segment");
             Global.Console.Log(GameSegmentId, "User Joined A Game Segment", gameSegmentUser.UserId, gameSegmentUser.GatewayId);
         }
-        
     }
 }

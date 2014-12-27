@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Serialization;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models.Common;
-using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.GameWorld.Base;
 using Pather.Common.Models.Gateway.PubSub.Base;
@@ -42,9 +40,9 @@ namespace Pather.Servers.GameSegment
             PubSub.Subscribe(PubSubChannels.GameSegment(GameSegmentId), (message) =>
             {
                 var gameSegmentPubSubMessage = Json.Parse<GameSegment_PubSub_Message>(message);
-                if (Utilities.HasField<GameSegment_PubSub_ReqRes_Message>(gameSegmentPubSubMessage, m => m.MessageId) && ((GameSegment_PubSub_ReqRes_Message)gameSegmentPubSubMessage).Response)
+                if (Utilities.HasField<GameSegment_PubSub_ReqRes_Message>(gameSegmentPubSubMessage, m => m.MessageId) && ((GameSegment_PubSub_ReqRes_Message) gameSegmentPubSubMessage).Response)
                 {
-                    var possibleMessageReqRes = (GameSegment_PubSub_ReqRes_Message)gameSegmentPubSubMessage;
+                    var possibleMessageReqRes = (GameSegment_PubSub_ReqRes_Message) gameSegmentPubSubMessage;
                     if (!deferredMessages.ContainsKey(possibleMessageReqRes.MessageId))
                     {
                         Global.Console.Log("Received message that I didnt ask for.", message);
@@ -70,7 +68,7 @@ namespace Pather.Servers.GameSegment
 
         public void PublishToGateway(string gatewayId, Gateway_PubSub_Message message)
         {
-            string gateway = PubSubChannels.Gateway(gatewayId);
+            var gateway = PubSubChannels.Gateway(gatewayId);
             PubSub.Publish(gateway, message);
         }
 
@@ -78,6 +76,7 @@ namespace Pather.Servers.GameSegment
         {
             PubSub.Publish(PubSubChannels.GameWorld(), message);
         }
+
         public Promise<T, UndefinedPromiseError> PublishToGameWorldWithCallback<T>(GameWorld_PubSub_ReqRes_Message message)
         {
             var deferred = Q.Defer<T, UndefinedPromiseError>();

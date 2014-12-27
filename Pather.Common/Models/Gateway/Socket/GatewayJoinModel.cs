@@ -1,5 +1,3 @@
-﻿using System;
-
-namespace Pather.Common.Models.Gateway.Socket
+﻿namespace Pather.Common.Models.Gateway.Socket
 {
 }

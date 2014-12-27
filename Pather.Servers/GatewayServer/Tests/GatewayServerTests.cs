@@ -4,7 +4,6 @@ using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameWorld.Gateway;
 using Pather.Common.Models.Gateway.PubSub;
 using Pather.Common.Models.Gateway.PubSub.Base;
-using Pather.Common.Models.Gateway.Socket;
 using Pather.Common.Models.Gateway.Socket.Base;
 using Pather.Common.TestFramework;
 using Pather.Common.Utils;

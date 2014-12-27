@@ -4,7 +4,6 @@ using Pather.Servers.Common.PubSub;
 
 namespace Pather.Servers.GameSegment.Logger
 {
-
     public static class GameSegmentLogger
     {
         private static IPubSub pubsub;
@@ -13,19 +12,19 @@ namespace Pather.Servers.GameSegment.Logger
         public static void InitLogger(string gameSegmentId)
         {
             GameSegmentId = gameSegmentId;
-            pubsub = new Common.PubSub.PubSub();
+            pubsub = new PubSub();
             pubsub.DontLog();
             pubsub.Init().Then(() =>
             {
                 Global.SetInterval(() => LogKeepAlive(), 500);
             });
         }
+
         public static void LogKeepAlive()
         {
-            
             pubsub.Publish(PubSubChannels.GameSegmentLogger(), new GameSegmentLogMessageContent(GameSegmentId, new KeepAlive_GameSegmentLogMessage(), DateTime.Now));
         }
-         
+
         public static void LogUserJoin(bool isMine, string userId, int x, int y)
         {
             Global.Console.Log("Log-- User Join");
@@ -37,6 +36,7 @@ namespace Pather.Servers.GameSegment.Logger
                 Y = y,
             }, DateTime.Now));
         }
+
         public static void LogUserLeft(bool isMine, string userId)
         {
             Global.Console.Log("Log-- User Left");
@@ -57,6 +57,7 @@ namespace Pather.Servers.GameSegment.Logger
                 Y = y,
             }, DateTime.Now));
         }
+
         public static void LogTellUserMoved(string userId, int x, int y)
         {
             Global.Console.Log("Log-- tell User Moved");

@@ -15,15 +15,4 @@ namespace Pather.Servers.GameSegment.Logger
         public int Y;
         public bool IsMine;
     }
-    [Serializable]
-    public class UserLeft_GameSegmentLogMessage : GameSegmentLogMessage
-    {
-        public UserLeft_GameSegmentLogMessage()
-        {
-            Type = GameSegmentLogMessageType.UserLeft;
-        }
-
-        public string UserId;
-        public bool IsMine;
-    }
 }

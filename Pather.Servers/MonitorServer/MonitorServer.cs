@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Servers.Common.PubSub;
 using Pather.Servers.Common.ServerLogging;
-using Pather.Servers.GameSegment.Logger;
 using Pather.Servers.Libraries.Socket.IO;
 using Pather.Servers.Utils;
 
@@ -36,7 +33,7 @@ namespace Pather.Servers.MonitorServer
 
             var connections = new List<SocketIOConnection>();
 
-            var logListener = new GameSegmentLogListener( (mess) =>
+            var logListener = new GameSegmentLogListener((mess) =>
             {
                 foreach (var socketIoConnection in connections)
                 {
@@ -56,6 +53,7 @@ namespace Pather.Servers.MonitorServer
                         });
                 });
         }
+
         private static void startMonitorServer()
         {
             //ExtensionMethods.debugger("");

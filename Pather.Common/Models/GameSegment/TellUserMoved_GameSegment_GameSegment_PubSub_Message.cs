@@ -10,6 +10,7 @@ namespace Pather.Common.Models.GameSegment
         {
             Type = GameSegment_PubSub_MessageType.TellUserMoved;
         }
+
         public string UserId;
         public int X;
         public int Y;

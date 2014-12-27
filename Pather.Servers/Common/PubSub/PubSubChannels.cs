@@ -55,9 +55,10 @@
         {
             return serverLogger + serverType;
         }
+
         public static string GameSegmentLogger()
         {
-            return gameSegmentLogger ;
+            return gameSegmentLogger;
         }
     }
 }

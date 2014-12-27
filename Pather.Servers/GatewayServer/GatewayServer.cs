@@ -7,7 +7,6 @@ using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.GameWorld.Gateway;
 using Pather.Common.Models.Gateway.PubSub;
 using Pather.Common.Models.Gateway.PubSub.Base;
-using Pather.Common.Models.Gateway.Socket;
 using Pather.Common.Models.Gateway.Socket.Base;
 using Pather.Common.Models.Tick;
 using Pather.Common.Utils;
@@ -70,7 +69,7 @@ namespace Pather.Servers.GatewayServer
             switch (message.Type)
             {
                 case Gateway_PubSub_AllMessageType.TickSync:
-                    var tickSyncMessage = (TickSync_Tick_Gateway_PubSub_AllMessage)message;
+                    var tickSyncMessage = (TickSync_Tick_Gateway_PubSub_AllMessage) message;
                     ClientTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;
                 default:
@@ -78,8 +77,8 @@ namespace Pather.Servers.GatewayServer
             }
         }
 
-        private JsDictionary<string, List<UserMovedMessage>> cachedUserMoves = new JsDictionary<string, List<UserMovedMessage>>();
- 
+        private readonly JsDictionary<string, List<UserMovedMessage>> cachedUserMoves = new JsDictionary<string, List<UserMovedMessage>>();
+
 
         private void OnMessage(Gateway_PubSub_Message message)
         {
@@ -87,11 +86,11 @@ namespace Pather.Servers.GatewayServer
             switch (message.Type)
             {
                 case Gateway_PubSub_MessageType.UserJoined:
-                    var userJoinedMessage = (UserJoined_GameWorld_Gateway_PubSub_Message)message;
+                    var userJoinedMessage = (UserJoined_GameWorld_Gateway_PubSub_Message) message;
                     gatewayUser = Users.First(user => user.UserId == userJoinedMessage.UserId);
                     gatewayUser.GameSegmentId = userJoinedMessage.GameSegmentId;
-                    Global.Console.Log(GatewayId,"Joined", gatewayUser.GameSegmentId, gatewayUser.UserId);
-                    ServerCommunicator.SendMessage(gatewayUser.Socket,  new UserJoined_Gateway_User_Socket_Message()
+                    Global.Console.Log(GatewayId, "Joined", gatewayUser.GameSegmentId, gatewayUser.UserId);
+                    ServerCommunicator.SendMessage(gatewayUser.Socket, new UserJoined_Gateway_User_Socket_Message()
                     {
                         GameSegmentId = userJoinedMessage.GameSegmentId,
                         UserId = userJoinedMessage.UserId
@@ -100,7 +99,7 @@ namespace Pather.Servers.GatewayServer
                     if (cachedUserMoves.ContainsKey(userJoinedMessage.UserId))
                     {
                         Global.Console.Log("Removing cached moved for ", userJoinedMessage.UserId);
-                        List<UserMovedMessage> userMovedMessages = cachedUserMoves[userJoinedMessage.UserId];
+                        var userMovedMessages = cachedUserMoves[userJoinedMessage.UserId];
                         foreach (var userMovedMessage in userMovedMessages)
                         {
                             runUserMoved(userMovedMessage);
@@ -110,12 +109,12 @@ namespace Pather.Servers.GatewayServer
 
                     break;
                 case Gateway_PubSub_MessageType.Pong:
-                    var pongMessage = (Pong_Tick_Gateway_PubSub_Message)message;
+                    var pongMessage = (Pong_Tick_Gateway_PubSub_Message) message;
                     ClientTickManager.OnPongReceived();
 
                     break;
                 case Gateway_PubSub_MessageType.UserMovedCollection:
-                    var userMovedCollectionMessage = (UserMovedCollection_GameSegment_Gateway_PubSub_Message)message;
+                    var userMovedCollectionMessage = (UserMovedCollection_GameSegment_Gateway_PubSub_Message) message;
 //                    Global.Console.Log("users moved", userMovedCollectionMessage.Items);
                     foreach (var userMovedMessage in userMovedCollectionMessage.Items)
                     {
@@ -190,11 +189,9 @@ namespace Pather.Servers.GatewayServer
                         if (Utilities.HasField<User_Gateway_Socket_Message>(message, m => m.UserGatewayMessageType))
                         {
 //                            Global.Console.Log("Socket message ", message);
-                            HandleUserMessage(user, (User_Gateway_Socket_Message)message);
+                            HandleUserMessage(user, (User_Gateway_Socket_Message) message);
                         }
                     });
-
-
             };
         }
 
@@ -203,7 +200,7 @@ namespace Pather.Servers.GatewayServer
             switch (message.UserGatewayMessageType)
             {
                 case User_Gateway_Socket_MessageType.Move:
-                    var moveToLocationMessage = ((MoveToLocation_User_Gateway_Socket_Message)message);
+                    var moveToLocationMessage = ((MoveToLocation_User_Gateway_Socket_Message) message);
 
                     GatewayPubSub.PublishToGameSegment(user.GameSegmentId, new UserMoved_Gateway_GameSegment_PubSub_Message()
                     {
@@ -215,7 +212,7 @@ namespace Pather.Servers.GatewayServer
 
                     break;
                 case User_Gateway_Socket_MessageType.Join:
-                    var userJoinedMessage = ((UserJoined_User_Gateway_Socket_Message)message);
+                    var userJoinedMessage = ((UserJoined_User_Gateway_Socket_Message) message);
                     user.UserId = userJoinedMessage.UserToken;
                     GatewayPubSub.PublishToGameWorld(new UserJoined_Gateway_GameWorld_PubSub_Message()
                     {

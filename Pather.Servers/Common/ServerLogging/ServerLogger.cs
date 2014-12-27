@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.CompilerServices;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Servers.Common.PubSub;

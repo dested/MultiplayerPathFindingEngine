@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Serialization;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models.Common;
 using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.GameSegmentCluster.Base;
 using Pather.Common.Models.GameWorld.Base;
@@ -28,18 +27,17 @@ namespace Pather.Servers.GameWorldServer
 
         public void Init()
         {
-
             PubSub.Subscribe(PubSubChannels.GameWorld(), (message) =>
             {
                 var gameWorldPubSubMessage = Json.Parse<GameWorld_PubSub_Message>(message);
 
-                if (Utilities.HasField<GameWorld_PubSub_ReqRes_Message>(gameWorldPubSubMessage, m => m.MessageId) && ((GameWorld_PubSub_ReqRes_Message)gameWorldPubSubMessage).Response)
+                if (Utilities.HasField<GameWorld_PubSub_ReqRes_Message>(gameWorldPubSubMessage, m => m.MessageId) && ((GameWorld_PubSub_ReqRes_Message) gameWorldPubSubMessage).Response)
                 {
                     Global.Console.Log("message", message);
-                    var possibleMessageReqRes = (GameWorld_PubSub_ReqRes_Message)gameWorldPubSubMessage;
+                    var possibleMessageReqRes = (GameWorld_PubSub_ReqRes_Message) gameWorldPubSubMessage;
                     if (!deferredMessages.ContainsKey(possibleMessageReqRes.MessageId))
                     {
-                        Global.Console.Log("Received message that I didnt ask for.",message);
+                        Global.Console.Log("Received message that I didnt ask for.", message);
                         throw new Exception("Received message that I didnt ask for.");
                     }
                     deferredMessages[possibleMessageReqRes.MessageId].Resolve(gameWorldPubSubMessage);

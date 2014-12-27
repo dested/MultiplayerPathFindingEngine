@@ -14,6 +14,5 @@ namespace Pather.Common.Models.Gateway.PubSub
         }
 
         public List<UserMovedMessage> Items;
-
     }
 }

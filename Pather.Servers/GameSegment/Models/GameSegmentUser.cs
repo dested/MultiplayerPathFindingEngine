@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Pather.Servers.GameWorldServer.Models;
 
 namespace Pather.Servers.GameSegment.Models
 {

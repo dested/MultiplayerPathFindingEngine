@@ -4,7 +4,6 @@ using System.Html;
 using Pather.Client.Utils;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models.Gateway.Socket;
 using Pather.Common.Models.Gateway.Socket.Base;
 using Pather.Common.TestFramework;
 using Pather.Common.Utils;
@@ -25,8 +24,8 @@ namespace Pather.Client.Tests
             var id = Utilities.UniqueId();
             var done = 0;
             var totalHits = 10;
-            int receivedCount = 0;
-            List<ClientCommunicator> communicators = new List<ClientCommunicator>();
+            var receivedCount = 0;
+            var communicators = new List<ClientCommunicator>();
 
             for (var i = 0; i < totalHits; i++)
             {
@@ -35,7 +34,7 @@ namespace Pather.Client.Tests
                 {
                     var startTime = new DateTime().GetTime();
 
-                    string userToken = id + "-" + i1;
+                    var userToken = id + "-" + i1;
                     JoinUser(userToken).Then((communicator) =>
                     {
                         communicators.Add(communicator);
@@ -46,8 +45,8 @@ namespace Pather.Client.Tests
 
                         var moveToLocation = new MoveToLocation_User_Gateway_Socket_Message()
                         {
-                            X = (int)(Math.Random() * 50),
-                            Y = (int)(Math.Random() * 50)
+                            X = (int) (Math.Random()*50),
+                            Y = (int) (Math.Random()*50)
                         };
 
 
@@ -56,7 +55,7 @@ namespace Pather.Client.Tests
                             switch (message.GatewayUserMessageType)
                             {
                                 case Gateway_User_Socket_MessageType.Move:
-                                    var moveToMessage = (MoveToLocation_Gateway_User_Socket_Message)message;
+                                    var moveToMessage = (MoveToLocation_Gateway_User_Socket_Message) message;
                                     if (moveToMessage.UserId == userToken &&
                                         moveToMessage.X == moveToLocation.X &&
                                         moveToMessage.Y == moveToLocation.Y)
@@ -66,14 +65,14 @@ namespace Pather.Client.Tests
                                             moveToLocation.X = (int) (Math.Random()*50);
                                             moveToLocation.Y = (int) (Math.Random()*50);
                                             communicator.SendMessage(moveToLocation);
-                                        }, (int)(Math.Random() * 1000));
+                                        }, (int) (Math.Random()*1000));
 
                                         Global.Console.Log("Moving User again", moveToLocation);
                                         if (++receivedCount == totalHits*60)
                                         {
                                             foreach (var clientCommunicator in communicators)
                                             {
-                                                ClientCommunicator communicator1 = clientCommunicator;
+                                                var communicator1 = clientCommunicator;
                                                 Global.SetTimeout(() =>
                                                 {
                                                     communicator1.Disconnect();
@@ -83,21 +82,17 @@ namespace Pather.Client.Tests
                                                         var average = averageTimes.Average(a => a);
                                                         Global.Console.Log("Average join time:", average, "ms");
                                                         deferred.Resolve();
-
                                                     }
-                                                }, (int)(Math.Random() * 2000));
+                                                }, (int) (Math.Random()*2000));
                                             }
                                         }
-
                                     }
                                     break;
                             }
                         });
                         communicator.SendMessage(moveToLocation);
-
-
                     });
-                }, (int)(Math.Random() * 15000));
+                }, (int) (Math.Random()*15000));
             }
         }
 
@@ -106,8 +101,8 @@ namespace Pather.Client.Tests
         public void LoginAndMove(Deferred defer)
         {
             var id = Utilities.UniqueId();
-            int proposedX = 12;
-            int proposedY = 25;
+            var proposedX = 12;
+            var proposedY = 25;
             JoinUser(id).Then(communicator =>
             {
                 communicator.ListenForGatewayMessage((message) =>
@@ -115,7 +110,7 @@ namespace Pather.Client.Tests
                     switch (message.GatewayUserMessageType)
                     {
                         case Gateway_User_Socket_MessageType.Move:
-                            var moveToMessage = (MoveToLocation_Gateway_User_Socket_Message)message;
+                            var moveToMessage = (MoveToLocation_Gateway_User_Socket_Message) message;
                             if (moveToMessage.X == proposedX && moveToMessage.Y == proposedY)
                             {
                                 defer.Resolve();

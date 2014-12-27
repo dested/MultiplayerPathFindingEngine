@@ -41,28 +41,25 @@ namespace Pather.Servers.GameWorldServer
             DetermineGameSegment(gwUser)
                 .Then(gameSegment =>
                 {
-                    
                     gameSegment.AddUserToSegment(gwUser)
                         .Then(() =>
-                    {
-                        var promises = GameSegments
-                            .Where(seg => seg != gameSegment)
-                            .Select(seg => seg.TellSegmentAboutUser(gwUser));
+                        {
+                            var promises = GameSegments
+                                .Where(seg => seg != gameSegment)
+                                .Select(seg => seg.TellSegmentAboutUser(gwUser));
 
-                        Q.All(promises)
-                            .Then(() =>
-                            {
-                                Users.Add(gwUser);
-                                Global.Console.Log("",
-                                    "Gameworld added user to game segment", gameSegment.GameSegmentId,
-                                    "Total Players:", Users.Count,
-                                    "Game Segment Players:", gameSegment.Users.Count);
+                            Q.All(promises)
+                                .Then(() =>
+                                {
+                                    Users.Add(gwUser);
+                                    Global.Console.Log("",
+                                        "Gameworld added user to game segment", gameSegment.GameSegmentId,
+                                        "Total Players:", Users.Count,
+                                        "Game Segment Players:", gameSegment.Users.Count);
 
-                                defer.Resolve(gwUser);
-                            });
-                    });
-
-
+                                    defer.Resolve(gwUser);
+                                });
+                        });
                 });
             return defer.Promise;
         }
@@ -159,7 +156,7 @@ namespace Pather.Servers.GameWorldServer
                     {
                         GameWorldPubSub.PublishToGameSegment(gameSegment.GameSegmentId, new NewGameSegment_GameWorld_GameSegment_PubSub_Message()
                         {
-                            GameSegmentId=gs.GameSegmentId
+                            GameSegmentId = gs.GameSegmentId
                         });
                     }
 
@@ -199,7 +196,7 @@ namespace Pather.Servers.GameWorldServer
                 var distance = PointDistance(pUser, cUser);
                 neighbors.Add(new GameWorldNeighbor(cUser, distance));
             }
-            neighbors.Sort((a, b) => (int)(a.Distance - b.Distance));
+            neighbors.Sort((a, b) => (int) (a.Distance - b.Distance));
             return neighbors;
         }
 
@@ -231,18 +228,17 @@ namespace Pather.Servers.GameWorldServer
             var _x = (cx - mx);
             var _y = (cy - my);
 
-            var dis = Math.Sqrt((_x * _x) + (_y * _y));
+            var dis = Math.Sqrt((_x*_x) + (_y*_y));
             return dis;
         }
 
         public void UserMoved(string userId, int x, int y, long lockstepTick)
         {
-
             var gwUser = Users.First(a => a.UserId == userId);
 
             if (gwUser == null)
             {
-                throw new Exception("User not found: "+userId);
+                throw new Exception("User not found: " + userId);
             }
 
             gwUser.X = x;

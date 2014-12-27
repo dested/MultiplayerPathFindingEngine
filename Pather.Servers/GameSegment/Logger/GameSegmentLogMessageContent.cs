@@ -6,7 +6,6 @@ namespace Pather.Servers.GameSegment.Logger
     [Serializable]
     public class GameSegmentLogMessageContent
     {
-
         public DateTime Time;
         public string GameSegmentId;
 

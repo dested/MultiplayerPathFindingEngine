@@ -12,5 +12,4 @@ namespace Pather.Common.Models.GameWorld.GameSegment
             Response = true;
         }
     }
-
 }

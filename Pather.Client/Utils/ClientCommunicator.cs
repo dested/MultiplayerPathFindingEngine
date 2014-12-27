@@ -39,7 +39,7 @@ namespace Pather.Client.Utils
             }
         }
 
-        public void ListenForGatewayMessage( Action<Gateway_User_Socket_Message> callback)
+        public void ListenForGatewayMessage(Action<Gateway_User_Socket_Message> callback)
         {
             Socket.On<DataObject<Gateway_User_Socket_Message>>("Gateway.Message", obj => callback(obj.Data));
         }
@@ -53,6 +53,7 @@ namespace Pather.Client.Utils
         {
             Socket.Emit(channel, new DataObject<object>(obj));
         }
+
         public void SendMessage(User_Gateway_Socket_Message obj)
         {
             Socket.Emit("Gateway.Message", new DataObject<object>(obj));

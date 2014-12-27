@@ -5,7 +5,6 @@ using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameWorld.GameSegment;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.GameWorldServer.Models;
-using Console = System.Console;
 
 namespace Pather.Servers.GameWorldServer
 {

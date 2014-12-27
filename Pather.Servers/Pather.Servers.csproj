@@ -40,6 +40,7 @@
     <Compile Include="Common\PubSub\PubSubChannels.cs" />
     <Compile Include="Common\PushPop\IPushPop.cs" />
     <Compile Include="Common\PushPop\PushPop.cs" />
+    <Compile Include="Common\ServerLogging\GameSegmentLogListener.cs" />
     <Compile Include="Common\ServerLogging\ServerLogger.cs" />
     <Compile Include="Common\ServerLogging\ServerLogListener.cs" />
     <Compile Include="Common\ServerLogging\ServerLogMessage.cs" />
@@ -63,7 +64,9 @@
     <Compile Include="GameSegment\Logger\GameSegmentLogMessageContent.cs" />
     <Compile Include="GameSegment\Logger\GameSegmentLogMessageType.cs" />
     <Compile Include="GameSegment\Logger\KeepAlive_GameSegmentLogMessage.cs" />
+    <Compile Include="GameSegment\Logger\TellUserMoved_GameSegmentLogMessage.cs" />
     <Compile Include="GameSegment\Logger\UserJoined_GameSegmentLogMessage.cs" />
+    <Compile Include="GameSegment\Logger\UserLeft_GameSegmentLogMessage.cs" />
     <Compile Include="GameSegment\Logger\UserMoved_GameSegmentLogMessage.cs" />
     <Compile Include="GameSegment\Models\GameSegmentNeighbor.cs" />
     <Compile Include="GameSegment\Models\GameSegmentUser.cs" />

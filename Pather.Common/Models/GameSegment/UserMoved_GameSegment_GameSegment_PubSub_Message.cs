@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using Pather.Common.Models.Common;
 using Pather.Common.Models.GameSegment.Base;
 
 namespace Pather.Common.Models.GameSegment
@@ -12,10 +10,10 @@ namespace Pather.Common.Models.GameSegment
         {
             Type = GameSegment_PubSub_MessageType.UserMovedFromGameSegment;
         }
+
         public int X;
         public int Y;
         public long LockstepTick;
         public string UserId;
-
     }
 }

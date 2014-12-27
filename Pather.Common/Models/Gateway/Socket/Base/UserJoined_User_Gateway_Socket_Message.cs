@@ -9,7 +9,7 @@ namespace Pather.Common.Models.Gateway.Socket.Base
         {
             UserGatewayMessageType = User_Gateway_Socket_MessageType.Join;
         }
-        public string UserToken { get; set; }
 
+        public string UserToken { get; set; }
     }
 }
