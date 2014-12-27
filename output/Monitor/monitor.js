@@ -2,9 +2,7 @@
 
 app.controller('Main', function ($scope) {
 
-    var socket = io.connect('127.0.0.1:9991');
-    var servers = ['GameSegment', 'GameSegmentCluster', 'GameWorld', 'Gateway', 'Chat', 'Tick', 'Auth'];
-    var logTypes = ['Information', 'Debug Information', 'Errors', 'Transport', 'Data Transport'];
+    var socket = io.connect('127.0.0.1:9992');
     $scope.model = {};
     $scope.model.selectedLogPiece = null;
     $scope.model.tabs = [];
@@ -131,10 +129,87 @@ app.controller('Main', function ($scope) {
     };
 
 
+}).controller('MainSegment', function ($scope) {
+
+    var socket = io.connect('127.0.0.1:9992');
+    $scope.model = {};
+    $scope.model.selectedLogPiece = null;
+    $scope.model.gameSegments = {};
+
+    var longWait = 5 * 1000;
+/*
+
+
+    setInterval(function () {
+        $scope.$apply();
+    }, 1000);
+*/
+
+
+    socket.on("message", function (data) {
+        if (!$scope.model.gameSegments[data.gameSegmentId]) {
+            $scope.model.gameSegments[data.gameSegmentId] = {
+                users:[]
+            };
+        }
+
+        var gameSegment = $scope.model.gameSegments[data.gameSegmentId];
+
+        if (data.message.type == 'keepAlive') {
+            return;
+        }
+
+        switch(data.message.type) {
+            case 'userJoined':
+                gameSegment.users.push({
+                    userId: data.message.userId,
+                    x: data.message.x,
+                    y: data.message.y,
+                    isMine:data.message.isMine
+                });
+                break;
+
+            case 'userLeft':
+                for (var i = 0; i < gameSegment.users.length; i++) {
+                    var user = gameSegment.users[i];
+                    if (user.userId == data.message.userId) {
+                        gameSegment.users.splice(i, 1);
+                        break;
+                    }
+                }
+                break;
+            case 'tellUserMoved':
+                for (var i = 0; i < gameSegment.users.length; i++) {
+                    var user = gameSegment.users[i];
+                    if (user.userId == data.message.userId) {
+                        user.x = data.message.x;
+                        user.y = data.message.y;
+                        break;
+                    }
+                }
+                break;
+            case 'userMoved':
+                for (var i = 0; i < gameSegment.users.length; i++) {
+                    var user = gameSegment.users[i];
+                    if (user.userId == data.message.userId) {
+                        user.x = data.message.x;
+                        user.y = data.message.y;
+                        break;
+                    }
+                }
+                break;
+        }
+
+        $scope.$apply();
+
+    });
+
+
+
 }).directive('forceScroll', function () {
     return {
         link: function (scope, elem, attr) {
-            scope.$watch(attr.forceScroll, function() {
+            scope.$watch(attr.forceScroll, function () {
                 elem[0].scrollTop = elem.height();
             }, true);
         }

@@ -58,6 +58,13 @@
     <Compile Include="Common\ClientTickManager.cs" />
     <Compile Include="GameSegment\GameSegment.cs" />
     <Compile Include="GameSegment\GameSegmentPubSub.cs" />
+    <Compile Include="GameSegment\Logger\GameSegmentLogger.cs" />
+    <Compile Include="GameSegment\Logger\GameSegmentLogMessage.cs" />
+    <Compile Include="GameSegment\Logger\GameSegmentLogMessageContent.cs" />
+    <Compile Include="GameSegment\Logger\GameSegmentLogMessageType.cs" />
+    <Compile Include="GameSegment\Logger\KeepAlive_GameSegmentLogMessage.cs" />
+    <Compile Include="GameSegment\Logger\UserJoined_GameSegmentLogMessage.cs" />
+    <Compile Include="GameSegment\Logger\UserMoved_GameSegmentLogMessage.cs" />
     <Compile Include="GameSegment\Models\GameSegmentNeighbor.cs" />
     <Compile Include="GameSegment\Models\GameSegmentUser.cs" />
     <Compile Include="GameSegment\Old\GameSegmentUser.cs" />

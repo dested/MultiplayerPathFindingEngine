@@ -6,6 +6,7 @@
         private static string gameWorld = "GameWorld";
         private static string gameSegmentCluster = "GameSegmentCluster";
         private static string serverLogger = "ServerLogger";
+        private static string gameSegmentLogger = "GameSegmentLogger";
         private static string gameSegment = "GameSegment";
         private static string gateway = "Gateway";
 
@@ -53,6 +54,10 @@
         public static string ServerLogger(string serverType)
         {
             return serverLogger + serverType;
+        }
+        public static string GameSegmentLogger()
+        {
+            return gameSegmentLogger ;
         }
     }
 }

@@ -19,8 +19,8 @@ namespace Pather.Common
             LockstepTicks = 1000/LockstepFps;
 
             LatencyPingInterval = 6*1000;
-            NeighborDistance = 20;
-            UsersPerGameSegment = 10;
+            NeighborDistance = 10;
+            UsersPerGameSegment = 5;
             GameSegmentCreationWait = 60;
         }
 

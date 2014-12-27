@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Html;
 using Pather.Client.Utils;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
@@ -23,7 +24,7 @@ namespace Pather.Client.Tests
             var averageTimes = new List<long>();
             var id = Utilities.UniqueId();
             var done = 0;
-            var totalHits = 50;
+            var totalHits = 10;
             int receivedCount = 0;
             List<ClientCommunicator> communicators = new List<ClientCommunicator>();
 
@@ -60,8 +61,15 @@ namespace Pather.Client.Tests
                                         moveToMessage.X == moveToLocation.X &&
                                         moveToMessage.Y == moveToLocation.Y)
                                     {
+                                        Window.SetTimeout(() =>
+                                        {
+                                            moveToLocation.X = (int) (Math.Random()*50);
+                                            moveToLocation.Y = (int) (Math.Random()*50);
+                                            communicator.SendMessage(moveToLocation);
+                                        }, (int)(Math.Random() * 1000));
 
-                                        if (++receivedCount == totalHits)
+                                        Global.Console.Log("Moving User again", moveToLocation);
+                                        if (++receivedCount == totalHits*60)
                                         {
                                             foreach (var clientCommunicator in communicators)
                                             {

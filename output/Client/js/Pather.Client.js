@@ -414,7 +414,7 @@
 			var averageTimes = [];
 			var id = Pather.Common.Utilities.uniqueId();
 			var done = 0;
-			var totalHits = 50;
+			var totalHits = 10;
 			var receivedCount = 0;
 			var communicators = [];
 			for (var i = 0; i < totalHits; i++) {
@@ -436,7 +436,13 @@
 								case 'move': {
 									var moveToMessage = message;
 									if (ss.referenceEquals(moveToMessage.userId, userToken) && moveToMessage.x === moveToLocation.x && moveToMessage.y === moveToLocation.y) {
-										if (++receivedCount === totalHits) {
+										window.setTimeout(function() {
+											moveToLocation.x = ss.Int32.trunc(Math.random() * 50);
+											moveToLocation.y = ss.Int32.trunc(Math.random() * 50);
+											communicator.sendMessage(moveToLocation);
+										}, ss.Int32.trunc(Math.random() * 1000));
+										console.log('Moving User again', moveToLocation);
+										if (++receivedCount === totalHits * 60) {
 											for (var $t2 = 0; $t2 < communicators.length; $t2++) {
 												var clientCommunicator = communicators[$t2];
 												var communicator1 = { $: clientCommunicator };

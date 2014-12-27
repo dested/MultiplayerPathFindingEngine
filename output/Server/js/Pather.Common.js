@@ -297,11 +297,11 @@
 	};
 	$Pather_Common_Models_Common_UserMovedMessage.$ctor = function() {
 		var $this = {};
-		$this.userId = null;
 		$this.x = 0;
 		$this.y = 0;
 		$this.lockstepTick = 0;
 		$this.userThatMovedId = null;
+		$this.userId = null;
 		return $this;
 	};
 	global.Pather.Common.Models.Common.UserMovedMessage = $Pather_Common_Models_Common_UserMovedMessage;
@@ -570,20 +570,23 @@
 	};
 	global.Pather.Common.Models.GameSegment.UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message = $Pather_Common_Models_GameSegment_UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message;
 	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.Models.GameSegment.UserMovedCollection_GameSegment_GameSegment_PubSub_Message
-	var $Pather_Common_Models_GameSegment_UserMovedCollection_GameSegment_GameSegment_PubSub_Message = function() {
+	// Pather.Common.Models.GameSegment.UserMoved_GameSegment_GameSegment_PubSub_Message
+	var $Pather_Common_Models_GameSegment_UserMoved_GameSegment_GameSegment_PubSub_Message = function() {
 	};
-	$Pather_Common_Models_GameSegment_UserMovedCollection_GameSegment_GameSegment_PubSub_Message.__typeName = 'Pather.Common.Models.GameSegment.UserMovedCollection_GameSegment_GameSegment_PubSub_Message';
-	$Pather_Common_Models_GameSegment_UserMovedCollection_GameSegment_GameSegment_PubSub_Message.createInstance = function() {
-		return $Pather_Common_Models_GameSegment_UserMovedCollection_GameSegment_GameSegment_PubSub_Message.$ctor();
+	$Pather_Common_Models_GameSegment_UserMoved_GameSegment_GameSegment_PubSub_Message.__typeName = 'Pather.Common.Models.GameSegment.UserMoved_GameSegment_GameSegment_PubSub_Message';
+	$Pather_Common_Models_GameSegment_UserMoved_GameSegment_GameSegment_PubSub_Message.createInstance = function() {
+		return $Pather_Common_Models_GameSegment_UserMoved_GameSegment_GameSegment_PubSub_Message.$ctor();
 	};
-	$Pather_Common_Models_GameSegment_UserMovedCollection_GameSegment_GameSegment_PubSub_Message.$ctor = function() {
+	$Pather_Common_Models_GameSegment_UserMoved_GameSegment_GameSegment_PubSub_Message.$ctor = function() {
 		var $this = $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message.$ctor();
-		$this.items = null;
-		$this.type = 'userMovedCollection';
+		$this.x = 0;
+		$this.y = 0;
+		$this.lockstepTick = 0;
+		$this.userId = null;
+		$this.type = 'userMovedFromGameSegment';
 		return $this;
 	};
-	global.Pather.Common.Models.GameSegment.UserMovedCollection_GameSegment_GameSegment_PubSub_Message = $Pather_Common_Models_GameSegment_UserMovedCollection_GameSegment_GameSegment_PubSub_Message;
+	global.Pather.Common.Models.GameSegment.UserMoved_GameSegment_GameSegment_PubSub_Message = $Pather_Common_Models_GameSegment_UserMoved_GameSegment_GameSegment_PubSub_Message;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.GameSegment.Base.GameSegment_PubSub_AllMessage
 	var $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_AllMessage = function() {
@@ -2127,9 +2130,9 @@
 	ss.initClass($Pather_Common_Models_GameSegment_TickSync_GameSegment_PubSub_AllMessage, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_AllMessage);
 	ss.initClass($Pather_Common_Models_GameSegment_UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameSegment_UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
-	ss.initClass($Pather_Common_Models_GameSegment_UserMovedCollection_GameSegment_GameSegment_PubSub_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message);
+	ss.initClass($Pather_Common_Models_GameSegment_UserMoved_GameSegment_GameSegment_PubSub_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message);
 	ss.initEnum($Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_AllMessageType, $asm, { tickSync: 'tickSync' }, true);
-	ss.initEnum($Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_MessageType, $asm, { pong: 'pong', tellUserJoin: 'tellUserJoin', initializeGameSegmentResponse: 'initializeGameSegmentResponse', tellUserLeft: 'tellUserLeft', userJoin: 'userJoin', userLeft: 'userLeft', userMoved: 'userMoved', tellUserMoved: 'tellUserMoved', userMovedCollection: 'userMovedCollection', newGameSegment: 'newGameSegment' }, true);
+	ss.initEnum($Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_MessageType, $asm, { pong: 'pong', tellUserJoin: 'tellUserJoin', initializeGameSegmentResponse: 'initializeGameSegmentResponse', tellUserLeft: 'tellUserLeft', userJoin: 'userJoin', userLeft: 'userLeft', userMoved: 'userMoved', tellUserMoved: 'tellUserMoved', userMovedFromGameSegment: 'userMovedFromGameSegment', newGameSegment: 'newGameSegment' }, true);
 	ss.initClass($Pather_Common_Models_GameSegment_Base_UserMoved_Gateway_GameSegment_PubSub_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message);
 	ss.initClass($Pather_Common_Models_GameSegmentCluster_Base_GameSegmentCluster_PubSub_Message, $asm, {});
 	ss.initClass($Pather_Common_Models_GameSegmentCluster_Base_GameSegmentCluster_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegmentCluster_Base_GameSegmentCluster_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
@@ -2334,8 +2337,8 @@
 		$Pather_Common_Constants.lockstepFps = 2;
 		$Pather_Common_Constants.lockstepTicks = ss.Int32.div(1000, $Pather_Common_Constants.lockstepFps);
 		$Pather_Common_Constants.latencyPingInterval = 6000;
-		$Pather_Common_Constants.neighborDistance = 20;
-		$Pather_Common_Constants.usersPerGameSegment = 10;
+		$Pather_Common_Constants.neighborDistance = 10;
+		$Pather_Common_Constants.usersPerGameSegment = 5;
 		$Pather_Common_Constants.gameSegmentCreationWait = 60;
 	})();
 	(function() {

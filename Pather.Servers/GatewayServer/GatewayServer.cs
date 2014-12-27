@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.Common;
 using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.GameWorld.Gateway;
 using Pather.Common.Models.Gateway.PubSub;
@@ -77,6 +78,9 @@ namespace Pather.Servers.GatewayServer
             }
         }
 
+        private JsDictionary<string, List<UserMovedMessage>> cachedUserMoves = new JsDictionary<string, List<UserMovedMessage>>();
+ 
+
         private void OnMessage(Gateway_PubSub_Message message)
         {
             GatewayUser gatewayUser;
@@ -93,6 +97,17 @@ namespace Pather.Servers.GatewayServer
                         UserId = userJoinedMessage.UserId
                     });
 
+                    if (cachedUserMoves.ContainsKey(userJoinedMessage.UserId))
+                    {
+                        Global.Console.Log("Removing cached moved for ", userJoinedMessage.UserId);
+                        List<UserMovedMessage> userMovedMessages = cachedUserMoves[userJoinedMessage.UserId];
+                        foreach (var userMovedMessage in userMovedMessages)
+                        {
+                            runUserMoved(userMovedMessage);
+                        }
+                        cachedUserMoves.Remove(userJoinedMessage.UserId);
+                    }
+
                     break;
                 case Gateway_PubSub_MessageType.Pong:
                     var pongMessage = (Pong_Tick_Gateway_PubSub_Message)message;
@@ -101,23 +116,41 @@ namespace Pather.Servers.GatewayServer
                     break;
                 case Gateway_PubSub_MessageType.UserMovedCollection:
                     var userMovedCollectionMessage = (UserMovedCollection_GameSegment_Gateway_PubSub_Message)message;
+//                    Global.Console.Log("users moved", userMovedCollectionMessage.Items);
                     foreach (var userMovedMessage in userMovedCollectionMessage.Items)
                     {
-                        Global.Console.Log(GatewayId, "Moved", userMovedMessage.UserId);
-                        gatewayUser = Users.First(user => user.UserId == userMovedMessage.UserId);
-                        ServerCommunicator.SendMessage(gatewayUser.Socket, new MoveToLocation_Gateway_User_Socket_Message()
-                        {
-                            UserId = userMovedMessage.UserThatMovedId,
-                            LockstepTick = userMovedMessage.LockstepTick,
-                            X = userMovedMessage.X,
-                            Y = userMovedMessage.Y,
-                        });
-
+                        runUserMoved(userMovedMessage);
                     }
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private void runUserMoved(UserMovedMessage userMovedMessage)
+        {
+            GatewayUser gatewayUser;
+            gatewayUser = Users.First(user => user.UserId == userMovedMessage.UserId);
+
+            if (gatewayUser == null)
+            {
+                //todo find out why user does not exist yet
+
+                if (!cachedUserMoves.ContainsKey(userMovedMessage.UserId))
+                {
+                    cachedUserMoves[userMovedMessage.UserId] = new List<UserMovedMessage>();
+                }
+                cachedUserMoves[userMovedMessage.UserId].Add(userMovedMessage);
+
+                return;
+            }
+            ServerCommunicator.SendMessage(gatewayUser.Socket, new MoveToLocation_Gateway_User_Socket_Message()
+            {
+                UserId = userMovedMessage.UserThatMovedId,
+                LockstepTick = userMovedMessage.LockstepTick,
+                X = userMovedMessage.X,
+                Y = userMovedMessage.Y,
+            });
         }
 
 
@@ -156,7 +189,7 @@ namespace Pather.Servers.GatewayServer
                     {
                         if (Utilities.HasField<User_Gateway_Socket_Message>(message, m => m.UserGatewayMessageType))
                         {
-                            Global.Console.Log("Socket message ", message);
+//                            Global.Console.Log("Socket message ", message);
                             HandleUserMessage(user, (User_Gateway_Socket_Message)message);
                         }
                     });
