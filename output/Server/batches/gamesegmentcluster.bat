@@ -1,3 +1,3 @@
 cd ..
-start node app gamesegmentcluster
+start c:\PROGRA~1\nodejs\node.exe  app gsc
 exit

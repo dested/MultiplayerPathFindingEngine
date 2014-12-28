@@ -126,7 +126,7 @@ namespace Pather.Client.Tests
             var deferred = Q.Defer<ClientCommunicator, UndefinedPromiseError>();
 
             var b = Math.Random();
-            int port;
+            int port=1800;
             if (b <= .1)
             {
                 port = 1800;
@@ -171,6 +171,21 @@ namespace Pather.Client.Tests
             {
                 port = 1800;
             }
+/*
+            if (b <= .3)
+            {
+                port = 1800;
+            }
+            else if (b <= .6)
+            {
+                port = 1801;
+            }
+            else if (b <= 1)
+            {
+                port = 1802;
+            }
+            */
+
             var url = "http://127.0.0.1:" + port;
             //            Global.Console.Log("Connecting to", url);
             var clientCommunicator = new ClientCommunicator(url);

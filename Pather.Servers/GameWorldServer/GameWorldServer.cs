@@ -32,7 +32,7 @@ namespace Pather.Servers.GameWorldServer
             this.pubSub = pubSub;
             DatabaseQueries = dbQueries;
             pubSub.Init().Then(pubsubReady);
-//            new TickWatcher();
+            //            new TickWatcher();
 
         }
 
@@ -50,8 +50,67 @@ namespace Pather.Servers.GameWorldServer
             ClientTickManager.Init(sendPing, () =>
             {
                 Global.Console.Log("Connected To Tick Server");
+
+                Global.SetInterval(flushPreAddedUsers, 200);
+
             });
             ClientTickManager.StartPing();
+        }
+
+        private void flushPreAddedUsers()
+        {
+            var count = 0;
+            foreach (var preAddedUser in preAddedUsers)
+            {
+                if (preAddedUser.Value.Count == 0)
+                {
+                    continue;
+                }
+
+                var items = new List<Tuple<GameWorldUser, Deferred<GameWorldUser, UserJoinError>>>(preAddedUser.Value);
+
+                count += items.Count;
+
+                preAddedUser.Value.Clear();
+
+                var gameSegment = items[0].Item1.GameSegment;
+
+
+                gameSegment.AddUsersToSegment(items)
+                     .Then((users) =>
+                     {
+                         if (users.Count == 0)
+                         {
+                             Global.Console.Log("No users to resolve adding to segment",items);
+
+                             return;
+                         }
+                         var promises = GameWorld.GameSegments
+                             .Where(seg => seg != gameSegment)
+                             .SelectMany(seg => users.Select(user => seg.TellSegmentAboutUser(user.Item1)));
+
+                         Q.All(promises)
+                             .Then((gwUsers) =>
+                             {
+                                 foreach (var u in users)
+                                 {
+                                     GameWorld.Users.Add(u.Item1);
+                                     u.Item2.Resolve(u.Item1);
+                                 }
+
+                                 Global.Console.Log(GameWorld.Users.Count,"Users total");
+                                  
+                                 /*Global.Console.Log("",
+                                     "Gameworld added user to game segment", gameSegment.GameSegmentId,
+                                     "Total Players:", Users.Count,
+                                     "Game Segment Players:", gameSegment.Users.Count);*/
+
+                             });
+                     });
+
+
+            }
+
         }
 
         private void sendPing()
@@ -76,7 +135,7 @@ namespace Pather.Servers.GameWorldServer
             switch (message.Type)
             {
                 case GameWorld_PubSub_MessageType.UserJoined:
-                    UserJoined((UserJoined_Gateway_GameWorld_PubSub_Message) message).Then(gwUser =>
+                    UserJoined((UserJoined_Gateway_GameWorld_PubSub_Message)message).Then(gwUser =>
                     {
                         gameSegmentClusterPubSub.PublishToGatewayServer(PubSubChannels.Gateway(gwUser.GatewayId), new UserJoined_GameWorld_Gateway_PubSub_Message()
                         {
@@ -86,29 +145,41 @@ namespace Pather.Servers.GameWorldServer
                     });
                     break;
                 case GameWorld_PubSub_MessageType.UserLeft:
-                    foreach (var tuple in usersWaitingToJoin)
+
+                    var userLeftMessage = ((UserLeft_Gateway_GameWorld_PubSub_Message)message);
+
+                    bool done = false;
+                    foreach (var preAddedUser in preAddedUsers)
                     {
-                        if (tuple.Item1.UserToken == ((UserLeft_Gateway_GameWorld_PubSub_Message) message).UserId)
+                        foreach (var addedUser in preAddedUser.Value)
                         {
-                            usersWaitingToJoin.Remove(tuple);
-                            break;
+                            if (addedUser.Item1.UserId == userLeftMessage.UserId)
+                            {
+                                preAddedUser.Value.Remove(addedUser);
+                                addedUser.Item1.GameSegment.RemovePreAddedUserToSegment(addedUser.Item1);
+                                done = true;
+                                break;
+                            }
                         }
+                        if (done) break;
                     }
-                    UserLeft((UserLeft_Gateway_GameWorld_PubSub_Message) message).Then(() =>
+
+
+                    UserLeft(userLeftMessage).Then(() =>
                     {
                         //todo idk
                     });
                     break;
                 case GameWorld_PubSub_MessageType.Pong:
-                    var pongMessage = (Pong_Tick_GameWorld_PubSub_Message) message;
+                    var pongMessage = (Pong_Tick_GameWorld_PubSub_Message)message;
                     ClientTickManager.OnPongReceived();
                     break;
                 case GameWorld_PubSub_MessageType.TickSync:
-                    var tickSyncMessage = (TickSync_Tick_GameWorld_PubSub_Message) message;
+                    var tickSyncMessage = (TickSync_Tick_GameWorld_PubSub_Message)message;
                     ClientTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;
                 case GameWorld_PubSub_MessageType.TellUserMoved:
-                    var tellUserMoved = (TellUserMoved_GameSegment_GameWorld_PubSub_Message) message;
+                    var tellUserMoved = (TellUserMoved_GameSegment_GameWorld_PubSub_Message)message;
                     GameWorld.UserMoved(tellUserMoved.UserId, tellUserMoved.X, tellUserMoved.Y, tellUserMoved.LockstepTick);
                     break;
                 case GameWorld_PubSub_MessageType.CreateGameSegmentResponse:
@@ -120,7 +191,7 @@ namespace Pather.Servers.GameWorldServer
                 case GameWorld_PubSub_MessageType.TellUserLeftResponse:
                     break;
                 case GameWorld_PubSub_MessageType.InitializeGameSegment:
-                    var getAllGameSegments = ((InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message) message);
+                    var getAllGameSegments = ((InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message)message);
                     gameSegmentClusterPubSub.PublishToGameSegment(getAllGameSegments.OriginGameSegment,
                         new InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message()
                         {
@@ -128,9 +199,7 @@ namespace Pather.Servers.GameWorldServer
                             GameSegmentIds = GameWorld.GameSegments.Select(a => a.GameSegmentId),
                             AllUsers = GameWorld.Users.Select(user =>
                             {
-//                                Global.Console.Log("Sending out initial to", getAllGameSegments.OriginGameSegment, user.UserId, user.GatewayId);
-
-
+                                //                                Global.Console.Log("Sending out initial to", getAllGameSegments.OriginGameSegment, user.UserId, user.GatewayId);
                                 return new InitialGameUser()
                                 {
                                     GameSegmentId = user.GameSegment.GameSegmentId,
@@ -147,50 +216,50 @@ namespace Pather.Servers.GameWorldServer
             }
         }
 
-        private readonly List<Tuple<UserJoined_Gateway_GameWorld_PubSub_Message, Promise<GameWorldUser, UserJoinError>>>
-            usersWaitingToJoin = new List<Tuple<UserJoined_Gateway_GameWorld_PubSub_Message, Promise<GameWorldUser, UserJoinError>>>();
+        private JsDictionary<string, List<Tuple<GameWorldUser, Deferred<GameWorldUser, UserJoinError>>>> preAddedUsers = new JsDictionary<string, List<Tuple<GameWorldUser, Deferred<GameWorldUser, UserJoinError>>>>();
+        private List<Tuple<UserJoined_Gateway_GameWorld_PubSub_Message, Deferred<GameWorldUser, UserJoinError>>> stalledJoins = new List<Tuple<UserJoined_Gateway_GameWorld_PubSub_Message, Deferred<GameWorldUser, UserJoinError>>>();
 
-        private bool currentlyJoiningUser = false;
-
+        private bool joining = false;
         private Promise<GameWorldUser, UserJoinError> UserJoined(UserJoined_Gateway_GameWorld_PubSub_Message message)
         {
             var deferred = Q.Defer<GameWorldUser, UserJoinError>();
-            var waitingToJoinMessage = new Tuple<UserJoined_Gateway_GameWorld_PubSub_Message, Promise<GameWorldUser, UserJoinError>>(message, deferred.Promise);
-            if (!currentlyJoiningUser)
+            //                Global.Console.Log("User Joined Game World", message.UserToken, message.GatewayId);
+//            Global.Console.Log("User trying to join");
+            if (!joining)
             {
-                currentlyJoiningUser = true;
-
-//                Global.Console.Log("User Joined Game World", message.UserToken, message.GatewayId);
+                joining = true;
                 DatabaseQueries.GetUserByToken(message.UserToken)
                     .Then(dbUser =>
                     {
-                        GameWorld.UserJoined(message.GatewayId, dbUser).PassThrough(deferred.Promise).Finally(QueueNextJoiningUser);
+                        GameWorld.CreateUser(message.GatewayId, dbUser).Then(user =>
+                        {
+                            if (!Script.Reinterpret<bool>(preAddedUsers[user.GameSegment.GameSegmentId]))
+                            {
+                                preAddedUsers[user.GameSegment.GameSegmentId] = new List<Tuple<GameWorldUser, Deferred<GameWorldUser, UserJoinError>>>();
+                            }
+                            preAddedUsers[user.GameSegment.GameSegmentId].Add(Tuple.Create(user, deferred));
+
+                            joining = false;
+                            if (stalledJoins.Count > 0)
+                            {
+                                var stalledJoin = stalledJoins[0];
+                                stalledJoins.RemoveAt(0);
+                                UserJoined(stalledJoin.Item1).PassThrough(stalledJoin.Item2.Promise);
+                            }
+                        });
                         //TODO THEN ADD USER TO TABLE OSMETHING IDK
                     });
             }
             else
             {
-//                Global.Console.Log("Adding user to pending");
-                usersWaitingToJoin.Add(waitingToJoinMessage);
+                stalledJoins.Add(Tuple.Create(message, deferred));
+                Global.Console.Log(GameWorld.Users.Count, "Users total");
             }
 
             return deferred.Promise;
         }
 
-        private void QueueNextJoiningUser()
-        {
-            currentlyJoiningUser = false;
-            if (usersWaitingToJoin.Count > 0)
-            {
-                Global.SetTimeout(() =>
-                {
-                    var nextUserWaitingToJoin = usersWaitingToJoin[0];
-                    usersWaitingToJoin.Remove(nextUserWaitingToJoin);
-                    Global.Console.Log("Joining next user", usersWaitingToJoin.Count, "still waiting");
-                    UserJoined(nextUserWaitingToJoin.Item1).PassThrough(nextUserWaitingToJoin.Item2);
-                }, 1);
-            }
-        }
+
 
         private Promise UserLeft(UserLeft_Gateway_GameWorld_PubSub_Message message)
         {

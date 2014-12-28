@@ -13,6 +13,11 @@ namespace Pather.Common.Models.Gateway.PubSub
             Type = Gateway_PubSub_MessageType.UserMovedCollection;
         }
 
-        public List<UserMovedMessage> Items;
+        public int X;
+        public int Y;
+        public long LockstepTick;
+        public string UserThatMovedId;
+        public List<string> Users;
+
     }
 }

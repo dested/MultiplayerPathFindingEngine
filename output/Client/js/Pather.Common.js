@@ -354,14 +354,28 @@
 	};
 	$Pather_Common_Models_GameSegment_UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message.$ctor = function() {
 		var $this = $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message.$ctor();
-		$this.userId = null;
-		$this.x = 0;
-		$this.y = 0;
-		$this.gatewayId = null;
+		$this.collection = null;
 		$this.type = 'userJoin';
 		return $this;
 	};
 	global.Pather.Common.Models.GameSegment.UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message = $Pather_Common_Models_GameSegment_UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.GameSegment.UserJoinGameUser
+	var $Pather_Common_Models_GameSegment_UserJoinGameUser = function() {
+	};
+	$Pather_Common_Models_GameSegment_UserJoinGameUser.__typeName = 'Pather.Common.Models.GameSegment.UserJoinGameUser';
+	$Pather_Common_Models_GameSegment_UserJoinGameUser.createInstance = function() {
+		return $Pather_Common_Models_GameSegment_UserJoinGameUser.$ctor();
+	};
+	$Pather_Common_Models_GameSegment_UserJoinGameUser.$ctor = function() {
+		var $this = {};
+		$this.userId = null;
+		$this.x = 0;
+		$this.y = 0;
+		$this.gatewayId = null;
+		return $this;
+	};
+	global.Pather.Common.Models.GameSegment.UserJoinGameUser = $Pather_Common_Models_GameSegment_UserJoinGameUser;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.GameSegment.UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message
 	var $Pather_Common_Models_GameSegment_UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message = function() {
@@ -765,7 +779,11 @@
 	};
 	$Pather_Common_Models_Gateway_PubSub_UserMovedCollection_GameSegment_Gateway_PubSub_Message.$ctor = function() {
 		var $this = $Pather_Common_Models_Gateway_PubSub_Base_Gateway_PubSub_Message.$ctor();
-		$this.items = null;
+		$this.x = 0;
+		$this.y = 0;
+		$this.lockstepTick = 0;
+		$this.userThatMovedId = null;
+		$this.users = null;
 		$this.type = 'userMovedCollection';
 		return $this;
 	};
@@ -1501,6 +1519,27 @@
 		}
 		return items2;
 	};
+	$Pather_Common_Utils_EnumerableExtensions.selectMany = function(items, clause) {
+		var items2 = [];
+		for (var $t1 = 0; $t1 < items.length; $t1++) {
+			var item = items[$t1];
+			ss.arrayAddRange(items2, clause(item));
+		}
+		return items2;
+	};
+	$Pather_Common_Utils_EnumerableExtensions.take = function(items, count) {
+		var items2 = [];
+		var c = 0;
+		for (var $t1 = 0; $t1 < items.length; $t1++) {
+			var item = items[$t1];
+			items2.push(item);
+			c++;
+			if (c === count) {
+				return items2;
+			}
+		}
+		return items2;
+	};
 	$Pather_Common_Utils_EnumerableExtensions.where = function(items, clause) {
 		var items2 = [];
 		var $t1 = ss.getEnumerator(items);
@@ -1958,6 +1997,7 @@
 	ss.initClass($Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_AllMessage, $asm, {}, null, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initClass($Pather_Common_Models_GameSegment_TickSync_GameSegment_PubSub_AllMessage, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_AllMessage, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initClass($Pather_Common_Models_GameSegment_UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_Message, $Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
+	ss.initClass($Pather_Common_Models_GameSegment_UserJoinGameUser, $asm, {});
 	ss.initClass($Pather_Common_Models_GameSegment_UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_Message, $Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameSegment_UserMoved_GameSegment_GameSegment_PubSub_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initEnum($Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_AllMessageType, $asm, { tickSync: 'tickSync' }, true);
@@ -2361,7 +2401,7 @@
 		$Pather_Common_Constants.lockstepTicks = ss.Int32.div(1000, $Pather_Common_Constants.lockstepFps);
 		$Pather_Common_Constants.latencyPingInterval = 6000;
 		$Pather_Common_Constants.neighborDistance = 7;
-		$Pather_Common_Constants.usersPerGameSegment = 650;
+		$Pather_Common_Constants.usersPerGameSegment = 200;
 		$Pather_Common_Constants.gameSegmentCreationWait = 60;
 	})();
 	(function() {

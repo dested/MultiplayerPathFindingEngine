@@ -1,3 +1,3 @@
 cd ..
-start node app gameworld
+start c:\PROGRA~1\nodejs\node.exe  app gameworld
 exit

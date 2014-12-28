@@ -15,6 +15,7 @@ figure out action priming (player is halfway between X and Y, deterministically 
 
 todo test if its faster for redis to have one "tick" subscription for all relevent clients or not
 
+remove tuples
 
 figure out what happens when you start the servers in different orders
 

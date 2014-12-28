@@ -20,11 +20,11 @@ namespace Pather.Common
 
             LatencyPingInterval = 6*1000;
             NeighborDistance = 7;
-            UsersPerGameSegment =650;
+            UsersPerGameSegment =200;
             GameSegmentCreationWait = 60;
         }
 
-        public static int AnimationSteps;
+        public static int AnimationSteps; 
         public static int GameFps;
         public static int DrawTicks;
         public static int DrawFps;

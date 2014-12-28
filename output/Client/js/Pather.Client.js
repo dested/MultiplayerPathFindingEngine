@@ -143,7 +143,7 @@
 	$Pather_Client_Tests_LoginE2ETest.$joinUser = function(userToken, onMove) {
 		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_Client_Utils_ClientCommunicator, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
 		var b = Math.random();
-		var port;
+		var port = 1800;
 		if (b <= 0.1) {
 			port = 1800;
 		}
@@ -177,6 +177,30 @@
 		else {
 			port = 1800;
 		}
+		//
+		//            if (b <= .3)
+		//
+		//            {
+		//
+		//            port = 1800;
+		//
+		//            }
+		//
+		//            else if (b <= .6)
+		//
+		//            {
+		//
+		//            port = 1801;
+		//
+		//            }
+		//
+		//            else if (b <= 1)
+		//
+		//            {
+		//
+		//            port = 1802;
+		//
+		//            }
 		var url = 'http://127.0.0.1:' + port;
 		//            Global.Console.Log("Connecting to", url);
 		var clientCommunicator = new $Pather_Client_Utils_ClientCommunicator(url);

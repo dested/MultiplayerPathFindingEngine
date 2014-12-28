@@ -87,7 +87,7 @@ namespace Pather.Servers.Common.PubSub
                 pubClient.Publish(channel.Item1, Json.Stringify(pubSubMessageCollection));
                 count += channel.Item2.Count;
             }
-            if (count > 10)
+            if (count > 70)
             {
                 Global.Console.Log("Flushing", count);
             } 

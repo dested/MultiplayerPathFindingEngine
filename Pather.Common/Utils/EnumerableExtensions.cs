@@ -205,6 +205,34 @@ namespace Pather.Common.Utils
             {
                 items2.Add(clause(item));
             }
+            return items2; 
+        }
+        [IncludeGenericArguments(false)]
+        public static List<T2> SelectMany<T, T2>(this T[] items, Func<T, List<T2>> clause)
+        {
+            var items2 = new List<T2>();
+
+            foreach (var item in items)
+            {
+                items2.AddRange(clause(item));
+            }
+            return items2;
+        }
+        [IncludeGenericArguments(false)]
+        public static List<T> Take<T>(this List<T> items, int count)
+        {
+            var items2 = new List<T>();
+
+            var c = 0;
+            foreach (var item in items)
+            {
+                items2.Add(item);
+                c++;
+                if (c == count)
+                {
+                    return items2;
+                }
+            }
             return items2;
         }
 

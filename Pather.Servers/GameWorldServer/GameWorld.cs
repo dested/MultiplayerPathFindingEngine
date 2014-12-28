@@ -26,7 +26,7 @@ namespace Pather.Servers.GameWorldServer
             GameSegments = new List<GameSegment>();
         }
 
-        public Promise<GameWorldUser, UserJoinError> UserJoined(string gatewayChannel, DBUser dbUser)
+        public Promise<GameWorldUser, UserJoinError> CreateUser(string gatewayChannel, DBUser dbUser)
         {
             var defer = Q.Defer<GameWorldUser, UserJoinError>();
 
@@ -37,30 +37,11 @@ namespace Pather.Servers.GameWorldServer
             gwUser.Neighbors = new List<GameWorldNeighbor>();
             gwUser.GatewayId = gatewayChannel;
             BuildNeighbors(gwUser);
-
-            DetermineGameSegment(gwUser)
-                .Then(gameSegment =>
-                {
-                    gameSegment.AddUserToSegment(gwUser)
-                        .Then(() =>
-                        {
-                            var promises = GameSegments
-                                .Where(seg => seg != gameSegment)
-                                .Select(seg => seg.TellSegmentAboutUser(gwUser));
-
-                            Q.All(promises)
-                                .Then(() =>
-                                {
-                                    Users.Add(gwUser);
-                                    /*Global.Console.Log("",
-                                        "Gameworld added user to game segment", gameSegment.GameSegmentId,
-                                        "Total Players:", Users.Count,
-                                        "Game Segment Players:", gameSegment.Users.Count);*/
-
-                                    defer.Resolve(gwUser);
-                                });
-                        });
-                });
+            determineGameSegment(gwUser).Then(gameSegment =>
+            {
+                gameSegment.PreAddUserToSegment(gwUser);
+                defer.Resolve(gwUser);
+            });
             return defer.Promise;
         }
 
@@ -72,9 +53,26 @@ namespace Pather.Servers.GameWorldServer
 
             if (gwUser == null)
             {
-                Global.Console.Log("IDK WHO THIS USER IS",dbUser);
+                Global.Console.Log("IDK WHO THIS USER IS", dbUser);
                 throw new Exception("IDK WHO THIS USER IS");
             }
+
+
+            foreach (var gameSegmentNeighbor in gwUser.Neighbors)
+            {
+                foreach (var segmentNeighbor in gameSegmentNeighbor.User.Neighbors)
+                {
+                    if (segmentNeighbor.User == gwUser)
+                    {
+                        gameSegmentNeighbor.User.Neighbors.Remove(segmentNeighbor);
+                        break;
+                    }
+                }
+            }
+
+
+
+
 
             var promises = GameSegments
                 .Where(seg => seg != gwUser.GameSegment)
@@ -95,7 +93,7 @@ namespace Pather.Servers.GameWorldServer
         }
 
 
-        private Promise<GameSegment, UndefinedPromiseError> DetermineGameSegment(GameWorldUser gwUser)
+        private Promise<GameSegment, UndefinedPromiseError> determineGameSegment(GameWorldUser gwUser)
         {
             var deferred = Q.Defer<GameSegment, UndefinedPromiseError>();
             var neighbors = buildNeighborCollection(gwUser);
@@ -109,6 +107,7 @@ namespace Pather.Servers.GameWorldServer
                 var neighborGameSegment = neighbor.User.GameSegment;
                 if (neighborGameSegment.CanAcceptNewUsers())
                 {
+
                     deferred.Resolve(neighborGameSegment);
                     noneFound = false;
                     break;
@@ -197,7 +196,7 @@ namespace Pather.Servers.GameWorldServer
                 var distance = PointDistance(pUser, cUser);
                 neighbors.Add(new GameWorldNeighbor(cUser, distance));
             }
-            neighbors.Sort((a, b) => (int) (a.Distance - b.Distance));
+            neighbors.Sort((a, b) => (int)(a.Distance - b.Distance));
             return neighbors;
         }
 
@@ -229,7 +228,7 @@ namespace Pather.Servers.GameWorldServer
             var _x = (cx - mx);
             var _y = (cy - my);
 
-            var dis = Math.Sqrt((_x*_x) + (_y*_y));
+            var dis = Math.Sqrt((_x * _x) + (_y * _y));
             return dis;
         }
 

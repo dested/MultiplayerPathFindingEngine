@@ -1,3 +1,3 @@
 cd ..
-start node app monitor
+start c:\PROGRA~1\nodejs\node.exe app monitor
 exit
