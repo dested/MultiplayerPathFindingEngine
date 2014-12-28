@@ -1,4 +1,4 @@
-namespace Pather.Common
+namespace Pather.Common.old
 {
     public class NoopAction : IAction
     {

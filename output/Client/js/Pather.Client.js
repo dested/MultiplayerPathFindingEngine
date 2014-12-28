@@ -13,7 +13,7 @@
 	};
 	$Pather_Client_$Program.__typeName = 'Pather.Client.$Program';
 	$Pather_Client_$Program.$main = function() {
-		if (window.location.hash === '#test') {
+		if (!!(window.window.RunTests || window.location.hash === '#test')) {
 			Pather.Common.TestFramework.TestFramework.runTests(null);
 			return;
 		}
@@ -24,7 +24,7 @@
 	// Pather.Client.Old.ClientEntity
 	var $Pather_Client_Old_ClientEntity = function(game, playerId) {
 		this.$clientGame = null;
-		Pather.Common.Entity.call(this, game, playerId);
+		Pather.Common.old.Entity.call(this, game, playerId);
 		this.$clientGame = game;
 	};
 	$Pather_Client_Old_ClientEntity.__typeName = 'Pather.Client.Old.ClientEntity';
@@ -40,8 +40,8 @@
 		this.myPlayer = null;
 		this.$sentMovementForThisLockstep = false;
 		this.$hasGrid = false;
-		Pather.Common.Game.call(this);
-		this.myPlayerId = Pather.Common.Utilities.uniqueId();
+		Pather.Common.old.Game.call(this);
+		this.myPlayerId = Pather.Common.Utils.Utilities.uniqueId();
 		this.stepManager = new $Pather_Client_Old_ClientStepManager(this, new $Pather_Client_Old_ClientNetworkManager());
 		this.$randomMoveMeTo();
 		if (!Pather.Common.Constants.get_testServer()) {
@@ -115,7 +115,7 @@
 		this.clientCommunicator.oldListenOnChannel(Pather.Common.Models.Game.Old.SyncLockstepModel).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('syncLockstep'), ss.mkdel(this, function(model3) {
 			this.onSetLockStep(model3);
 		}));
-		this.clientCommunicator.oldListenOnChannel(Pather.Common.SerializableAction).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('postAction'), ss.mkdel(this, function(model4) {
+		this.clientCommunicator.oldListenOnChannel(Pather.Common.old.SerializableAction).call(this.clientCommunicator, Pather.Common.SocketChannels.serverChannel('postAction'), ss.mkdel(this, function(model4) {
 			this.receiveAction(model4);
 		}));
 	};
@@ -125,7 +125,7 @@
 	// Pather.Client.Old.ClientStepManager
 	var $Pather_Client_Old_ClientStepManager = function(game, clientNetworkManager) {
 		this.clientNetworkManager = null;
-		Pather.Common.StepManager.call(this, game);
+		Pather.Common.old.StepManager.call(this, game);
 		this.clientNetworkManager = clientNetworkManager;
 		this.clientNetworkManager.onReceiveAction = ss.mkdel(this, this.receiveAction);
 		this.clientNetworkManager.onConnected = ss.mkdel(this, this.$connected);
@@ -140,18 +140,42 @@
 	var $Pather_Client_Tests_LoginE2ETest = function() {
 	};
 	$Pather_Client_Tests_LoginE2ETest.__typeName = 'Pather.Client.Tests.LoginE2ETest';
-	$Pather_Client_Tests_LoginE2ETest.$joinUser = function(userToken) {
+	$Pather_Client_Tests_LoginE2ETest.$joinUser = function(userToken, onMove) {
 		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_Client_Utils_ClientCommunicator, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
 		var b = Math.random();
 		var port;
-		if (b <= 0.3) {
+		if (b <= 0.1) {
 			port = 1800;
 		}
-		else if (b <= 0.6) {
+		else if (b <= 0.2) {
 			port = 1801;
 		}
-		else {
+		else if (b <= 0.3) {
 			port = 1802;
+		}
+		else if (b <= 0.4) {
+			port = 1803;
+		}
+		else if (b <= 0.5) {
+			port = 1804;
+		}
+		else if (b <= 0.6) {
+			port = 1805;
+		}
+		else if (b <= 0.7) {
+			port = 1806;
+		}
+		else if (b <= 0.8) {
+			port = 1807;
+		}
+		else if (b <= 0.9) {
+			port = 1808;
+		}
+		else if (b <= 1) {
+			port = 1809;
+		}
+		else {
+			port = 1800;
 		}
 		var url = 'http://127.0.0.1:' + port;
 		//            Global.Console.Log("Connecting to", url);
@@ -159,6 +183,7 @@
 		clientCommunicator.listenForGatewayMessage(function(message) {
 			switch (message.gatewayUserMessageType) {
 				case 'move': {
+					onMove(clientCommunicator, message);
 					break;
 				}
 				case 'userJoined': {
@@ -231,7 +256,7 @@
 			context.strokeRect(_x - ss.Int32.div(Pather.Common.Constants.squareSize, 2), _y - ss.Int32.div(Pather.Common.Constants.squareSize, 2), Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
 			context.restore();
 		}
-	}, Pather.Common.Entity);
+	}, Pather.Common.old.Entity);
 	ss.initClass($Pather_Client_Old_ClientGame, $asm, {
 		$randomMoveMeTo: function() {
 			window.setTimeout(ss.mkdel(this, function() {
@@ -258,10 +283,10 @@
 			$t1.x = squareX;
 			$t1.y = squareY;
 			$t1.playerId = this.myPlayer.playerId;
-			$t2.sendActionClient(new Pather.Common.MoveAction($t1, lockstepNumber));
+			$t2.sendActionClient(new Pather.Common.old.MoveAction($t1, lockstepNumber));
 		},
 		init: function() {
-			Pather.Common.Game.prototype.init.call(this);
+			Pather.Common.old.Game.prototype.init.call(this);
 			if (!Pather.Common.Constants.get_testServer()) {
 				window.requestAnimationFrame(ss.mkdel(this, function(a) {
 					this.draw();
@@ -307,7 +332,7 @@
 			}
 		},
 		tick: function() {
-			var tickResult = Pather.Common.Game.prototype.tick.call(this);
+			var tickResult = Pather.Common.old.Game.prototype.tick.call(this);
 			if (tickResult === 2 || tickResult === 3) {
 				this.$sentMovementForThisLockstep = false;
 			}
@@ -316,7 +341,7 @@
 		localPlayerJoined: function(player) {
 			this.myPlayer = player;
 		}
-	}, Pather.Common.Game);
+	}, Pather.Common.old.Game);
 	ss.initClass($Pather_Client_Old_ClientNetworkManager, $asm, {
 		$triggerPingTest: function() {
 			this.$pingSent = [];
@@ -400,98 +425,80 @@
 			}
 		},
 		sendActionClient: function(action) {
-			var $t1 = Pather.Common.SerializableAction.$ctor();
+			var $t1 = Pather.Common.old.SerializableAction.$ctor();
 			$t1.data = action.get_data();
 			$t1.lockstepTickNumber = action.get_lockstepTickNumber();
 			$t1.type = action.get_type();
 			var serAction = $t1;
 			this.clientNetworkManager.sendAction(serAction);
 		}
-	}, Pather.Common.StepManager);
+	}, Pather.Common.old.StepManager);
 	ss.initClass($Pather_Client_Tests_LoginE2ETest, $asm, {
 		slamWWithUsers: function(deferred) {
 			var users = [];
 			var averageTimes = [];
-			var id = Pather.Common.Utilities.uniqueId();
+			var id = Pather.Common.Utils.Utilities.uniqueId();
 			var done = 0;
-			var totalHits = 10;
-			var receivedCount = 0;
-			var communicators = [];
+			var totalHits = 300;
 			for (var i = 0; i < totalHits; i++) {
 				var i1 = { $: i };
 				setTimeout(ss.mkdel({ i1: i1 }, function() {
 					var startTime = (new Date()).getTime();
+					var $t1 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
+					$t1.x = ss.Int32.trunc(Math.random() * 50);
+					$t1.y = ss.Int32.trunc(Math.random() * 50);
+					var moveToLocation = $t1;
+					var receivedCount = 0;
 					var userToken = id + '-' + this.i1.$;
-					$Pather_Client_Tests_LoginE2ETest.$joinUser(userToken).then(function(communicator) {
-						communicators.push(communicator);
+					$Pather_Client_Tests_LoginE2ETest.$joinUser(userToken, function(communicator, message) {
+						if (ss.referenceEquals(message.userId, userToken) && message.x === moveToLocation.x && message.y === moveToLocation.y) {
+							window.setTimeout(function() {
+								if (++receivedCount === 200) {
+									setTimeout(function() {
+										communicator.disconnect();
+										done++;
+										if (done === totalHits) {
+											var average = Pather.Common.Utils.EnumerableExtensions.average(averageTimes, function(a) {
+												return a;
+											});
+											console.log('Average join time:', average, 'ms');
+											deferred.resolve();
+										}
+									}, ss.Int32.trunc(Math.random() * 4000));
+								}
+								else {
+									moveToLocation.x = (moveToLocation.x + ss.Int32.trunc(Math.random() * 4) - 2 + 50) % 50;
+									moveToLocation.y = (moveToLocation.y + ss.Int32.trunc(Math.random() * 4) - 2 + 50) % 50;
+									communicator.sendMessage(moveToLocation);
+									console.log('Moving User again ' + receivedCount, moveToLocation);
+								}
+							}, ss.Int32.trunc(Math.random() * 1000));
+						}
+					}).then(function(communicator1) {
 						var joinTime = (new Date()).getTime() - startTime;
 						console.log('Join Time', joinTime);
 						averageTimes.push(joinTime);
-						var $t1 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
-						$t1.x = ss.Int32.trunc(Math.random() * 50);
-						$t1.y = ss.Int32.trunc(Math.random() * 50);
-						var moveToLocation = $t1;
-						communicator.listenForGatewayMessage(function(message) {
-							switch (message.gatewayUserMessageType) {
-								case 'move': {
-									var moveToMessage = message;
-									if (ss.referenceEquals(moveToMessage.userId, userToken) && moveToMessage.x === moveToLocation.x && moveToMessage.y === moveToLocation.y) {
-										window.setTimeout(function() {
-											moveToLocation.x = ss.Int32.trunc(Math.random() * 50);
-											moveToLocation.y = ss.Int32.trunc(Math.random() * 50);
-											communicator.sendMessage(moveToLocation);
-										}, ss.Int32.trunc(Math.random() * 1000));
-										console.log('Moving User again', moveToLocation);
-										if (++receivedCount === totalHits * 60) {
-											for (var $t2 = 0; $t2 < communicators.length; $t2++) {
-												var clientCommunicator = communicators[$t2];
-												var communicator1 = { $: clientCommunicator };
-												setTimeout(ss.mkdel({ communicator1: communicator1 }, function() {
-													this.communicator1.$.disconnect();
-													done++;
-													if (done === totalHits) {
-														var average = Pather.Common.Utils.EnumerableExtensions.average(averageTimes, function(a) {
-															return a;
-														});
-														console.log('Average join time:', average, 'ms');
-														deferred.resolve();
-													}
-												}), ss.Int32.trunc(Math.random() * 2000));
-											}
-										}
-									}
-									break;
-								}
-							}
-						});
-						communicator.sendMessage(moveToLocation);
+						communicator1.sendMessage(moveToLocation);
 					});
 				}), ss.Int32.trunc(Math.random() * 15000));
 			}
 		},
 		loginAndMove: function(defer) {
-			var id = Pather.Common.Utilities.uniqueId();
+			var id = Pather.Common.Utils.Utilities.uniqueId();
 			var proposedX = 12;
 			var proposedY = 25;
-			$Pather_Client_Tests_LoginE2ETest.$joinUser(id).then(function(communicator) {
-				communicator.listenForGatewayMessage(function(message) {
-					switch (message.gatewayUserMessageType) {
-						case 'move': {
-							var moveToMessage = message;
-							if (moveToMessage.x === proposedX && moveToMessage.y === proposedY) {
-								defer.resolve();
-							}
-							else {
-								defer.reject();
-							}
-							break;
-						}
-					}
-				});
+			$Pather_Client_Tests_LoginE2ETest.$joinUser(id, function(communicator, message) {
+				if (message.x === proposedX && message.y === proposedY) {
+					defer.resolve();
+				}
+				else {
+					defer.reject();
+				}
+			}).then(function(communicator1) {
 				var $t1 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
 				$t1.x = proposedX;
 				$t1.y = proposedY;
-				communicator.sendMessage($t1);
+				communicator1.sendMessage($t1);
 			});
 		}
 	});

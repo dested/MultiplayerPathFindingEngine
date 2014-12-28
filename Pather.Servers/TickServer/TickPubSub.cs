@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Serialization;
+using Pather.Common.Models.Common;
 using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.GameWorld.Base;
 using Pather.Common.Models.Gateway.PubSub.Base;
@@ -26,8 +27,8 @@ namespace Pather.Servers.TickServer
 
             PubSub.Subscribe(PubSubChannels.Tick(), (message) =>
             {
-                var tickPubSubMessage = Json.Parse<Tick_PubSub_Message>(message);
-                OnMessage(tickPubSubMessage);
+                
+                OnMessage((Tick_PubSub_Message)message);
             });
 
             deferred.Resolve();
@@ -53,7 +54,7 @@ namespace Pather.Servers.TickServer
             PubSub.Publish(PubSubChannels.GameWorld(), message);
         }
 
-        public void PublishToOrigin(string origin, object message)
+        public void PublishToOrigin(string origin, IPubSub_Message message)
         {
             PubSub.Publish(origin, message);
         }

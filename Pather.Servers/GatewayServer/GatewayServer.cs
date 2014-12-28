@@ -19,7 +19,9 @@ namespace Pather.Servers.GatewayServer
 {
     public class GatewayServer
     {
+        private readonly ISocketManager socketManager;
         public string GatewayId;
+        private readonly int port;
         public ServerCommunicator ServerCommunicator;
         public GatewayPubSub GatewayPubSub;
         public ClientTickManager ClientTickManager;
@@ -27,13 +29,14 @@ namespace Pather.Servers.GatewayServer
 
         public GatewayServer(IPubSub pubsub, ISocketManager socketManager, string gatewayId, int port)
         {
+            this.socketManager = socketManager;
             GatewayId = gatewayId;
+            this.port = port;
             ServerLogger.InitLogger("Gateway", GatewayId);
 
             Global.Console.Log(GatewayId);
 
 
-            ServerCommunicator = new ServerCommunicator(socketManager, port);
 
             pubsub.Init().Then(() =>
             {
@@ -47,11 +50,10 @@ namespace Pather.Servers.GatewayServer
                 ClientTickManager.Init(SendPing, () =>
                 {
                     Global.Console.Log("Connected To Tick Server");
+                    pubsubReady();
+
                 });
                 ClientTickManager.StartPing();
-
-
-                pubsubReady();
             });
         }
 
@@ -88,8 +90,19 @@ namespace Pather.Servers.GatewayServer
                 case Gateway_PubSub_MessageType.UserJoined:
                     var userJoinedMessage = (UserJoined_GameWorld_Gateway_PubSub_Message) message;
                     gatewayUser = Users.First(user => user.UserId == userJoinedMessage.UserId);
+
+                    if (gatewayUser == null)
+                    {
+                        Global.Console.Log("User succsfully joined, but doesnt exist anymore", userJoinedMessage);
+                        GatewayPubSub.PublishToGameWorld(new UserLeft_Gateway_GameWorld_PubSub_Message()
+                        {
+                            UserId = userJoinedMessage.UserId
+                        });
+
+                        return;
+                    }
                     gatewayUser.GameSegmentId = userJoinedMessage.GameSegmentId;
-                    Global.Console.Log(GatewayId, "Joined", gatewayUser.GameSegmentId, gatewayUser.UserId);
+//                    Global.Console.Log(GatewayId, "Joined", gatewayUser.GameSegmentId, gatewayUser.UserId);
                     ServerCommunicator.SendMessage(gatewayUser.Socket, new UserJoined_Gateway_User_Socket_Message()
                     {
                         GameSegmentId = userJoinedMessage.GameSegmentId,
@@ -158,21 +171,25 @@ namespace Pather.Servers.GatewayServer
 
         private void pubsubReady()
         {
-            Global.Console.Log("pubsub ready");
+            Global.Console.Log("start socket server");
+            ServerCommunicator = new ServerCommunicator(socketManager, port);
 
             ServerCommunicator.OnDisconnectConnection += (socket) =>
             {
                 var gatewayUser = Users.First(a => a.Socket == socket);
 
-                if (gatewayUser != null)
+                if (gatewayUser != null )
                 {
-                    GatewayPubSub.PublishToGameWorld(new UserLeft_Gateway_GameWorld_PubSub_Message()
+                    if (gatewayUser.GameSegmentId != null)
                     {
-                        UserId = gatewayUser.UserId
-                    });
+                        GatewayPubSub.PublishToGameWorld(new UserLeft_Gateway_GameWorld_PubSub_Message()
+                        {
+                            UserId = gatewayUser.UserId
+                        });
+                    }
                     Users.Remove(gatewayUser);
-                    Global.Console.Log("Left", Users.Count);
                 }
+                    Global.Console.Log("Left", Users.Count);
             };
 
             ServerCommunicator.OnNewConnection += (socket) =>
@@ -182,7 +199,7 @@ namespace Pather.Servers.GatewayServer
                     Socket = socket
                 };
                 Users.Add(user);
-                Global.Console.Log("Joined", Users.Count);
+//                Global.Console.Log("Joined", Users.Count);
                 ServerCommunicator.ListenOnChannel(socket, "Gateway.Message",
                     (ISocket cSocket, Gateway_Socket_Message message) =>
                     {

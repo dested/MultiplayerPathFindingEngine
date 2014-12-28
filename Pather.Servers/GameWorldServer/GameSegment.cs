@@ -41,7 +41,7 @@ namespace Pather.Servers.GameWorldServer
             };
             GameWorld.GameWorldPubSub.PublishToGameSegmentWithCallback<UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message>(GameSegmentId, userJoinGameWorldGameSegmentPubSubReqResMessage).Then((userJoinResponse) =>
             {
-                Global.Console.Log("User joined!");
+//                Global.Console.Log("User joined!");
                 Users.Add(gwUser);
                 gwUser.GameSegment = this;
                 deferred.Resolve();
@@ -97,14 +97,11 @@ namespace Pather.Servers.GameWorldServer
         {
             var deferred = Q.Defer();
 
-            var userJoinGameWorldGameSegmentPubSubReqResMessage = new TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message()
+            var userLeftGameWorldGameSegmentPubSubReqResMessage = new TellUserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message()
             {
-                X = gwUser.X,
-                Y = gwUser.Y,
-                GatewayId = gwUser.GatewayId,
                 UserId = gwUser.UserId
             };
-            GameWorld.GameWorldPubSub.PublishToGameSegmentWithCallback<TellUserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message>(GameSegmentId, userJoinGameWorldGameSegmentPubSubReqResMessage).Then((userJoinResponse) =>
+            GameWorld.GameWorldPubSub.PublishToGameSegmentWithCallback<TellUserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message>(GameSegmentId, userLeftGameWorldGameSegmentPubSubReqResMessage).Then((userJoinResponse) =>
             {
                 //todo IDK
                 deferred.Resolve();

@@ -77,6 +77,7 @@
     <Compile Include="GameWorldServer\Models\GameWorldNeighbor.cs" />
     <Compile Include="GameWorldServer\Models\GameWorldUser.cs" />
     <Compile Include="GameWorldServer\Models\UserJoinError.cs" />
+    <Compile Include="Common\TickWatcher.cs" />
     <Compile Include="GatewayServer\GatewayPubSub.cs" />
     <Compile Include="GatewayServer\GatewayUser.cs" />
     <Compile Include="GatewayServer\Tests\GatewayServerTests.cs" />

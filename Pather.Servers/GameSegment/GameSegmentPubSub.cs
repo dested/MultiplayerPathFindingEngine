@@ -7,6 +7,7 @@ using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.GameWorld.Base;
 using Pather.Common.Models.Gateway.PubSub.Base;
 using Pather.Common.Models.Tick.Base;
+using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common.PubSub;
 
@@ -33,13 +34,13 @@ namespace Pather.Servers.GameSegment
 
             PubSub.Subscribe(PubSubChannels.GameSegment(), (message) =>
             {
-                var gameSegmentPubSubMessage = Json.Parse<GameSegment_PubSub_AllMessage>(message);
+                var gameSegmentPubSubMessage = (GameSegment_PubSub_AllMessage)(message);
                 OnAllMessage(gameSegmentPubSubMessage);
             });
 
             PubSub.Subscribe(PubSubChannels.GameSegment(GameSegmentId), (message) =>
             {
-                var gameSegmentPubSubMessage = Json.Parse<GameSegment_PubSub_Message>(message);
+                var gameSegmentPubSubMessage = (GameSegment_PubSub_Message)(message);
                 if (Utilities.HasField<GameSegment_PubSub_ReqRes_Message>(gameSegmentPubSubMessage, m => m.MessageId) && ((GameSegment_PubSub_ReqRes_Message) gameSegmentPubSubMessage).Response)
                 {
                     var possibleMessageReqRes = (GameSegment_PubSub_ReqRes_Message) gameSegmentPubSubMessage;
@@ -75,6 +76,10 @@ namespace Pather.Servers.GameSegment
         public void PublishToGameWorld(GameWorld_PubSub_Message message)
         {
             PubSub.Publish(PubSubChannels.GameWorld(), message);
+        }
+        public void PublishToGameWorld_Force(GameWorld_PubSub_Message message)
+        {
+            PubSub.PublishForce(PubSubChannels.GameWorld(), message);
         }
 
         public Promise<T, UndefinedPromiseError> PublishToGameWorldWithCallback<T>(GameWorld_PubSub_ReqRes_Message message)

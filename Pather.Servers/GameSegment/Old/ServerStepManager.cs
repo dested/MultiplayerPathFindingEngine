@@ -1,4 +1,5 @@
 using Pather.Common;
+using Pather.Common.old;
 
 namespace Pather.Servers.GameSegment.Old
 {

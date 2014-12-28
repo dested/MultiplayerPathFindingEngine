@@ -1,6 +1,6 @@
 using Pather.Common.Models.Game.Old;
 
-namespace Pather.Common
+namespace Pather.Common.old
 {
     public class MoveAction : IAction
     {

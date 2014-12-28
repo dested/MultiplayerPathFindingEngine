@@ -1,9 +1,11 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Serialization;
 using Pather.Common;
 using Pather.Common.Models.GameSegmentCluster;
 using Pather.Common.Models.GameSegmentCluster.Base;
 using Pather.Common.TestFramework;
+using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common.PubSub;
 using Pather.Servers.Common.PushPop;
@@ -25,7 +27,7 @@ namespace Pather.Servers.GameSegmentCluster.Tests
             var pubSub = new StubPubSub();
             var pushPop = new PushPop();
 
-            Mocker.StubMethodCall(pubSub.Init, (() => Q.ResolvedPromise()));
+            Mocker.StubMethodCall<int,Promise>(pubSub.Init,(port => Q.ResolvedPromise()));
 
 
             Mocker.StubMethodCall<string, GameSegmentCluster_PubSub_Message>(pubSub.Publish, (channel, data) =>
@@ -34,7 +36,7 @@ namespace Pather.Servers.GameSegmentCluster.Tests
 
             var gts = new GameSegmentCluster(pubSub, pushPop, gameSegmentClusterId);
 
-            pubSub.ReceivedMessage(PubSubChannels.GameSegmentCluster(gameSegmentClusterId), Json.Stringify(new CreateGameSegment_GameWorld_GameSegmentCluster_PubSub_ReqRes_Message()));
+            pubSub.ReceivedMessage(PubSubChannels.GameSegmentCluster(gameSegmentClusterId), new CreateGameSegment_GameWorld_GameSegmentCluster_PubSub_ReqRes_Message());
 
             Debugger.Break();
             testDeferred.Resolve();

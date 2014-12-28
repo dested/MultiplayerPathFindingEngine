@@ -34,11 +34,18 @@ namespace Pather.Servers.Common
 
         public void OnPongReceived()
         {
+
+            if (pingSent == null)
+            {
+                Global.Console.Log("Mis pong");
+                return;
+            }
+
             var cur = new DateTime().GetTime();
             pingSent.Add(cur - lastPing);
             lastPing = cur;
 
-            if (pingSent.Count < 6)
+            if (pingSent.Count < 3)
             {
                 sendPing();
             }

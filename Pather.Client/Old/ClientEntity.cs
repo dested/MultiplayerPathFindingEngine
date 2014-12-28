@@ -1,5 +1,6 @@
 using System.Html.Media.Graphics;
 using Pather.Common;
+using Pather.Common.old;
 
 namespace Pather.Client.Old
 {

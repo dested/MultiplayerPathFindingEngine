@@ -4,6 +4,7 @@ using System.Html;
 using Pather.Client.Utils;
 using Pather.Common;
 using Pather.Common.Models.Game.Old;
+using Pather.Common.old;
 
 namespace Pather.Client.Old
 {

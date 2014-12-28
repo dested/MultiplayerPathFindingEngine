@@ -22,10 +22,7 @@
         <tabset>
             <tab ng-repeat="(gameSegmentId,gameSegment) in model.gameSegments" heading="{{gameSegmentId}}" >
                 <tabset  >
-                   
-                    <div ng-repeat="user in gameSegment.users">
-                        {{user.userId}} - {{user.x}},{{user.y}} <span ng-show="!user.isMine">Not Mine</span>
-                    </div>
+                    <canvas id="{{gameSegmentId}}"></canvas>
                 </tabset>
             </tab>
         </tabset>

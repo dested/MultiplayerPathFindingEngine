@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Pather.Common.Definitions.AStar;
 using Pather.Common.Libraries.NodeJS;
 
-namespace Pather.Common
+namespace Pather.Common.old
 {
     public class Game
     {

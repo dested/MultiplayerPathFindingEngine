@@ -1,6 +1,6 @@
 using System;
 
-namespace Pather.Common
+namespace Pather.Common.old
 {
     [Serializable]
     public class SerializableAction

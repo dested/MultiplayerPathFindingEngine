@@ -8,6 +8,7 @@ using Pather.Common.Models.GameSegmentCluster.Base;
 using Pather.Common.Models.GameWorld.Base;
 using Pather.Common.Models.Gateway.PubSub.Base;
 using Pather.Common.Models.Tick.Base;
+using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common.PubSub;
 
@@ -29,11 +30,11 @@ namespace Pather.Servers.GameWorldServer
         {
             PubSub.Subscribe(PubSubChannels.GameWorld(), (message) =>
             {
-                var gameWorldPubSubMessage = Json.Parse<GameWorld_PubSub_Message>(message);
+                var gameWorldPubSubMessage = (GameWorld_PubSub_Message)(message);
 
                 if (Utilities.HasField<GameWorld_PubSub_ReqRes_Message>(gameWorldPubSubMessage, m => m.MessageId) && ((GameWorld_PubSub_ReqRes_Message) gameWorldPubSubMessage).Response)
                 {
-                    Global.Console.Log("message", message);
+//                    Global.Console.Log("message", message);
                     var possibleMessageReqRes = (GameWorld_PubSub_ReqRes_Message) gameWorldPubSubMessage;
                     if (!deferredMessages.ContainsKey(possibleMessageReqRes.MessageId))
                     {

@@ -23,7 +23,7 @@ namespace Pather.Servers.GameSegmentCluster
         {
             PubSub.Subscribe(PubSubChannels.GameSegmentCluster(GameSegmentClusterId), (message) =>
             {
-                var gameWorldPubSubMessage = Json.Parse<GameSegmentCluster_PubSub_Message>(message);
+                var gameWorldPubSubMessage = (GameSegmentCluster_PubSub_Message)(message);
 
 
                 OnMessage(gameWorldPubSubMessage);

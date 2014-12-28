@@ -1,5 +1,6 @@
 using System;
 using Pather.Common.Models.Common;
+using Pather.Common.Utils;
 
 namespace Pather.Common.Models.GameSegmentCluster.Base
 {

@@ -2,7 +2,7 @@
 using Pather.Common.Definitions.AStar;
 using Pather.Common.Utils;
 
-namespace Pather.Common
+namespace Pather.Common.old
 {
     public class Entity
     {

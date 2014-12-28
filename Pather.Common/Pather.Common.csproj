@@ -36,7 +36,7 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ActionType.cs" />
+    <Compile Include="old\ActionType.cs" />
     <Compile Include="Models\Common\UserMovedMessage.cs" />
     <Compile Include="Models\GameSegment\Base\UserMoved_Gateway_GameSegment_PubSub_Message.cs" />
     <Compile Include="Models\GameSegment\InitialGameUser.cs" />
@@ -57,15 +57,15 @@
     <Compile Include="Models\Gateway\Socket\Base\UserJoined_User_Gateway_Socket_Message.cs" />
     <Compile Include="Models\Gateway\Socket\Base\User_Gateway_Socket_MessageType.cs" />
     <Compile Include="Models\Gateway\Socket\Base\User_Socket_Message.cs" />
-    <Compile Include="Utilities.cs" />
+    <Compile Include="Utils\Utilities.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Definitions\AStar\AStar.cs" />
     <Compile Include="Definitions\AStar\AStarGraph.cs" />
     <Compile Include="Definitions\AStar\AStarGridPoint.cs" />
     <Compile Include="Definitions\AStar\AStarPath.cs" />
-    <Compile Include="Game.cs" />
-    <Compile Include="IAction.cs" />
-    <Compile Include="Lerper.cs" />
+    <Compile Include="old\Game.cs" />
+    <Compile Include="old\IAction.cs" />
+    <Compile Include="Utils\Lerper.cs" />
     <Compile Include="Libraries\NodeJS\Agent.cs" />
     <Compile Include="Libraries\NodeJS\Buffer.cs" />
     <Compile Include="Libraries\NodeJS\ChildProcess.cs" />
@@ -96,8 +96,8 @@
     <Compile Include="Libraries\NodeJS\STDOut.cs" />
     <Compile Include="Libraries\NodeJS\Util.cs" />
     <Compile Include="Libraries\NodeJS\WritableStream.cs" />
-    <Compile Include="Logger.cs" />
-    <Compile Include="LogLevel.cs" />
+    <Compile Include="Utils\Logger.cs" />
+    <Compile Include="Utils\LogLevel.cs" />
     <Compile Include="Models\GameSegmentCluster\CreateGameSegment_GameWorld_GameSegmentCluster_PubSub_ReqRes_Message.cs" />
     <Compile Include="Models\GameSegment\Base\GameSegment_PubSub_AllMessageType.cs" />
     <Compile Include="Models\GameSegment\Base\GameSegment_PubSub_MessageType.cs" />
@@ -140,19 +140,19 @@
     <Compile Include="Models\Game\Old\SyncLockstepModel.cs" />
     <Compile Include="Models\Gateway\Socket\GatewayJoinModel.cs" />
     <Compile Include="Models\Game\Old\MoveModel.cs" />
-    <Compile Include="Entity.cs" />
+    <Compile Include="old\Entity.cs" />
     <Compile Include="Models\Gateway\PubSub\Base\Gateway_PubSub_MessageType.cs" />
     <Compile Include="Models\Gateway\PubSub\Base\Gateway_PubSub_Message.cs" />
     <Compile Include="Models\Gateway\Socket\Base\User_Gateway_Socket_Message.cs" />
     <Compile Include="Models\Gateway\PubSub\UserJoined_GameWorld_Gateway_PubSub_Message.cs" />
     <Compile Include="Models\Tick\Ping_Tick_PubSub_Message.cs" />
     <Compile Include="Models\Tick\Base\Tick_PubSub_MessageType.cs" />
-    <Compile Include="MoveAction.cs" />
-    <Compile Include="NoopAction.cs" />
+    <Compile Include="old\MoveAction.cs" />
+    <Compile Include="old\NoopAction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SerializableAction.cs" />
+    <Compile Include="old\SerializableAction.cs" />
     <Compile Include="SocketChannels.cs" />
-    <Compile Include="StepManager.cs" />
+    <Compile Include="old\StepManager.cs" />
     <Compile Include="TestFramework\Assert.cs" />
     <Compile Include="TestFramework\AssertException.cs" />
     <Compile Include="TestFramework\DeferredAssert.cs" />
@@ -163,7 +163,7 @@
     <Compile Include="TestFramework\TestConstructorAttribute.cs" />
     <Compile Include="TestFramework\TestFramework.cs" />
     <Compile Include="TestFramework\ThatObject.cs" />
-    <Compile Include="TickResult.cs" />
+    <Compile Include="old\TickResult.cs" />
     <Compile Include="Utils\AnimationPoint.cs" />
     <Compile Include="Utils\DataObject.cs" />
     <Compile Include="Utils\EnumerableExtensions.cs" />

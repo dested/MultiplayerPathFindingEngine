@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
 
-namespace Pather.Common
+namespace Pather.Common.Utils
 {
     [NamedValues]
     public enum LogLevel

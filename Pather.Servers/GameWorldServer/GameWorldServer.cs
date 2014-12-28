@@ -32,6 +32,8 @@ namespace Pather.Servers.GameWorldServer
             this.pubSub = pubSub;
             DatabaseQueries = dbQueries;
             pubSub.Init().Then(pubsubReady);
+//            new TickWatcher();
+
         }
 
 
@@ -84,6 +86,14 @@ namespace Pather.Servers.GameWorldServer
                     });
                     break;
                 case GameWorld_PubSub_MessageType.UserLeft:
+                    foreach (var tuple in usersWaitingToJoin)
+                    {
+                        if (tuple.Item1.UserToken == ((UserLeft_Gateway_GameWorld_PubSub_Message) message).UserId)
+                        {
+                            usersWaitingToJoin.Remove(tuple);
+                            break;
+                        }
+                    }
                     UserLeft((UserLeft_Gateway_GameWorld_PubSub_Message) message).Then(() =>
                     {
                         //todo idk
@@ -118,7 +128,7 @@ namespace Pather.Servers.GameWorldServer
                             GameSegmentIds = GameWorld.GameSegments.Select(a => a.GameSegmentId),
                             AllUsers = GameWorld.Users.Select(user =>
                             {
-                                Global.Console.Log("Sending out initial to", getAllGameSegments.OriginGameSegment, user.UserId, user.GatewayId);
+//                                Global.Console.Log("Sending out initial to", getAllGameSegments.OriginGameSegment, user.UserId, user.GatewayId);
 
 
                                 return new InitialGameUser()
@@ -150,7 +160,7 @@ namespace Pather.Servers.GameWorldServer
             {
                 currentlyJoiningUser = true;
 
-                Global.Console.Log("User Joined Game World", message.UserToken, message.GatewayId);
+//                Global.Console.Log("User Joined Game World", message.UserToken, message.GatewayId);
                 DatabaseQueries.GetUserByToken(message.UserToken)
                     .Then(dbUser =>
                     {
@@ -160,7 +170,7 @@ namespace Pather.Servers.GameWorldServer
             }
             else
             {
-                Global.Console.Log("Adding user to pending");
+//                Global.Console.Log("Adding user to pending");
                 usersWaitingToJoin.Add(waitingToJoinMessage);
             }
 
@@ -172,10 +182,13 @@ namespace Pather.Servers.GameWorldServer
             currentlyJoiningUser = false;
             if (usersWaitingToJoin.Count > 0)
             {
-                var nextUserWaitingToJoin = usersWaitingToJoin[0];
-                usersWaitingToJoin.Remove(nextUserWaitingToJoin);
-                Global.Console.Log("Joining next user", usersWaitingToJoin.Count, "still waiting");
-                UserJoined(nextUserWaitingToJoin.Item1).PassThrough(nextUserWaitingToJoin.Item2);
+                Global.SetTimeout(() =>
+                {
+                    var nextUserWaitingToJoin = usersWaitingToJoin[0];
+                    usersWaitingToJoin.Remove(nextUserWaitingToJoin);
+                    Global.Console.Log("Joining next user", usersWaitingToJoin.Count, "still waiting");
+                    UserJoined(nextUserWaitingToJoin.Item1).PassThrough(nextUserWaitingToJoin.Item2);
+                }, 1);
             }
         }
 

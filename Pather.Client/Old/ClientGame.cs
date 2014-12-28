@@ -3,6 +3,8 @@ using System.Html;
 using System.Html.Media.Graphics;
 using Pather.Common;
 using Pather.Common.Models.Game.Old;
+using Pather.Common.old;
+using Pather.Common.Utils;
 
 namespace Pather.Client.Old
 {

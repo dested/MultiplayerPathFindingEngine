@@ -8,7 +8,7 @@ namespace Pather.Client
     {
         private static void Main()
         {
-            if (Window.Location.Hash == "#test")
+            if (((dynamic)Window.Instance).RunTests || Window.Location.Hash == "#test")
             {
                 TestFramework.RunTests((string) null);
                 return;

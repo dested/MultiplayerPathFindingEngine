@@ -71,7 +71,9 @@ namespace Pather.Servers.GameSegmentCluster
             });
 
 
-            var child = spawn("node", new[]
+            string str = @"C:\Users\deste_000\AppData\Roaming\npm\node-debug.cmd";
+            str = "node";
+            var child = spawn(str, new[]
             {
                 "app.js", "gs", createGameSegment.GameSegmentId
             }, new

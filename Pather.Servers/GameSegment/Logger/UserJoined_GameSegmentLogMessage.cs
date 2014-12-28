@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace Pather.Servers.GameSegment.Logger
 {
@@ -14,5 +15,6 @@ namespace Pather.Servers.GameSegment.Logger
         public int X;
         public int Y;
         public bool IsMine;
+        public List<string> Neighbors { get; set; }
     }
 }

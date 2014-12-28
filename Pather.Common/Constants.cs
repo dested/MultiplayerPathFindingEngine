@@ -19,8 +19,8 @@ namespace Pather.Common
             LockstepTicks = 1000/LockstepFps;
 
             LatencyPingInterval = 6*1000;
-            NeighborDistance = 10;
-            UsersPerGameSegment = 5;
+            NeighborDistance = 7;
+            UsersPerGameSegment =650;
             GameSegmentCreationWait = 60;
         }
 
@@ -41,7 +41,7 @@ namespace Pather.Common
 
         public static bool TestServer
         {
-            get { return ((dynamic) Window.Instance).TestServer; }
-        }
+            get { return ((dynamic)Window.Instance).TestServer; }
+        } 
     }
 }

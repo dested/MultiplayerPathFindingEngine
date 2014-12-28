@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Pather.Common.Models.Common;
 using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameWorld.Tick;
 using Pather.Common.Models.Gateway.PubSub;
@@ -52,7 +53,7 @@ namespace Pather.Servers.TickServer
                         TickManager.ForceOnNextTick();
                         recievedOriginHash[pingMessage.Origin] = true;
                     }
-                    object returnMessage;
+                    IPubSub_Message returnMessage;
 
                     switch (pingMessage.OriginType)
                     {

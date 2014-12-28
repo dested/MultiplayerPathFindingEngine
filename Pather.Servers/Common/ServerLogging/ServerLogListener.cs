@@ -12,19 +12,19 @@ namespace Pather.Servers.Common.ServerLogging
         {
             pubsub = new PubSub.PubSub();
             pubsub.DontLog();
-            pubsub.Init()
+            pubsub.Init(6380)
                 .Then(() =>
                 {
                     foreach (var serverType in serverTypes)
                     {
-                        pubsub.Subscribe(PubSubChannels.ServerLogger(serverType), (content) => callback(Json.Parse<ServerLogMessage>(content)));
+                        pubsub.Subscribe(PubSubChannels.ServerLogger(serverType), (content) => callback((ServerLogMessage)(content)));
                     }
                 });
         }
 
         public void Subscribe(string channel, Action<ServerLogMessage> callback)
         {
-            pubsub.Subscribe(PubSubChannels.ServerLogger(channel), (content) => callback(Json.Parse<ServerLogMessage>(content)));
+            pubsub.Subscribe(PubSubChannels.ServerLogger(channel), (content) => callback((ServerLogMessage)(content)));
         }
     }
 }

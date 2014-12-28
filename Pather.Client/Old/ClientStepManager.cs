@@ -4,6 +4,7 @@ using Pather.Common;
 using Pather.Common.Definitions.AStar;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Game.Old;
+using Pather.Common.old;
 
 namespace Pather.Client.Old
 {

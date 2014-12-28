@@ -52,10 +52,10 @@ namespace Pather.Servers.GameWorldServer
                                 .Then(() =>
                                 {
                                     Users.Add(gwUser);
-                                    Global.Console.Log("",
+                                    /*Global.Console.Log("",
                                         "Gameworld added user to game segment", gameSegment.GameSegmentId,
                                         "Total Players:", Users.Count,
-                                        "Game Segment Players:", gameSegment.Users.Count);
+                                        "Game Segment Players:", gameSegment.Users.Count);*/
 
                                     defer.Resolve(gwUser);
                                 });
@@ -72,6 +72,7 @@ namespace Pather.Servers.GameWorldServer
 
             if (gwUser == null)
             {
+                Global.Console.Log("IDK WHO THIS USER IS",dbUser);
                 throw new Exception("IDK WHO THIS USER IS");
             }
 

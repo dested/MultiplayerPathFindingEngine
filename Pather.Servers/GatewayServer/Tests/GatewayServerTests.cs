@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Serialization;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.Common;
 using Pather.Common.Models.GameWorld.Gateway;
 using Pather.Common.Models.Gateway.PubSub;
 using Pather.Common.Models.Gateway.PubSub.Base;
@@ -61,12 +62,12 @@ namespace Pather.Servers.GatewayServer.Tests
 
             var pubSub = Mocker.InstantiateInterface<IPubSub>();
 
-            Mocker.StubMethodCall(pubSub.Init, (() => Q.ResolvedPromise()));
-            Mocker.StubMethodCall<string, Action<string>>(pubSub.Subscribe, (channel, callback) =>
+            Mocker.StubMethodCall<int, Promise>(pubSub.Init, ((port) => Q.ResolvedPromise()));
+            Mocker.StubMethodCall<string, Action<IPubSub_Message>>(pubSub.Subscribe, (channel, callback) =>
             {
                 publishData += (pchannel, pmessage) =>
                 {
-                    pubSub.ReceivedMessage(channel, Json.Stringify(pmessage));
+                    pubSub.ReceivedMessage(channel, pmessage);
                 };
             });
 
@@ -81,11 +82,11 @@ namespace Pather.Servers.GatewayServer.Tests
 
 
             string gatewayName = null;
-            Mocker.StubMethodCall<string, string>(pubSub.ReceivedMessage, (channel, message) =>
+            Mocker.StubMethodCall<string, IPubSub_Message>(pubSub.ReceivedMessage, (channel, message) =>
             {
                 if (channel == gatewayName)
                 {
-                    var userJoined = Json.Parse<UserJoined_GameWorld_Gateway_PubSub_Message>(message);
+                    var userJoined = (UserJoined_GameWorld_Gateway_PubSub_Message)(message);
 
                     DeferredAssert.That(testDeferred, userJoined.UserId).Does.Equal(userToken);
                     testDeferred.Resolve();
@@ -113,13 +114,13 @@ namespace Pather.Servers.GatewayServer.Tests
             }));
 
 
-            Mocker.StubMethodCall(pubSub.Init, (() => Q.ResolvedPromise()));
+            Mocker.StubMethodCall<int, Promise>(pubSub.Init, ((port) => Q.ResolvedPromise()));
 
-            Mocker.StubMethodCall<string, Action<string>>(pubSubTest.Subscribe, ((channel, callback) =>
+            Mocker.StubMethodCall<string, Action<IPubSub_Message>>(pubSubTest.Subscribe, ((channel, callback) =>
             {
                 sendMessageToGameWorld += (data) =>
                 {
-                    callback(Json.Stringify(data));
+                    callback(data);
                 };
             }));
 

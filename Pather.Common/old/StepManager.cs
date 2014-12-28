@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Game.Old;
 
-namespace Pather.Common
+namespace Pather.Common.old
 {
     public abstract class StepManager
     {

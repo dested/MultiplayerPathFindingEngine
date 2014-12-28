@@ -8,7 +8,7 @@ namespace Pather.Common.Models.GameWorld.GameSegment
     {
         public TellUserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message()
         {
-            Type = GameWorld_PubSub_MessageType.TellUserJoinResponse;
+            Type = GameWorld_PubSub_MessageType.TellUserLeftResponse;
             Response = true;
         }
     }

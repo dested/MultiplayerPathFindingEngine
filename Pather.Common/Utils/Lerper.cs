@@ -1,6 +1,6 @@
 using System;
 
-namespace Pather.Common
+namespace Pather.Common.Utils
 {
     public static class Lerper
     {

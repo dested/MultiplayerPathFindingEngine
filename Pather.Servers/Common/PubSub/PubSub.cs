@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Serialization;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.Common;
+using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Libraries.Redis;
@@ -15,29 +18,29 @@ namespace Pather.Servers.Common.PubSub
         private RedisClient pubClient;
         private bool sready;
         private RedisClient subClient;
-        private JsDictionary<string, Action<string>> subbed;
+        private JsDictionary<string, Action<IPubSub_Message>> subbed;
         private bool dontLog;
 
         public PubSub()
         {
         }
 
-        public Promise Init()
+        public Promise Init(int port = 6379)
         {
             var deferred = Q.Defer();
-            subbed = new JsDictionary<string, Action<string>>();
+            subbed = new JsDictionary<string, Action<IPubSub_Message>>();
 
             var redis = Global.Require<Redis>("redis");
             redis.DebugMode = false;
-            subClient = redis.CreateClient(6379, ConnectionConstants.RedisIP);
-            pubClient = redis.CreateClient(6379, ConnectionConstants.RedisIP);
+            subClient = redis.CreateClient(port, ConnectionConstants.RedisIP);
+            pubClient = redis.CreateClient(port, ConnectionConstants.RedisIP);
             subClient.On("subscribe", (string channel, int count) => Logger.Log("subscribed: " + channel + " " + count, LogLevel.Information));
             subClient.On("unsubscribe", (string channel, int count) => Logger.Log("unsubscribed: " + channel + " " + count, LogLevel.Information));
 
             subClient.On("message",
-                (string channel, string message) =>
+                (string channel, string messageString) =>
                 {
-                    ReceivedMessage(channel, message);
+                    ReceivedMessage(channel, Json.Parse<IPubSub_Message>(messageString));
                 });
             subClient.On("ready",
                 () =>
@@ -53,28 +56,81 @@ namespace Pather.Servers.Common.PubSub
                     if (sready && pready)
                         deferred.Resolve();
                 });
+
+
+            Global.SetInterval(NoDelegateFlush(), 10);
+            
+            dontLog = true;
             return deferred.Promise;
         }
-
-        public void ReceivedMessage(string channel, string message)
+        [InlineCode("this.$flush.bind(this)")]
+        public static Action NoDelegateFlush()
         {
-            try
+            return null;
+        }
+
+
+        private JsDictionary<string, List<IPubSub_Message>> channelCacheDict = new JsDictionary<string, List<IPubSub_Message>>();
+        private List<Tuple<string, List<IPubSub_Message>>> channelCache = new List<Tuple<string, List<IPubSub_Message>>>();
+
+
+        private void flush()
+        {
+
+            if (channelCache.Count == 0) return;
+
+            var count = 0;
+            foreach (var channel in channelCache)
             {
-                if (!dontLog)
+                var pubSubMessageCollection = new PubSub_Message_Collection() { Collection = channel.Item2 };
+
+                pubClient.Publish(channel.Item1, Json.Stringify(pubSubMessageCollection));
+                count += channel.Item2.Count;
+            }
+            if (count > 10)
+            {
+                Global.Console.Log("Flushing", count);
+            } 
+            channelCacheDict.Clear();
+            channelCache.Clear();
+        }
+
+        public void ReceivedMessage(string channel, IPubSub_Message message)
+        {
+            //            try
+            //            {
+            if (!dontLog)
+            {
+                //                if (channel != PubSubChannels.Tick() && !message.Contains("pong") && !message.Contains("tickSync") /*todo this pong stuff aint gonna fly when you remove namedvalues*/)
+                ServerLogger.LogTransport("Pubsub Message Received", channel, message);
+            }
+            var channelCallback = subbed[channel];
+            if (channelCallback != null)
+            {
+                if (Utilities.HasField<PubSub_Message_Collection>(message, a => a.Collection))
                 {
-                    if (channel != PubSubChannels.Tick() && !message.Contains("pong") && !message.Contains("tickSync") /*todo this pong stuff aint gonna fly when you remove namedvalues*/)
-                        ServerLogger.LogTransport("Pubsub Message Received", channel, message);
+                    var messages = (PubSub_Message_Collection)message;
+
+                    foreach (var m in messages.Collection)
+                    {
+                        channelCallback(m);
+                    }
                 }
-                var channelCallback = subbed[channel];
-                if (channelCallback != null)
+
+                else
+                {
                     channelCallback(message);
+                }
+
             }
-            catch (Exception e)
-            {
-                Global.Console.Log("An exception has occured", e, e.Stack);
-                Global.Console.Log("Payload Dump", channel, message);
-                ServerLogger.LogError("Exception", e, e.Stack, channel, message);
-            }
+
+            //            }
+            //            catch (Exception e)
+            //            {
+            //                Global.Console.Log("An exception has occured", e, e.Stack);
+            //                Global.Console.Log("Payload Dump", channel, message);
+            //                ServerLogger.LogError("Exception", e, e.Stack, channel, message);
+            //            }
         }
 
         public void DontLog()
@@ -83,19 +139,38 @@ namespace Pather.Servers.Common.PubSub
         }
 
 
-        public void Publish<T>(string channel, T message)
+        public void Publish<T>(string channel, T message) where T : IPubSub_Message
+        {
+            if (!dontLog)
+                if (channel != PubSubChannels.Tick())
+                    ServerLogger.LogTransport("Pubsub Message Sent", channel, message);
+
+            addToCache(channel, message);
+        }
+
+        public void PublishForce<T>(string channel, T message) where T : IPubSub_Message
         {
             if (!dontLog)
                 if (channel != PubSubChannels.Tick())
                     ServerLogger.LogTransport("Pubsub Message Sent", channel, message);
 
 
-            var stringMessage = Json.Stringify(message);
-            pubClient.Publish(channel, stringMessage);
+
+            pubClient.Publish(channel, Json.Stringify(message));
+        }
+
+        private void addToCache(string channel, IPubSub_Message message)
+        {
+            if (!Script.Reinterpret<bool>(channelCacheDict[channel]))
+            {
+                channelCacheDict[channel] = new List<IPubSub_Message>();
+                channelCache.Add(new Tuple<string, List<IPubSub_Message>>(channel, channelCacheDict[channel]));
+            }
+            channelCacheDict[channel].Add(message);
         }
 
 
-        public void Subscribe(string channel, Action<string> callback)
+        public void Subscribe(string channel, Action<IPubSub_Message> callback)
         {
             if (!dontLog)
                 if (channel != PubSubChannels.Tick())
@@ -104,4 +179,5 @@ namespace Pather.Servers.Common.PubSub
             subbed[channel] = callback;
         }
     }
+
 }
