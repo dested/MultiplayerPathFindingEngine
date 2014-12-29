@@ -140,11 +140,14 @@
 	var $Pather_Client_Tests_LoginE2ETest = function() {
 	};
 	$Pather_Client_Tests_LoginE2ETest.__typeName = 'Pather.Client.Tests.LoginE2ETest';
-	$Pather_Client_Tests_LoginE2ETest.$joinUser = function(userToken, onMove) {
+	$Pather_Client_Tests_LoginE2ETest.$joinUser = function(userToken, onMove, overridePort) {
 		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_Client_Utils_ClientCommunicator, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
 		var numOfGateways = 0;
 		var b = ss.Int32.trunc(Math.random() * numOfGateways);
 		var port = 1800 + b;
+		if (overridePort !== 0) {
+			port = overridePort;
+		}
 		var url = 'http://127.0.0.1:' + port;
 		//            Global.Console.Log("Connecting to", url);
 		var clientCommunicator = new $Pather_Client_Utils_ClientCommunicator(url);
@@ -442,7 +445,7 @@
 								}
 							}, ss.Int32.trunc(Math.random() * 1000));
 						}
-					}).then(function(communicator1) {
+					}, 0).then(function(communicator1) {
 						var joinTime = (new Date()).getTime() - startTime;
 						console.log('Join Time', joinTime);
 						averageTimes.push(joinTime);
@@ -462,14 +465,14 @@
 				else {
 					defer.reject();
 				}
-			}).then(function(communicator1) {
+			}, 0).then(function(communicator1) {
 				var $t1 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
 				$t1.x = proposedX;
 				$t1.y = proposedY;
 				communicator1.sendMessage($t1);
 			});
 		},
-		login2AndMove: function(defer) {
+		login3AndMove: function(defer) {
 			var id = 'salvatore';
 			var proposedX = 12;
 			var proposedY = 25;
@@ -491,7 +494,7 @@
 				else {
 					//                    defer.Reject();
 				}
-			}).then(function(communicator1) {
+			}, 1800).then(function(communicator1) {
 				var $t2 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
 				$t2.x = proposedX;
 				$t2.y = proposedY;
@@ -499,7 +502,7 @@
 			});
 			$Pather_Client_Tests_LoginE2ETest.$joinUser(id + 2, function(communicator2, message1) {
 				console.log('2', message1);
-			}).then(function(communicator3) {
+			}, 1801).then(function(communicator3) {
 				var $t3 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
 				$t3.x = proposedX + 1;
 				$t3.y = proposedY;
@@ -515,7 +518,7 @@
 					$t4.y = proposedY;
 					communicator4.sendMessage($t4);
 				}
-			}).then(function(communicator5) {
+			}, 1800).then(function(communicator5) {
 				var $t5 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
 				$t5.x = proposedX + 1;
 				$t5.y = proposedY;
@@ -546,6 +549,6 @@
 			this.socket.disconnect();
 		}
 	});
-	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'Login2AndMove', type: 8, sname: 'login2AndMove', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'LoginAndMove', type: 8, sname: 'loginAndMove', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'SlamWWithUsers', type: 8, sname: 'slamWWithUsers', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
+	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'Login3AndMove', type: 8, sname: 'login3AndMove', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'LoginAndMove', type: 8, sname: 'loginAndMove', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'SlamWWithUsers', type: 8, sname: 'slamWWithUsers', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
 	$Pather_Client_$Program.$main();
 })();

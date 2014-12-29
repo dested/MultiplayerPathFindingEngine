@@ -20,7 +20,7 @@ namespace Pather.Common
 
             LatencyPingInterval = 6*1000;
             NeighborDistance = 7;
-            UsersPerGameSegment =200;
+            UsersPerGameSegment =2;
             GameSegmentCreationWait = 60;
         }
 

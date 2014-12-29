@@ -121,7 +121,7 @@ namespace Pather.Client.Tests
         }
 
         [TestMethod()]
-        public void Login2AndMove(Deferred defer)
+        public void Login3AndMove(Deferred defer)
         {
             var id = "salvatore";
             var proposedX = 12;
@@ -151,7 +151,7 @@ namespace Pather.Client.Tests
 //                    defer.Reject();
                 }
 
-            }).Then(communicator =>
+            },1800).Then(communicator =>
             {
                 communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
                 {
@@ -165,7 +165,7 @@ namespace Pather.Client.Tests
                 Global.Console.Log("2", message);
            
 
-            }).Then(communicator =>
+            },1801).Then(communicator =>
             {
                 communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
                 {
@@ -188,7 +188,7 @@ namespace Pather.Client.Tests
                     });
                     
                 }
-            }).Then(communicator =>
+            },1800).Then(communicator =>
             {
                 communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
                 {
@@ -199,14 +199,15 @@ namespace Pather.Client.Tests
         }
 
 
-        private static Promise<ClientCommunicator, UndefinedPromiseError> JoinUser(string userToken, Action<ClientCommunicator, MoveToLocation_Gateway_User_Socket_Message> onMove)
+        private static Promise<ClientCommunicator, UndefinedPromiseError> JoinUser(string userToken, Action<ClientCommunicator, MoveToLocation_Gateway_User_Socket_Message> onMove,int overridePort=0)
         {
             var deferred = Q.Defer<ClientCommunicator, UndefinedPromiseError>();
 
             var numOfGateways = 0;
             var b = (int)(Math.Random() * numOfGateways);
             int port=1800+b;
-            
+
+            if (overridePort != 0) port = overridePort;
  
 
             var url = "http://127.0.0.1:" + port;

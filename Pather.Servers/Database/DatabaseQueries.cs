@@ -12,13 +12,16 @@ namespace Pather.Servers.Database
             var deferred = Q.Defer<DBUser, DatabaseError>();
             Global.SetTimeout(() =>
             {
-                deferred.Resolve(new DBUser()
+                var dbUser = new DBUser()
                 {
                     UserId = token,
                     Token = token,
                     X = (int) (Math.Random()*500),
                     Y = (int) (Math.Random()*500),
-                });
+                };
+                dbUser.X = 12;
+                dbUser.Y = 24;
+                deferred.Resolve(dbUser);
             }, 20);
 
             return deferred.Promise;

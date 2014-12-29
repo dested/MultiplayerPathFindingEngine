@@ -36,7 +36,7 @@ namespace Pather.Common.Utils
 
         public static string UniqueId()
         {
-            return Guid.NewGuid().ToString("N");
+            return Guid.NewGuid().ToString("N").Substr(0, 5);
         }
 
         public static bool HasField<T>(object message, Func<T, object> predicate)
