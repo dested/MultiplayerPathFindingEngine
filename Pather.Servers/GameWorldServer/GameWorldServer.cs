@@ -33,6 +33,20 @@ namespace Pather.Servers.GameWorldServer
             DatabaseQueries = dbQueries;
             pubSub.Init().Then(pubsubReady);
             //            new TickWatcher();
+            Global.SetInterval(reorganize, 60*1000);
+        }
+
+        private void reorganize()
+        {
+
+            var clusters = ReorganizeManager.Reorganize(GameWorld.Users, GameWorld.GameSegments);
+            foreach (var playerCluster in clusters)
+            {
+                foreach (var gameWorldUser in playerCluster.Players)
+                {
+                    GameWorld.ChangeUsersGameSegment(gameWorldUser, playerCluster.BestGameSegment);
+                }
+            }
 
         }
 

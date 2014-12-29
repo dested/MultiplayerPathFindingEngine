@@ -245,5 +245,11 @@ namespace Pather.Servers.GameWorldServer
             gwUser.Y = y;
             //todo interpolate path find using setTimeout??
         }
+
+        public void ChangeUsersGameSegment(GameWorldUser gameWorldUser, GameSegment bestGameSegment)
+        {
+            
+            //todo idk my bff jill LM<AO
+        }
     }
 }

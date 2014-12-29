@@ -8,15 +8,19 @@ namespace Pather.Servers.GameWorldServer
 {
     public class ReorganizeManager
     {
+        private readonly List<GameWorldUser> gameWorldUsers;
+        private readonly List<GameSegment> segments;
         private RTree<Models.GameWorldUser> tree;
-        private List<Models.GameWorldUser> players;
+        private static int MaxClusterSize = 200;
         private int viewRadius = 60;
 
-        public ReorganizeManager()
+        private ReorganizeManager(List<GameWorldUser> gameWorldUsers, List<GameSegment> segments)
         {
+            this.gameWorldUsers = gameWorldUsers;
+            this.segments = segments;
         }
 
-        public List<PlayerClusterGroup> Reorganize(List<GameWorldUser> gameWorldUsers)
+        private List<PlayerCluster> Reorganize()
         {
             tree = new RTree<GameWorldUser>();
 
@@ -25,37 +29,47 @@ namespace Pather.Servers.GameWorldServer
                 tree.Add(new Rectangle(gameWorldUser.X, gameWorldUser.Y), gameWorldUser);
             }
 
-
-            var playerClusters=buildClusters(viewRadius);
+            var playerClusters = buildClusters(gameWorldUsers, viewRadius);
+            GroupToSegments(playerClusters, segments);
             return playerClusters;
         }
 
-        public List<PlayerClusterGroup> buildClusters(int viewRadius)
+        public static List<PlayerCluster> Reorganize(List<GameWorldUser> gameWorldUsers, List<GameSegment> segments)
         {
+            var reorgManager = new ReorganizeManager(gameWorldUsers, segments);
+            return reorgManager.Reorganize();
+        }
 
-            var clusters = ClusterTree(tree, players, viewRadius);
 
-            /*
+        private void GroupToSegments(List<PlayerCluster> clusters, List<GameSegment> segments)
+        {
+            foreach (var playerCluster in clusters)
+            {
+                List<Tuple<int, GameSegment>> founds = new List<Tuple<int, GameSegment>>();
 
-                        Console.WriteLine(string.Format("Clusters {0}", clusters.Count));
-                        for (int i = 1; i <= MaxClusterSize; i++)
+                foreach (var gameSegment in segments)
+                {
+                    int found = 0;
+                    foreach (var gameWorldUser in gameSegment.Users)
+                    {
+                        if (playerCluster.Players.Contains(gameWorldUser))
                         {
-                            Console.WriteLine(string.Format("Clusters with {1} {0}", clusters.Count(a => a.Players.Count == i), i));
+                            found++;
                         }
+                    }
+                    founds.Add(new Tuple<int, GameSegment>(found, gameSegment));
+                }
 
-                        clusters.Sort((a, b) =>
-                        {
-                            return b.Players.Count - a.Players.Count;
-                        });
-
-                        for (int i = 0; i < clusters.Count; i++)
-                        {
-                            if (clusters[i].Players.Count <= MaxClusterSize) continue;
-                            Console.WriteLine(string.Format("Cluster[{0}] Size {1}", i + 1, clusters[i].Players.Count));
-                        }
-            */
+                founds.Sort((a, b) => a.Item1 - b.Item1);
+                playerCluster.BestGameSegment = founds[0].Item2;
+            }
+        }
 
 
+
+
+        private List<PlayerClusterGroup> GroupClusters(List<PlayerCluster> clusters)
+        {
             List<PlayerClusterGroup> playerClusterGroups = new List<PlayerClusterGroup>();
             List<PlayerCluster> clonePlayerClusters = new List<PlayerCluster>(clusters.OrderBy(a => -a.Players.Count));
 
@@ -97,6 +111,37 @@ namespace Pather.Servers.GameWorldServer
                    }
 
                    Console.WriteLine(string.Format("Number Of Cluster Groups: {0}", playerClusterGroups.Count));*/
+        }
+
+
+
+        private List<PlayerCluster> buildClusters(List<GameWorldUser> players, int viewRadius)
+        {
+
+            var clusters = ClusterTree(tree, players, viewRadius);
+
+            /*
+
+                        Console.WriteLine(string.Format("Clusters {0}", clusters.Count));
+                        for (int i = 1; i <= MaxClusterSize; i++)
+                        {
+                            Console.WriteLine(string.Format("Clusters with {1} {0}", clusters.Count(a => a.Players.Count == i), i));
+                        }
+
+                        clusters.Sort((a, b) =>
+                        {
+                            return b.Players.Count - a.Players.Count;
+                        });
+
+                        for (int i = 0; i < clusters.Count; i++)
+                        {
+                            if (clusters[i].Players.Count <= MaxClusterSize) continue;
+                            Console.WriteLine(string.Format("Cluster[{0}] Size {1}", i + 1, clusters[i].Players.Count));
+                        }
+            */
+
+
+            return clusters;
         }
         private List<PlayerCluster> ClusterTree(RTree<GameWorldUser> tree, List<GameWorldUser> players, int viewRadius)
         {
@@ -197,7 +242,6 @@ namespace Pather.Servers.GameWorldServer
 
         }
 
-        public static int MaxClusterSize = 500;
 
         private static double pointDistance(GameWorldUser nearPlayer, GameWorldUser currentPlayer)
         {
@@ -215,8 +259,8 @@ namespace Pather.Servers.GameWorldServer
             Neighbors = new List<Tuple<double, GameWorldUser>>();
         }
 
-        public GameWorldUser Player { get; set; }
-        public List<Tuple<double, GameWorldUser>> Neighbors { get; set; }
+        public GameWorldUser Player;
+        public List<Tuple<double, GameWorldUser>> Neighbors;
     }
 
     public class PlayerCluster
@@ -225,9 +269,9 @@ namespace Pather.Servers.GameWorldServer
         {
             Players = new List<GameWorldUser>();
         }
-        public List<GameWorldUser> Players { get; set; }
 
-
+        public List<GameWorldUser> Players;
+        public GameSegment BestGameSegment;
     }
     public class PlayerClusterGroup
     {
@@ -237,8 +281,8 @@ namespace Pather.Servers.GameWorldServer
             NumberOfPlayers = 0;
         }
 
-        public int NumberOfPlayers { get; set; }
-        public List<PlayerCluster> PlayerClusters { get; set; }
+        public int NumberOfPlayers;
+        public List<PlayerCluster> PlayerClusters;
     }
 
 
