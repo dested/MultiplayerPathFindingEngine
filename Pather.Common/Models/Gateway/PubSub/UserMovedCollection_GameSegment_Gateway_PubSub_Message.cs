@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Pather.Common.Models.Common;
 using Pather.Common.Models.Gateway.PubSub.Base;
 

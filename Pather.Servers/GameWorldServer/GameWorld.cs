@@ -15,22 +15,22 @@ namespace Pather.Servers.GameWorldServer
     public class GameWorld
     {
         public GameWorldPubSub GameWorldPubSub;
-        public List<GameWorldUser> Users;
+        public List<Models.GameWorldUser> Users;
         public List<GameSegment> GameSegments;
         private string gameSegmentClusterId = "TODO:DEFAULTGAMESEGMENTCLUSTER";
 
         public GameWorld(GameWorldPubSub gameWorldPubSub)
         {
             GameWorldPubSub = gameWorldPubSub;
-            Users = new List<GameWorldUser>();
+            Users = new List<Models.GameWorldUser>();
             GameSegments = new List<GameSegment>();
         }
 
-        public Promise<GameWorldUser, UserJoinError> CreateUser(string gatewayChannel, DBUser dbUser)
+        public Promise<Models.GameWorldUser, UserJoinError> CreateUser(string gatewayChannel, DBUser dbUser)
         {
-            var defer = Q.Defer<GameWorldUser, UserJoinError>();
+            var defer = Q.Defer<Models.GameWorldUser, UserJoinError>();
 
-            var gwUser = new GameWorldUser();
+            var gwUser = new Models.GameWorldUser();
             gwUser.UserId = dbUser.UserId;
             gwUser.X = dbUser.X;
             gwUser.Y = dbUser.Y;
@@ -93,7 +93,7 @@ namespace Pather.Servers.GameWorldServer
         }
 
 
-        private Promise<GameSegment, UndefinedPromiseError> determineGameSegment(GameWorldUser gwUser)
+        private Promise<GameSegment, UndefinedPromiseError> determineGameSegment(Models.GameWorldUser gwUser)
         {
             var deferred = Q.Defer<GameSegment, UndefinedPromiseError>();
             var neighbors = buildNeighborCollection(gwUser);
@@ -184,7 +184,7 @@ namespace Pather.Servers.GameWorldServer
             }
         }
 
-        private List<GameWorldNeighbor> buildNeighborCollection(GameWorldUser pUser)
+        private List<GameWorldNeighbor> buildNeighborCollection(Models.GameWorldUser pUser)
         {
             var count = Users.Count;
 
@@ -201,7 +201,7 @@ namespace Pather.Servers.GameWorldServer
         }
 
 
-        private void BuildNeighbors(GameWorldUser pUser, int i = 0)
+        private void BuildNeighbors(Models.GameWorldUser pUser, int i = 0)
         {
             var count = Users.Count;
 
@@ -217,7 +217,7 @@ namespace Pather.Servers.GameWorldServer
             }
         }
 
-        private static double PointDistance(GameWorldUser pUser, GameWorldUser cUser)
+        private static double PointDistance(Models.GameWorldUser pUser, Models.GameWorldUser cUser)
         {
             var mx = pUser.X;
             var my = pUser.Y;

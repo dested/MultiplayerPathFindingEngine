@@ -78,11 +78,17 @@
     <Compile Include="GameWorldServer\Models\GameWorldUser.cs" />
     <Compile Include="GameWorldServer\Models\UserJoinError.cs" />
     <Compile Include="Common\TickWatcher.cs" />
+    <Compile Include="GameWorldServer\ReorganizeManager.cs" />
     <Compile Include="GatewayServer\GatewayPubSub.cs" />
     <Compile Include="GatewayServer\GatewayUser.cs" />
     <Compile Include="GatewayServer\Tests\GatewayServerTests.cs" />
     <Compile Include="GameWorldServer\Tests\GameWorldServerTests.cs" />
     <Compile Include="GameSegmentCluster\GameSegmentCluster.cs" />
+    <Compile Include="Libraries\RTree\BoundingBox.cs" />
+    <Compile Include="Libraries\RTree\Node.cs" />
+    <Compile Include="Libraries\RTree\RtreePoint.cs" />
+    <Compile Include="Libraries\RTree\Rectangle.cs" />
+    <Compile Include="Libraries\RTree\RTree.cs" />
     <Compile Include="MonitorServer\MonitorServer.cs" />
     <Compile Include="TickServer\TickServerTickManager.cs" />
     <Compile Include="TickServer\TickPubSub.cs" />

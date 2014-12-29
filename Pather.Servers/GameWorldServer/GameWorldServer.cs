@@ -67,7 +67,7 @@ namespace Pather.Servers.GameWorldServer
                     continue;
                 }
 
-                var items = new List<Tuple<GameWorldUser, Deferred<GameWorldUser, UserJoinError>>>(preAddedUser.Value);
+                var items = new List<Tuple<Models.GameWorldUser, Deferred<Models.GameWorldUser, UserJoinError>>>(preAddedUser.Value);
 
                 count += items.Count;
 
@@ -208,13 +208,13 @@ namespace Pather.Servers.GameWorldServer
             }
         }
 
-        private JsDictionary<string, List<Tuple<GameWorldUser, Deferred<GameWorldUser, UserJoinError>>>> preAddedUsers = new JsDictionary<string, List<Tuple<GameWorldUser, Deferred<GameWorldUser, UserJoinError>>>>();
-        private List<Tuple<UserJoined_Gateway_GameWorld_PubSub_Message, Deferred<GameWorldUser, UserJoinError>>> stalledJoins = new List<Tuple<UserJoined_Gateway_GameWorld_PubSub_Message, Deferred<GameWorldUser, UserJoinError>>>();
+        private JsDictionary<string, List<Tuple<Models.GameWorldUser, Deferred<Models.GameWorldUser, UserJoinError>>>> preAddedUsers = new JsDictionary<string, List<Tuple<Models.GameWorldUser, Deferred<Models.GameWorldUser, UserJoinError>>>>();
+        private List<Tuple<UserJoined_Gateway_GameWorld_PubSub_Message, Deferred<Models.GameWorldUser, UserJoinError>>> stalledJoins = new List<Tuple<UserJoined_Gateway_GameWorld_PubSub_Message, Deferred<Models.GameWorldUser, UserJoinError>>>();
 
         private bool joining = false;
-        private Promise<GameWorldUser, UserJoinError> UserJoined(UserJoined_Gateway_GameWorld_PubSub_Message message)
+        private Promise<Models.GameWorldUser, UserJoinError> UserJoined(UserJoined_Gateway_GameWorld_PubSub_Message message)
         {
-            var deferred = Q.Defer<GameWorldUser, UserJoinError>();
+            var deferred = Q.Defer<Models.GameWorldUser, UserJoinError>();
             //                Global.Console.Log("User Joined Game World", message.UserToken, message.GatewayId);
 //            Global.Console.Log("User trying to join");
             if (!joining)
@@ -227,7 +227,7 @@ namespace Pather.Servers.GameWorldServer
                         {
                             if (!Script.Reinterpret<bool>(preAddedUsers[user.GameSegment.GameSegmentId]))
                             {
-                                preAddedUsers[user.GameSegment.GameSegmentId] = new List<Tuple<GameWorldUser, Deferred<GameWorldUser, UserJoinError>>>();
+                                preAddedUsers[user.GameSegment.GameSegmentId] = new List<Tuple<Models.GameWorldUser, Deferred<Models.GameWorldUser, UserJoinError>>>();
                             }
                             preAddedUsers[user.GameSegment.GameSegmentId].Add(Tuple.Create(user, deferred));
 

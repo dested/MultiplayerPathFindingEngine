@@ -6,6 +6,18 @@ namespace Pather.Common.Utils
 {
     public static class EnumerableExtensions
     {
+
+        public static JsDictionary<T2, T> ToDictionary<T, T2>(this List<T> items, Func<T, T2> clause)
+        {
+            var items2 = new JsDictionary<T2, T>();
+
+            foreach (var item in items)
+            {
+                items2[clause(item)] = item;
+            }
+            return items2;
+        }
+
         public static int IndexOfFast(this List<int> items, int ind)
         {
             for (var index = 0; index < items.Count; index++)
@@ -90,6 +102,14 @@ namespace Pather.Common.Utils
                 {
                     return item;
                 }
+            }
+            return default(T);
+        }
+        public static T First<T>(this IEnumerable<T> items)
+        {
+            foreach (var item in items)
+            {
+                    return item;
             }
             return default(T);
         }
