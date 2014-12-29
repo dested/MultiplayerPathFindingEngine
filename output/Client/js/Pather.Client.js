@@ -142,65 +142,9 @@
 	$Pather_Client_Tests_LoginE2ETest.__typeName = 'Pather.Client.Tests.LoginE2ETest';
 	$Pather_Client_Tests_LoginE2ETest.$joinUser = function(userToken, onMove) {
 		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_Client_Utils_ClientCommunicator, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
-		var b = Math.random();
-		var port = 1800;
-		if (b <= 0.1) {
-			port = 1800;
-		}
-		else if (b <= 0.2) {
-			port = 1801;
-		}
-		else if (b <= 0.3) {
-			port = 1802;
-		}
-		else if (b <= 0.4) {
-			port = 1803;
-		}
-		else if (b <= 0.5) {
-			port = 1804;
-		}
-		else if (b <= 0.6) {
-			port = 1805;
-		}
-		else if (b <= 0.7) {
-			port = 1806;
-		}
-		else if (b <= 0.8) {
-			port = 1807;
-		}
-		else if (b <= 0.9) {
-			port = 1808;
-		}
-		else if (b <= 1) {
-			port = 1809;
-		}
-		else {
-			port = 1800;
-		}
-		//
-		//            if (b <= .3)
-		//
-		//            {
-		//
-		//            port = 1800;
-		//
-		//            }
-		//
-		//            else if (b <= .6)
-		//
-		//            {
-		//
-		//            port = 1801;
-		//
-		//            }
-		//
-		//            else if (b <= 1)
-		//
-		//            {
-		//
-		//            port = 1802;
-		//
-		//            }
+		var numOfGateways = 0;
+		var b = ss.Int32.trunc(Math.random() * numOfGateways);
+		var port = 1800 + b;
 		var url = 'http://127.0.0.1:' + port;
 		//            Global.Console.Log("Connecting to", url);
 		var clientCommunicator = new $Pather_Client_Utils_ClientCommunicator(url);
@@ -524,6 +468,59 @@
 				$t1.y = proposedY;
 				communicator1.sendMessage($t1);
 			});
+		},
+		login2AndMove: function(defer) {
+			var id = 'salvatore';
+			var proposedX = 12;
+			var proposedY = 25;
+			var move = 0;
+			$Pather_Client_Tests_LoginE2ETest.$joinUser(id + 1, function(communicator, message) {
+				console.log('1', message);
+				if (ss.referenceEquals(message.userId, id + 1) && move < 40) {
+					move++;
+					setTimeout(function() {
+						var $t1 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
+						$t1.x = proposedX + move;
+						$t1.y = proposedY;
+						communicator.sendMessage($t1);
+					}, 500);
+				}
+				if (message.x === proposedX && message.y === proposedY) {
+					//                    defer.Resolve();
+				}
+				else {
+					//                    defer.Reject();
+				}
+			}).then(function(communicator1) {
+				var $t2 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
+				$t2.x = proposedX;
+				$t2.y = proposedY;
+				communicator1.sendMessage($t2);
+			});
+			$Pather_Client_Tests_LoginE2ETest.$joinUser(id + 2, function(communicator2, message1) {
+				console.log('2', message1);
+			}).then(function(communicator3) {
+				var $t3 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
+				$t3.x = proposedX + 1;
+				$t3.y = proposedY;
+				communicator3.sendMessage($t3);
+			});
+			var once = true;
+			$Pather_Client_Tests_LoginE2ETest.$joinUser(id + 3, function(communicator4, message2) {
+				console.log('3', message2);
+				if (ss.referenceEquals(message2.userId, id + 3) && once) {
+					once = false;
+					var $t4 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
+					$t4.x = proposedX + 20;
+					$t4.y = proposedY;
+					communicator4.sendMessage($t4);
+				}
+			}).then(function(communicator5) {
+				var $t5 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
+				$t5.x = proposedX + 1;
+				$t5.y = proposedY;
+				communicator5.sendMessage($t5);
+			});
 		}
 	});
 	ss.initClass($Pather_Client_Utils_ClientCommunicator, $asm, {
@@ -549,6 +546,6 @@
 			this.socket.disconnect();
 		}
 	});
-	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'LoginAndMove', type: 8, sname: 'loginAndMove', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'SlamWWithUsers', type: 8, sname: 'slamWWithUsers', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
+	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'Login2AndMove', type: 8, sname: 'login2AndMove', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'LoginAndMove', type: 8, sname: 'loginAndMove', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'SlamWWithUsers', type: 8, sname: 'slamWWithUsers', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
 	$Pather_Client_$Program.$main();
 })();

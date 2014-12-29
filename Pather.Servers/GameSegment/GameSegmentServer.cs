@@ -293,7 +293,7 @@ namespace Pather.Servers.GameSegment
 
             otherGameSegment.UserJoin(gameSegmentUser);
 
-            BuildNeighbors(gameSegmentUser);
+            BuildNeighbors();
 
             GameSegmentLogger.LogUserJoin(false, gameSegmentUser.UserId, gameSegmentUser.X, gameSegmentUser.Y, gameSegmentUser.Neighbors.Select(a => a.User.UserId));
 
@@ -324,7 +324,7 @@ namespace Pather.Servers.GameSegment
                 AllUserGameSegments[gameSegmentUser.UserId] = MyGameSegment;
 
                 MyGameSegment.UserJoin(gameSegmentUser);
-                BuildNeighbors(gameSegmentUser);
+                BuildNeighbors();
                 GameSegmentLogger.LogUserJoin(true, gameSegmentUser.UserId, gameSegmentUser.X, gameSegmentUser.Y, gameSegmentUser.Neighbors.Select(a => a.User.UserId));
 
             }
@@ -349,7 +349,11 @@ namespace Pather.Servers.GameSegment
             {
                 //                BuildNeighbors();
                 //                Global.Console.Log("User can move and has ", user.Neighbors.Count, "Neighbors");
-                var otherGameSegments = new JsDictionary<string, GameSegment>(AllGameSegments);
+                var otherGameSegments = new JsDictionary<string, GameSegment>();
+                foreach (var allGameSegment in AllGameSegments)
+                {
+                    otherGameSegments[allGameSegment.Key] = allGameSegment.Value;
+                }
 
                 var gateways = user.Neighbors.GroupBy(a => a.User.GatewayId);
                 //todo maybe move this dict to a real object

@@ -14,7 +14,7 @@ namespace Pather.Client.Tests
     [TestClass()]
     public class LoginE2ETest
     {
-        [TestMethod()]
+        [TestMethod(disable: true)]
         public void SlamWWithUsers(Deferred deferred)
         {
             var users = new List<Promise<ClientCommunicator, UndefinedPromiseError>>();
@@ -120,71 +120,94 @@ namespace Pather.Client.Tests
             });
         }
 
+        [TestMethod()]
+        public void Login2AndMove(Deferred defer)
+        {
+            var id = "salvatore";
+            var proposedX = 12;
+            var proposedY = 25;
+            int move = 0;
+            JoinUser(id+1, (communicator, message) =>
+            {
+                Global.Console.Log("1", message);
+                if (message.UserId==id+1 &&  move<40)
+                {
+                    move++;
+                    Global.SetTimeout(() =>
+                    {
+                        communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
+                        {
+                            X = proposedX + move,
+                            Y = proposedY
+                        });
+                    }, 500);
+                }
+                if (message.X == proposedX && message.Y == proposedY)
+                {
+//                    defer.Resolve();
+                }
+                else
+                {
+//                    defer.Reject();
+                }
+
+            }).Then(communicator =>
+            {
+                communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
+                {
+                    X = proposedX,
+                    Y = proposedY
+                });
+            });
+
+            JoinUser(id + 2, (communicator, message) =>
+            {
+                Global.Console.Log("2", message);
+           
+
+            }).Then(communicator =>
+            {
+                communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
+                {
+                    X = proposedX + 1,
+                    Y = proposedY
+                });
+            });
+
+            bool once = true;
+            JoinUser(id + 3, (communicator, message) =>
+            {
+                Global.Console.Log("3", message);
+                if (message.UserId == id + 3 && once)
+                {
+                    once = false;
+                    communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
+                    {
+                        X = proposedX + 20,
+                        Y = proposedY
+                    });
+                    
+                }
+            }).Then(communicator =>
+            {
+                communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
+                {
+                    X = proposedX + 1,
+                    Y = proposedY
+                });
+            });
+        }
+
 
         private static Promise<ClientCommunicator, UndefinedPromiseError> JoinUser(string userToken, Action<ClientCommunicator, MoveToLocation_Gateway_User_Socket_Message> onMove)
         {
             var deferred = Q.Defer<ClientCommunicator, UndefinedPromiseError>();
 
-            var b = Math.Random();
-            int port=1800;
-            if (b <= .1)
-            {
-                port = 1800;
-            }
-            else if (b <= .2)
-            {
-                port = 1801;
-            }
-            else if (b <= .3)
-            {
-                port = 1802;
-            }
-            else if (b <= .4)
-            {
-                port = 1803;
-            }
-            else if (b <= .5)
-            {
-                port = 1804;
-            }
-            else if (b <= .6)
-            {
-                port = 1805;
-            }
-            else if (b <= .7)
-            {
-                port = 1806;
-            }
-            else if (b <= .8)
-            {
-                port = 1807;
-            }
-            else if (b <= .9)
-            {
-                port = 1808;
-            }
-            else if (b <= 1)
-            {
-                port = 1809;
-            }
-            else
-            {
-                port = 1800;
-            }
-/*
-            if (b <= .3)
-            {
-                port = 1800;
-            }
-            else if (b <= .6)
-            {
-                port = 1801;
-            }
-            else if (b <= 1)
-            {
-                port = 1802;
-            }
-            */
+            var numOfGateways = 0;
+            var b = (int)(Math.Random() * numOfGateways);
+            int port=1800+b;
+            
+ 
 
             var url = "http://127.0.0.1:" + port;
             //            Global.Console.Log("Connecting to", url);

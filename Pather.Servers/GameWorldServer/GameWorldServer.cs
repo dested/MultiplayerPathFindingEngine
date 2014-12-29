@@ -182,14 +182,6 @@ namespace Pather.Servers.GameWorldServer
                     var tellUserMoved = (TellUserMoved_GameSegment_GameWorld_PubSub_Message)message;
                     GameWorld.UserMoved(tellUserMoved.UserId, tellUserMoved.X, tellUserMoved.Y, tellUserMoved.LockstepTick);
                     break;
-                case GameWorld_PubSub_MessageType.CreateGameSegmentResponse:
-                    break;
-                case GameWorld_PubSub_MessageType.UserJoinResponse:
-                    break;
-                case GameWorld_PubSub_MessageType.TellUserJoinResponse:
-                    break;
-                case GameWorld_PubSub_MessageType.TellUserLeftResponse:
-                    break;
                 case GameWorld_PubSub_MessageType.InitializeGameSegment:
                     var getAllGameSegments = ((InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message)message);
                     gameSegmentClusterPubSub.PublishToGameSegment(getAllGameSegments.OriginGameSegment,
