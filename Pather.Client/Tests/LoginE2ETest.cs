@@ -94,6 +94,7 @@ namespace Pather.Client.Tests
         }
 
 
+
         [TestMethod(disable: true)]
         public void LoginAndMove(Deferred defer)
         {
@@ -200,6 +201,37 @@ namespace Pather.Client.Tests
         }
 
 
+        public static void GetRequest(string url, int port, Action<string> callback)
+        {
+            //todo stub out properly idiot
+
+            if (Constants.TestServer)
+            {
+                var http = Global.Require<dynamic>("http");
+                var options = new
+                {
+                    port = port,
+                    path = url,
+                    method = "get"
+                };
+
+                http.request(options, ((Action<dynamic>)((res) =>
+                {
+                    res.setEncoding("utf8");
+                    res.on("data", (Action<string>)((chunk) =>
+                    {
+                        callback(chunk);
+                    }));
+                }))).end();
+            }
+            else
+            {
+                jQueryObject.Get(url, null, callback);
+            }
+        }
+
+
+
         private static Promise<ClientCommunicator, UndefinedPromiseError> JoinUser(string userToken, Action<ClientCommunicator, MoveToLocation_Gateway_User_Socket_Message> onMove, int overridePort = 0)
         {
             var deferred = Q.Defer<ClientCommunicator, UndefinedPromiseError>();
@@ -209,7 +241,7 @@ namespace Pather.Client.Tests
             int port = 1800 + b;
 
             if (overridePort != 0) port = overridePort;
-            jQueryObject.Get("http://localhost:2222/api/",null, (url) =>
+            GetRequest("http://localhost:2222/api/", 2222, (url) =>
             {
                 Global.Console.Log(url);
 
@@ -247,7 +279,7 @@ namespace Pather.Client.Tests
 
         public static void Get(string url, object data, Action<string> callback)
         {
-            
+
         }
     }
 }
