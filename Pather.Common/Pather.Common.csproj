@@ -36,6 +36,7 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Models\GameWorld\ServerManager\UserJoined_Gateway_GameWorld_PubSub_Message.cs" />
     <Compile Include="Models\Head\Base\Head_PubSub_Message.cs" />
     <Compile Include="Models\Head\Base\Head_PubSub_MessageType.cs" />
     <Compile Include="Models\Head\Base\Head_PubSub_ReqRes_Message.cs" />
@@ -105,7 +106,7 @@
     <Compile Include="Libraries\NodeJS\WritableStream.cs" />
     <Compile Include="Utils\Logger.cs" />
     <Compile Include="Utils\LogLevel.cs" />
-    <Compile Include="Models\GameSegmentCluster\CreateGameSegment_GameWorld_GameSegmentCluster_PubSub_ReqRes_Message.cs" />
+    <Compile Include="Models\ClusterManager\CreateGameSegment_GameWorld_ClusterManager_PubSub_ReqRes_Message.cs" />
     <Compile Include="Models\GameSegment\Base\GameSegment_PubSub_AllMessageType.cs" />
     <Compile Include="Models\GameSegment\Base\GameSegment_PubSub_MessageType.cs" />
     <Compile Include="Models\GameSegment\Base\GameSegment_PubSub_AllMessage.cs" />
@@ -130,12 +131,12 @@
     <Compile Include="Models\Gateway\PubSub\TickSync_Tick_Gateway_PubSub_AllMessage.cs" />
     <Compile Include="Models\Tick\Ping_Tick_PubSub_Message_OriginType.cs" />
     <Compile Include="Models\Tick\Base\Tick_PubSub_Message.cs" />
-    <Compile Include="Models\GameSegmentCluster\Base\GameSegmentCluster_PubSub_Message.cs" />
-    <Compile Include="Models\GameSegmentCluster\Base\GameSegmentCluster_PubSub_ReqRes_Message.cs" />
-    <Compile Include="Models\GameSegmentCluster\Base\GameSegmentCluster_PubSub_MessageType.cs" />
+    <Compile Include="Models\ClusterManager\Base\ClusterManager_PubSub_Message.cs" />
+    <Compile Include="Models\ClusterManager\Base\ClusterManager_PubSub_ReqRes_Message.cs" />
+    <Compile Include="Models\ClusterManager\Base\ClusterManager_PubSub_MessageType.cs" />
     <Compile Include="Models\Common\IPubSub_ReqRes_Message.cs" />
     <Compile Include="Models\GameSegment\Base\GameSegment_PubSub_Message.cs" />
-    <Compile Include="Models\GameWorld\GameSegmentCluster\CreateGameSegment_Response_GameSegmentCluster_GameWorld_PubSub_Message.cs" />
+    <Compile Include="Models\ServerManager\CreateGameSegment_Response_GameSegmentCluster_GameWorld_PubSub_Message.cs" />
     <Compile Include="Models\GameWorld\Base\GameWorld_PubSub_Message.cs" />
     <Compile Include="Models\GameWorld\Base\GameWorld_PubSub_MessageType.cs" />
     <Compile Include="Models\GameWorld\Gateway\UserJoined_Gateway_GameWorld_PubSub_Message.cs" />

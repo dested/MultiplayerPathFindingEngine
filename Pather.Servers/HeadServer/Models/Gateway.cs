@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Pather.Servers.HeadServer
+namespace Pather.Servers.HeadServer.Models
 {
     public class Gateway
     {

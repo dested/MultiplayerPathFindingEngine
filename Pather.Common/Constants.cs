@@ -22,6 +22,14 @@ namespace Pather.Common
             NeighborDistance = 7;
             UsersPerGameSegment =2;
             GameSegmentCreationWait = 60;
+            GatewayCreationWait = 60;
+
+
+            MaxConnectionsPerGateway = 200;
+            GatewayConnectionSpawnThreshold = 40;
+
+            MaxGatewaysPerCluster = 10;
+            MaxGameSegmentsPerCluster = 10;
         }
 
         public static int AnimationSteps; 
@@ -35,13 +43,19 @@ namespace Pather.Common
         public static int GameTicks;
         public static int NeighborDistance;
         public static int GameSegmentCreationWait;
+        public static int GatewayCreationWait;
         public static int LatencyPingInterval;
         public static int UsersPerGameSegment;
+        public static int MaxConnectionsPerGateway;
+        public static int GatewayConnectionSpawnThreshold;
+        public static int MaxGatewaysPerCluster;
+        public static int MaxGameSegmentsPerCluster;
 
 
         public static bool TestServer
         {
             get { return ((dynamic)Window.Instance).TestServer; }
-        } 
+        }
+
     }
 }

@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.ClusterManager;
 using Pather.Common.Models.GameSegment;
-using Pather.Common.Models.GameSegmentCluster;
-using Pather.Common.Models.GameWorld.GameSegmentCluster;
+using Pather.Common.Models.GameWorld.Gateway;
+using Pather.Common.Models.ServerManager.Base;
 using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Database;
@@ -17,7 +18,6 @@ namespace Pather.Servers.GameWorldServer
         public GameWorldPubSub GameWorldPubSub;
         public List<Models.GameWorldUser> Users;
         public List<GameSegment> GameSegments;
-        private string gameSegmentClusterId = "TODO:DEFAULTGAMESEGMENTCLUSTER";
 
         public GameWorld(GameWorldPubSub gameWorldPubSub)
         {
@@ -140,12 +140,8 @@ namespace Pather.Servers.GameWorldServer
         {
             var deferred = Q.Defer<GameSegment, UndefinedPromiseError>();
 
-            var createGameMessage = new CreateGameSegment_GameWorld_GameSegmentCluster_PubSub_ReqRes_Message()
-            {
-                GameSegmentId = Utilities.UniqueId(),
-            };
 
-            GameWorldPubSub.PublishToGameSegmentClusterWithCallback<CreateGameSegment_Response_GameSegmentCluster_GameWorld_PubSub_Message>(gameSegmentClusterId, createGameMessage)
+            GameWorldPubSub.PublishToServerManagerWithCallback<CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message>(new CreateGameSegment_GameWorld_ServerManager_PubSub_ReqRes_Message())
                 .Then((createGameMessageResponse) =>
                 {
                     var gs = new GameSegment(this);

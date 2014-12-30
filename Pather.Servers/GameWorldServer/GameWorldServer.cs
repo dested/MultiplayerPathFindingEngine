@@ -24,7 +24,7 @@ namespace Pather.Servers.GameWorldServer
         private readonly IDatabaseQueries DatabaseQueries;
         public GameWorld GameWorld;
         public ClientTickManager ClientTickManager;
-        private GameWorldPubSub gameSegmentClusterPubSub;
+        private GameWorldPubSub gameWorldPubSub;
 
         public GameWorldServer(IPubSub pubSub, IDatabaseQueries dbQueries)
         {
@@ -53,11 +53,11 @@ namespace Pather.Servers.GameWorldServer
 
         private void pubsubReady()
         {
-            gameSegmentClusterPubSub = new GameWorldPubSub(pubSub);
-            gameSegmentClusterPubSub.Init();
-            gameSegmentClusterPubSub.Message += gameWorldMessage;
+            gameWorldPubSub = new GameWorldPubSub(pubSub);
+            gameWorldPubSub.Init();
+            gameWorldPubSub.Message += gameWorldMessage;
 
-            GameWorld = new GameWorld(gameSegmentClusterPubSub);
+            GameWorld = new GameWorld(gameWorldPubSub);
 
 
             ClientTickManager = new ClientTickManager();
@@ -129,7 +129,7 @@ namespace Pather.Servers.GameWorldServer
 
         private void sendPing()
         {
-            gameSegmentClusterPubSub.PublishToTickServer(new Ping_Tick_PubSub_Message()
+            gameWorldPubSub.PublishToTickServer(new Ping_Tick_PubSub_Message()
             {
                 Origin = PubSubChannels.GameWorld(),
                 OriginType = Ping_Tick_PubSub_Message_OriginType.GameWorld
@@ -151,7 +151,7 @@ namespace Pather.Servers.GameWorldServer
                 case GameWorld_PubSub_MessageType.UserJoined:
                     UserJoined((UserJoined_Gateway_GameWorld_PubSub_Message)message).Then(gwUser =>
                     {
-                        gameSegmentClusterPubSub.PublishToGatewayServer(PubSubChannels.Gateway(gwUser.GatewayId), new UserJoined_GameWorld_Gateway_PubSub_Message()
+                        gameWorldPubSub.PublishToGatewayServer(PubSubChannels.Gateway(gwUser.GatewayId), new UserJoined_GameWorld_Gateway_PubSub_Message()
                         {
                             GameSegmentId = gwUser.GameSegment.GameSegmentId,
                             UserId = gwUser.UserId,
@@ -198,7 +198,7 @@ namespace Pather.Servers.GameWorldServer
                     break;
                 case GameWorld_PubSub_MessageType.InitializeGameSegment:
                     var getAllGameSegments = ((InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message)message);
-                    gameSegmentClusterPubSub.PublishToGameSegment(getAllGameSegments.OriginGameSegment,
+                    gameWorldPubSub.PublishToGameSegment(getAllGameSegments.OriginGameSegment,
                         new InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message()
                         {
                             MessageId = getAllGameSegments.MessageId,

@@ -15,4 +15,16 @@ namespace Pather.Common.Models.Head
         public int LiveConnections;
         public string GatewayId;
     }
+    [Serializable]
+    public class CreateGateway_Response_ServerManager_Head_PubSub_ReqRes_Message : Head_PubSub_ReqRes_Message
+    {
+        public CreateGateway_Response_ServerManager_Head_PubSub_ReqRes_Message()
+        {
+            Type = Head_PubSub_MessageType.Ping;
+            Response = true;
+        }
+
+        public string GatewayId;
+
+    }
 }

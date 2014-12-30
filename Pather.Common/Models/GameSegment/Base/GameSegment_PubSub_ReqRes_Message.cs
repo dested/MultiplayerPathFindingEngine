@@ -13,6 +13,6 @@ namespace Pather.Common.Models.GameSegment.Base
         }
 
         public string MessageId { get; set; }
-        public bool Response;
+        public bool Response { get; set; }
     }
 }

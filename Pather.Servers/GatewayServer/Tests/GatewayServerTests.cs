@@ -10,6 +10,7 @@ using Pather.Common.TestFramework;
 using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common.PubSub;
+using Pather.Servers.Common.PushPop;
 using Pather.Servers.Common.SocketManager;
 using Pather.Servers.Database;
 
@@ -92,7 +93,7 @@ namespace Pather.Servers.GatewayServer.Tests
                     testDeferred.Resolve();
                 }
             });
-            var gts = new GatewayServer(pubSub, socketManager, "gatewayServer1", 1800);
+            var gts = new GatewayServer(pubSub,new PushPop(), socketManager, "gatewayServer1", 1800);
             gatewayName = gts.GatewayId;
 
 

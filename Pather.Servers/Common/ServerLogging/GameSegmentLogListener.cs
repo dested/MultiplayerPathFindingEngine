@@ -1,7 +1,7 @@
 using System;
 using System.Serialization;
 using Pather.Servers.Common.PubSub;
-using Pather.Servers.GameSegment.Logger;
+using Pather.Servers.GameSegmentServer.Logger;
 
 namespace Pather.Servers.Common.ServerLogging
 {

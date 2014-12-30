@@ -6,7 +6,6 @@ namespace Pather.Common.Models.GameWorld.Base
     public enum GameWorld_PubSub_MessageType
     {
         UserJoined,
-        CreateGameSegmentResponse,
         UserJoinResponse,
         TellUserJoinResponse,
         TellUserLeftResponse,
@@ -14,6 +13,7 @@ namespace Pather.Common.Models.GameWorld.Base
         UserLeft,
         Pong,
         InitializeGameSegment,
-        TellUserMoved
+        TellUserMoved,
+        CreateGameSegment
     }
 }

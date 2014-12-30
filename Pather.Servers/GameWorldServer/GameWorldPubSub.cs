@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Serialization;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.ClusterManager.Base;
+using Pather.Common.Models.Common;
 using Pather.Common.Models.GameSegment.Base;
-using Pather.Common.Models.GameSegmentCluster.Base;
 using Pather.Common.Models.GameWorld.Base;
 using Pather.Common.Models.Gateway.PubSub.Base;
+using Pather.Common.Models.ServerManager.Base;
 using Pather.Common.Models.Tick.Base;
 using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
@@ -24,7 +26,7 @@ namespace Pather.Servers.GameWorldServer
         }
 
         public Action<GameWorld_PubSub_Message> Message;
-        public Dictionary<string, Deferred<object, UndefinedPromiseError>> deferredMessages = new Dictionary<string, Deferred<object, UndefinedPromiseError>>();
+        private Dictionary<string, Deferred<object, UndefinedPromiseError>> deferredMessages = new Dictionary<string, Deferred<object, UndefinedPromiseError>>();
 
         public void Init()
         {
@@ -32,7 +34,7 @@ namespace Pather.Servers.GameWorldServer
             {
                 var gameWorldPubSubMessage = (GameWorld_PubSub_Message)(message);
 
-                if (Utilities.HasField<GameWorld_PubSub_ReqRes_Message>(gameWorldPubSubMessage, m => m.MessageId) && ((GameWorld_PubSub_ReqRes_Message) gameWorldPubSubMessage).Response)
+                if (Utilities.HasField<IPubSub_ReqRes_Message>(gameWorldPubSubMessage, m => m.MessageId) && ((GameWorld_PubSub_ReqRes_Message) gameWorldPubSubMessage).Response)
                 {
 //                    Global.Console.Log("message", message);
                     var possibleMessageReqRes = (GameWorld_PubSub_ReqRes_Message) gameWorldPubSubMessage;
@@ -49,12 +51,6 @@ namespace Pather.Servers.GameWorldServer
                 Message(gameWorldPubSubMessage);
             });
         }
-
-        public void PublishToGameSegmentCluster(string gameSegmentClusterId, GameSegmentCluster_PubSub_Message message)
-        {
-            PubSub.Publish(PubSubChannels.GameSegmentCluster(gameSegmentClusterId), message);
-        }
-
         public void PublishToGameSegment(string gameSegmentId, GameSegment_PubSub_Message message)
         {
             PubSub.Publish(PubSubChannels.GameSegment(gameSegmentId), message);
@@ -74,17 +70,17 @@ namespace Pather.Servers.GameWorldServer
         }
 
 
-        public Promise<T, UndefinedPromiseError> PublishToGameSegmentClusterWithCallback<T>(string gameSegmentClusterId, GameSegmentCluster_PubSub_ReqRes_Message message)
-        {
-            var deferred = Q.Defer<T, UndefinedPromiseError>();
-            PubSub.Publish(PubSubChannels.GameSegmentCluster(gameSegmentClusterId), message);
-            deferredMessages.Add(message.MessageId, Script.Reinterpret<Deferred<object, UndefinedPromiseError>>(deferred));
-            return deferred.Promise;
-        }
-
         public void PublishToGatewayServer(string gatewayId, Gateway_PubSub_Message message)
         {
             PubSub.Publish(gatewayId, message);
+        }
+
+        public Promise<T, UndefinedPromiseError> PublishToServerManagerWithCallback<T>(ServerManager_PubSub_ReqRes_Message message)
+        {
+            var deferred = Q.Defer<T, UndefinedPromiseError>();
+            PubSub.Publish(PubSubChannels.ServerManager(), message);
+            deferredMessages.Add(message.MessageId, Script.Reinterpret<Deferred<object, UndefinedPromiseError>>(deferred));
+            return deferred.Promise;
         }
     }
 }

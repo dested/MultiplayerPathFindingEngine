@@ -13,7 +13,7 @@ namespace Pather.Common.Models.Head.Base
             MessageId = Utilities.UniqueId();
         }
 
-        public bool Response;
+        public bool Response { get; set; }
         public string MessageId { get; set; }
     }
 }

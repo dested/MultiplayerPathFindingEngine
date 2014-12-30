@@ -5,7 +5,6 @@ using Pather.Servers.Common.PubSub;
 using Pather.Servers.Common.PushPop;
 using Pather.Servers.Common.SocketManager;
 using Pather.Servers.Database;
-using Pather.Servers.GameSegment;
 
 namespace Pather.Servers
 {
@@ -45,13 +44,7 @@ namespace Pather.Servers
                         createTickServer();
                         createMonitorServer();
                         createAuthServer();
-
-                        for (int i = 0; i < 10; i++)
-                        {
-                            createGatewayServer("DEFAULTGATEWAYID" + i, 1800 + i);
-                        }
-
-                        createGameClusterServer("TODO:DEFAULTGAMESEGMENTCLUSTER");
+                        createServerManager();
                         createGameWorldServer();
                         break;
                     case "gt":
@@ -70,13 +63,17 @@ namespace Pather.Servers
                     case "head":
                         createHeadServer();
                         break;
-                    case "gsc":
-                    case "gamesegmentcluster":
-                        createGameClusterServer("TODO:DEFAULTGAMESEGMENTCLUSTER");
+                    case "cm":
+                    case "clustermanager":
+                        createClusterManagerServer(Global.Process.Arguments[3]);
                         break;
                     case "gs":
-                    case "game":
+                    case "gamesegment":
                         createGameSegmentServer(Global.Process.Arguments[3]);
+                        break;
+                    case "sm":
+                    case "servermanager":
+                        createServerManager();
                         break;
                     case "gw":
                     case "gameworld":
@@ -97,6 +94,11 @@ namespace Pather.Servers
             }
         }
 
+        private static void createServerManager()
+        {
+            new ServerManager.ServerManager(new PubSub(),new PushPop());
+        }
+
         private static void createTickServer()
         {
             new TickServer.TickServer(new PubSub());
@@ -109,12 +111,12 @@ namespace Pather.Servers
 
         private static void createGameSegmentServer(string gameSegmentId)
         {
-            new GameSegmentServer(new PubSub(), new PushPop(), gameSegmentId);
+            new GameSegmentServer.GameSegmentServer(new PubSub(), new PushPop(), gameSegmentId);
         }
 
-        private static void createGameClusterServer(string gameSegmentClusterId)
+        private static void createClusterManagerServer(string clusterManagerId)
         {
-            new GameSegmentCluster.GameSegmentCluster(new PubSub(), new PushPop(), gameSegmentClusterId);
+            new ClusterManager.ClusterManager(new PubSub(), new PushPop(), clusterManagerId);
         }
         private static void createHeadServer()
         {
@@ -133,7 +135,7 @@ namespace Pather.Servers
 
         private static void createGatewayServer(string gatewayId, int port)
         {
-            new GatewayServer.GatewayServer(new PubSub(), new SocketIOManager(), gatewayId, port);
+            new GatewayServer.GatewayServer(new PubSub(),new PushPop(), new SocketIOManager(), gatewayId, port);
         }
     }
 }

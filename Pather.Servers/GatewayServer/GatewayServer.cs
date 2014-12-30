@@ -11,8 +11,10 @@ using Pather.Common.Models.Gateway.Socket.Base;
 using Pather.Common.Models.Head;
 using Pather.Common.Models.Tick;
 using Pather.Common.Utils;
+using Pather.Common.Utils.Promises;
 using Pather.Servers.Common;
 using Pather.Servers.Common.PubSub;
+using Pather.Servers.Common.PushPop;
 using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Common.SocketManager;
 
@@ -20,6 +22,7 @@ namespace Pather.Servers.GatewayServer
 {
     public class GatewayServer
     {
+        public IPushPop PushPop { get; set; }
         private readonly ISocketManager socketManager;
         public string GatewayId;
         private readonly int port;
@@ -29,35 +32,44 @@ namespace Pather.Servers.GatewayServer
         private readonly List<GatewayUser> Users = new List<GatewayUser>();
 
 
-        public GatewayServer(IPubSub pubsub, ISocketManager socketManager, string gatewayId, int port)
+        public GatewayServer(IPubSub pubsub, IPushPop pushPop, ISocketManager socketManager, string gatewayId, int port)
         {
+            PushPop = pushPop;
             this.socketManager = socketManager;
             GatewayId = gatewayId;
             this.port = port;
             ServerLogger.InitLogger("Gateway", GatewayId);
 
-            Global.Console.Log(GatewayId);
+            Global.Console.Log(GatewayId,port);
 
 
 
-            pubsub.Init().Then(() =>
+            Q.All(pubsub.Init(),pushPop.Init()).Then(() =>
             {
                 GatewayPubSub = new GatewayPubSub(pubsub, GatewayId);
                 GatewayPubSub.OnMessage += OnMessage;
                 GatewayPubSub.OnAllMessage += OnAllMessage;
                 GatewayPubSub.Init();
 
-
                 ClientTickManager = new ClientTickManager();
                 ClientTickManager.Init(SendPing, () =>
                 {
                     Global.Console.Log("Connected To Tick Server");
+                    registerGatewayWithCluster();
                     pubsubReady();
 
                 });
                 ClientTickManager.StartPing();
             });
         }
+
+
+        private void registerGatewayWithCluster()
+        {
+            //register game segment
+            PushPop.Push(GatewayId, 1);
+        }
+
 
         private void SendPing()
         {

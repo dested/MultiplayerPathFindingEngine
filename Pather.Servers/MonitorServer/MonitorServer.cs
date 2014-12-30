@@ -71,7 +71,7 @@ namespace Pather.Servers.MonitorServer
             io.Set("log level", 0);
             string[] serverTypes =
             {
-                "GameSegment", "GameSegmentCluster", "GameWorld", "Gateway", "Chat", "Tick", "Auth"
+                "GameSegment", "ClusterManager", "GameWorld", "Gateway", "Chat", "Tick", "Auth"
             };
             var connections = new List<SocketIOConnection>();
 

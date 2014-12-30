@@ -4,7 +4,7 @@
     {
         private static string tick = "Tick";
         private static string gameWorld = "GameWorld";
-        private static string gameSegmentCluster = "GameSegmentCluster";
+        private static string clusterManager = "ClusterManager";
         private static string serverLogger = "ServerLogger";
         private static string gameSegmentLogger = "GameSegmentLogger";
         private static string gameSegment = "GameSegment";
@@ -24,14 +24,14 @@
             return gameWorld;
         }
 
-        public static string GameSegmentCluster(string gameSegmentClusterId)
+        public static string ClusterManager(string clusterManagerId)
         {
-            return gameSegmentCluster + gameSegmentClusterId;
+            return clusterManager + clusterManagerId;
         }
 
-        public static string GameSegmentCluster()
+        public static string ClusterManager()
         {
-            return gameSegmentCluster;
+            return clusterManager;
         }
 
         public static string GameSegment(string gameSegmentId)
