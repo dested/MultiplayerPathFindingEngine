@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.Head.Base;
+using Pather.Servers.Common.PubSub;
 using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Libraries.Socket.IO;
 using Pather.Servers.Utils;
@@ -8,17 +11,30 @@ namespace Pather.Servers.ServerManager
 {
     public class ServerManager
     {
-        public ServerManager()
+        private ServerManagerPubSub serverManagerPubSub;
+
+        public ServerManager(IPubSub pubSub)
         {
-            //ExtensionMethods.debugger("");
-            var http = Global.Require<Http>("http");
+            pubSub.Init().Then(() => ready(pubSub));
+        }
 
-            var app = http.CreateServer((req, res) => res.End());
+        private void ready(IPubSub pubSub)
+        {
+            serverManagerPubSub = new ServerManagerPubSub(pubSub);
+            serverManagerPubSub.Init();
+
+            serverManagerPubSub.OnMessage += OnMessage;
+
+        }
 
 
-            var currentIP = ServerHelper.GetNetworkIPs()[0];
-            Global.Console.Log(currentIP);
- 
+        private void OnMessage(ServerManager_PubSub_Message message)
+        {
+            switch (message.Type)
+            {
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
          
     }

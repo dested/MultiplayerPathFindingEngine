@@ -262,6 +262,9 @@ $Pather_Servers_Common_PubSub_PubSubChannels.gameSegmentLogger = function() {
 $Pather_Servers_Common_PubSub_PubSubChannels.head = function() {
 	return $Pather_Servers_Common_PubSub_PubSubChannels.$headServer;
 };
+$Pather_Servers_Common_PubSub_PubSubChannels.serverManager = function() {
+	return $Pather_Servers_Common_PubSub_PubSubChannels.$serverManager;
+};
 global.Pather.Servers.Common.PubSub.PubSubChannels = $Pather_Servers_Common_PubSub_PubSubChannels;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.Common.PushPop.IPushPop
@@ -2021,17 +2024,23 @@ $Pather_Servers_MonitorServer_MonitorServer.$startMonitorServer = function() {
 global.Pather.Servers.MonitorServer.MonitorServer = $Pather_Servers_MonitorServer_MonitorServer;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.ServerManager.ServerManager
-var $Pather_Servers_ServerManager_ServerManager = function() {
-	//ExtensionMethods.debugger("");
-	var http = require('http');
-	var app = http.createServer(function(req, res) {
-		res.end();
-	});
-	var currentIP = $Pather_Servers_Utils_ServerHelper.getNetworkIPs()[0];
-	console.log(currentIP);
+var $Pather_Servers_ServerManager_ServerManager = function(pubSub) {
+	this.$serverManagerPubSub = null;
+	pubSub.init(6379).then(ss.mkdel(this, function() {
+		this.$ready(pubSub);
+	}));
 };
 $Pather_Servers_ServerManager_ServerManager.__typeName = 'Pather.Servers.ServerManager.ServerManager';
 global.Pather.Servers.ServerManager.ServerManager = $Pather_Servers_ServerManager_ServerManager;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.ServerManager.ServerManagerPubSub
+var $Pather_Servers_ServerManager_ServerManagerPubSub = function(pubSub) {
+	this.pubSub = null;
+	this.onMessage = null;
+	this.pubSub = pubSub;
+};
+$Pather_Servers_ServerManager_ServerManagerPubSub.__typeName = 'Pather.Servers.ServerManager.ServerManagerPubSub';
+global.Pather.Servers.ServerManager.ServerManagerPubSub = $Pather_Servers_ServerManager_ServerManagerPubSub;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.TickServer.TickPubSub
 var $Pather_Servers_TickServer_TickPubSub = function(pubSub) {
@@ -4436,7 +4445,31 @@ ss.initClass($Pather_Servers_Libraries_RTree_RTreePoint, $asm, {});
 ss.initClass($Pather_Servers_Libraries_RTree_Vector2, $asm, {});
 $Pather_Servers_Libraries_RTree_Vector2.$ctor1.prototype = $Pather_Servers_Libraries_RTree_Vector2.prototype;
 ss.initClass($Pather_Servers_MonitorServer_MonitorServer, $asm, {});
-ss.initClass($Pather_Servers_ServerManager_ServerManager, $asm, {});
+ss.initClass($Pather_Servers_ServerManager_ServerManager, $asm, {
+	$ready: function(pubSub) {
+		this.$serverManagerPubSub = new $Pather_Servers_ServerManager_ServerManagerPubSub(pubSub);
+		this.$serverManagerPubSub.init();
+		this.$serverManagerPubSub.onMessage = ss.delegateCombine(this.$serverManagerPubSub.onMessage, ss.mkdel(this, this.$onMessage));
+	},
+	$onMessage: function(message) {
+		switch (message.type) {
+			case 'ping': {
+				break;
+			}
+			default: {
+				throw new ss.ArgumentOutOfRangeException();
+			}
+		}
+	}
+});
+ss.initClass($Pather_Servers_ServerManager_ServerManagerPubSub, $asm, {
+	init: function() {
+		this.pubSub.subscribe($Pather_Servers_Common_PubSub_PubSubChannels.serverManager(), ss.mkdel(this, function(message) {
+			var headPubSubMessage = message;
+			this.onMessage(headPubSubMessage);
+		}));
+	}
+});
 ss.initClass($Pather_Servers_TickServer_TickPubSub, $asm, {
 	init: function() {
 		var deferred = Pather.Common.Utils.Promises.Q.defer();
@@ -4536,6 +4569,7 @@ ss.setMetadata($Pather_Servers_GatewayServer_Tests_GatewayServerTests, { attr: [
 	$Pather_Servers_Common_PubSub_PubSubChannels.$gameSegment = 'GameSegment';
 	$Pather_Servers_Common_PubSub_PubSubChannels.$gateway = 'Gateway';
 	$Pather_Servers_Common_PubSub_PubSubChannels.$headServer = 'Head';
+	$Pather_Servers_Common_PubSub_PubSubChannels.$serverManager = 'ServerManager';
 })();
 (function() {
 	$Pather_Servers_Common_ServerLogging_ServerLogger.$pubsub = null;

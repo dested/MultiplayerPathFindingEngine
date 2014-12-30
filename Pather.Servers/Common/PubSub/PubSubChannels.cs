@@ -10,6 +10,8 @@
         private static string gameSegment = "GameSegment";
         private static string gateway = "Gateway";
         private static string headServer = "Head";
+        private static string serverManager = "ServerManager";
+
 
 
         public static string Tick()
@@ -65,6 +67,11 @@
         public static string Head()
         {
             return headServer;
+        }
+
+        public static string ServerManager()
+        {
+            return serverManager;
         }
     }
 }

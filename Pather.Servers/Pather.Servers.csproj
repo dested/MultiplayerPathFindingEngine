@@ -84,6 +84,8 @@
     <Compile Include="GatewayServer\Tests\GatewayServerTests.cs" />
     <Compile Include="GameWorldServer\Tests\GameWorldServerTests.cs" />
     <Compile Include="GameSegmentCluster\GameSegmentCluster.cs" />
+    <Compile Include="HeadServer\Models\Gateway.cs" />
+    <Compile Include="HeadServer\HeadPubSub.cs" />
     <Compile Include="HeadServer\HeadServer.cs" />
     <Compile Include="Libraries\ExpressJS\Express.cs" />
     <Compile Include="Libraries\ExpressJS\ExpressRequest.cs" />
@@ -94,6 +96,7 @@
     <Compile Include="Libraries\RTree\Rectangle.cs" />
     <Compile Include="Libraries\RTree\RTree.cs" />
     <Compile Include="MonitorServer\MonitorServer.cs" />
+    <Compile Include="ServerManager\ServerManagerPubSub.cs" />
     <Compile Include="ServerManager\ServerManager.cs" />
     <Compile Include="TickServer\TickServerTickManager.cs" />
     <Compile Include="TickServer\TickPubSub.cs" />

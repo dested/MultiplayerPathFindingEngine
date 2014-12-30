@@ -153,7 +153,7 @@ namespace Pather.Client.Tests
                     //                    defer.Reject();
                 }
 
-            }, 1800).Then(communicator =>
+            }).Then(communicator =>
             {
                 communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
                 {
@@ -167,7 +167,7 @@ namespace Pather.Client.Tests
                 Global.Console.Log("2", message);
 
 
-            }, 1801).Then(communicator =>
+            }).Then(communicator =>
             {
                 communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
                 {
@@ -190,7 +190,7 @@ namespace Pather.Client.Tests
                     });
 
                 }
-            }, 1800).Then(communicator =>
+            }).Then(communicator =>
             {
                 communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
                 {
@@ -232,15 +232,10 @@ namespace Pather.Client.Tests
 
 
 
-        private static Promise<ClientCommunicator, UndefinedPromiseError> JoinUser(string userToken, Action<ClientCommunicator, MoveToLocation_Gateway_User_Socket_Message> onMove, int overridePort = 0)
+        private static Promise<ClientCommunicator, UndefinedPromiseError> JoinUser(string userToken, Action<ClientCommunicator, MoveToLocation_Gateway_User_Socket_Message> onMove)
         {
             var deferred = Q.Defer<ClientCommunicator, UndefinedPromiseError>();
 
-            var numOfGateways = 0;
-            var b = (int)(Math.Random() * numOfGateways);
-            int port = 1800 + b;
-
-            if (overridePort != 0) port = overridePort;
             GetRequest("http://localhost:2222/api/", 2222, (url) =>
             {
                 Global.Console.Log(url);

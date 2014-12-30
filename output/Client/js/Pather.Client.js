@@ -140,15 +140,25 @@
 	var $Pather_Client_Tests_LoginE2ETest = function() {
 	};
 	$Pather_Client_Tests_LoginE2ETest.__typeName = 'Pather.Client.Tests.LoginE2ETest';
-	$Pather_Client_Tests_LoginE2ETest.$joinUser = function(userToken, onMove, overridePort) {
-		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_Client_Utils_ClientCommunicator, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
-		var numOfGateways = 0;
-		var b = ss.Int32.trunc(Math.random() * numOfGateways);
-		var port = 1800 + b;
-		if (overridePort !== 0) {
-			port = overridePort;
+	$Pather_Client_Tests_LoginE2ETest.getRequest = function(url, port, callback) {
+		//todo stub out properly idiot
+		if (Pather.Common.Constants.get_testServer()) {
+			var http = require('http');
+			var options = { port: port, path: url, method: 'get' };
+			http.request(options, function(res) {
+				res.setEncoding('utf8');
+				res.on('data', function(chunk) {
+					callback(chunk);
+				});
+			}).end();
 		}
-		$.get('http://localhost:2222/api/', null, function(url) {
+		else {
+			$.get(url, null, callback);
+		}
+	};
+	$Pather_Client_Tests_LoginE2ETest.$joinUser = function(userToken, onMove) {
+		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_Client_Utils_ClientCommunicator, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
+		$Pather_Client_Tests_LoginE2ETest.getRequest('http://localhost:2222/api/', 2222, function(url) {
 			console.log(url);
 			var clientCommunicator = new $Pather_Client_Utils_ClientCommunicator(url);
 			clientCommunicator.listenForGatewayMessage(function(message) {
@@ -446,7 +456,7 @@
 								}
 							}, ss.Int32.trunc(Math.random() * 1000));
 						}
-					}, 0).then(function(communicator1) {
+					}).then(function(communicator1) {
 						var joinTime = (new Date()).getTime() - startTime;
 						console.log('Join Time', joinTime);
 						averageTimes.push(joinTime);
@@ -466,7 +476,7 @@
 				else {
 					defer.reject();
 				}
-			}, 0).then(function(communicator1) {
+			}).then(function(communicator1) {
 				var $t1 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
 				$t1.x = proposedX;
 				$t1.y = proposedY;
@@ -495,7 +505,7 @@
 				else {
 					//                    defer.Reject();
 				}
-			}, 1800).then(function(communicator1) {
+			}).then(function(communicator1) {
 				var $t2 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
 				$t2.x = proposedX;
 				$t2.y = proposedY;
@@ -503,7 +513,7 @@
 			});
 			$Pather_Client_Tests_LoginE2ETest.$joinUser(id + 2, function(communicator2, message1) {
 				console.log('2', message1);
-			}, 1801).then(function(communicator3) {
+			}).then(function(communicator3) {
 				var $t3 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
 				$t3.x = proposedX + 1;
 				$t3.y = proposedY;
@@ -519,7 +529,7 @@
 					$t4.y = proposedY;
 					communicator4.sendMessage($t4);
 				}
-			}, 1800).then(function(communicator5) {
+			}).then(function(communicator5) {
 				var $t5 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
 				$t5.x = proposedX + 1;
 				$t5.y = proposedY;

@@ -1025,6 +1025,39 @@
 	};
 	global.Pather.Common.Models.Head.Base.Head_PubSub_ReqRes_Message = $Pather_Common_Models_Head_Base_Head_PubSub_ReqRes_Message;
 	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.Head.Base.ServerManager_PubSub_Message
+	var $Pather_Common_Models_Head_Base_ServerManager_PubSub_Message = function() {
+	};
+	$Pather_Common_Models_Head_Base_ServerManager_PubSub_Message.__typeName = 'Pather.Common.Models.Head.Base.ServerManager_PubSub_Message';
+	$Pather_Common_Models_Head_Base_ServerManager_PubSub_Message.$ctor = function() {
+		var $this = {};
+		$this.type = null;
+		return $this;
+	};
+	global.Pather.Common.Models.Head.Base.ServerManager_PubSub_Message = $Pather_Common_Models_Head_Base_ServerManager_PubSub_Message;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.Head.Base.ServerManager_PubSub_MessageType
+	var $Pather_Common_Models_Head_Base_ServerManager_PubSub_MessageType = function() {
+	};
+	$Pather_Common_Models_Head_Base_ServerManager_PubSub_MessageType.__typeName = 'Pather.Common.Models.Head.Base.ServerManager_PubSub_MessageType';
+	global.Pather.Common.Models.Head.Base.ServerManager_PubSub_MessageType = $Pather_Common_Models_Head_Base_ServerManager_PubSub_MessageType;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.Head.Base.ServerManager_PubSub_ReqRes_Message
+	var $Pather_Common_Models_Head_Base_ServerManager_PubSub_ReqRes_Message = function() {
+	};
+	$Pather_Common_Models_Head_Base_ServerManager_PubSub_ReqRes_Message.__typeName = 'Pather.Common.Models.Head.Base.ServerManager_PubSub_ReqRes_Message';
+	$Pather_Common_Models_Head_Base_ServerManager_PubSub_ReqRes_Message.createInstance = function() {
+		return $Pather_Common_Models_Head_Base_ServerManager_PubSub_ReqRes_Message.$ctor();
+	};
+	$Pather_Common_Models_Head_Base_ServerManager_PubSub_ReqRes_Message.$ctor = function() {
+		var $this = $Pather_Common_Models_Head_Base_ServerManager_PubSub_Message.$ctor();
+		$this.response = false;
+		$this.messageId = null;
+		$this.messageId = $Pather_Common_Utils_Utilities.uniqueId();
+		return $this;
+	};
+	global.Pather.Common.Models.Head.Base.ServerManager_PubSub_ReqRes_Message = $Pather_Common_Models_Head_Base_ServerManager_PubSub_ReqRes_Message;
+	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.Tick.Ping_Tick_PubSub_Message
 	var $Pather_Common_Models_Tick_Ping_Tick_PubSub_Message = function() {
 	};
@@ -2136,6 +2169,9 @@
 	ss.initClass($Pather_Common_Models_Head_Ping_Response_Gateway_Head_PubSub_Message, $asm, {}, $Pather_Common_Models_Head_Base_Head_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initEnum($Pather_Common_Models_Head_Base_Head_PubSub_MessageType, $asm, { ping: 'ping' }, true);
 	ss.initClass($Pather_Common_Models_Head_Base_Head_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_Head_Base_Head_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message, $Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
+	ss.initClass($Pather_Common_Models_Head_Base_ServerManager_PubSub_Message, $asm, {}, null, [$Pather_Common_Models_Common_IPubSub_Message]);
+	ss.initEnum($Pather_Common_Models_Head_Base_ServerManager_PubSub_MessageType, $asm, { ping: 'ping' }, true);
+	ss.initClass($Pather_Common_Models_Head_Base_ServerManager_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_Head_Base_ServerManager_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message, $Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_Tick_Base_Tick_PubSub_Message, $asm, {}, null, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initClass($Pather_Common_Models_Tick_Ping_Tick_PubSub_Message, $asm, {}, $Pather_Common_Models_Tick_Base_Tick_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initEnum($Pather_Common_Models_Tick_Ping_Tick_PubSub_Message_OriginType, $asm, { gameSegment: 0, gameWorld: 1, gateway: 2 });
