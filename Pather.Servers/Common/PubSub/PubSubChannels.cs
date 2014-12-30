@@ -9,6 +9,7 @@
         private static string gameSegmentLogger = "GameSegmentLogger";
         private static string gameSegment = "GameSegment";
         private static string gateway = "Gateway";
+        private static string headServer = "Head";
 
 
         public static string Tick()
@@ -59,6 +60,11 @@
         public static string GameSegmentLogger()
         {
             return gameSegmentLogger;
+        }
+
+        public static string Head()
+        {
+            return headServer;
         }
     }
 }

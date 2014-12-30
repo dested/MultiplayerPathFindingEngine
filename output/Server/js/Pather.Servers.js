@@ -22,16 +22,20 @@ global.Pather.Servers.GameWorldServer.Models = global.Pather.Servers.GameWorldSe
 global.Pather.Servers.GameWorldServer.Tests = global.Pather.Servers.GameWorldServer.Tests || {};
 global.Pather.Servers.GatewayServer = global.Pather.Servers.GatewayServer || {};
 global.Pather.Servers.GatewayServer.Tests = global.Pather.Servers.GatewayServer.Tests || {};
+global.Pather.Servers.HeadServer = global.Pather.Servers.HeadServer || {};
+global.Pather.Servers.Libraries = global.Pather.Servers.Libraries || {};
+global.Pather.Servers.Libraries.RTree = global.Pather.Servers.Libraries.RTree || {};
 global.Pather.Servers.MonitorServer = global.Pather.Servers.MonitorServer || {};
+global.Pather.Servers.ServerManager = global.Pather.Servers.ServerManager || {};
 global.Pather.Servers.TickServer = global.Pather.Servers.TickServer || {};
 global.Pather.Servers.Utils = global.Pather.Servers.Utils || {};
 ss.initAssembly($asm, 'Pather.Servers');
 ////////////////////////////////////////////////////////////////////////////////
-// Pather.Servers.ServerManager
-var $Pather_Servers_ServerManager = function() {
+// Pather.Servers.ServerStarter
+var $Pather_Servers_ServerStarter = function() {
 };
-$Pather_Servers_ServerManager.__typeName = 'Pather.Servers.ServerManager';
-$Pather_Servers_ServerManager.main = function() {
+$Pather_Servers_ServerStarter.__typeName = 'Pather.Servers.ServerStarter';
+$Pather_Servers_ServerStarter.main = function() {
 	var arg = global.process.argv[2];
 	if (ss.isNullOrEmptyString(arg)) {
 		throw new ss.Exception('Server argument not supplied');
@@ -49,49 +53,54 @@ $Pather_Servers_ServerManager.main = function() {
 	try {
 		switch (arg) {
 			case 'all': {
-				$Pather_Servers_ServerManager.$createTickServer();
-				$Pather_Servers_ServerManager.$createMonitorServer();
-				$Pather_Servers_ServerManager.$createAuthServer();
+				$Pather_Servers_ServerStarter.$createTickServer();
+				$Pather_Servers_ServerStarter.$createMonitorServer();
+				$Pather_Servers_ServerStarter.$createAuthServer();
 				for (var i = 0; i < 10; i++) {
-					$Pather_Servers_ServerManager.$createGatewayServer('DEFAULTGATEWAYID' + i, 1800 + i);
+					$Pather_Servers_ServerStarter.$createGatewayServer('DEFAULTGATEWAYID' + i, 1800 + i);
 				}
-				$Pather_Servers_ServerManager.$createGameClusterServer('TODO:DEFAULTGAMESEGMENTCLUSTER');
-				$Pather_Servers_ServerManager.$createGameWorldServer();
+				$Pather_Servers_ServerStarter.$createGameClusterServer('TODO:DEFAULTGAMESEGMENTCLUSTER');
+				$Pather_Servers_ServerStarter.$createGameWorldServer();
 				break;
 			}
 			case 'gt':
 			case 'gateway': {
-				$Pather_Servers_ServerManager.$createGatewayServer(global.process.argv[3], parseInt(global.process.argv[4]));
+				$Pather_Servers_ServerStarter.$createGatewayServer(global.process.argv[3], parseInt(global.process.argv[4]));
 				break;
 			}
 			case 'au':
 			case 'auth': {
-				$Pather_Servers_ServerManager.$createAuthServer();
+				$Pather_Servers_ServerStarter.$createAuthServer();
 				break;
 			}
 			case 'm':
 			case 'monitor': {
-				$Pather_Servers_ServerManager.$createMonitorServer();
+				$Pather_Servers_ServerStarter.$createMonitorServer();
+				break;
+			}
+			case 'h':
+			case 'head': {
+				$Pather_Servers_ServerStarter.$createHeadServer();
 				break;
 			}
 			case 'gsc':
 			case 'gamesegmentcluster': {
-				$Pather_Servers_ServerManager.$createGameClusterServer('TODO:DEFAULTGAMESEGMENTCLUSTER');
+				$Pather_Servers_ServerStarter.$createGameClusterServer('TODO:DEFAULTGAMESEGMENTCLUSTER');
 				break;
 			}
 			case 'gs':
 			case 'game': {
-				$Pather_Servers_ServerManager.$createGameSegmentServer(global.process.argv[3]);
+				$Pather_Servers_ServerStarter.$createGameSegmentServer(global.process.argv[3]);
 				break;
 			}
 			case 'gw':
 			case 'gameworld': {
-				$Pather_Servers_ServerManager.$createGameWorldServer();
+				$Pather_Servers_ServerStarter.$createGameWorldServer();
 				break;
 			}
 			case 't':
 			case 'tick': {
-				$Pather_Servers_ServerManager.$createTickServer();
+				$Pather_Servers_ServerStarter.$createTickServer();
 				break;
 			}
 			default: {
@@ -105,28 +114,31 @@ $Pather_Servers_ServerManager.main = function() {
 		console.log('CRITICAL FAILURE: ', exc);
 	}
 };
-$Pather_Servers_ServerManager.$createTickServer = function() {
+$Pather_Servers_ServerStarter.$createTickServer = function() {
 	new $Pather_Servers_TickServer_TickServer(new $Pather_Servers_Common_PubSub_PubSub());
 };
-$Pather_Servers_ServerManager.$createGameWorldServer = function() {
+$Pather_Servers_ServerStarter.$createGameWorldServer = function() {
 	new $Pather_Servers_GameWorldServer_GameWorldServer(new $Pather_Servers_Common_PubSub_PubSub(), new $Pather_Servers_Database_DatabaseQueries());
 };
-$Pather_Servers_ServerManager.$createGameSegmentServer = function(gameSegmentId) {
+$Pather_Servers_ServerStarter.$createGameSegmentServer = function(gameSegmentId) {
 	new $Pather_Servers_GameSegment_GameSegmentServer(new $Pather_Servers_Common_PubSub_PubSub(), new $Pather_Servers_Common_PushPop_PushPop(), gameSegmentId);
 };
-$Pather_Servers_ServerManager.$createGameClusterServer = function(gameSegmentClusterId) {
+$Pather_Servers_ServerStarter.$createGameClusterServer = function(gameSegmentClusterId) {
 	new $Pather_Servers_GameSegmentCluster_GameSegmentCluster(new $Pather_Servers_Common_PubSub_PubSub(), new $Pather_Servers_Common_PushPop_PushPop(), gameSegmentClusterId);
 };
-$Pather_Servers_ServerManager.$createMonitorServer = function() {
+$Pather_Servers_ServerStarter.$createHeadServer = function() {
+	new $Pather_Servers_HeadServer_HeadServer(new $Pather_Servers_Common_PubSub_PubSub());
+};
+$Pather_Servers_ServerStarter.$createMonitorServer = function() {
 	new $Pather_Servers_MonitorServer_MonitorServer();
 };
-$Pather_Servers_ServerManager.$createAuthServer = function() {
+$Pather_Servers_ServerStarter.$createAuthServer = function() {
 	new $Pather_Servers_AuthServer_AuthServer();
 };
-$Pather_Servers_ServerManager.$createGatewayServer = function(gatewayId, port) {
+$Pather_Servers_ServerStarter.$createGatewayServer = function(gatewayId, port) {
 	new $Pather_Servers_GatewayServer_GatewayServer(new $Pather_Servers_Common_PubSub_PubSub(), new $Pather_Servers_Common_SocketManager_SocketIOManager(), gatewayId, port);
 };
-global.Pather.Servers.ServerManager = $Pather_Servers_ServerManager;
+global.Pather.Servers.ServerStarter = $Pather_Servers_ServerStarter;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.AuthServer.AuthServer
 var $Pather_Servers_AuthServer_AuthServer = function() {
@@ -247,6 +259,9 @@ $Pather_Servers_Common_PubSub_PubSubChannels.serverLogger = function(serverType)
 $Pather_Servers_Common_PubSub_PubSubChannels.gameSegmentLogger = function() {
 	return $Pather_Servers_Common_PubSub_PubSubChannels.$gameSegmentLogger;
 };
+$Pather_Servers_Common_PubSub_PubSubChannels.head = function() {
+	return $Pather_Servers_Common_PubSub_PubSubChannels.$headServer;
+};
 global.Pather.Servers.Common.PubSub.PubSubChannels = $Pather_Servers_Common_PubSub_PubSubChannels;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.Common.PushPop.IPushPop
@@ -357,6 +372,7 @@ global.Pather.Servers.Common.SocketManager.ISocketManager = $Pather_Servers_Comm
 // Pather.Servers.Common.SocketManager.SocketIOManager
 var $Pather_Servers_Common_SocketManager_SocketIOManager = function() {
 	this.$io = null;
+	this.$url = null;
 };
 $Pather_Servers_Common_SocketManager_SocketIOManager.__typeName = 'Pather.Servers.Common.SocketManager.SocketIOManager';
 global.Pather.Servers.Common.SocketManager.SocketIOManager = $Pather_Servers_Common_SocketManager_SocketIOManager;
@@ -752,6 +768,15 @@ var $Pather_Servers_GameSegmentCluster_Tests_StubPubSub = function() {
 $Pather_Servers_GameSegmentCluster_Tests_StubPubSub.__typeName = 'Pather.Servers.GameSegmentCluster.Tests.StubPubSub';
 global.Pather.Servers.GameSegmentCluster.Tests.StubPubSub = $Pather_Servers_GameSegmentCluster_Tests_StubPubSub;
 ////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.GameWorldServer.PlayerClusterInfo
+var $Pather_Servers_GameWorldServer_$PlayerClusterInfo = function(player) {
+	this.$player = null;
+	this.$neighbors = null;
+	this.$player = player;
+	this.$neighbors = [];
+};
+$Pather_Servers_GameWorldServer_$PlayerClusterInfo.__typeName = 'Pather.Servers.GameWorldServer.$PlayerClusterInfo';
+////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameWorldServer.GameSegment
 var $Pather_Servers_GameWorldServer_GameSegment = function(gameWorld) {
 	this.gameWorld = null;
@@ -813,9 +838,48 @@ var $Pather_Servers_GameWorldServer_GameWorldServer = function(pubSub, dbQueries
 	this.$databaseQueries = dbQueries;
 	pubSub.init(6379).then(ss.mkdel(this, this.$pubsubReady));
 	//            new TickWatcher();
+	setInterval(ss.mkdel(this, this.$reorganize), 60000);
 };
 $Pather_Servers_GameWorldServer_GameWorldServer.__typeName = 'Pather.Servers.GameWorldServer.GameWorldServer';
 global.Pather.Servers.GameWorldServer.GameWorldServer = $Pather_Servers_GameWorldServer_GameWorldServer;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.GameWorldServer.PlayerCluster
+var $Pather_Servers_GameWorldServer_PlayerCluster = function() {
+	this.players = null;
+	this.bestGameSegment = null;
+	this.players = [];
+};
+$Pather_Servers_GameWorldServer_PlayerCluster.__typeName = 'Pather.Servers.GameWorldServer.PlayerCluster';
+global.Pather.Servers.GameWorldServer.PlayerCluster = $Pather_Servers_GameWorldServer_PlayerCluster;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.GameWorldServer.PlayerClusterGroup
+var $Pather_Servers_GameWorldServer_PlayerClusterGroup = function() {
+	this.numberOfPlayers = 0;
+	this.playerClusters = null;
+	this.playerClusters = [];
+	this.numberOfPlayers = 0;
+};
+$Pather_Servers_GameWorldServer_PlayerClusterGroup.__typeName = 'Pather.Servers.GameWorldServer.PlayerClusterGroup';
+global.Pather.Servers.GameWorldServer.PlayerClusterGroup = $Pather_Servers_GameWorldServer_PlayerClusterGroup;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.GameWorldServer.ReorganizeManager
+var $Pather_Servers_GameWorldServer_ReorganizeManager = function(gameWorldUsers, segments) {
+	this.$gameWorldUsers = null;
+	this.$segments = null;
+	this.$tree = null;
+	this.$viewRadius = 60;
+	this.$gameWorldUsers = gameWorldUsers;
+	this.$segments = segments;
+};
+$Pather_Servers_GameWorldServer_ReorganizeManager.__typeName = 'Pather.Servers.GameWorldServer.ReorganizeManager';
+$Pather_Servers_GameWorldServer_ReorganizeManager.reorganize = function(gameWorldUsers, segments) {
+	var reorgManager = new $Pather_Servers_GameWorldServer_ReorganizeManager(gameWorldUsers, segments);
+	return reorgManager.$reorganize();
+};
+$Pather_Servers_GameWorldServer_ReorganizeManager.$pointDistance = function(nearPlayer, currentPlayer) {
+	return Math.pow(currentPlayer.x - nearPlayer.x, 2) + Math.pow(currentPlayer.y - nearPlayer.y, 2);
+};
+global.Pather.Servers.GameWorldServer.ReorganizeManager = $Pather_Servers_GameWorldServer_ReorganizeManager;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameWorldServer.Models.GameWorldNeighbor
 var $Pather_Servers_GameWorldServer_Models_GameWorldNeighbor = function(cUser, distance) {
@@ -886,8 +950,8 @@ var $Pather_Servers_GatewayServer_GatewayServer = function(pubsub, socketManager
 	this.serverCommunicator = null;
 	this.gatewayPubSub = null;
 	this.clientTickManager = null;
-	this.$cachedUserMoves = {};
 	this.$users = [];
+	this.$cachedUserMoves = {};
 	this.$socketManager = socketManager;
 	this.gatewayId = gatewayId;
 	this.$port = port;
@@ -914,6 +978,984 @@ var $Pather_Servers_GatewayServer_Tests_GatewayServerTests = function() {
 };
 $Pather_Servers_GatewayServer_Tests_GatewayServerTests.__typeName = 'Pather.Servers.GatewayServer.Tests.GatewayServerTests';
 global.Pather.Servers.GatewayServer.Tests.GatewayServerTests = $Pather_Servers_GatewayServer_Tests_GatewayServerTests;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.HeadServer.Gateway
+var $Pather_Servers_HeadServer_Gateway = function() {
+	this.address = null;
+	this.liveConnections = 0;
+	this.lastPing = new Date(0);
+	this.gatewayId = null;
+};
+$Pather_Servers_HeadServer_Gateway.__typeName = 'Pather.Servers.HeadServer.Gateway';
+global.Pather.Servers.HeadServer.Gateway = $Pather_Servers_HeadServer_Gateway;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.HeadServer.HeadPubSub
+var $Pather_Servers_HeadServer_HeadPubSub = function(pubSub) {
+	this.pubSub = null;
+	this.onMessage = null;
+	this.pubSub = pubSub;
+};
+$Pather_Servers_HeadServer_HeadPubSub.__typeName = 'Pather.Servers.HeadServer.HeadPubSub';
+global.Pather.Servers.HeadServer.HeadPubSub = $Pather_Servers_HeadServer_HeadPubSub;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.HeadServer.HeadServer
+var $Pather_Servers_HeadServer_HeadServer = function(pubSub) {
+	this.$headPubSub = null;
+	this.$oldGateways = [];
+	this.$gateways = [];
+	pubSub.init(6379).then(ss.mkdel(this, function() {
+		this.$ready(pubSub);
+	}));
+};
+$Pather_Servers_HeadServer_HeadServer.__typeName = 'Pather.Servers.HeadServer.HeadServer';
+global.Pather.Servers.HeadServer.HeadServer = $Pather_Servers_HeadServer_HeadServer;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Libraries.RTree.ILog
+var $Pather_Servers_Libraries_RTree_$ILog = function() {
+};
+$Pather_Servers_Libraries_RTree_$ILog.__typeName = 'Pather.Servers.Libraries.RTree.$ILog';
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Libraries.RTree.Log
+var $Pather_Servers_Libraries_RTree_$Log = function() {
+	this.$1$IsDebugEnabledField = false;
+};
+$Pather_Servers_Libraries_RTree_$Log.__typeName = 'Pather.Servers.Libraries.RTree.$Log';
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Libraries.RTree.LogManager
+var $Pather_Servers_Libraries_RTree_$LogManager = function() {
+};
+$Pather_Servers_Libraries_RTree_$LogManager.__typeName = 'Pather.Servers.Libraries.RTree.$LogManager';
+$Pather_Servers_Libraries_RTree_$LogManager.$getLogger = function(fullName) {
+	return new $Pather_Servers_Libraries_RTree_$Log();
+};
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Libraries.RTree.BoundingBox
+var $Pather_Servers_Libraries_RTree_BoundingBox = function(min, max) {
+	this.min = null;
+	this.max = null;
+	this.min = min;
+	this.max = max;
+};
+$Pather_Servers_Libraries_RTree_BoundingBox.__typeName = 'Pather.Servers.Libraries.RTree.BoundingBox';
+$Pather_Servers_Libraries_RTree_BoundingBox.createFromPoints = function(points) {
+	if (ss.isNullOrUndefined(points)) {
+		throw new ss.ArgumentNullException();
+	}
+	var flag = true;
+	var min = new $Pather_Servers_Libraries_RTree_Vector2(3.40282346638529E+38);
+	var max = new $Pather_Servers_Libraries_RTree_Vector2(-3.40282346638529E+38);
+	var $t1 = ss.getEnumerator(points);
+	try {
+		while ($t1.moveNext()) {
+			var vector2 = $t1.current();
+			min.x = ((min.x < vector2.x) ? min.x : vector2.x);
+			min.y = ((min.y < vector2.y) ? min.y : vector2.y);
+			max.x = ((max.x > vector2.x) ? max.x : vector2.x);
+			max.y = ((max.y > vector2.y) ? max.y : vector2.y);
+			flag = false;
+		}
+	}
+	finally {
+		$t1.dispose();
+	}
+	if (flag) {
+		throw new ss.ArgumentException();
+	}
+	else {
+		return new $Pather_Servers_Libraries_RTree_BoundingBox(min, max);
+	}
+};
+global.Pather.Servers.Libraries.RTree.BoundingBox = $Pather_Servers_Libraries_RTree_BoundingBox;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Libraries.RTree.Node
+var $Pather_Servers_Libraries_RTree_Node$1 = function(T) {
+	var $type = function(nodeId, level, maxNodeEntries) {
+		this.$nodeId = 0;
+		this.$mbr = null;
+		this.$entries = null;
+		this.$ids = null;
+		this.$level = 0;
+		this.$entryCount = 0;
+		this.$nodeId = nodeId;
+		this.$level = level;
+		this.$entries = new Array(maxNodeEntries);
+		this.$ids = new Array(maxNodeEntries);
+	};
+	ss.registerGenericClassInstance($type, $Pather_Servers_Libraries_RTree_Node$1, [T], {
+		$addEntry: function(r, id) {
+			this.$ids[this.$entryCount] = id;
+			this.$entries[this.$entryCount] = r.$copy();
+			this.$entryCount++;
+			if (ss.isNullOrUndefined(this.$mbr)) {
+				this.$mbr = r.$copy();
+			}
+			else {
+				this.$mbr.$add(r);
+			}
+		},
+		$addEntryNoCopy: function(r, id) {
+			this.$ids[this.$entryCount] = id;
+			this.$entries[this.$entryCount] = r;
+			this.$entryCount++;
+			if (ss.isNullOrUndefined(this.$mbr)) {
+				this.$mbr = r.$copy();
+			}
+			else {
+				this.$mbr.$add(r);
+			}
+		},
+		$findEntry: function(r, id) {
+			for (var i = 0; i < this.$entryCount; i++) {
+				if (id === this.$ids[i] && r.equals(this.$entries[i])) {
+					return i;
+				}
+			}
+			return -1;
+		},
+		$deleteEntry: function(i, minNodeEntries) {
+			var lastIndex = this.$entryCount - 1;
+			var deletedRectangle = this.$entries[i];
+			this.$entries[i] = null;
+			if (i !== lastIndex) {
+				this.$entries[i] = this.$entries[lastIndex];
+				this.$ids[i] = this.$ids[lastIndex];
+				this.$entries[lastIndex] = null;
+			}
+			this.$entryCount--;
+			// if there are at least minNodeEntries, adjust the MBR.
+			// otherwise, don't bother, as the Node<T> will be 
+			// eliminated anyway.
+			if (this.$entryCount >= minNodeEntries) {
+				this.$recalculateMBR(deletedRectangle);
+			}
+		},
+		$recalculateMBR: function(deletedRectangle) {
+			if (this.$mbr.$edgeOverlaps(deletedRectangle)) {
+				this.$mbr.$set(this.$entries[0].$min, this.$entries[0].$max);
+				for (var i = 1; i < this.$entryCount; i++) {
+					this.$mbr.$add(this.$entries[i]);
+				}
+			}
+		},
+		getEntryCount: function() {
+			return this.$entryCount;
+		},
+		getEntry: function(index) {
+			if (index < this.$entryCount) {
+				return this.$entries[index];
+			}
+			return null;
+		},
+		getId: function(index) {
+			if (index < this.$entryCount) {
+				return this.$ids[index];
+			}
+			return -1;
+		},
+		$reorganize: function(rtree) {
+			var countdownIndex = rtree.$maxNodeEntries - 1;
+			for (var index = 0; index < this.$entryCount; index++) {
+				if (ss.isNullOrUndefined(this.$entries[index])) {
+					while (ss.isNullOrUndefined(this.$entries[countdownIndex]) && countdownIndex > index) {
+						countdownIndex--;
+					}
+					this.$entries[index] = this.$entries[countdownIndex];
+					this.$ids[index] = this.$ids[countdownIndex];
+					this.$entries[countdownIndex] = null;
+				}
+			}
+		},
+		$isLeaf: function() {
+			return this.$level === 1;
+		},
+		getLevel: function() {
+			return this.$level;
+		},
+		getMBR: function() {
+			return this.$mbr;
+		}
+	}, function() {
+		return null;
+	}, function() {
+		return [];
+	});
+	return $type;
+};
+$Pather_Servers_Libraries_RTree_Node$1.__typeName = 'Pather.Servers.Libraries.RTree.Node$1';
+ss.initGenericClass($Pather_Servers_Libraries_RTree_Node$1, $asm, 1);
+global.Pather.Servers.Libraries.RTree.Node$1 = $Pather_Servers_Libraries_RTree_Node$1;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Libraries.RTree.Rectangle
+var $Pather_Servers_Libraries_RTree_Rectangle = function(x1, y1) {
+	this.$max = null;
+	this.$min = null;
+	this.$min = new Array($Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS);
+	this.$max = new Array($Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS);
+	this.$set$1(x1, y1, x1, y1, 1, 1);
+};
+$Pather_Servers_Libraries_RTree_Rectangle.__typeName = 'Pather.Servers.Libraries.RTree.Rectangle';
+$Pather_Servers_Libraries_RTree_Rectangle.$ctor2 = function(x1, y1, x2, y2, z1, z2) {
+	this.$max = null;
+	this.$min = null;
+	this.$min = new Array($Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS);
+	this.$max = new Array($Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS);
+	this.$set$1(x1, y1, x2, y2, z1, z2);
+};
+$Pather_Servers_Libraries_RTree_Rectangle.$ctor1 = function(min, max) {
+	this.$max = null;
+	this.$min = null;
+	if (min.length !== $Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS || max.length !== $Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS) {
+		throw new ss.Exception('Error in Rectangle constructor: min and max arrays must be of length ' + $Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS);
+	}
+	this.$min = new Array($Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS);
+	this.$max = new Array($Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS);
+	this.$set(min, max);
+};
+global.Pather.Servers.Libraries.RTree.Rectangle = $Pather_Servers_Libraries_RTree_Rectangle;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Libraries.RTree.RTree
+var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
+	var $type = function() {
+		this.$log = null;
+		this.$deleteLog = null;
+		this.$maxNodeEntries = 0;
+		this.$minNodeEntries = 0;
+		this.nodeMap = {};
+		this.$entryStatus = null;
+		this.$initialEntryStatus = null;
+		this.$parents = new Array();
+		this.$parentsEntry = new Array();
+		this.$treeHeight = 1;
+		this.$rootNodeId = 0;
+		this.$msize = 0;
+		this.$highestUsedNodeId = 0;
+		this.$deletedNodeIds = new Array();
+		this.$nearestIds = [];
+		this.idsToItems = {};
+		this.$itemsToIds = {};
+		this.$idcounter = -2147483648;
+		this.$oldRectangle = new $Pather_Servers_Libraries_RTree_Rectangle.$ctor2(0, 0, 0, 0, 0, 0);
+		this.$init();
+	};
+	$type.$ctor1 = function(MaxNodeEntries, MinNodeEntries) {
+		this.$log = null;
+		this.$deleteLog = null;
+		this.$maxNodeEntries = 0;
+		this.$minNodeEntries = 0;
+		this.nodeMap = {};
+		this.$entryStatus = null;
+		this.$initialEntryStatus = null;
+		this.$parents = new Array();
+		this.$parentsEntry = new Array();
+		this.$treeHeight = 1;
+		this.$rootNodeId = 0;
+		this.$msize = 0;
+		this.$highestUsedNodeId = 0;
+		this.$deletedNodeIds = new Array();
+		this.$nearestIds = [];
+		this.idsToItems = {};
+		this.$itemsToIds = {};
+		this.$idcounter = -2147483648;
+		this.$oldRectangle = new $Pather_Servers_Libraries_RTree_Rectangle.$ctor2(0, 0, 0, 0, 0, 0);
+		this.$minNodeEntries = MinNodeEntries;
+		this.$maxNodeEntries = MaxNodeEntries;
+		this.$init();
+	};
+	ss.registerGenericClassInstance($type, $Pather_Servers_Libraries_RTree_RTree$1, [T], {
+		$init: function() {
+			//initialize logs
+			this.$log = $Pather_Servers_Libraries_RTree_$LogManager.$getLogger(ss.getTypeFullName($type));
+			this.$deleteLog = $Pather_Servers_Libraries_RTree_$LogManager.$getLogger(ss.getTypeFullName($type) + '-delete');
+			// Obviously a Node&lt;T&gt; with less than 2 entries cannot be split.
+			// The Node&lt;T&gt; splitting algorithm will work with only 2 entries
+			// per node, but will be inefficient.
+			if (this.$maxNodeEntries < 2) {
+				this.$log.$warn('Invalid MaxNodeEntries = ' + this.$maxNodeEntries + ' Resetting to default value of ' + $type.$defaulT_MAX_NODE_ENTRIES);
+				this.$maxNodeEntries = $type.$defaulT_MAX_NODE_ENTRIES;
+			}
+			// The MinNodeEntries must be less than or equal to (int) (MaxNodeEntries / 2)
+			if (this.$minNodeEntries < 1 || this.$minNodeEntries > ss.Int32.div(this.$maxNodeEntries, 2)) {
+				this.$log.$warn('MinNodeEntries must be between 1 and MaxNodeEntries / 2');
+				this.$minNodeEntries = ss.Int32.div(this.$maxNodeEntries, 2);
+			}
+			this.$entryStatus = new Array(this.$maxNodeEntries);
+			this.$initialEntryStatus = new Array(this.$maxNodeEntries);
+			for (var i = 0; i < this.$maxNodeEntries; i++) {
+				this.$initialEntryStatus[i] = 1;
+			}
+			var root = new (ss.makeGenericType($Pather_Servers_Libraries_RTree_Node$1, [T]))(this.$rootNodeId, 1, this.$maxNodeEntries);
+			this.nodeMap[this.$rootNodeId] = root;
+			this.$log.$info('init()  MaxNodeEntries = ' + this.$maxNodeEntries + ', MinNodeEntries = ' + this.$minNodeEntries);
+		},
+		add: function(r, item) {
+			this.$idcounter++;
+			var id = this.$idcounter;
+			this.idsToItems[id] = item;
+			this.$itemsToIds[item] = id;
+			this.$add(r, id);
+		},
+		$add: function(r, id) {
+			if (this.$log.get_$isDebugEnabled()) {
+				this.$log.$debug('Adding rectangle ' + r + ', id ' + id);
+			}
+			this.$add$1(r.$copy(), id, 1);
+			this.$msize++;
+		},
+		$add$1: function(r, id, level) {
+			// I1 [Find position for new record] Invoke ChooseLeaf to select a 
+			// leaf Node&lt;T&gt; L in which to place r
+			var n = this.$chooseNode(r, level);
+			var newLeaf = null;
+			// I2 [Add record to leaf node] If L has room for another entry, 
+			// install E. Otherwise invoke SplitNode to obtain L and LL containing
+			// E and all the old entries of L
+			if (n.$entryCount < this.$maxNodeEntries) {
+				n.$addEntryNoCopy(r, id);
+			}
+			else {
+				newLeaf = this.$splitNode(n, r, id);
+			}
+			// I3 [Propagate changes upwards] Invoke AdjustTree on L, also passing LL
+			// if a split was performed
+			var newNode = this.$adjustTree(n, newLeaf);
+			// I4 [Grow tree taller] If Node&lt;T&gt; split propagation caused the root to 
+			// split, create a new root whose children are the two resulting nodes.
+			if (ss.isValue(newNode)) {
+				var oldRootNodeId = this.$rootNodeId;
+				var oldRoot = this.getNode(oldRootNodeId);
+				this.$rootNodeId = this.$getNextNodeId();
+				this.$treeHeight++;
+				var root = new (ss.makeGenericType($Pather_Servers_Libraries_RTree_Node$1, [T]))(this.$rootNodeId, this.$treeHeight, this.$maxNodeEntries);
+				root.$addEntry(newNode.$mbr, newNode.$nodeId);
+				root.$addEntry(oldRoot.$mbr, oldRoot.$nodeId);
+				this.nodeMap[this.$rootNodeId] = root;
+			}
+			if ($type.$internaL_CONSISTENCY_CHECKING) {
+				this.$checkConsistency(this.$rootNodeId, this.$treeHeight, null);
+			}
+		},
+		delete$1: function(r, item) {
+			var id = this.$itemsToIds[item];
+			var success = this.$delete(r, id);
+			if (success === true) {
+				delete this.idsToItems[id];
+				delete this.$itemsToIds[item];
+			}
+			return success;
+		},
+		$delete: function(r, id) {
+			// FindLeaf algorithm inlined here. Note the "official" algorithm 
+			// searches all overlapping entries. This seems inefficient to me, 
+			// as an entry is only worth searching if it contains (NOT overlaps)
+			// the rectangle we are searching for.
+			//
+			// Also the algorithm has been changed so that it is not recursive.
+			// FL1 [Search subtrees] If root is not a leaf, check each entry 
+			// to determine if it contains r. For each entry found, invoke
+			// findLeaf on the Node&lt;T&gt; pointed to by the entry, until r is found or
+			// all entries have been checked.
+			ss.clear(this.$parents);
+			this.$parents.push(this.$rootNodeId);
+			ss.clear(this.$parentsEntry);
+			this.$parentsEntry.push(-1);
+			var n = null;
+			var foundIndex = -1;
+			// index of entry to be deleted in leaf
+			while (foundIndex === -1 && this.$parents.length > 0) {
+				n = this.getNode(ss.arrayPeekBack(this.$parents));
+				var startIndex = ss.arrayPeekBack(this.$parentsEntry) + 1;
+				if (!n.$isLeaf()) {
+					this.$deleteLog.$debug('searching Node<T> ' + n.$nodeId + ', from index ' + startIndex);
+					var contains = false;
+					for (var i = startIndex; i < n.$entryCount; i++) {
+						if (n.$entries[i].$contains(r)) {
+							this.$parents.push(n.$ids[i]);
+							this.$parentsEntry.pop();
+							this.$parentsEntry.push(i);
+							// this becomes the start index when the child has been searched
+							this.$parentsEntry.push(-1);
+							contains = true;
+							break;
+							// ie go to next iteration of while()
+						}
+					}
+					if (contains) {
+						continue;
+					}
+				}
+				else {
+					foundIndex = n.$findEntry(r, id);
+				}
+				this.$parents.pop();
+				this.$parentsEntry.pop();
+			}
+			// while not found
+			if (foundIndex !== -1) {
+				n.$deleteEntry(foundIndex, this.$minNodeEntries);
+				this.$condenseTree(n);
+				this.$msize--;
+			}
+			// shrink the tree if possible (i.e. if root Node&lt;T%gt; has exactly one entry,and that 
+			// entry is not a leaf node, delete the root (it's entry becomes the new root)
+			var root = this.getNode(this.$rootNodeId);
+			while (root.$entryCount === 1 && this.$treeHeight > 1) {
+				root.$entryCount = 0;
+				this.$rootNodeId = root.$ids[0];
+				this.$treeHeight--;
+				root = this.getNode(this.$rootNodeId);
+			}
+			return foundIndex !== -1;
+		},
+		nearest: function(p, furthestDistance) {
+			var retval = [];
+			this.$nearest$1(p, ss.mkdel(this, function(id) {
+				retval.push(this.idsToItems[id]);
+			}), furthestDistance);
+			return retval;
+		},
+		$nearest$1: function(p, v, furthestDistance) {
+			var rootNode = this.getNode(this.$rootNodeId);
+			this.$nearest(p, rootNode, furthestDistance);
+			for (var $t1 = 0; $t1 < this.$nearestIds.length; $t1++) {
+				var id = this.$nearestIds[$t1];
+				v(id);
+			}
+			ss.clear(this.$nearestIds);
+		},
+		intersects: function(r) {
+			var retval = [];
+			this.$intersects(r, ss.mkdel(this, function(id) {
+				retval.push(this.idsToItems[id]);
+			}));
+			return retval;
+		},
+		$intersects: function(r, v) {
+			var rootNode = this.getNode(this.$rootNodeId);
+			this.$intersects$1(r, v, rootNode);
+		},
+		contains: function(r) {
+			var retval = [];
+			this.$contains(r, ss.mkdel(this, function(id) {
+				retval.push(this.idsToItems[id]);
+			}));
+			return retval;
+		},
+		$contains: function(r, v) {
+			// find all rectangles in the tree that are contained by the passed rectangle
+			// written to be non-recursive (should model other searches on this?)
+			ss.clear(this.$parents);
+			this.$parents.push(this.$rootNodeId);
+			ss.clear(this.$parentsEntry);
+			this.$parentsEntry.push(-1);
+			// TODO: possible shortcut here - could test for intersection with the 
+			// MBR of the root node. If no intersection, return immediately.
+			while (this.$parents.length > 0) {
+				var n = this.getNode(ss.arrayPeekBack(this.$parents));
+				var startIndex = ss.arrayPeekBack(this.$parentsEntry) + 1;
+				if (!n.$isLeaf()) {
+					// go through every entry in the index Node<T> to check
+					// if it intersects the passed rectangle. If so, it 
+					// could contain entries that are contained.
+					var intersects = false;
+					for (var i = startIndex; i < n.$entryCount; i++) {
+						if (r.intersects(n.$entries[i])) {
+							this.$parents.push(n.$ids[i]);
+							this.$parentsEntry.pop();
+							this.$parentsEntry.push(i);
+							// this becomes the start index when the child has been searched
+							this.$parentsEntry.push(-1);
+							intersects = true;
+							break;
+							// ie go to next iteration of while()
+						}
+					}
+					if (intersects) {
+						continue;
+					}
+				}
+				else {
+					// go through every entry in the leaf to check if 
+					// it is contained by the passed rectangle
+					for (var i1 = 0; i1 < n.$entryCount; i1++) {
+						if (r.$contains(n.$entries[i1])) {
+							v(n.$ids[i1]);
+						}
+					}
+				}
+				this.$parents.pop();
+				this.$parentsEntry.pop();
+			}
+		},
+		getBounds: function() {
+			var bounds = null;
+			var n = this.getNode(this.getRootNodeId());
+			if (ss.isValue(n) && ss.isValue(n.getMBR())) {
+				bounds = n.getMBR().$copy();
+			}
+			return bounds;
+		},
+		getVersion: function() {
+			return 'RTree-1.0b2p1';
+		},
+		$getNextNodeId: function() {
+			var nextNodeId = 0;
+			if (this.$deletedNodeIds.length > 0) {
+				nextNodeId = this.$deletedNodeIds.pop();
+			}
+			else {
+				nextNodeId = 1 + this.$highestUsedNodeId++;
+			}
+			return nextNodeId;
+		},
+		getNode: function(index) {
+			return this.nodeMap[index];
+		},
+		$getHighestUsedNodeId: function() {
+			return this.$highestUsedNodeId;
+		},
+		getRootNodeId: function() {
+			return this.$rootNodeId;
+		},
+		$splitNode: function(n, newRect, newId) {
+			// [Pick first entry for each group] Apply algorithm pickSeeds to 
+			// choose two entries to be the first elements of the groups. Assign
+			// each to a group.
+			// debug code
+			var initialArea = 0;
+			if (this.$log.get_$isDebugEnabled()) {
+				var union = n.$mbr.$union(newRect);
+				initialArea = union.$area();
+			}
+			for (var i = 0; i < this.$maxNodeEntries; i++) {
+				this.$entryStatus[i] = this.$initialEntryStatus[i];
+			}
+			var newNode = null;
+			newNode = new (ss.makeGenericType($Pather_Servers_Libraries_RTree_Node$1, [T]))(this.$getNextNodeId(), n.$level, this.$maxNodeEntries);
+			this.nodeMap[newNode.$nodeId] = newNode;
+			this.$pickSeeds(n, newRect, newId, newNode);
+			// this also sets the entryCount to 1
+			// [Check if done] If all entries have been assigned, stop. If one
+			// group has so few entries that all the rest must be assigned to it in 
+			// order for it to have the minimum number m, assign them and stop. 
+			while (n.$entryCount + newNode.$entryCount < this.$maxNodeEntries + 1) {
+				if (this.$maxNodeEntries + 1 - newNode.$entryCount === this.$minNodeEntries) {
+					// assign all remaining entries to original node
+					for (var i1 = 0; i1 < this.$maxNodeEntries; i1++) {
+						if (this.$entryStatus[i1] === $type.$entrY_STATUS_UNASSIGNED) {
+							this.$entryStatus[i1] = 0;
+							n.$mbr.$add(n.$entries[i1]);
+							n.$entryCount++;
+						}
+					}
+					break;
+				}
+				if (this.$maxNodeEntries + 1 - n.$entryCount === this.$minNodeEntries) {
+					// assign all remaining entries to new node
+					for (var i2 = 0; i2 < this.$maxNodeEntries; i2++) {
+						if (this.$entryStatus[i2] === $type.$entrY_STATUS_UNASSIGNED) {
+							this.$entryStatus[i2] = 0;
+							newNode.$addEntryNoCopy(n.$entries[i2], n.$ids[i2]);
+							n.$entries[i2] = null;
+						}
+					}
+					break;
+				}
+				// [Select entry to assign] Invoke algorithm pickNext to choose the
+				// next entry to assign. Add it to the group whose covering rectangle 
+				// will have to be enlarged least to accommodate it. Resolve ties
+				// by adding the entry to the group with smaller area, then to the 
+				// the one with fewer entries, then to either. Repeat from S2
+				this.$pickNext(n, newNode);
+			}
+			n.$reorganize(this);
+			// check that the MBR stored for each Node&lt;T&gt; is correct.
+			if ($type.$internaL_CONSISTENCY_CHECKING) {
+				if (!n.$mbr.equals(this.$calculateMBR(n))) {
+					this.$log.$error('Error: splitNode old Node<T> MBR wrong');
+				}
+				if (!newNode.$mbr.equals(this.$calculateMBR(newNode))) {
+					this.$log.$error('Error: splitNode new Node<T> MBR wrong');
+				}
+			}
+			// debug code
+			if (this.$log.get_$isDebugEnabled()) {
+				var newArea = n.$mbr.$area() + newNode.$mbr.$area();
+				var percentageIncrease = 100 * (newArea - initialArea) / initialArea;
+				this.$log.$debug('Node ' + n.$nodeId + ' split. New area increased by ' + percentageIncrease + '%');
+			}
+			return newNode;
+		},
+		$pickSeeds: function(n, newRect, newId, newNode) {
+			// Find extreme rectangles along all dimension. Along each dimension,
+			// find the entry whose rectangle has the highest low side, and the one 
+			// with the lowest high side. Record the separation.
+			var maxNormalizedSeparation = 0;
+			var highestLowIndex = 0;
+			var lowestHighIndex = 0;
+			// for the purposes of picking seeds, take the MBR of the Node&lt;T&gt; to include
+			// the new rectangle aswell.
+			n.$mbr.$add(newRect);
+			if (this.$log.get_$isDebugEnabled()) {
+				this.$log.$debug('pickSeeds(): NodeId = ' + n.$nodeId + ', newRect = ' + newRect);
+			}
+			for (var d = 0; d < $Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS; d++) {
+				var tempHighestLow = newRect.$min[d];
+				var tempHighestLowIndex = -1;
+				// -1 indicates the new rectangle is the seed
+				var tempLowestHigh = newRect.$max[d];
+				var tempLowestHighIndex = -1;
+				for (var i = 0; i < n.$entryCount; i++) {
+					var tempLow = n.$entries[i].$min[d];
+					if (tempLow >= tempHighestLow) {
+						tempHighestLow = tempLow;
+						tempHighestLowIndex = i;
+					}
+					else {
+						// ensure that the same index cannot be both lowestHigh and highestLow
+						var tempHigh = n.$entries[i].$max[d];
+						if (tempHigh <= tempLowestHigh) {
+							tempLowestHigh = tempHigh;
+							tempLowestHighIndex = i;
+						}
+					}
+					// PS2 [Adjust for shape of the rectangle cluster] Normalize the separations
+					// by dividing by the widths of the entire set along the corresponding
+					// dimension
+					var normalizedSeparation = (tempHighestLow - tempLowestHigh) / (n.$mbr.$max[d] - n.$mbr.$min[d]);
+					if (normalizedSeparation > 1 || normalizedSeparation < -1) {
+						this.$log.$error('Invalid normalized separation');
+					}
+					if (this.$log.get_$isDebugEnabled()) {
+						this.$log.$debug('Entry ' + i + ', dimension ' + d + ': HighestLow = ' + tempHighestLow + ' (index ' + tempHighestLowIndex + ')' + ', LowestHigh = ' + tempLowestHigh + ' (index ' + tempLowestHighIndex + ', NormalizedSeparation = ' + normalizedSeparation);
+					}
+					// PS3 [Select the most extreme pair] Choose the pair with the greatest
+					// normalized separation along any dimension.
+					if (normalizedSeparation > maxNormalizedSeparation) {
+						maxNormalizedSeparation = normalizedSeparation;
+						highestLowIndex = tempHighestLowIndex;
+						lowestHighIndex = tempLowestHighIndex;
+					}
+				}
+			}
+			// highestLowIndex is the seed for the new node.
+			if (highestLowIndex === -1) {
+				newNode.$addEntry(newRect, newId);
+			}
+			else {
+				newNode.$addEntryNoCopy(n.$entries[highestLowIndex], n.$ids[highestLowIndex]);
+				n.$entries[highestLowIndex] = null;
+				// move the new rectangle into the space vacated by the seed for the new node
+				n.$entries[highestLowIndex] = newRect;
+				n.$ids[highestLowIndex] = newId;
+			}
+			// lowestHighIndex is the seed for the original node. 
+			if (lowestHighIndex === -1) {
+				lowestHighIndex = highestLowIndex;
+			}
+			this.$entryStatus[lowestHighIndex] = 0;
+			n.$entryCount = 1;
+			n.$mbr.$set(n.$entries[lowestHighIndex].$min, n.$entries[lowestHighIndex].$max);
+		},
+		$pickNext: function(n, newNode) {
+			var maxDifference = Number.NEGATIVE_INFINITY;
+			var next = 0;
+			var nextGroup = 0;
+			maxDifference = Number.NEGATIVE_INFINITY;
+			if (this.$log.get_$isDebugEnabled()) {
+				this.$log.$debug('pickNext()');
+			}
+			for (var i = 0; i < this.$maxNodeEntries; i++) {
+				if (this.$entryStatus[i] === $type.$entrY_STATUS_UNASSIGNED) {
+					if (ss.isNullOrUndefined(n.$entries[i])) {
+						this.$log.$error('Error: Node<T> ' + n.$nodeId + ', entry ' + i + ' is null');
+					}
+					var nIncrease = n.$mbr.$enlargement(n.$entries[i]);
+					var newNodeIncrease = newNode.$mbr.$enlargement(n.$entries[i]);
+					var difference = Math.abs(nIncrease - newNodeIncrease);
+					if (difference > maxDifference) {
+						next = i;
+						if (nIncrease < newNodeIncrease) {
+							nextGroup = 0;
+						}
+						else if (newNodeIncrease < nIncrease) {
+							nextGroup = 1;
+						}
+						else if (n.$mbr.$area() < newNode.$mbr.$area()) {
+							nextGroup = 0;
+						}
+						else if (newNode.$mbr.$area() < n.$mbr.$area()) {
+							nextGroup = 1;
+						}
+						else if (newNode.$entryCount < ss.Int32.div(this.$maxNodeEntries, 2)) {
+							nextGroup = 0;
+						}
+						else {
+							nextGroup = 1;
+						}
+						maxDifference = difference;
+					}
+					if (this.$log.get_$isDebugEnabled()) {
+						this.$log.$debug('Entry ' + i + ' group0 increase = ' + nIncrease + ', group1 increase = ' + newNodeIncrease + ', diff = ' + difference + ', MaxDiff = ' + maxDifference + ' (entry ' + next + ')');
+					}
+				}
+			}
+			this.$entryStatus[next] = 0;
+			if (nextGroup === 0) {
+				n.$mbr.$add(n.$entries[next]);
+				n.$entryCount++;
+			}
+			else {
+				// move to new node.
+				newNode.$addEntryNoCopy(n.$entries[next], n.$ids[next]);
+				n.$entries[next] = null;
+			}
+			return next;
+		},
+		$nearest: function(p, n, nearestDistance) {
+			for (var i = 0; i < n.$entryCount; i++) {
+				var tempDistance = n.$entries[i].$distance(p);
+				if (n.$isLeaf()) {
+					// for leaves, the distance is an actual nearest distance 
+					if (tempDistance < nearestDistance) {
+						//                        nearestDistance = tempDistance;
+						//                        nearestIds.Clear();
+					}
+					if (tempDistance <= nearestDistance) {
+						this.$nearestIds.push(n.$ids[i]);
+					}
+				}
+				else {
+					// for index nodes, only go into them if they potentially could have
+					// a rectangle nearer than actualNearest
+					if (tempDistance <= nearestDistance) {
+						// search the child node
+						nearestDistance = this.$nearest(p, this.getNode(n.$ids[i]), nearestDistance);
+					}
+				}
+			}
+			return nearestDistance;
+		},
+		$intersects$1: function(r, v, n) {
+			for (var i = 0; i < n.$entryCount; i++) {
+				if (r.intersects(n.$entries[i])) {
+					if (n.$isLeaf()) {
+						v(n.$ids[i]);
+					}
+					else {
+						var childNode = this.getNode(n.$ids[i]);
+						this.$intersects$1(r, v, childNode);
+					}
+				}
+			}
+		},
+		$condenseTree: function(l) {
+			// CT1 [Initialize] Set n=l. Set the list of eliminated
+			// nodes to be empty.
+			var n = l;
+			var parent = null;
+			var parentEntry = 0;
+			//TIntStack eliminatedNodeIds = new TIntStack();
+			var eliminatedNodeIds = new Array();
+			// CT2 [Find parent entry] If N is the root, go to CT6. Otherwise 
+			// let P be the parent of N, and let En be N's entry in P  
+			while (n.$level !== this.$treeHeight) {
+				parent = this.getNode(this.$parents.pop());
+				parentEntry = this.$parentsEntry.pop();
+				// CT3 [Eliminiate under-full node] If N has too few entries,
+				// delete En from P and add N to the list of eliminated nodes
+				if (n.$entryCount < this.$minNodeEntries) {
+					parent.$deleteEntry(parentEntry, this.$minNodeEntries);
+					eliminatedNodeIds.push(n.$nodeId);
+				}
+				else {
+					// CT4 [Adjust covering rectangle] If N has not been eliminated,
+					// adjust EnI to tightly contain all entries in N
+					if (!n.$mbr.equals(parent.$entries[parentEntry])) {
+						this.$oldRectangle.$set(parent.$entries[parentEntry].$min, parent.$entries[parentEntry].$max);
+						parent.$entries[parentEntry].$set(n.$mbr.$min, n.$mbr.$max);
+						parent.$recalculateMBR(this.$oldRectangle);
+					}
+				}
+				// CT5 [Move up one level in tree] Set N=P and repeat from CT2
+				n = parent;
+			}
+			// CT6 [Reinsert orphaned entries] Reinsert all entries of nodes in set Q.
+			// Entries from eliminated leaf nodes are reinserted in tree leaves as in 
+			// Insert(), but entries from higher level nodes must be placed higher in 
+			// the tree, so that leaves of their dependent subtrees will be on the same
+			// level as leaves of the main tree
+			while (eliminatedNodeIds.length > 0) {
+				var e = this.getNode(eliminatedNodeIds.pop());
+				for (var j = 0; j < e.$entryCount; j++) {
+					this.$add$1(e.$entries[j], e.$ids[j], e.$level);
+					e.$entries[j] = null;
+				}
+				e.$entryCount = 0;
+				delete this.nodeMap[e.$nodeId];
+				this.$deletedNodeIds.push(e.$nodeId);
+			}
+		},
+		$chooseNode: function(r, level) {
+			// CL1 [Initialize] Set N to be the root node
+			var n = this.getNode(this.$rootNodeId);
+			ss.clear(this.$parents);
+			ss.clear(this.$parentsEntry);
+			// CL2 [Leaf check] If N is a leaf, return N
+			while (true) {
+				if (ss.isNullOrUndefined(n)) {
+					this.$log.$error('Could not get root Node<T> (' + this.$rootNodeId + ')');
+				}
+				if (n.$level === level) {
+					return n;
+				}
+				// CL3 [Choose subtree] If N is not at the desired level, let F be the entry in N 
+				// whose rectangle FI needs least enlargement to include EI. Resolve
+				// ties by choosing the entry with the rectangle of smaller area.
+				var leastEnlargement = n.getEntry(0).$enlargement(r);
+				var index = 0;
+				// index of rectangle in subtree
+				for (var i = 1; i < n.$entryCount; i++) {
+					var tempRectangle = n.getEntry(i);
+					var tempEnlargement = tempRectangle.$enlargement(r);
+					if (tempEnlargement < leastEnlargement || tempEnlargement === leastEnlargement && tempRectangle.$area() < n.getEntry(index).$area()) {
+						index = i;
+						leastEnlargement = tempEnlargement;
+					}
+				}
+				this.$parents.push(n.$nodeId);
+				this.$parentsEntry.push(index);
+				// CL4 [Descend until a leaf is reached] Set N to be the child Node&lt;T&gt; 
+				// pointed to by Fp and repeat from CL2
+				n = this.getNode(n.$ids[index]);
+			}
+		},
+		$adjustTree: function(n, nn) {
+			// AT1 [Initialize] Set N=L. If L was split previously, set NN to be 
+			// the resulting second node.
+			// AT2 [Check if done] If N is the root, stop
+			while (n.$level !== this.$treeHeight) {
+				// AT3 [Adjust covering rectangle in parent entry] Let P be the parent 
+				// Node<T> of N, and let En be N's entry in P. Adjust EnI so that it tightly
+				// encloses all entry rectangles in N.
+				var parent = this.getNode(this.$parents.pop());
+				var entry = this.$parentsEntry.pop();
+				if (parent.$ids[entry] !== n.$nodeId) {
+					this.$log.$error('Error: entry ' + entry + ' in Node<T> ' + parent.$nodeId + ' should point to Node<T> ' + n.$nodeId + '; actually points to Node<T> ' + parent.$ids[entry]);
+				}
+				if (!parent.$entries[entry].equals(n.$mbr)) {
+					parent.$entries[entry].$set(n.$mbr.$min, n.$mbr.$max);
+					parent.$mbr.$set(parent.$entries[0].$min, parent.$entries[0].$max);
+					for (var i = 1; i < parent.$entryCount; i++) {
+						parent.$mbr.$add(parent.$entries[i]);
+					}
+				}
+				// AT4 [Propagate Node<T> split upward] If N has a partner NN resulting from 
+				// an earlier split, create a new entry Enn with Ennp pointing to NN and 
+				// Enni enclosing all rectangles in NN. Add Enn to P if there is room. 
+				// Otherwise, invoke splitNode to produce P and PP containing Enn and
+				// all P's old entries.
+				var newNode = null;
+				if (ss.isValue(nn)) {
+					if (parent.$entryCount < this.$maxNodeEntries) {
+						parent.$addEntry(nn.$mbr, nn.$nodeId);
+					}
+					else {
+						newNode = this.$splitNode(parent, nn.$mbr.$copy(), nn.$nodeId);
+					}
+				}
+				// AT5 [Move up to next level] Set N = P and set NN = PP if a split 
+				// occurred. Repeat from AT2
+				n = parent;
+				nn = newNode;
+				parent = null;
+				newNode = null;
+			}
+			return nn;
+		},
+		$checkConsistency: function(nodeId, expectedLevel, expectedMBR) {
+			// go through the tree, and check that the internal data structures of 
+			// the tree are not corrupted.    
+			var n = this.getNode(nodeId);
+			if (ss.isNullOrUndefined(n)) {
+				this.$log.$error('Error: Could not read Node<T> ' + nodeId);
+			}
+			if (n.$level !== expectedLevel) {
+				this.$log.$error('Error: Node<T> ' + nodeId + ', expected level ' + expectedLevel + ', actual level ' + n.$level);
+			}
+			var calculatedMBR = this.$calculateMBR(n);
+			if (!n.$mbr.equals(calculatedMBR)) {
+				this.$log.$error('Error: Node<T> ' + nodeId + ', calculated MBR does not equal stored MBR');
+			}
+			if (ss.isValue(expectedMBR) && !n.$mbr.equals(expectedMBR)) {
+				this.$log.$error('Error: Node<T> ' + nodeId + ', expected MBR (from parent) does not equal stored MBR');
+			}
+			// Check for corruption where a parent entry is the same object as the child MBR
+			if (ss.isValue(expectedMBR) && n.$mbr.$sameObject(expectedMBR)) {
+				this.$log.$error('Error: Node<T> ' + nodeId + " MBR using same rectangle object as parent's entry");
+			}
+			for (var i = 0; i < n.$entryCount; i++) {
+				if (ss.isNullOrUndefined(n.$entries[i])) {
+					this.$log.$error('Error: Node<T> ' + nodeId + ', Entry ' + i + ' is null');
+				}
+				if (n.$level > 1) {
+					// if not a leaf
+					this.$checkConsistency(n.$ids[i], n.$level - 1, n.$entries[i]);
+				}
+			}
+		},
+		$calculateMBR: function(n) {
+			var mbr = new $Pather_Servers_Libraries_RTree_Rectangle.$ctor1(n.$entries[0].$min, n.$entries[0].$max);
+			for (var i = 1; i < n.$entryCount; i++) {
+				mbr.$add(n.$entries[i]);
+			}
+			return mbr;
+		},
+		get_count: function() {
+			return this.$msize;
+		}
+	}, function() {
+		return null;
+	}, function() {
+		return [];
+	});
+	$type.$ctor1.prototype = $type.prototype;
+	$type.$version = '1.0b2p1';
+	$type.$defaulT_MAX_NODE_ENTRIES = 10;
+	$type.$internaL_CONSISTENCY_CHECKING = false;
+	$type.$entrY_STATUS_ASSIGNED = 0;
+	$type.$entrY_STATUS_UNASSIGNED = 1;
+	return $type;
+};
+$Pather_Servers_Libraries_RTree_RTree$1.__typeName = 'Pather.Servers.Libraries.RTree.RTree$1';
+ss.initGenericClass($Pather_Servers_Libraries_RTree_RTree$1, $asm, 1);
+global.Pather.Servers.Libraries.RTree.RTree$1 = $Pather_Servers_Libraries_RTree_RTree$1;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Libraries.RTree.RTreePoint
+var $Pather_Servers_Libraries_RTree_RTreePoint = function(x, y, z) {
+	this.$coordinates = null;
+	this.$coordinates = new Array($Pather_Servers_Libraries_RTree_RTreePoint.$DIMENSIONS);
+	this.$coordinates[0] = x;
+	this.$coordinates[1] = y;
+	this.$coordinates[2] = z;
+};
+$Pather_Servers_Libraries_RTree_RTreePoint.__typeName = 'Pather.Servers.Libraries.RTree.RTreePoint';
+global.Pather.Servers.Libraries.RTree.RTreePoint = $Pather_Servers_Libraries_RTree_RTreePoint;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Libraries.RTree.Vector2
+var $Pather_Servers_Libraries_RTree_Vector2 = function(value) {
+	this.x = 0;
+	this.y = 0;
+	this.x = value;
+	this.y = value;
+};
+$Pather_Servers_Libraries_RTree_Vector2.__typeName = 'Pather.Servers.Libraries.RTree.Vector2';
+$Pather_Servers_Libraries_RTree_Vector2.$ctor1 = function(x, y) {
+	this.x = 0;
+	this.y = 0;
+	this.x = x;
+	this.y = y;
+};
+global.Pather.Servers.Libraries.RTree.Vector2 = $Pather_Servers_Libraries_RTree_Vector2;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.MonitorServer.MonitorServer
 var $Pather_Servers_MonitorServer_MonitorServer = function() {
@@ -977,6 +2019,19 @@ $Pather_Servers_MonitorServer_MonitorServer.$startMonitorServer = function() {
 	});
 };
 global.Pather.Servers.MonitorServer.MonitorServer = $Pather_Servers_MonitorServer_MonitorServer;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.ServerManager.ServerManager
+var $Pather_Servers_ServerManager_ServerManager = function() {
+	//ExtensionMethods.debugger("");
+	var http = require('http');
+	var app = http.createServer(function(req, res) {
+		res.end();
+	});
+	var currentIP = $Pather_Servers_Utils_ServerHelper.getNetworkIPs()[0];
+	console.log(currentIP);
+};
+$Pather_Servers_ServerManager_ServerManager.__typeName = 'Pather.Servers.ServerManager.ServerManager';
+global.Pather.Servers.ServerManager.ServerManager = $Pather_Servers_ServerManager_ServerManager;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.TickServer.TickPubSub
 var $Pather_Servers_TickServer_TickPubSub = function(pubSub) {
@@ -1046,7 +2101,7 @@ $Pather_Servers_Utils_ServerHelper.getNetworkIPs = function() {
 	return addresses;
 };
 global.Pather.Servers.Utils.ServerHelper = $Pather_Servers_Utils_ServerHelper;
-ss.initClass($Pather_Servers_ServerManager, $asm, {});
+ss.initClass($Pather_Servers_ServerStarter, $asm, {});
 ss.initClass($Pather_Servers_AuthServer_AuthServer, $asm, {});
 ss.initClass($Pather_Servers_Common_TickManager, $asm, {
 	init: function(currentLockstepTickNumber) {
@@ -1169,6 +2224,9 @@ ss.initClass($Pather_Servers_Common_ServerCommunicator, $asm, {
 		return function(socket, channel, obj) {
 			socket.emit(T).call(socket, channel, ss.makeGenericType(Pather.Common.Utils.DataObject$1, [T]).$ctor(obj));
 		};
+	},
+	get_URL: function() {
+		return this.$socketManager.get_URL();
 	}
 });
 ss.initClass($Pather_Servers_Common_TickWatcher, $asm, {
@@ -1357,7 +2415,7 @@ ss.initClass($Pather_Servers_Common_ServerLogging_ServerLogListener, $asm, {
 });
 ss.initClass($Pather_Servers_Common_ServerLogging_ServerLogMessage, $asm, {}, null, [Pather.Common.Models.Common.IPubSub_Message]);
 ss.initInterface($Pather_Servers_Common_SocketManager_ISocket, $asm, { on: null, disconnect: null, emit: null });
-ss.initInterface($Pather_Servers_Common_SocketManager_ISocketManager, $asm, { init: null, connections: null });
+ss.initInterface($Pather_Servers_Common_SocketManager_ISocketManager, $asm, { init: null, connections: null, get_URL: null });
 ss.initClass($Pather_Servers_Common_SocketManager_SocketIOManager, $asm, {
 	init: function(port) {
 		var http = require('http');
@@ -1367,15 +2425,17 @@ ss.initClass($Pather_Servers_Common_SocketManager_SocketIOManager, $asm, {
 		this.$io = socketio.listen(app);
 		var networkIPs = $Pather_Servers_Utils_ServerHelper.getNetworkIPs();
 		var currentIP = networkIPs[0] + ':' + port;
-		var url;
-		url = ss.formatString('http://{0}', currentIP);
-		console.log('Server URL', url);
+		this.$url = ss.formatString('http://{0}', currentIP);
+		console.log('Server URL', this.$url);
 		app.listen(port);
 	},
 	connections: function(action) {
 		this.$io.sockets.on('connection', function(socket) {
 			action(new $Pather_Servers_Common_SocketManager_SocketIOSocket(socket));
 		});
+	},
+	get_URL: function() {
+		return this.$url;
 	}
 }, null, [$Pather_Servers_Common_SocketManager_ISocketManager]);
 ss.initClass($Pather_Servers_Common_SocketManager_SocketIOSocket, $asm, {
@@ -2065,7 +3125,7 @@ ss.initClass($Pather_Servers_GameSegmentCluster_GameSegmentCluster, $asm, {
 		})).error(function(a) {
 			console.log('Server Creation Failed!');
 		});
-		var str = 'C:\\Users\\saiello\\AppData\\Roaming\\npm\\node-debug.cmd';
+		var str = 'C:\\Users\\deste_000\\AppData\\Roaming\\npm\\node-debug.cmd';
 		str = 'node';
 		var child = spawn(str, ['app.js', 'gs', createGameSegment.gameSegmentId], { stdio: [m, out, err] });
 		//            child.Unref();
@@ -2118,6 +3178,7 @@ ss.initClass($Pather_Servers_GameSegmentCluster_Tests_StubPubSub, $asm, {
 		throw new ss.NotImplementedException();
 	}
 }, null, [$Pather_Servers_Common_PubSub_IPubSub]);
+ss.initClass($Pather_Servers_GameWorldServer_$PlayerClusterInfo, $asm, {});
 ss.initClass($Pather_Servers_GameWorldServer_GameSegment, $asm, {
 	canAcceptNewUsers: function() {
 		return this.users.length + this.preAddedUsers.length < Pather.Common.Constants.usersPerGameSegment;
@@ -2212,7 +3273,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 	},
 	userLeft: function(dbUser) {
 		var deferred = Pather.Common.Utils.Promises.Q.defer();
-		var gwUser = Pather.Common.Utils.EnumerableExtensions.first($Pather_Servers_GameWorldServer_Models_GameWorldUser).call(null, this.users, function(a) {
+		var gwUser = Pather.Common.Utils.EnumerableExtensions.first$1($Pather_Servers_GameWorldServer_Models_GameWorldUser).call(null, this.users, function(a) {
 			return ss.referenceEquals(a.userId, dbUser.userId);
 		});
 		if (ss.isNullOrUndefined(gwUser)) {
@@ -2330,7 +3391,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 		}
 	},
 	userMoved: function(userId, x, y, lockstepTick) {
-		var gwUser = Pather.Common.Utils.EnumerableExtensions.first($Pather_Servers_GameWorldServer_Models_GameWorldUser).call(null, this.users, function(a) {
+		var gwUser = Pather.Common.Utils.EnumerableExtensions.first$1($Pather_Servers_GameWorldServer_Models_GameWorldUser).call(null, this.users, function(a) {
 			return ss.referenceEquals(a.userId, userId);
 		});
 		if (ss.isNullOrUndefined(gwUser)) {
@@ -2339,6 +3400,9 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 		gwUser.x = x;
 		gwUser.y = y;
 		//todo interpolate path find using setTimeout??
+	},
+	changeUsersGameSegment: function(gameWorldUser, bestGameSegment) {
+		//todo idk my bff jill LM<AO
 	}
 });
 ss.initClass($Pather_Servers_GameWorldServer_GameWorldPubSub, $asm, {
@@ -2391,6 +3455,16 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldPubSub, $asm, {
 	}
 });
 ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
+	$reorganize: function() {
+		var clusters = $Pather_Servers_GameWorldServer_ReorganizeManager.reorganize(this.gameWorld.users, this.gameWorld.gameSegments);
+		for (var $t1 = 0; $t1 < clusters.length; $t1++) {
+			var playerCluster = clusters[$t1];
+			for (var $t2 = 0; $t2 < playerCluster.players.length; $t2++) {
+				var gameWorldUser = playerCluster.players[$t2];
+				this.gameWorld.changeUsersGameSegment(gameWorldUser, playerCluster.bestGameSegment);
+			}
+		}
+	},
 	$pubsubReady: function() {
 		this.$gameSegmentClusterPubSub = new $Pather_Servers_GameWorldServer_GameWorldPubSub(this.$pubSub);
 		this.$gameSegmentClusterPubSub.init();
@@ -2576,6 +3650,185 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 		return deferred.promise;
 	}
 });
+ss.initClass($Pather_Servers_GameWorldServer_PlayerCluster, $asm, {});
+ss.initClass($Pather_Servers_GameWorldServer_PlayerClusterGroup, $asm, {});
+ss.initClass($Pather_Servers_GameWorldServer_ReorganizeManager, $asm, {
+	$reorganize: function() {
+		this.$tree = new (ss.makeGenericType($Pather_Servers_Libraries_RTree_RTree$1, [$Pather_Servers_GameWorldServer_Models_GameWorldUser]))();
+		for (var $t1 = 0; $t1 < this.$gameWorldUsers.length; $t1++) {
+			var gameWorldUser = this.$gameWorldUsers[$t1];
+			this.$tree.add(new $Pather_Servers_Libraries_RTree_Rectangle(gameWorldUser.x, gameWorldUser.y), gameWorldUser);
+		}
+		var playerClusters = this.$buildClusters(this.$gameWorldUsers, this.$viewRadius);
+		this.$groupToSegments(playerClusters);
+		return playerClusters;
+	},
+	$groupToSegments: function(clusters) {
+		var numberOfUsersInCluster = {};
+		for (var $t1 = 0; $t1 < clusters.length; $t1++) {
+			var playerCluster = clusters[$t1];
+			var founds = [];
+			for (var $t2 = 0; $t2 < this.$segments.length; $t2++) {
+				var gameSegment = this.$segments[$t2];
+				var found = 0;
+				for (var $t3 = 0; $t3 < gameSegment.users.length; $t3++) {
+					var gameWorldUser = gameSegment.users[$t3];
+					if (ss.contains(playerCluster.players, gameWorldUser)) {
+						found++;
+					}
+				}
+				founds.push({ item1: found, item2: gameSegment });
+			}
+			founds.sort(function(a, b) {
+				return a.item1 - b.item1;
+			});
+			var bestIndex = 0;
+			while (bestIndex < founds.length) {
+				var bestGameSegment = founds[bestIndex].item2;
+				if (!ss.keyExists(numberOfUsersInCluster, bestGameSegment.gameSegmentId)) {
+					numberOfUsersInCluster[bestGameSegment.gameSegmentId] = 0;
+				}
+				if (numberOfUsersInCluster[bestGameSegment.gameSegmentId] + playerCluster.players.length < $Pather_Servers_GameWorldServer_ReorganizeManager.$maxClusterSize) {
+					numberOfUsersInCluster[bestGameSegment.gameSegmentId] += $Pather_Servers_GameWorldServer_ReorganizeManager.$maxClusterSize;
+					playerCluster.bestGameSegment = bestGameSegment;
+				}
+				else {
+					bestIndex++;
+				}
+			}
+			if (ss.isNullOrUndefined(playerCluster.bestGameSegment)) {
+				//TODO CREATE NEW CLUSTER FOOL!
+			}
+		}
+	},
+	$buildClusters: function(players, viewRadius) {
+		var clusters = this.$clusterTree(this.$tree, players, viewRadius);
+		//
+		//
+		//                        Console.WriteLine(string.Format("Clusters {0}", clusters.Count));
+		//
+		//
+		//                        for (int i = 1; i <= MaxClusterSize; i++)
+		//
+		//
+		//                        {
+		//
+		//
+		//                        Console.WriteLine(string.Format("Clusters with {1} {0}", clusters.Count(a => a.Players.Count == i), i));
+		//
+		//
+		//                        }
+		//
+		//
+		//                        
+		//
+		//
+		//                        clusters.Sort((a, b) =>
+		//
+		//
+		//                        {
+		//
+		//
+		//                        return b.Players.Count - a.Players.Count;
+		//
+		//
+		//                        });
+		//
+		//
+		//                        
+		//
+		//
+		//                        for (int i = 0; i < clusters.Count; i++)
+		//
+		//
+		//                        {
+		//
+		//
+		//                        if (clusters[i].Players.Count <= MaxClusterSize) continue;
+		//
+		//
+		//                        Console.WriteLine(string.Format("Cluster[{0}] Size {1}", i + 1, clusters[i].Players.Count));
+		//
+		//
+		//                        }
+		return clusters;
+	},
+	$clusterTree: function(tree, players, viewRadius) {
+		var playerClusterInformations = this.$buildPlayerClusterInformations(tree, players, viewRadius);
+		var playerClusters = this.$buildPlayerClusters(players, playerClusterInformations);
+		return playerClusters;
+	},
+	$buildPlayerClusterInformations: function(tree, players, viewRadius) {
+		var playerClusterInformations = new (ss.makeGenericType(ss.Dictionary$2, [$Pather_Servers_GameWorldServer_Models_GameWorldUser, $Pather_Servers_GameWorldServer_$PlayerClusterInfo]))();
+		for (var index = 0; index < players.length; index++) {
+			var currentPlayer = players[index];
+			var nearest = tree.nearest(new $Pather_Servers_Libraries_RTree_RTreePoint(currentPlayer.x, currentPlayer.y, 1), viewRadius);
+			var playerClusterInfo = new $Pather_Servers_GameWorldServer_$PlayerClusterInfo(currentPlayer);
+			for (var i = 0; i < nearest.length; i++) {
+				var nearPlayer = nearest[i];
+				if (ss.referenceEquals(nearPlayer, currentPlayer)) {
+					continue;
+				}
+				playerClusterInfo.$neighbors.push({ item1: $Pather_Servers_GameWorldServer_ReorganizeManager.$pointDistance(nearPlayer, currentPlayer), item2: nearPlayer });
+			}
+			playerClusterInformations.add(currentPlayer, playerClusterInfo);
+		}
+		return playerClusterInformations;
+	},
+	$buildPlayerClusters: function(players, playerClusterInformations) {
+		var hitPlayers = Pather.Common.Utils.EnumerableExtensions.toDictionary($Pather_Servers_GameWorldServer_Models_GameWorldUser, String).call(null, players, function(a) {
+			return a.userId;
+		});
+		var playerClusters = [];
+		var hitPlayerCount = players.length;
+		var playerClusterInfoHits = {};
+		var playerClusterInfoHitsArray = [];
+		while (hitPlayerCount > 0) {
+			ss.clearKeys(playerClusterInfoHits);
+			ss.clear(playerClusterInfoHitsArray);
+			this.$getPlayerCluster(playerClusterInfoHits, playerClusterInfoHitsArray, playerClusterInformations, playerClusterInformations.get_item(hitPlayers[Pather.Common.Utils.EnumerableExtensions.first(String).call(null, Object.keys(hitPlayers))]), hitPlayers);
+			var cluster = new $Pather_Servers_GameWorldServer_PlayerCluster();
+			for (var index = 0; index < playerClusterInfoHitsArray.length; index++) {
+				var playerClusterInfoHit = playerClusterInfoHitsArray[index];
+				cluster.players.push(playerClusterInfoHit.$player);
+				delete hitPlayers[playerClusterInfoHit.$player.userId];
+				hitPlayerCount--;
+			}
+			playerClusters.push(cluster);
+			//                Console.WriteLine(string.Format("Players Left: {0}, Clusters Total: {1} ", hitPlayerCount, playerClusters.Count));
+		}
+		return playerClusters;
+	},
+	$getPlayerCluster: function(playerClusterInfoHits, playerClusterInfoHitsArray, allPlayerClusterInformations, currentPlayerClusterInfo, hitPlayers) {
+		var neighbors = [];
+		neighbors.push({ item1: 0, item2: currentPlayerClusterInfo });
+		var totalPlayers = 0;
+		while (neighbors.length > 0) {
+			var activePlayerClusterInfo = neighbors[0];
+			if (!ss.keyExists(hitPlayers, activePlayerClusterInfo.item2.$player.userId) || ss.keyExists(playerClusterInfoHits, activePlayerClusterInfo.item2.$player.userId)) {
+				ss.remove(neighbors, activePlayerClusterInfo);
+				continue;
+			}
+			playerClusterInfoHits[activePlayerClusterInfo.item2.$player.userId] = activePlayerClusterInfo.item2;
+			playerClusterInfoHitsArray.push(activePlayerClusterInfo.item2);
+			totalPlayers++;
+			if (totalPlayers === $Pather_Servers_GameWorldServer_ReorganizeManager.$maxClusterSize) {
+				return;
+			}
+			for (var $t1 = 0; $t1 < activePlayerClusterInfo.item2.$neighbors.length; $t1++) {
+				var playerNeighbor = activePlayerClusterInfo.item2.$neighbors[$t1];
+				neighbors.push({ item1: playerNeighbor.item1, item2: allPlayerClusterInformations.get_item(playerNeighbor.item2) });
+			}
+			ss.remove(neighbors, activePlayerClusterInfo);
+			neighbors.sort(function(a, b) {
+				return ss.Int32.trunc(a.item1 - b.item1);
+			});
+			if (neighbors.length > 100) {
+				ss.arrayRemoveRange(neighbors, 100, neighbors.length - 100);
+			}
+		}
+	}
+});
 ss.initClass($Pather_Servers_GameWorldServer_Models_GameWorldNeighbor, $asm, {});
 ss.initClass($Pather_Servers_GameWorldServer_Models_GameWorldUser, $asm, {
 	get_neighbors: function() {
@@ -2656,6 +3909,9 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayPubSub, $asm, {
 	},
 	publishToGameSegment: function(gameSegmentId, message) {
 		this.pubSub.publish($Pather_Servers_Common_PubSub_PubSubChannels.gameSegment$1(gameSegmentId), message);
+	},
+	publishToHeadServer: function(message) {
+		this.pubSub.publish($Pather_Servers_Common_PubSub_PubSubChannels.head(), message);
 	}
 });
 ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
@@ -2668,6 +3924,18 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 	},
 	$onAllMessage: function(message) {
 		switch (message.type) {
+			case 'ping': {
+				if (ss.isNullOrUndefined(this.serverCommunicator)) {
+					return;
+				}
+				var $t2 = this.gatewayPubSub;
+				var $t1 = Pather.Common.Models.Head.Ping_Response_Gateway_Head_PubSub_Message.$ctor();
+				$t1.gatewayId = this.gatewayId;
+				$t1.address = this.serverCommunicator.get_URL();
+				$t1.liveConnections = this.$users.length;
+				$t2.publishToHeadServer($t1);
+				break;
+			}
 			case 'tickSync': {
 				var tickSyncMessage = message;
 				this.clientTickManager.setLockStepTick(tickSyncMessage.lockstepTickNumber);
@@ -2683,7 +3951,7 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 		switch (message.type) {
 			case 'userJoined': {
 				var userJoinedMessage = message;
-				gatewayUser = Pather.Common.Utils.EnumerableExtensions.first($Pather_Servers_GatewayServer_$GatewayUser).call(null, this.$users, function(user) {
+				gatewayUser = Pather.Common.Utils.EnumerableExtensions.first$1($Pather_Servers_GatewayServer_$GatewayUser).call(null, this.$users, function(user) {
 					return ss.referenceEquals(user.userId, userJoinedMessage.userId);
 				});
 				if (ss.isNullOrUndefined(gatewayUser)) {
@@ -2734,7 +4002,7 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 		var gatewayUser;
 		for (var $t1 = 0; $t1 < userMovedMessage.users.length; $t1++) {
 			var userToSendTo = { $: userMovedMessage.users[$t1] };
-			gatewayUser = Pather.Common.Utils.EnumerableExtensions.first($Pather_Servers_GatewayServer_$GatewayUser).call(null, this.$users, ss.mkdel({ userToSendTo: userToSendTo }, function(user) {
+			gatewayUser = Pather.Common.Utils.EnumerableExtensions.first$1($Pather_Servers_GatewayServer_$GatewayUser).call(null, this.$users, ss.mkdel({ userToSendTo: userToSendTo }, function(user) {
 				return ss.referenceEquals(user.userId, this.userToSendTo.$);
 			}));
 			if (ss.isNullOrUndefined(gatewayUser)) {
@@ -2766,7 +4034,7 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 		console.log('start socket server');
 		this.serverCommunicator = new $Pather_Servers_Common_ServerCommunicator(this.$socketManager, this.$port);
 		this.serverCommunicator.onDisconnectConnection = ss.delegateCombine(this.serverCommunicator.onDisconnectConnection, ss.mkdel(this, function(socket) {
-			var gatewayUser = Pather.Common.Utils.EnumerableExtensions.first($Pather_Servers_GatewayServer_$GatewayUser).call(null, this.$users, function(a) {
+			var gatewayUser = Pather.Common.Utils.EnumerableExtensions.first$1($Pather_Servers_GatewayServer_$GatewayUser).call(null, this.$users, function(a) {
 				return ss.referenceEquals(a.socket, socket);
 			});
 			if (ss.isValue(gatewayUser)) {
@@ -2904,7 +4172,271 @@ ss.initClass($Pather_Servers_GatewayServer_Tests_GatewayServerTests, $asm, {
 		var gws = new $Pather_Servers_GameWorldServer_GameWorldServer(pubSubTest, databaseQueriesTest);
 	}
 });
+ss.initClass($Pather_Servers_HeadServer_Gateway, $asm, {});
+ss.initClass($Pather_Servers_HeadServer_HeadPubSub, $asm, {
+	init: function() {
+		this.pubSub.subscribe($Pather_Servers_Common_PubSub_PubSubChannels.head(), ss.mkdel(this, function(message) {
+			var headPubSubMessage = message;
+			this.onMessage(headPubSubMessage);
+		}));
+	},
+	publishToGateway$1: function(gatewayId, message) {
+		this.pubSub.publish($Pather_Servers_Common_PubSub_PubSubChannels.gateway$1(gatewayId), message);
+	},
+	publishToGateway: function(message) {
+		this.pubSub.publish($Pather_Servers_Common_PubSub_PubSubChannels.gateway(), message);
+	}
+});
+ss.initClass($Pather_Servers_HeadServer_HeadServer, $asm, {
+	$ready: function(pubSub) {
+		this.$headPubSub = new $Pather_Servers_HeadServer_HeadPubSub(pubSub);
+		this.$headPubSub.init();
+		var app = require('express')();
+		var cors = require('cors');
+		app.use(cors());
+		setInterval(ss.mkdel(this, this.$pingGateways), 1000);
+		this.$pingGateways();
+		this.$headPubSub.onMessage = ss.delegateCombine(this.$headPubSub.onMessage, ss.mkdel(this, this.$onMessage));
+		app.get('/api', ss.mkdel(this, function(req, res) {
+			if (this.$oldGateways.length === 0) {
+				if (this.$gateways.length === 0) {
+					res.send('down');
+				}
+				else {
+					res.send(this.$gateways[0].address);
+				}
+			}
+			else {
+				res.send(this.$oldGateways[0].address);
+			}
+		}));
+		app.listen(2222);
+	},
+	$pingGateways: function() {
+		this.$oldGateways = ss.arrayClone(this.$gateways);
+		this.$gateways = [];
+		this.$headPubSub.publishToGateway(Pather.Common.Models.Gateway.PubSub.Ping_Head_Gateway_PubSub_AllMessage.$ctor());
+	},
+	$onMessage: function(message) {
+		switch (message.type) {
+			case 'ping': {
+				this.$onPingMessage(message);
+				break;
+			}
+			default: {
+				throw new ss.ArgumentOutOfRangeException();
+			}
+		}
+	},
+	$onPingMessage: function(pingResponseMessage) {
+		var $t2 = this.$gateways;
+		var $t1 = new $Pather_Servers_HeadServer_Gateway();
+		$t1.address = pingResponseMessage.address;
+		$t1.lastPing = new Date();
+		$t1.liveConnections = pingResponseMessage.liveConnections;
+		$t1.gatewayId = pingResponseMessage.gatewayId;
+		$t2.push($t1);
+		this.$gateways.sort(function(a, b) {
+			return a.liveConnections - b.liveConnections;
+		});
+	}
+});
+ss.initInterface($Pather_Servers_Libraries_RTree_$ILog, $asm, { $error: null, $info: null, $warn: null, $debug: null, get_$isDebugEnabled: null, set_$isDebugEnabled: null });
+ss.initClass($Pather_Servers_Libraries_RTree_$Log, $asm, {
+	$error: function(p0) {
+	},
+	$info: function(s) {
+	},
+	$warn: function(p0) {
+	},
+	$debug: function(s) {
+	},
+	get_$isDebugEnabled: function() {
+		return this.$1$IsDebugEnabledField;
+	},
+	set_$isDebugEnabled: function(value) {
+		this.$1$IsDebugEnabledField = value;
+	}
+}, null, [$Pather_Servers_Libraries_RTree_$ILog]);
+ss.initClass($Pather_Servers_Libraries_RTree_$LogManager, $asm, {});
+ss.initClass($Pather_Servers_Libraries_RTree_BoundingBox, $asm, {});
+ss.initClass($Pather_Servers_Libraries_RTree_Rectangle, $asm, {
+	get_x: function() {
+		return this.$min[0];
+	},
+	get_y: function() {
+		return this.$min[1];
+	},
+	get_width: function() {
+		return this.$max[0] - this.$min[0];
+	},
+	get_height: function() {
+		return this.$max[1] - this.$min[1];
+	},
+	$set$1: function(x1, y1, x2, y2, z1, z2) {
+		this.$min[0] = Math.min(x1, x2);
+		this.$min[1] = Math.min(y1, y2);
+		this.$min[2] = Math.min(z1, z2);
+		this.$max[0] = Math.max(x1, x2);
+		this.$max[1] = Math.max(y1, y2);
+		this.$max[2] = Math.max(z1, z2);
+	},
+	$set: function(min, max) {
+		this.$min[0] = min[0];
+		this.$min[1] = min[1];
+		this.$min[2] = min[2];
+		this.$max[0] = max[0];
+		this.$max[1] = max[1];
+		this.$max[2] = max[2];
+	},
+	$copy: function() {
+		return new $Pather_Servers_Libraries_RTree_Rectangle.$ctor1(this.$min, this.$max);
+	},
+	$edgeOverlaps: function(r) {
+		for (var i = 0; i < $Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS; i++) {
+			if (this.$min[i] === r.$min[i] || this.$max[i] === r.$max[i]) {
+				return true;
+			}
+		}
+		return false;
+	},
+	intersects: function(r) {
+		// Every dimension must intersect. If any dimension
+		// does not intersect, return false immediately.
+		for (var i = 0; i < $Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS; i++) {
+			if (this.$max[i] < r.$min[i] || this.$min[i] > r.$max[i]) {
+				return false;
+			}
+		}
+		return true;
+	},
+	$contains: function(r) {
+		for (var i = 0; i < $Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS; i++) {
+			if (this.$max[i] < r.$max[i] || this.$min[i] > r.$min[i]) {
+				return false;
+			}
+		}
+		return true;
+	},
+	$containedBy: function(r) {
+		for (var i = 0; i < $Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS; i++) {
+			if (this.$max[i] > r.$max[i] || this.$min[i] < r.$min[i]) {
+				return false;
+			}
+		}
+		return true;
+	},
+	$distance: function(p) {
+		var distanceSquared = 0;
+		for (var i = 0; i < $Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS; i++) {
+			var greatestMin = Math.max(this.$min[i], p.$coordinates[i]);
+			var leastMax = Math.min(this.$max[i], p.$coordinates[i]);
+			if (greatestMin > leastMax) {
+				distanceSquared += (greatestMin - leastMax) * (greatestMin - leastMax);
+			}
+		}
+		return Math.sqrt(distanceSquared);
+	},
+	$distance$1: function(r) {
+		var distanceSquared = 0;
+		for (var i = 0; i < $Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS; i++) {
+			var greatestMin = Math.max(this.$min[i], r.$min[i]);
+			var leastMax = Math.min(this.$max[i], r.$max[i]);
+			if (greatestMin > leastMax) {
+				distanceSquared += (greatestMin - leastMax) * (greatestMin - leastMax);
+			}
+		}
+		return Math.sqrt(distanceSquared);
+	},
+	$distanceSquared: function(dimension, point) {
+		var distanceSquared = 0;
+		var tempDistance = point - this.$max[dimension];
+		for (var i = 0; i < 2; i++) {
+			if (tempDistance > 0) {
+				distanceSquared = tempDistance * tempDistance;
+				break;
+			}
+			tempDistance = this.$min[dimension] - point;
+		}
+		return distanceSquared;
+	},
+	$enlargement: function(r) {
+		var enlargedArea = (Math.max(this.$max[0], r.$max[0]) - Math.min(this.$min[0], r.$min[0])) * (Math.max(this.$max[1], r.$max[1]) - Math.min(this.$min[1], r.$min[1]));
+		return enlargedArea - this.$area();
+	},
+	$area: function() {
+		return (this.$max[0] - this.$min[0]) * (this.$max[1] - this.$min[1]);
+	},
+	$add: function(r) {
+		for (var i = 0; i < $Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS; i++) {
+			if (r.$min[i] < this.$min[i]) {
+				this.$min[i] = r.$min[i];
+			}
+			if (r.$max[i] > this.$max[i]) {
+				this.$max[i] = r.$max[i];
+			}
+		}
+	},
+	$union: function(r) {
+		var union = this.$copy();
+		union.$add(r);
+		return union;
+	},
+	$compareArrays: function(a1, a2) {
+		if (ss.isNullOrUndefined(a1) || ss.isNullOrUndefined(a2)) {
+			return false;
+		}
+		if (a1.length !== a2.length) {
+			return false;
+		}
+		for (var i = 0; i < a1.length; i++) {
+			if (a1[i] !== a2[i]) {
+				return false;
+			}
+		}
+		return true;
+	},
+	equals: function(obj) {
+		var equals = false;
+		if (ss.referenceEquals(ss.getInstanceType(obj), $Pather_Servers_Libraries_RTree_Rectangle)) {
+			var r = ss.cast(obj, $Pather_Servers_Libraries_RTree_Rectangle);
+			if (this.$compareArrays(r.$min, this.$min) && this.$compareArrays(r.$max, this.$max)) {
+				equals = true;
+			}
+		}
+		return equals;
+	},
+	$sameObject: function(o) {
+		return this === o;
+	},
+	toString: function() {
+		var sb = new ss.StringBuilder();
+		// min coordinates
+		sb.appendChar(40);
+		for (var i = 0; i < $Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS; i++) {
+			if (i > 0) {
+				sb.append(', ');
+			}
+			sb.append(this.$min[i]);
+		}
+		sb.append('), (');
+		// max coordinates
+		for (var i1 = 0; i1 < $Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS; i1++) {
+			if (i1 > 0) {
+				sb.append(', ');
+			}
+			sb.append(this.$max[i1]);
+		}
+		sb.appendChar(41);
+		return sb.toString();
+	}
+});
+$Pather_Servers_Libraries_RTree_Rectangle.$ctor2.prototype = $Pather_Servers_Libraries_RTree_Rectangle.$ctor1.prototype = $Pather_Servers_Libraries_RTree_Rectangle.prototype;
+ss.initClass($Pather_Servers_Libraries_RTree_RTreePoint, $asm, {});
+ss.initClass($Pather_Servers_Libraries_RTree_Vector2, $asm, {});
+$Pather_Servers_Libraries_RTree_Vector2.$ctor1.prototype = $Pather_Servers_Libraries_RTree_Vector2.prototype;
 ss.initClass($Pather_Servers_MonitorServer_MonitorServer, $asm, {});
+ss.initClass($Pather_Servers_ServerManager_ServerManager, $asm, {});
 ss.initClass($Pather_Servers_TickServer_TickPubSub, $asm, {
 	init: function() {
 		var deferred = Pather.Common.Utils.Promises.Q.defer();
@@ -3003,6 +4535,7 @@ ss.setMetadata($Pather_Servers_GatewayServer_Tests_GatewayServerTests, { attr: [
 	$Pather_Servers_Common_PubSub_PubSubChannels.$gameSegmentLogger = 'GameSegmentLogger';
 	$Pather_Servers_Common_PubSub_PubSubChannels.$gameSegment = 'GameSegment';
 	$Pather_Servers_Common_PubSub_PubSubChannels.$gateway = 'Gateway';
+	$Pather_Servers_Common_PubSub_PubSubChannels.$headServer = 'Head';
 })();
 (function() {
 	$Pather_Servers_Common_ServerLogging_ServerLogger.$pubsub = null;
@@ -3010,7 +4543,16 @@ ss.setMetadata($Pather_Servers_GatewayServer_Tests_GatewayServerTests, { attr: [
 	$Pather_Servers_Common_ServerLogging_ServerLogger.$serverName = null;
 })();
 (function() {
+	$Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS = 3;
+})();
+(function() {
+	$Pather_Servers_Libraries_RTree_RTreePoint.$DIMENSIONS = 3;
+})();
+(function() {
+	$Pather_Servers_GameWorldServer_ReorganizeManager.$maxClusterSize = 200;
+})();
+(function() {
 	$Pather_Servers_GameSegment_Logger_GameSegmentLogger.$pubsub = null;
 	$Pather_Servers_GameSegment_Logger_GameSegmentLogger.$gameSegmentId = null;
 })();
-$Pather_Servers_ServerManager.main();
+$Pather_Servers_ServerStarter.main();

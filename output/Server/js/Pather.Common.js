@@ -22,6 +22,8 @@
 	global.Pather.Common.Models.Gateway.PubSub.Base = global.Pather.Common.Models.Gateway.PubSub.Base || {};
 	global.Pather.Common.Models.Gateway.Socket = global.Pather.Common.Models.Gateway.Socket || {};
 	global.Pather.Common.Models.Gateway.Socket.Base = global.Pather.Common.Models.Gateway.Socket.Base || {};
+	global.Pather.Common.Models.Head = global.Pather.Common.Models.Head || {};
+	global.Pather.Common.Models.Head.Base = global.Pather.Common.Models.Head.Base || {};
 	global.Pather.Common.Models.Tick = global.Pather.Common.Models.Tick || {};
 	global.Pather.Common.Models.Tick.Base = global.Pather.Common.Models.Tick.Base || {};
 	global.Pather.Common.old = global.Pather.Common.old || {};
@@ -727,6 +729,20 @@
 	};
 	global.Pather.Common.Models.GameWorld.Tick.TickSync_Tick_GameWorld_PubSub_Message = $Pather_Common_Models_GameWorld_Tick_TickSync_Tick_GameWorld_PubSub_Message;
 	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.Gateway.PubSub.Ping_Head_Gateway_PubSub_AllMessage
+	var $Pather_Common_Models_Gateway_PubSub_Ping_Head_Gateway_PubSub_AllMessage = function() {
+	};
+	$Pather_Common_Models_Gateway_PubSub_Ping_Head_Gateway_PubSub_AllMessage.__typeName = 'Pather.Common.Models.Gateway.PubSub.Ping_Head_Gateway_PubSub_AllMessage';
+	$Pather_Common_Models_Gateway_PubSub_Ping_Head_Gateway_PubSub_AllMessage.createInstance = function() {
+		return $Pather_Common_Models_Gateway_PubSub_Ping_Head_Gateway_PubSub_AllMessage.$ctor();
+	};
+	$Pather_Common_Models_Gateway_PubSub_Ping_Head_Gateway_PubSub_AllMessage.$ctor = function() {
+		var $this = $Pather_Common_Models_Gateway_PubSub_Base_Gateway_PubSub_AllMessage.$ctor();
+		$this.type = 'ping';
+		return $this;
+	};
+	global.Pather.Common.Models.Gateway.PubSub.Ping_Head_Gateway_PubSub_AllMessage = $Pather_Common_Models_Gateway_PubSub_Ping_Head_Gateway_PubSub_AllMessage;
+	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.Gateway.PubSub.Pong_Tick_Gateway_PubSub_Message
 	var $Pather_Common_Models_Gateway_PubSub_Pong_Tick_Gateway_PubSub_Message = function() {
 	};
@@ -958,6 +974,56 @@
 		return $this;
 	};
 	global.Pather.Common.Models.Gateway.Socket.Base.UserJoined_User_Gateway_Socket_Message = $Pather_Common_Models_Gateway_Socket_Base_UserJoined_User_Gateway_Socket_Message;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.Head.Ping_Response_Gateway_Head_PubSub_Message
+	var $Pather_Common_Models_Head_Ping_Response_Gateway_Head_PubSub_Message = function() {
+	};
+	$Pather_Common_Models_Head_Ping_Response_Gateway_Head_PubSub_Message.__typeName = 'Pather.Common.Models.Head.Ping_Response_Gateway_Head_PubSub_Message';
+	$Pather_Common_Models_Head_Ping_Response_Gateway_Head_PubSub_Message.createInstance = function() {
+		return $Pather_Common_Models_Head_Ping_Response_Gateway_Head_PubSub_Message.$ctor();
+	};
+	$Pather_Common_Models_Head_Ping_Response_Gateway_Head_PubSub_Message.$ctor = function() {
+		var $this = $Pather_Common_Models_Head_Base_Head_PubSub_Message.$ctor();
+		$this.address = null;
+		$this.liveConnections = 0;
+		$this.gatewayId = null;
+		$this.type = 'ping';
+		return $this;
+	};
+	global.Pather.Common.Models.Head.Ping_Response_Gateway_Head_PubSub_Message = $Pather_Common_Models_Head_Ping_Response_Gateway_Head_PubSub_Message;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.Head.Base.Head_PubSub_Message
+	var $Pather_Common_Models_Head_Base_Head_PubSub_Message = function() {
+	};
+	$Pather_Common_Models_Head_Base_Head_PubSub_Message.__typeName = 'Pather.Common.Models.Head.Base.Head_PubSub_Message';
+	$Pather_Common_Models_Head_Base_Head_PubSub_Message.$ctor = function() {
+		var $this = {};
+		$this.type = null;
+		return $this;
+	};
+	global.Pather.Common.Models.Head.Base.Head_PubSub_Message = $Pather_Common_Models_Head_Base_Head_PubSub_Message;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.Head.Base.Head_PubSub_MessageType
+	var $Pather_Common_Models_Head_Base_Head_PubSub_MessageType = function() {
+	};
+	$Pather_Common_Models_Head_Base_Head_PubSub_MessageType.__typeName = 'Pather.Common.Models.Head.Base.Head_PubSub_MessageType';
+	global.Pather.Common.Models.Head.Base.Head_PubSub_MessageType = $Pather_Common_Models_Head_Base_Head_PubSub_MessageType;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.Head.Base.Head_PubSub_ReqRes_Message
+	var $Pather_Common_Models_Head_Base_Head_PubSub_ReqRes_Message = function() {
+	};
+	$Pather_Common_Models_Head_Base_Head_PubSub_ReqRes_Message.__typeName = 'Pather.Common.Models.Head.Base.Head_PubSub_ReqRes_Message';
+	$Pather_Common_Models_Head_Base_Head_PubSub_ReqRes_Message.createInstance = function() {
+		return $Pather_Common_Models_Head_Base_Head_PubSub_ReqRes_Message.$ctor();
+	};
+	$Pather_Common_Models_Head_Base_Head_PubSub_ReqRes_Message.$ctor = function() {
+		var $this = $Pather_Common_Models_Head_Base_Head_PubSub_Message.$ctor();
+		$this.response = false;
+		$this.messageId = null;
+		$this.messageId = $Pather_Common_Utils_Utilities.uniqueId();
+		return $this;
+	};
+	global.Pather.Common.Models.Head.Base.Head_PubSub_ReqRes_Message = $Pather_Common_Models_Head_Base_Head_PubSub_ReqRes_Message;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.Tick.Ping_Tick_PubSub_Message
 	var $Pather_Common_Models_Tick_Ping_Tick_PubSub_Message = function() {
@@ -1343,6 +1409,16 @@
 	var $Pather_Common_Utils_EnumerableExtensions = function() {
 	};
 	$Pather_Common_Utils_EnumerableExtensions.__typeName = 'Pather.Common.Utils.EnumerableExtensions';
+	$Pather_Common_Utils_EnumerableExtensions.toDictionary = function(T, T2) {
+		return function(items, clause) {
+			var items2 = {};
+			for (var $t1 = 0; $t1 < items.length; $t1++) {
+				var item = items[$t1];
+				items2[clause(item)] = item;
+			}
+			return items2;
+		};
+	};
 	$Pather_Common_Utils_EnumerableExtensions.indexOfFast = function(items, ind) {
 		for (var index = 0; index < items.length; index++) {
 			var item = items[index];
@@ -1383,7 +1459,7 @@
 		}
 		return Array.prototype.slice.call(items2);
 	};
-	$Pather_Common_Utils_EnumerableExtensions.first$1 = function(T) {
+	$Pather_Common_Utils_EnumerableExtensions.first$2 = function(T) {
 		return function(items, clause) {
 			for (var $t1 = 0; $t1 < items.length; $t1++) {
 				var item = items[$t1];
@@ -1403,7 +1479,7 @@
 		}
 		return true;
 	};
-	$Pather_Common_Utils_EnumerableExtensions.first = function(T) {
+	$Pather_Common_Utils_EnumerableExtensions.first$1 = function(T) {
 		return function(items, clause) {
 			var $t1 = ss.getEnumerator(items);
 			try {
@@ -1412,6 +1488,21 @@
 					if (clause(item)) {
 						return item;
 					}
+				}
+			}
+			finally {
+				$t1.dispose();
+			}
+			return ss.getDefaultValue(T);
+		};
+	};
+	$Pather_Common_Utils_EnumerableExtensions.first = function(T) {
+		return function(items) {
+			var $t1 = ss.getEnumerator(items);
+			try {
+				while ($t1.moveNext()) {
+					var item = $t1.current();
+					return item;
 				}
 			}
 			finally {
@@ -2021,13 +2112,14 @@
 	ss.initClass($Pather_Common_Models_GameWorld_Gateway_UserLeft_Gateway_GameWorld_PubSub_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initClass($Pather_Common_Models_GameWorld_Tick_Pong_Tick_GameWorld_PubSub_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initClass($Pather_Common_Models_GameWorld_Tick_TickSync_Tick_GameWorld_PubSub_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message]);
+	ss.initClass($Pather_Common_Models_Gateway_PubSub_Base_Gateway_PubSub_AllMessage, $asm, {}, null, [$Pather_Common_Models_Common_IPubSub_Message]);
+	ss.initClass($Pather_Common_Models_Gateway_PubSub_Ping_Head_Gateway_PubSub_AllMessage, $asm, {}, $Pather_Common_Models_Gateway_PubSub_Base_Gateway_PubSub_AllMessage, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initClass($Pather_Common_Models_Gateway_PubSub_Base_Gateway_PubSub_Message, $asm, {}, null, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initClass($Pather_Common_Models_Gateway_PubSub_Pong_Tick_Gateway_PubSub_Message, $asm, {}, $Pather_Common_Models_Gateway_PubSub_Base_Gateway_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message]);
-	ss.initClass($Pather_Common_Models_Gateway_PubSub_Base_Gateway_PubSub_AllMessage, $asm, {}, null, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initClass($Pather_Common_Models_Gateway_PubSub_TickSync_Tick_Gateway_PubSub_AllMessage, $asm, {}, $Pather_Common_Models_Gateway_PubSub_Base_Gateway_PubSub_AllMessage, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initClass($Pather_Common_Models_Gateway_PubSub_UserJoined_GameWorld_Gateway_PubSub_Message, $asm, {}, $Pather_Common_Models_Gateway_PubSub_Base_Gateway_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initClass($Pather_Common_Models_Gateway_PubSub_UserMovedCollection_GameSegment_Gateway_PubSub_Message, $asm, {}, $Pather_Common_Models_Gateway_PubSub_Base_Gateway_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message]);
-	ss.initEnum($Pather_Common_Models_Gateway_PubSub_Base_Gateway_PubSub_AllMessageType, $asm, { tickSync: 'tickSync' }, true);
+	ss.initEnum($Pather_Common_Models_Gateway_PubSub_Base_Gateway_PubSub_AllMessageType, $asm, { tickSync: 'tickSync', ping: 'ping' }, true);
 	ss.initEnum($Pather_Common_Models_Gateway_PubSub_Base_Gateway_PubSub_MessageType, $asm, { userJoined: 'userJoined', pong: 'pong', userMovedCollection: 'userMovedCollection' }, true);
 	ss.initClass($Pather_Common_Models_Gateway_Socket_Base_Socket_Message, $asm, {});
 	ss.initClass($Pather_Common_Models_Gateway_Socket_Base_Gateway_Socket_Message, $asm, {}, $Pather_Common_Models_Gateway_Socket_Base_Socket_Message);
@@ -2040,6 +2132,10 @@
 	ss.initEnum($Pather_Common_Models_Gateway_Socket_Base_User_Gateway_Socket_MessageType, $asm, { move: 'move', join: 'join' }, true);
 	ss.initClass($Pather_Common_Models_Gateway_Socket_Base_UserJoined_Gateway_User_Socket_Message, $asm, {}, $Pather_Common_Models_Gateway_Socket_Base_Gateway_User_Socket_Message);
 	ss.initClass($Pather_Common_Models_Gateway_Socket_Base_UserJoined_User_Gateway_Socket_Message, $asm, {}, $Pather_Common_Models_Gateway_Socket_Base_User_Gateway_Socket_Message);
+	ss.initClass($Pather_Common_Models_Head_Base_Head_PubSub_Message, $asm, {}, null, [$Pather_Common_Models_Common_IPubSub_Message]);
+	ss.initClass($Pather_Common_Models_Head_Ping_Response_Gateway_Head_PubSub_Message, $asm, {}, $Pather_Common_Models_Head_Base_Head_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message]);
+	ss.initEnum($Pather_Common_Models_Head_Base_Head_PubSub_MessageType, $asm, { ping: 'ping' }, true);
+	ss.initClass($Pather_Common_Models_Head_Base_Head_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_Head_Base_Head_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message, $Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_Tick_Base_Tick_PubSub_Message, $asm, {}, null, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initClass($Pather_Common_Models_Tick_Ping_Tick_PubSub_Message, $asm, {}, $Pather_Common_Models_Tick_Base_Tick_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initEnum($Pather_Common_Models_Tick_Ping_Tick_PubSub_Message_OriginType, $asm, { gameSegment: 0, gameWorld: 1, gateway: 2 });

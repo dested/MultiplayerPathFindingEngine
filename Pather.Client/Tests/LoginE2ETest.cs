@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Html;
+using System.Runtime.CompilerServices;
 using Pather.Client.Utils;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
@@ -127,10 +128,10 @@ namespace Pather.Client.Tests
             var proposedX = 12;
             var proposedY = 25;
             int move = 0;
-            JoinUser(id+1, (communicator, message) =>
+            JoinUser(id + 1, (communicator, message) =>
             {
                 Global.Console.Log("1", message);
-                if (message.UserId==id+1 &&  move<40)
+                if (message.UserId == id + 1 && move < 40)
                 {
                     move++;
                     Global.SetTimeout(() =>
@@ -144,14 +145,14 @@ namespace Pather.Client.Tests
                 }
                 if (message.X == proposedX && message.Y == proposedY)
                 {
-//                    defer.Resolve();
+                    //                    defer.Resolve();
                 }
                 else
                 {
-//                    defer.Reject();
+                    //                    defer.Reject();
                 }
 
-            },1800).Then(communicator =>
+            }, 1800).Then(communicator =>
             {
                 communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
                 {
@@ -163,9 +164,9 @@ namespace Pather.Client.Tests
             JoinUser(id + 2, (communicator, message) =>
             {
                 Global.Console.Log("2", message);
-           
 
-            },1801).Then(communicator =>
+
+            }, 1801).Then(communicator =>
             {
                 communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
                 {
@@ -186,9 +187,9 @@ namespace Pather.Client.Tests
                         X = proposedX + 20,
                         Y = proposedY
                     });
-                    
+
                 }
-            },1800).Then(communicator =>
+            }, 1800).Then(communicator =>
             {
                 communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
                 {
@@ -199,41 +200,54 @@ namespace Pather.Client.Tests
         }
 
 
-        private static Promise<ClientCommunicator, UndefinedPromiseError> JoinUser(string userToken, Action<ClientCommunicator, MoveToLocation_Gateway_User_Socket_Message> onMove,int overridePort=0)
+        private static Promise<ClientCommunicator, UndefinedPromiseError> JoinUser(string userToken, Action<ClientCommunicator, MoveToLocation_Gateway_User_Socket_Message> onMove, int overridePort = 0)
         {
             var deferred = Q.Defer<ClientCommunicator, UndefinedPromiseError>();
 
             var numOfGateways = 0;
             var b = (int)(Math.Random() * numOfGateways);
-            int port=1800+b;
+            int port = 1800 + b;
 
             if (overridePort != 0) port = overridePort;
- 
-
-            var url = "http://127.0.0.1:" + port;
-            //            Global.Console.Log("Connecting to", url);
-            var clientCommunicator = new ClientCommunicator(url);
-            clientCommunicator.ListenForGatewayMessage((message) =>
+            jQueryObject.Get("http://localhost:2222/api/",null, (url) =>
             {
-                switch (message.GatewayUserMessageType)
+                Global.Console.Log(url);
+
+                var clientCommunicator = new ClientCommunicator(url);
+                clientCommunicator.ListenForGatewayMessage((message) =>
                 {
-                    case Gateway_User_Socket_MessageType.Move:
-                        onMove(clientCommunicator, (MoveToLocation_Gateway_User_Socket_Message)message);
-                        break;
-                    case Gateway_User_Socket_MessageType.UserJoined:
-                        deferred.Resolve(clientCommunicator);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
-            });
+                    switch (message.GatewayUserMessageType)
+                    {
+                        case Gateway_User_Socket_MessageType.Move:
+                            onMove(clientCommunicator, (MoveToLocation_Gateway_User_Socket_Message)message);
+                            break;
+                        case Gateway_User_Socket_MessageType.UserJoined:
+                            deferred.Resolve(clientCommunicator);
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
+                    }
+                });
 
-            clientCommunicator.SendMessage(new UserJoined_User_Gateway_Socket_Message()
-            {
-                UserToken = userToken
-            });
+                clientCommunicator.SendMessage(new UserJoined_User_Gateway_Socket_Message()
+                {
+                    UserToken = userToken
+                });
 
+
+            });
             return deferred.Promise;
+        }
+    }
+    [Imported]
+    [ScriptName("$")]
+    [IgnoreNamespace]
+    public static class jQueryObject
+    {
+
+        public static void Get(string url, object data, Action<string> callback)
+        {
+            
         }
     }
 }

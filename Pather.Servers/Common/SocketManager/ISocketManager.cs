@@ -6,5 +6,6 @@ namespace Pather.Servers.Common.SocketManager
     {
         void Init(int port);
         void Connections(Action<ISocket> action);
+        string URL { get; }
     }
 }

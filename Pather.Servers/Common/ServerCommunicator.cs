@@ -55,5 +55,10 @@ namespace Pather.Servers.Common
                 });
             });
         }
+
+        public string URL
+        {
+            get { return socketManager.URL; }
+        }
     }
 }

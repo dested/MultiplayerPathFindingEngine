@@ -37,8 +37,8 @@
       <file leaf-file-name="Pather.Servers.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/js/Pather.Servers.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.33333334" vertical-offset="43553" max-vertical-offset="54378">
-              <caret line="2427" column="0" selection-start-line="2427" selection-start-column="0" selection-end-line="2427" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.69423556" vertical-offset="75701" max-vertical-offset="82116">
+              <caret line="4221" column="22" selection-start-line="4221" selection-start-column="22" selection-end-line="4221" selection-end-column="22" />
               <folding />
             </state>
           </provider>
@@ -67,9 +67,30 @@
       <file leaf-file-name="Pather.Common.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/js/Pather.Common.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="29532" max-vertical-offset="41021">
-              <caret line="1745" column="0" selection-start-line="1745" selection-start-column="0" selection-end-line="1745" selection-end-column="0" />
-              <folding />
+            <state vertical-scroll-proportion="0.0" vertical-offset="31147" max-vertical-offset="42721">
+              <caret line="1840" column="0" selection-start-line="1840" selection-start-column="0" selection-end-line="1840" selection-end-column="0" />
+              <folding>
+                <marker date="1419911521264" expanded="true" signature="49549:49651" placeholder="{...}" />
+                <marker date="1419911521264" expanded="true" signature="49773:49779" placeholder="{...}" />
+                <marker date="1419911521264" expanded="true" signature="50574:50782" placeholder="{...}" />
+                <marker date="1419911521264" expanded="true" signature="53721:53731" placeholder="{...}" />
+                <marker date="1419911521264" expanded="true" signature="53853:54152" placeholder="{...}" />
+                <marker date="1419911521264" expanded="true" signature="54699:54701" placeholder="{...}" />
+                <marker date="1419911521264" expanded="true" signature="55047:55071" placeholder="{...}" />
+                <marker date="1419911521264" expanded="true" signature="69117:69481" placeholder="{...}" />
+                <marker date="1419911521264" expanded="true" signature="70315:70422" placeholder="{...}" />
+                <marker date="1419911521264" expanded="true" signature="87981:88601" placeholder="{...}" />
+                <marker date="1419911521264" expanded="true" signature="88007:88155" placeholder="{...}" />
+                <marker date="1419911521264" expanded="true" signature="88326:88360" placeholder="{...}" />
+                <marker date="1419911521264" expanded="true" signature="88373:88426" placeholder="{...}" />
+                <marker date="1419911521264" expanded="true" signature="90196:90653" placeholder="{...}" />
+                <marker date="1419911521264" expanded="true" signature="90245:90630" placeholder="{...}" />
+                <marker date="1419911521264" expanded="true" signature="90747:90998" placeholder="{...}" />
+                <marker date="1419911521264" expanded="true" signature="90722:90994" placeholder="{...}" />
+                <marker date="1419911521264" expanded="true" signature="90765:90920" placeholder="{...}" />
+                <marker date="1419911521264" expanded="true" signature="90812:90915" placeholder="{...}" />
+                <marker date="1419911521264" expanded="true" signature="90855:90898" placeholder="{...}" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -173,7 +194,7 @@
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="options.splitter.details.proportions" value="0.2" />
   </component>
-  <component name="RunManager" selected="Node.js.all">
+  <component name="RunManager" selected="Node.js.head">
     <configuration default="true" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application">
       <method />
     </configuration>
@@ -224,6 +245,11 @@
     <configuration default="false" name="gateway" type="NodeJSConfigurationType" factoryName="Node.js" singleton="false" path-to-node="C:/Program Files/nodejs/node" path-to-js-file="app.js" application-parameters="gt" working-dir="$PROJECT_DIR$">
       <method />
     </configuration>
+    <configuration default="false" name="head" type="NodeJSConfigurationType" factoryName="Node.js" singleton="false" path-to-node="C:/Program Files/nodejs/node" path-to-js-file="app.js" application-parameters="head" working-dir="$PROJECT_DIR$">
+      <RunnerSettings RunnerId="debuggableProgram" />
+      <ConfigurationWrapper RunnerId="debuggableProgram" />
+      <method />
+    </configuration>
     <configuration default="false" name="gameservercluster" type="NodeJSConfigurationType" factoryName="Node.js" singleton="false" path-to-node="C:/Program Files/nodejs/node" path-to-js-file="app.js" application-parameters="gsc" working-dir="$PROJECT_DIR$">
       <method />
     </configuration>
@@ -237,13 +263,14 @@
       <ConfigurationWrapper RunnerId="debuggableProgram" />
       <method />
     </configuration>
-    <list size="6">
+    <list size="7">
       <item index="0" class="java.lang.String" itemvalue="Node.js.gameworld" />
       <item index="1" class="java.lang.String" itemvalue="Node.js.all" />
       <item index="2" class="java.lang.String" itemvalue="Node.js.gateway" />
-      <item index="3" class="java.lang.String" itemvalue="Node.js.gameservercluster" />
-      <item index="4" class="java.lang.String" itemvalue="Node.js.monitor" />
-      <item index="5" class="java.lang.String" itemvalue="Node.js.tick" />
+      <item index="3" class="java.lang.String" itemvalue="Node.js.head" />
+      <item index="4" class="java.lang.String" itemvalue="Node.js.gameservercluster" />
+      <item index="5" class="java.lang.String" itemvalue="Node.js.monitor" />
+      <item index="6" class="java.lang.String" itemvalue="Node.js.tick" />
     </list>
   </component>
   <component name="ShelveChangesManager" show_recycled="false" />
@@ -258,7 +285,7 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="972" extended-state="6" />
-    <editor active="false" />
+    <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -305,17 +332,17 @@
         </breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/js/Pather.Servers.js</url>
-          <line>2139</line>
+          <line>3224</line>
           <option name="timeStamp" value="48" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/js/Pather.Servers.js</url>
-          <line>2412</line>
+          <line>3514</line>
           <option name="timeStamp" value="51" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="javascript">
           <url>file://$PROJECT_DIR$/js/Pather.Servers.js</url>
-          <line>2424</line>
+          <line>3525</line>
           <option name="timeStamp" value="52" />
         </line-breakpoint>
       </breakpoints>
@@ -327,7 +354,7 @@
           <properties />
         </breakpoint>
       </default-breakpoints>
-      <option name="time" value="53" />
+      <option name="time" value="56" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -368,7 +395,28 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="13107" max-vertical-offset="25942">
           <caret line="771" column="0" selection-start-line="771" selection-start-column="0" selection-end-line="771" selection-end-column="0" />
-          <folding />
+          <folding>
+            <marker date="1419911521264" expanded="true" signature="49549:49651" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="49773:49779" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="50574:50782" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="53721:53731" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="53853:54152" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="54699:54701" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="55047:55071" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="69117:69481" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="70315:70422" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="87981:88601" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="88007:88155" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="88326:88360" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="88373:88426" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="90196:90653" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="90245:90630" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="90747:90998" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="90722:90994" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="90765:90920" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="90812:90915" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="90855:90898" placeholder="{...}" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -406,9 +454,30 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/Pather.Common.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="29532" max-vertical-offset="41021">
-          <caret line="1745" column="0" selection-start-line="1745" selection-start-column="0" selection-end-line="1745" selection-end-column="0" />
-          <folding />
+        <state vertical-scroll-proportion="0.0" vertical-offset="31147" max-vertical-offset="42721">
+          <caret line="1840" column="0" selection-start-line="1840" selection-start-column="0" selection-end-line="1840" selection-end-column="0" />
+          <folding>
+            <marker date="1419911521264" expanded="true" signature="49549:49651" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="49773:49779" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="50574:50782" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="53721:53731" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="53853:54152" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="54699:54701" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="55047:55071" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="69117:69481" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="70315:70422" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="87981:88601" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="88007:88155" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="88326:88360" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="88373:88426" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="90196:90653" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="90245:90630" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="90747:90998" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="90722:90994" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="90765:90920" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="90812:90915" placeholder="{...}" />
+            <marker date="1419911521264" expanded="true" signature="90855:90898" placeholder="{...}" />
+          </folding>
         </state>
       </provider>
     </entry>
@@ -422,8 +491,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/js/Pather.Servers.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.33333334" vertical-offset="43553" max-vertical-offset="54378">
-          <caret line="2427" column="0" selection-start-line="2427" selection-start-column="0" selection-end-line="2427" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.69423556" vertical-offset="75701" max-vertical-offset="82116">
+          <caret line="4221" column="22" selection-start-line="4221" selection-start-column="22" selection-end-line="4221" selection-end-column="22" />
           <folding />
         </state>
       </provider>

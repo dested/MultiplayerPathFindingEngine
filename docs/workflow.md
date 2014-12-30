@@ -84,8 +84,42 @@ every
 	monitors how many game servers there are
 	monitors healthcheck for game servers
 	'/can spin up a new game server instnace at the gw request
+ 
 
-gw can spin up a new game server box
-	calls api to provision a new box
-	runs gameserver cluster
-	regular gsc procedure takes place
+
+home server is connected to gateways
+home server pings gateways to see how many users are currently connected
+home server commissions server manager to spin up new gateways if theyre slacking
+home server is an api endpoint that simply servers gateway IP addresses
+
+
+
+server manager keeps tabs on all the clusters (game gateway and chat)
+when a new request comes in to spin up a new server it pings the clusters to see if theyre able to create a new one
+	if so it tells the cluster to spin up a new server
+	if not it calls the API to provision a new box 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	

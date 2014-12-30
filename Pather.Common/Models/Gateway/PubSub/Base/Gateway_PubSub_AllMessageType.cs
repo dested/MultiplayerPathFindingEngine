@@ -5,6 +5,7 @@ namespace Pather.Common.Models.Gateway.PubSub.Base
     [NamedValues]
     public enum Gateway_PubSub_AllMessageType
     {
-        TickSync
+        TickSync,
+        Ping
     }
 }

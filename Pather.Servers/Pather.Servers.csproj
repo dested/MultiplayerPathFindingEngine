@@ -84,12 +84,17 @@
     <Compile Include="GatewayServer\Tests\GatewayServerTests.cs" />
     <Compile Include="GameWorldServer\Tests\GameWorldServerTests.cs" />
     <Compile Include="GameSegmentCluster\GameSegmentCluster.cs" />
+    <Compile Include="HeadServer\HeadServer.cs" />
+    <Compile Include="Libraries\ExpressJS\Express.cs" />
+    <Compile Include="Libraries\ExpressJS\ExpressRequest.cs" />
+    <Compile Include="Libraries\ExpressJS\ExpressResponse.cs" />
     <Compile Include="Libraries\RTree\BoundingBox.cs" />
     <Compile Include="Libraries\RTree\Node.cs" />
     <Compile Include="Libraries\RTree\RtreePoint.cs" />
     <Compile Include="Libraries\RTree\Rectangle.cs" />
     <Compile Include="Libraries\RTree\RTree.cs" />
     <Compile Include="MonitorServer\MonitorServer.cs" />
+    <Compile Include="ServerManager\ServerManager.cs" />
     <Compile Include="TickServer\TickServerTickManager.cs" />
     <Compile Include="TickServer\TickPubSub.cs" />
     <Compile Include="TickServer\TickServer.cs" />
@@ -113,7 +118,7 @@
     <Compile Include="GameSegment\Old\ServerGame.cs" />
     <Compile Include="GameSegment\Old\ServerNetworkManager.cs" />
     <Compile Include="GameSegment\Old\ServerStepManager.cs" />
-    <Compile Include="ServerManager.cs" />
+    <Compile Include="ServerStarter.cs" />
     <Compile Include="Utils\ServerHelper.cs" />
   </ItemGroup>
   <ItemGroup>

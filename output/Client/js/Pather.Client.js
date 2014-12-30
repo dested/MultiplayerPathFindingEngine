@@ -148,27 +148,28 @@
 		if (overridePort !== 0) {
 			port = overridePort;
 		}
-		var url = 'http://127.0.0.1:' + port;
-		//            Global.Console.Log("Connecting to", url);
-		var clientCommunicator = new $Pather_Client_Utils_ClientCommunicator(url);
-		clientCommunicator.listenForGatewayMessage(function(message) {
-			switch (message.gatewayUserMessageType) {
-				case 'move': {
-					onMove(clientCommunicator, message);
-					break;
+		$.get('http://localhost:2222/api/', null, function(url) {
+			console.log(url);
+			var clientCommunicator = new $Pather_Client_Utils_ClientCommunicator(url);
+			clientCommunicator.listenForGatewayMessage(function(message) {
+				switch (message.gatewayUserMessageType) {
+					case 'move': {
+						onMove(clientCommunicator, message);
+						break;
+					}
+					case 'userJoined': {
+						deferred.resolve(clientCommunicator);
+						break;
+					}
+					default: {
+						throw new ss.ArgumentOutOfRangeException();
+					}
 				}
-				case 'userJoined': {
-					deferred.resolve(clientCommunicator);
-					break;
-				}
-				default: {
-					throw new ss.ArgumentOutOfRangeException();
-				}
-			}
+			});
+			var $t1 = Pather.Common.Models.Gateway.Socket.Base.UserJoined_User_Gateway_Socket_Message.$ctor();
+			$t1.userToken = userToken;
+			clientCommunicator.sendMessage($t1);
 		});
-		var $t1 = Pather.Common.Models.Gateway.Socket.Base.UserJoined_User_Gateway_Socket_Message.$ctor();
-		$t1.userToken = userToken;
-		clientCommunicator.sendMessage($t1);
 		return deferred.promise;
 	};
 	global.Pather.Client.Tests.LoginE2ETest = $Pather_Client_Tests_LoginE2ETest;

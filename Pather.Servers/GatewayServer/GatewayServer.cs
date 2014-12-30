@@ -8,6 +8,7 @@ using Pather.Common.Models.GameWorld.Gateway;
 using Pather.Common.Models.Gateway.PubSub;
 using Pather.Common.Models.Gateway.PubSub.Base;
 using Pather.Common.Models.Gateway.Socket.Base;
+using Pather.Common.Models.Head;
 using Pather.Common.Models.Tick;
 using Pather.Common.Utils;
 using Pather.Servers.Common;
@@ -25,6 +26,7 @@ namespace Pather.Servers.GatewayServer
         public ServerCommunicator ServerCommunicator;
         public GatewayPubSub GatewayPubSub;
         public ClientTickManager ClientTickManager;
+        private readonly List<GatewayUser> Users = new List<GatewayUser>();
 
 
         public GatewayServer(IPubSub pubsub, ISocketManager socketManager, string gatewayId, int port)
@@ -70,6 +72,15 @@ namespace Pather.Servers.GatewayServer
         {
             switch (message.Type)
             {
+                case Gateway_PubSub_AllMessageType.Ping:
+                    if (ServerCommunicator == null) return;
+                    GatewayPubSub.PublishToHeadServer(new Ping_Response_Gateway_Head_PubSub_Message()
+                    {
+                        GatewayId = GatewayId,
+                        Address = ServerCommunicator.URL,
+                        LiveConnections = Users.Count
+                    });
+                    break;
                 case Gateway_PubSub_AllMessageType.TickSync:
                     var tickSyncMessage = (TickSync_Tick_Gateway_PubSub_AllMessage)message;
                     ClientTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
@@ -178,7 +189,6 @@ namespace Pather.Servers.GatewayServer
         }
 
 
-        private readonly List<GatewayUser> Users = new List<GatewayUser>();
 
 
         private void pubsubReady()

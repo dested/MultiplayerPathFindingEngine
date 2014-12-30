@@ -38,3 +38,35 @@ decide how to spin up gsc
 
 '/ change gamesegmentcluster to new pubsub model
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+i think what im gonna work on tonight is dynamically spinning up and turning down servers using the digitialocean api
+so i can dynamically scale the servers
+based soley on load
+...then i need to work on the reorganize game segment code, so i can move users onto the servers with players theyre closest to
+then i need to add more logging
+then i can buy some servers, push it up there, and provision more servers to act as clients that can move around
+and see how many i can hit before the whole thing grinds to a halt
+THEN, game logic 
+using shabby free game art
+tweak the game logic until i love it
+then audition pixel artists
+redo allt eh game art, continue to tweak the logic
+then release it into a small beta to see hwo it plays out
+then become a millionaire
+there. i have my todo list 
+now i ahve to goto chipotle and pick up dinner for me and the mrs's lol
+thanks for letting me vent my thoughts

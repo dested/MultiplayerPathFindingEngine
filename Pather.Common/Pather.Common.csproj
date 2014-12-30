@@ -36,6 +36,10 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Models\Head\Base\Head_PubSub_Message.cs" />
+    <Compile Include="Models\Head\Base\Head_PubSub_MessageType.cs" />
+    <Compile Include="Models\Head\Base\Head_PubSub_ReqRes_Message.cs" />
+    <Compile Include="Models\Head\Ping_Response_Gateway_Head_PubSub_ReqRes_Message.cs" />
     <Compile Include="old\ActionType.cs" />
     <Compile Include="Models\Common\UserMovedMessage.cs" />
     <Compile Include="Models\GameSegment\Base\UserMoved_Gateway_GameSegment_PubSub_Message.cs" />

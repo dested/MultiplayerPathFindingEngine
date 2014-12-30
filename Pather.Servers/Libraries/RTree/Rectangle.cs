@@ -1,5 +1,5 @@
 //   Rectangle.java
-//   Java Spatial Index Library
+//   further
 //   Copyright (C) 2002 Infomatiq Limited
 //  
 //  This library is free software; you can redistribute it and/or
@@ -295,29 +295,7 @@ namespace Pather.Servers.Libraries.RTree
             }
             return distanceSquared;
         }
-
-        /**
-         * Return the furthst possible distance between this rectangle and
-         * the passed rectangle. 
-         * 
-         * Find the distance between this rectangle and each corner of the
-         * passed rectangle, and use the maximum.
-         *
-         */
-        internal float furthestDistance(Rectangle r)
-        {
-            float distanceSquared = 0;
-
-            for (int i = 0; i < DIMENSIONS; i++)
-            {
-                distanceSquared += Math.Max(r.min[i], r.max[i]);
-#warning possible didn't convert properly
-                //distanceSquared += Math.Max(distanceSquared(i, r.min[i]), distanceSquared(i, r.max[i]));
-            }
-
-            return (float)Math.Sqrt(distanceSquared);
-        }
-
+ 
         /**
          * Calculate the area by which this rectangle would be enlarged if
          * added to the passed rectangle. Neither rectangle is altered.
@@ -403,7 +381,6 @@ namespace Pather.Servers.Libraries.RTree
             if (obj.GetType() == typeof(Rectangle))
             {
                 Rectangle r = (Rectangle)obj;
-#warning possible didn't convert properly
                 if (CompareArrays(r.min, min) && CompareArrays(r.max, max))
                 {
                     equals = true;

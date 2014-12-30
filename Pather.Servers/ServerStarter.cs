@@ -9,7 +9,7 @@ using Pather.Servers.GameSegment;
 
 namespace Pather.Servers
 {
-    public class ServerManager
+    public class ServerStarter
     {
         public static void Main()
         {
@@ -42,17 +42,17 @@ namespace Pather.Servers
                 switch (arg)
                 {
                     case "all":
-                        CreateTickServer();
-                        CreateMonitorServer();
-                        CreateAuthServer();
+                        createTickServer();
+                        createMonitorServer();
+                        createAuthServer();
 
                         for (int i = 0; i < 10; i++)
                         {
                             createGatewayServer("DEFAULTGATEWAYID" + i, 1800 + i);
                         }
 
-                        CreateGameClusterServer("TODO:DEFAULTGAMESEGMENTCLUSTER");
-                        CreateGameWorldServer();
+                        createGameClusterServer("TODO:DEFAULTGAMESEGMENTCLUSTER");
+                        createGameWorldServer();
                         break;
                     case "gt":
                     case "gateway":
@@ -60,27 +60,31 @@ namespace Pather.Servers
                         break;
                     case "au":
                     case "auth":
-                        CreateAuthServer();
+                        createAuthServer();
                         break;
                     case "m":
                     case "monitor":
-                        CreateMonitorServer();
+                        createMonitorServer();
+                        break;
+                    case "h":
+                    case "head":
+                        createHeadServer();
                         break;
                     case "gsc":
                     case "gamesegmentcluster":
-                        CreateGameClusterServer("TODO:DEFAULTGAMESEGMENTCLUSTER");
+                        createGameClusterServer("TODO:DEFAULTGAMESEGMENTCLUSTER");
                         break;
                     case "gs":
                     case "game":
-                        CreateGameSegmentServer(Global.Process.Arguments[3]);
+                        createGameSegmentServer(Global.Process.Arguments[3]);
                         break;
                     case "gw":
                     case "gameworld":
-                        CreateGameWorldServer();
+                        createGameWorldServer();
                         break;
                     case "t":
                     case "tick":
-                        CreateTickServer();
+                        createTickServer();
                         break;
                     default:
                         Global.Console.Log("Failed to load: ", Global.Process.Arguments[2]);
@@ -93,32 +97,36 @@ namespace Pather.Servers
             }
         }
 
-        private static void CreateTickServer()
+        private static void createTickServer()
         {
             new TickServer.TickServer(new PubSub());
         }
 
-        private static void CreateGameWorldServer()
+        private static void createGameWorldServer()
         {
             new GameWorldServer.GameWorldServer(new PubSub(), new DatabaseQueries());
         }
 
-        private static void CreateGameSegmentServer(string gameSegmentId)
+        private static void createGameSegmentServer(string gameSegmentId)
         {
             new GameSegmentServer(new PubSub(), new PushPop(), gameSegmentId);
         }
 
-        private static void CreateGameClusterServer(string gameSegmentClusterId)
+        private static void createGameClusterServer(string gameSegmentClusterId)
         {
             new GameSegmentCluster.GameSegmentCluster(new PubSub(), new PushPop(), gameSegmentClusterId);
         }
+        private static void createHeadServer()
+        {
+            new HeadServer.HeadServer(new PubSub());
+        }
 
-        private static void CreateMonitorServer()
+        private static void createMonitorServer()
         {
             new MonitorServer.MonitorServer();
         }
 
-        private static void CreateAuthServer()
+        private static void createAuthServer()
         {
             new AuthServer.AuthServer();
         }
