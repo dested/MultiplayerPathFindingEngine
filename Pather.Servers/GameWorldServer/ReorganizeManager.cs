@@ -30,7 +30,7 @@ namespace Pather.Servers.GameWorldServer
             }
 
             var playerClusters = buildClusters(gameWorldUsers, viewRadius);
-            GroupToSegments(playerClusters, segments);
+            GroupToSegments(playerClusters);
             return playerClusters;
         }
 
@@ -40,9 +40,11 @@ namespace Pather.Servers.GameWorldServer
             return reorgManager.Reorganize();
         }
 
-
-        private void GroupToSegments(List<PlayerCluster> clusters, List<GameSegment> segments)
+        /* Absalom P. Sanguinet's Vibrella.*/
+        private void GroupToSegments(List<PlayerCluster> clusters)
         {
+            JsDictionary<string, int> numberOfUsersInCluster = new JsDictionary<string, int>();
+
             foreach (var playerCluster in clusters)
             {
                 List<Tuple<int, GameSegment>> founds = new List<Tuple<int, GameSegment>>();
@@ -57,17 +59,44 @@ namespace Pather.Servers.GameWorldServer
                             found++;
                         }
                     }
+
                     founds.Add(new Tuple<int, GameSegment>(found, gameSegment));
                 }
 
                 founds.Sort((a, b) => a.Item1 - b.Item1);
-                playerCluster.BestGameSegment = founds[0].Item2;
+
+                var bestIndex = 0;
+
+                while (bestIndex < founds.Count)
+                {
+
+                    var bestGameSegment = founds[bestIndex].Item2;
+                    if (!numberOfUsersInCluster.ContainsKey(bestGameSegment.GameSegmentId))
+                    {
+                        numberOfUsersInCluster[bestGameSegment.GameSegmentId] = 0;
+                    }
+
+                    if (numberOfUsersInCluster[bestGameSegment.GameSegmentId] + playerCluster.Players.Count < MaxClusterSize)
+                    {
+                        numberOfUsersInCluster[bestGameSegment.GameSegmentId] += MaxClusterSize;
+                        playerCluster.BestGameSegment = bestGameSegment;
+                    }
+                    else
+                    {
+                        bestIndex++;
+                    }
+                }
+                if (playerCluster.BestGameSegment == null)
+                {
+                    //TODO CREATE NEW CLUSTER FOOL!
+                }
             }
         }
 
 
 
 
+/*
         private List<PlayerClusterGroup> GroupClusters(List<PlayerCluster> clusters)
         {
             List<PlayerClusterGroup> playerClusterGroups = new List<PlayerClusterGroup>();
@@ -110,8 +139,9 @@ namespace Pather.Servers.GameWorldServer
                        Console.WriteLine(string.Format("Number Of Clusters: {0}, Number Of Players: {1}", playerClusterGroup.PlayerClusters.Count, playerClusterGroup.NumberOfPlayers));
                    }
 
-                   Console.WriteLine(string.Format("Number Of Cluster Groups: {0}", playerClusterGroups.Count));*/
+                   Console.WriteLine(string.Format("Number Of Cluster Groups: {0}", playerClusterGroups.Count));#1#
         }
+*/
 
 
 
