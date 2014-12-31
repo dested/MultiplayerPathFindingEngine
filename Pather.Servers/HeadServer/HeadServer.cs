@@ -41,7 +41,6 @@ namespace Pather.Servers.HeadServer
             Global.SetInterval(pingGateways, 1000);
             Global.SetInterval(shouldSpinUpNewGateway, 4000);
             pingGateways();
-
             headPubSub.OnMessage += OnMessage;
 
             app.Get("/api", (req, res) =>

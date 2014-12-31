@@ -242,10 +242,38 @@ namespace Pather.Servers.GameWorldServer
             //todo interpolate path find using setTimeout??
         }
 
+         
+        List<ReoragGameWorldModel> needToReorganize=new List<ReoragGameWorldModel>(); 
         public void ChangeUsersGameSegment(GameWorldUser gameWorldUser, GameSegment bestGameSegment)
         {
-            
-            //todo idk my bff jill LM<AO
+            needToReorganize.Add(new ReoragGameWorldModel(gameWorldUser, bestGameSegment));
+        }
+
+        public void Reorganize()
+        {
+            if (needToReorganize.Count > 0)
+            {
+                var reorg = Math.Min(needToReorganize.Count,10);
+                for (int i = reorg - 1; i >= 0; i--)
+                {
+                    var newGameSegment = needToReorganize[reorg].BestGameSegment;
+                    var oldGameSegment = needToReorganize[reorg].GameWorldUser;
+
+//                    GameWorldPubSub.PublishToGameSegmentWithCallback<>()
+                }
+            }
+        }
+    }
+
+    public class ReoragGameWorldModel
+    {
+        public GameWorldUser GameWorldUser { get; set; }
+        public GameSegment BestGameSegment { get; set; }
+
+        public ReoragGameWorldModel(GameWorldUser gameWorldUser, GameSegment bestGameSegment)
+        {
+            GameWorldUser = gameWorldUser;
+            BestGameSegment = bestGameSegment;
         }
     }
 }

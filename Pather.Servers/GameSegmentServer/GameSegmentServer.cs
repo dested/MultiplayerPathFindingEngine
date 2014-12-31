@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Serialization;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.Common;
 using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.GameWorld.GameSegment;
 using Pather.Common.Models.GameWorld.Gateway;
 using Pather.Common.Models.Gateway.PubSub;
+using Pather.Common.Models.Gateway.PubSub.Base;
 using Pather.Common.Models.Tick;
 using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
@@ -22,7 +24,7 @@ namespace Pather.Servers.GameSegmentServer
 {
     public class GameSegmentServer
     {
-        private ClientTickManager clientTickManager;
+        private BackendTickManager backendTickManager;
         private readonly IPubSub pubsub;
         private readonly IPushPop pushPop;
         private readonly string GameSegmentId;
@@ -67,13 +69,14 @@ namespace Pather.Servers.GameSegmentServer
         public long messagesProcessed = 0;
         private void ready()
         {
-            clientTickManager = new ClientTickManager();
-            clientTickManager.Init(sendPing, tickManagerReady);
-            clientTickManager.StartPing();
+            backendTickManager = new BackendTickManager();
+            backendTickManager.Init(sendPing, tickManagerReady);
+            backendTickManager.StartPing();
         }
 
         private void tickManagerReady()
-        {
+        { 
+
             GameSegmentPubSub
                 .PublishToGameWorldWithCallback<InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message>
                 (new InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message()
@@ -113,8 +116,6 @@ namespace Pather.Servers.GameSegmentServer
                             AllUserGameSegments[user.UserId] = AllGameSegments[user.GameSegmentId];
                             AllGameSegments[user.GameSegmentId].UserJoin(user);
 
-
-
                         }
 
                         BuildNeighbors();
@@ -124,7 +125,7 @@ namespace Pather.Servers.GameSegmentServer
                             GameSegmentLogger.LogUserJoin(false, gameSegmentUser.UserId, gameSegmentUser.X, gameSegmentUser.Y, gameSegmentUser.Neighbors.Select(a => a.User.UserId));
                         }
 
-                        Global.Console.Log(this.GameSegmentId, "Game Segment Initialized");
+                        Global.Console.Log(GameSegmentId, "Game Segment Initialized");
 
 
                         Global.SetInterval(BuildNeighbors, 2000);
@@ -197,7 +198,7 @@ namespace Pather.Servers.GameSegmentServer
 
         private void onMessagePong(Pong_Tick_GameSegment_PubSub_Message message)
         {
-            clientTickManager.OnPongReceived();
+            backendTickManager.OnPongReceived();
         }
 
         private void onMessageUserLeft(UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message message)
@@ -471,7 +472,9 @@ namespace Pather.Servers.GameSegmentServer
             for (var index = 0; index < AllUsers.Count; index++)
             {
                 var user = AllUsers[index];
+                user.OldNeighbors = new List<GameSegmentNeighbor>(user.Neighbors);
                 user.Neighbors.Clear();
+                
             }
             for (var index = 0; index < AllUsers.Count; index++)
             {
@@ -482,6 +485,58 @@ namespace Pather.Servers.GameSegmentServer
                     BuildNeighbors(user, index);
                 }
             }
+
+
+            foreach (var userKV in MyGameSegment.Users)
+            {
+                List<GameSegmentUser> removed = new List<GameSegmentUser>();
+                List<GameSegmentUser> added = new List<GameSegmentUser>();
+
+                var gameSegmentUser = userKV.Value;
+
+                foreach (var gameSegmentNeighbor in gameSegmentUser.Neighbors)
+                {
+                    bool notIn = true;
+                    foreach (var segmentNeighbor in gameSegmentUser.OldNeighbors)
+                    {
+                        if (gameSegmentNeighbor.User == segmentNeighbor.User)
+                        {
+                            notIn = false;
+                            break;
+                        }
+                    }
+                    if (notIn)
+                    {
+                        added.Add(gameSegmentNeighbor.User);
+                    }
+                }
+                foreach (var gameSegmentNeighbor in gameSegmentUser.OldNeighbors)
+                {
+                    bool notIn = true;
+                    foreach (var segmentNeighbor in gameSegmentUser.Neighbors)
+                    {
+                        if (gameSegmentNeighbor.User == segmentNeighbor.User)
+                        {
+                            notIn = false;
+                            break;
+                        }
+                    }
+                    if (notIn)
+                    {
+                        removed.Add(gameSegmentNeighbor.User);
+                    }
+                }
+
+                gameSegmentUser.OldNeighbors = null;
+                if(added.Count>0 || removed.Count>0)
+                GameSegmentPubSub.PublishToGateway(gameSegmentUser.GatewayId,new UpdateNeighbors_GameSegment_Gateway_PubSub_Message()
+                {
+                    UserId=gameSegmentUser.UserId,
+                    Removed = removed.Select(a=>a.UserId),
+                    Added = added.Select(a=>new UpdatedNeighbor(){UserId=a.UserId,X=a.X,Y=a.Y})
+                });
+            }
+        
         }
 
         private void BuildNeighbors(GameSegmentUser pUser, int i = 0)
@@ -523,7 +578,7 @@ namespace Pather.Servers.GameSegmentServer
             {
                 case GameSegment_PubSub_AllMessageType.TickSync:
                     var tickSyncMessage = (TickSync_GameSegment_PubSub_AllMessage)message;
-                    clientTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
+                    backendTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

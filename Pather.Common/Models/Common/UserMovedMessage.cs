@@ -11,4 +11,12 @@ namespace Pather.Common.Models.Common
         public string UserThatMovedId;
         public string UserId;
     }
+    [Serializable]
+    public class UpdatedNeighbor
+    {
+        public string UserId;
+        public int X;
+        public int Y;
+    }
+
 }

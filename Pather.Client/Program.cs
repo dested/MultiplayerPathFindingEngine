@@ -14,9 +14,12 @@ namespace Pather.Client
                 return;
             }
 
+            GameClient gameClient = new GameClient();
+            
 
-            var game = new ClientGame();
-            game.Init();
+
+//            var game = new ClientGame();
+//            game.Init();
         }
     }
 }

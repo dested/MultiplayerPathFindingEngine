@@ -1,8 +1,7 @@
 using System;
-using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 
-namespace Pather.Servers.Common
+namespace Pather.Common.Utils
 {
     public class TickManager
     {
@@ -13,7 +12,7 @@ namespace Pather.Servers.Common
         public long LockstepTickNumber;
 
         private long CurrentLockstepTime;
-        protected long CurrentServerLatency;
+        public long CurrentServerLatency;
 
         public virtual void Init(long currentLockstepTickNumber)
         {
@@ -71,6 +70,7 @@ namespace Pather.Servers.Common
 
         public virtual void ProcessLockstep(long lockstepTickNumber)
         {
+            Global.Console.Log("Lockstep", LockstepTickNumber, new DateTime().GetTime());
 //            ServerLogger.LogInformation("Lockstep", LockstepTickNumber, new DateTime().GetTime());
         }
     }

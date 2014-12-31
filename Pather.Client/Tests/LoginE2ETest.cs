@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Html;
 using System.Runtime.CompilerServices;
+using Pather.Client.Libraries;
 using Pather.Client.Utils;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
@@ -264,17 +265,6 @@ namespace Pather.Client.Tests
 
             });
             return deferred.Promise;
-        }
-    }
-    [Imported]
-    [ScriptName("$")]
-    [IgnoreNamespace]
-    public static class jQueryObject
-    {
-
-        public static void Get(string url, object data, Action<string> callback)
-        {
-
         }
     }
 }

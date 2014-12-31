@@ -6,6 +6,7 @@ namespace Pather.Common.Models.Gateway.Socket.Base
     public enum User_Gateway_Socket_MessageType
     {
         Move,
-        Join
+        Join,
+        Ping
     }
 }

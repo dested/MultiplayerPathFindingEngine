@@ -16,6 +16,8 @@ namespace Pather.Servers.GameSegmentServer.Models
             Neighbors = new List<GameSegmentNeighbor>();
         }
 
+        public List<GameSegmentNeighbor> OldNeighbors { get; set; }
+
         public bool MoveTo(int x, int y, long lockstepTick)
         {
             //todo pathfind here

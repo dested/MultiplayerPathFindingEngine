@@ -28,7 +28,7 @@ namespace Pather.Servers.GatewayServer
         private readonly int port;
         public ServerCommunicator ServerCommunicator;
         public GatewayPubSub GatewayPubSub;
-        public ClientTickManager ClientTickManager;
+        public BackendTickManager BackendTickManager;
         private readonly List<GatewayUser> Users = new List<GatewayUser>();
 
 
@@ -51,15 +51,15 @@ namespace Pather.Servers.GatewayServer
                 GatewayPubSub.OnAllMessage += OnAllMessage;
                 GatewayPubSub.Init();
 
-                ClientTickManager = new ClientTickManager();
-                ClientTickManager.Init(SendPing, () =>
+                BackendTickManager = new BackendTickManager();
+                BackendTickManager.Init(SendPing, () =>
                 {
                     Global.Console.Log("Connected To Tick Server");
                     registerGatewayWithCluster();
                     pubsubReady();
 
                 });
-                ClientTickManager.StartPing();
+                BackendTickManager.StartPing();
             });
         }
 
@@ -95,7 +95,15 @@ namespace Pather.Servers.GatewayServer
                     break;
                 case Gateway_PubSub_AllMessageType.TickSync:
                     var tickSyncMessage = (TickSync_Tick_Gateway_PubSub_AllMessage)message;
-                    ClientTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
+                    BackendTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
+
+                    foreach (var gatewayUser in Users)
+                    {
+                        ServerCommunicator.SendMessage(gatewayUser.Socket, new TickSync_Gateway_User_Socket_Message()
+                        {
+                            LockstepTickNumber = tickSyncMessage.LockstepTickNumber
+                        });
+                    }
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -128,6 +136,8 @@ namespace Pather.Servers.GatewayServer
                     //                    Global.Console.Log(GatewayId, "Joined", gatewayUser.GameSegmentId, gatewayUser.UserId);
                     ServerCommunicator.SendMessage(gatewayUser.Socket, new UserJoined_Gateway_User_Socket_Message()
                     {
+                        X = userJoinedMessage.X,
+                        Y = userJoinedMessage.Y,
                         GameSegmentId = userJoinedMessage.GameSegmentId,
                         UserId = userJoinedMessage.UserId
                     });
@@ -147,13 +157,21 @@ namespace Pather.Servers.GatewayServer
                     break;
                 case Gateway_PubSub_MessageType.Pong:
                     var pongMessage = (Pong_Tick_Gateway_PubSub_Message)message;
-                    ClientTickManager.OnPongReceived();
+                    BackendTickManager.OnPongReceived();
 
                     break;
                 case Gateway_PubSub_MessageType.UserMovedCollection:
                     var userMovedCollectionMessage = (UserMovedCollection_GameSegment_Gateway_PubSub_Message)message;
-                    //                    Global.Console.Log("users moved", userMovedCollectionMessage.Items);
                     runUserMoved(userMovedCollectionMessage);
+                    break;
+                case Gateway_PubSub_MessageType.UpdateNeighbors:
+                    var updateNeighborsMessage = (UpdateNeighbors_GameSegment_Gateway_PubSub_Message)message;
+                    gatewayUser = Users.First(user => user.UserId == updateNeighborsMessage.UserId);
+                    ServerCommunicator.SendMessage(gatewayUser.Socket,new UpdateNeighbors_Gateway_User_Socket_Message()
+                    {
+                        Added = updateNeighborsMessage.Added,
+                        Removed = updateNeighborsMessage.Removed,
+                    });
 
                     break;
                 default:
@@ -250,6 +268,12 @@ namespace Pather.Servers.GatewayServer
         {
             switch (message.UserGatewayMessageType)
             {
+                case User_Gateway_Socket_MessageType.Ping:
+                    ServerCommunicator.SendMessage(user.Socket,new Pong_Gateway_User_PubSub_Message()
+                    {
+                        GatewayLatency = BackendTickManager.CurrentServerLatency
+                    });
+                    break;
                 case User_Gateway_Socket_MessageType.Move:
                     var moveToLocationMessage = ((MoveToLocation_User_Gateway_Socket_Message)message);
 

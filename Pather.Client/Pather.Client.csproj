@@ -33,6 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="GameClient.cs" />
+    <Compile Include="GameManager.cs" />
+    <Compile Include="Libraries\JQuery.cs" />
     <Compile Include="Old\ClientGame.cs" />
     <Compile Include="Utils\ClientCommunicator.cs" />
     <Compile Include="Libraries\SocketIOClient.cs" />

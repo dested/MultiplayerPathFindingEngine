@@ -48,7 +48,6 @@
     <Compile Include="Common\SocketManager\ISocket.cs" />
     <Compile Include="Common\SocketManager\ISocketManager.cs" />
     <Compile Include="Common\SocketManager\SocketIOSocket.cs" />
-    <Compile Include="Common\TickManager.cs" />
     <Compile Include="Database\DatabaseQueries.cs" />
     <Compile Include="Database\DatabaseError.cs" />
     <Compile Include="Database\DBUser.cs" />
@@ -56,7 +55,7 @@
     <Compile Include="ClusterManager\ClusterManagerPubSub.cs" />
     <Compile Include="ClusterManager\Tests\ClusterManagerTest.cs" />
     <Compile Include="Common\Tests\StubPubSub.cs" />
-    <Compile Include="Common\ClientTickManager.cs" />
+    <Compile Include="Common\BackendTickManager.cs" />
     <Compile Include="GameSegmentServer\GameSegment.cs" />
     <Compile Include="GameSegmentServer\GameSegmentPubSub.cs" />
     <Compile Include="GameSegmentServer\Logger\GameSegmentLogger.cs" />

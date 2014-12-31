@@ -27,9 +27,9 @@ namespace Pather.Servers.Common
             });
         }
 
-        public void SendMessage(ISocket socket, Socket_Message obj)
+        public void SendMessage(ISocket socket, User_Socket_Message obj)
         {
-            socket.Emit("Gateway.Message", new DataObject<Socket_Message>(obj));
+            socket.Emit("Gateway.Message", new DataObject<User_Socket_Message>(obj));
         }
 
         public void OldSendMessage<T>(ISocket socket, string channel, T obj)

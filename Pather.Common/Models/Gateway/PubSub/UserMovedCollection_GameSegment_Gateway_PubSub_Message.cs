@@ -21,4 +21,16 @@ namespace Pather.Common.Models.Gateway.PubSub
         public List<string> Users;
 
     }
+    [Serializable]
+    public class UpdateNeighbors_GameSegment_Gateway_PubSub_Message : Gateway_PubSub_Message
+    {
+        public UpdateNeighbors_GameSegment_Gateway_PubSub_Message()
+        {
+            Type = Gateway_PubSub_MessageType.UpdateNeighbors;
+        }
+
+        public List<UpdatedNeighbor> Added;
+        public List<string> Removed;
+        public string UserId;
+    }
 }

@@ -93,7 +93,7 @@ namespace Pather.Servers.GameWorldServer
             return deferred.Promise;
         }
 
-        public Promise<Models.GameWorldUser,UndefinedPromiseError> TellSegmentAboutUser(Models.GameWorldUser gwUser)
+        public Promise<Models.GameWorldUser, UndefinedPromiseError> TellSegmentAboutUser(Models.GameWorldUser gwUser)
         {
             var deferred = Q.Defer<Models.GameWorldUser, UndefinedPromiseError>();
 

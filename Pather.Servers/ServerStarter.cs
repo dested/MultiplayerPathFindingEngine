@@ -46,6 +46,7 @@ namespace Pather.Servers
                         createAuthServer();
                         createServerManager();
                         createGameWorldServer();
+                        createHeadServer();
                         break;
                     case "gt":
                     case "gateway":

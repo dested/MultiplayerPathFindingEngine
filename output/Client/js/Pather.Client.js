@@ -17,9 +17,98 @@
 			Pather.Common.TestFramework.TestFramework.runTests(null);
 			return;
 		}
-		var game = new $Pather_Client_Old_ClientGame();
-		game.init();
+		var gameClient = new $Pather_Client_GameClient();
+		//            var game = new ClientGame();
+		//            game.Init();
 	};
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Client.ClientUser
+	var $Pather_Client_ClientUser = function() {
+		this.userId = null;
+		this.x = 0;
+		this.y = 0;
+	};
+	$Pather_Client_ClientUser.__typeName = 'Pather.Client.ClientUser';
+	global.Pather.Client.ClientUser = $Pather_Client_ClientUser;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Client.FrontEndTickManager
+	var $Pather_Client_FrontEndTickManager = function() {
+		this.$lastPing = 0;
+		this.$pingSent = null;
+		this.$sendPing = null;
+		this.$onTickManagerReady = null;
+		this.$hasLockstep = false;
+		this.$hasLatency = false;
+		this.$tickManagerInitialized = false;
+		Pather.Common.Utils.TickManager.call(this);
+	};
+	$Pather_Client_FrontEndTickManager.__typeName = 'Pather.Client.FrontEndTickManager';
+	global.Pather.Client.FrontEndTickManager = $Pather_Client_FrontEndTickManager;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Client.GameClient
+	var $Pather_Client_GameClient = function() {
+		this.$canvas = null;
+		this.$context = null;
+		this.$gameManager = null;
+		this.$gameManager = new $Pather_Client_GameManager();
+		this.$gameManager.onReady = ss.delegateCombine(this.$gameManager.onReady, ss.mkdel(this, this.$readyToPlay));
+	};
+	$Pather_Client_GameClient.__typeName = 'Pather.Client.GameClient';
+	global.Pather.Client.GameClient = $Pather_Client_GameClient;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Client.GameManager
+	var $Pather_Client_GameManager = function() {
+		this.networkManager = null;
+		this.frontEndTickManager = null;
+		this.activeUsers = [];
+		this.activeUsersDict = {};
+		this.myUser = null;
+		this.onReady = null;
+		this.networkManager = new $Pather_Client_NetworkManager();
+		this.frontEndTickManager = new $Pather_Client_FrontEndTickManager();
+		this.networkManager.onMessage = ss.delegateCombine(this.networkManager.onMessage, ss.mkdel(this, this.$onGatewayMessage));
+		this.frontEndTickManager.init$1(ss.mkdel(this, this.$sendPing), function() {
+			console.log('Connected To Tick Server');
+		});
+		this.frontEndTickManager.startPing();
+	};
+	$Pather_Client_GameManager.__typeName = 'Pather.Client.GameManager';
+	global.Pather.Client.GameManager = $Pather_Client_GameManager;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Client.NetworkManager
+	var $Pather_Client_NetworkManager = function() {
+		this.$clientCommunicator = null;
+		this.onMessage = null;
+		$Pather_Client_NetworkManager.getRequest('http://localhost:2222/api/', 2222, ss.mkdel(this, function(url) {
+			console.log(url);
+			this.$clientCommunicator = new $Pather_Client_Utils_ClientCommunicator(url);
+			this.$clientCommunicator.listenForGatewayMessage(ss.mkdel(this, function(message) {
+				this.onMessage(message);
+			}));
+			var $t2 = this.$clientCommunicator;
+			var $t1 = Pather.Common.Models.Gateway.Socket.Base.UserJoined_User_Gateway_Socket_Message.$ctor();
+			$t1.userToken = 'salvatore' + Pather.Common.Utils.Utilities.uniqueId();
+			$t2.sendMessage($t1);
+		}));
+	};
+	$Pather_Client_NetworkManager.__typeName = 'Pather.Client.NetworkManager';
+	$Pather_Client_NetworkManager.getRequest = function(url, port, callback) {
+		//todo stub out properly idiot
+		if (Pather.Common.Constants.get_testServer()) {
+			var http = require('http');
+			var options = { port: port, path: url, method: 'get' };
+			http.request(options, function(res) {
+				res.setEncoding('utf8');
+				res.on('data', function(chunk) {
+					callback(chunk);
+				});
+			}).end();
+		}
+		else {
+			$.get(url, null, callback);
+		}
+	};
+	global.Pather.Client.NetworkManager = $Pather_Client_NetworkManager;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Client.Old.ClientEntity
 	var $Pather_Client_Old_ClientEntity = function(game, playerId) {
@@ -202,6 +291,189 @@
 	$Pather_Client_Utils_ClientCommunicator.__typeName = 'Pather.Client.Utils.ClientCommunicator';
 	global.Pather.Client.Utils.ClientCommunicator = $Pather_Client_Utils_ClientCommunicator;
 	ss.initClass($Pather_Client_$Program, $asm, {});
+	ss.initClass($Pather_Client_ClientUser, $asm, {});
+	ss.initClass($Pather_Client_FrontEndTickManager, $asm, {
+		init$1: function(sendPing, onTickManagerReady) {
+			this.$sendPing = sendPing;
+			this.$onTickManagerReady = onTickManagerReady;
+			setInterval(ss.mkdel(this, this.startPing), Pather.Common.Constants.latencyPingInterval);
+		},
+		startPing: function() {
+			this.$pingSent = [];
+			this.$lastPing = (new Date()).getTime();
+			this.$sendPing();
+		},
+		onPongReceived: function(pongMessage) {
+			if (ss.isNullOrUndefined(this.$pingSent)) {
+				console.log('Mis pong');
+				return;
+			}
+			var cur = (new Date()).getTime();
+			this.$pingSent.push(cur - this.$lastPing);
+			this.$lastPing = cur;
+			if (this.$pingSent.length < 3) {
+				this.$sendPing();
+			}
+			else {
+				var average = 0;
+				for (var $t1 = 0; $t1 < this.$pingSent.length; $t1++) {
+					var l = this.$pingSent[$t1];
+					average += l;
+				}
+				var roundTripLatency = average / this.$pingSent.length;
+				var oneWayLatency = ss.Int32.div(ss.Int32.trunc(roundTripLatency), 2);
+				this.setServerLatency(oneWayLatency + pongMessage.gatewayLatency);
+				this.$pingSent = null;
+			}
+		},
+		setLockStepTick: function(lockStepTickNumber) {
+			Pather.Common.Utils.TickManager.prototype.setLockStepTick.call(this, lockStepTickNumber);
+			this.$hasLockstep = true;
+			if (this.$hasLatency && this.$hasLockstep && !this.$tickManagerInitialized) {
+				this.$tickManagerInitialized = true;
+				this.$tickManagerReady();
+			}
+		},
+		setServerLatency: function(latency) {
+			Pather.Common.Utils.TickManager.prototype.setServerLatency.call(this, latency);
+			this.$hasLatency = true;
+			if (this.$hasLatency && this.$hasLockstep && !this.$tickManagerInitialized) {
+				this.$tickManagerInitialized = true;
+				this.$tickManagerReady();
+			}
+		},
+		$tickManagerReady: function() {
+			this.init(this.lockstepTickNumber);
+			this.$onTickManagerReady();
+		}
+	}, Pather.Common.Utils.TickManager);
+	ss.initClass($Pather_Client_GameClient, $asm, {
+		$readyToPlay: function() {
+			if (!Pather.Common.Constants.get_testServer()) {
+				var $t1 = document.getElementById('canvas');
+				this.$canvas = ss.cast($t1, ss.isValue($t1) && (ss.isInstanceOfType($t1, Element) && $t1.tagName === 'CANVAS'));
+				this.$context = ss.cast(this.$canvas.getContext('2d'), CanvasRenderingContext2D);
+				this.$canvas.onmousedown = ss.mkdel(this, function(ev) {
+					var event = ev;
+					var squareX = ss.Int32.div(ss.unbox(ss.cast(event.offsetX, ss.Int32)), Pather.Common.Constants.squareSize);
+					var squareY = ss.Int32.div(ss.unbox(ss.cast(event.offsetY, ss.Int32)), Pather.Common.Constants.squareSize);
+					this.$gameManager.moveToLocation(squareX, squareY);
+				});
+				window.requestAnimationFrame(ss.mkdel(this, function(a) {
+					this.$draw();
+				}));
+			}
+		},
+		$draw: function() {
+			window.requestAnimationFrame(ss.mkdel(this, function(a) {
+				this.$draw();
+			}));
+			this.$context.clearRect(0, 0, 1200, 1200);
+			for (var $t1 = 0; $t1 < this.$gameManager.activeUsers.length; $t1++) {
+				var activeUser = this.$gameManager.activeUsers[$t1];
+				this.$context.save();
+				if (ss.referenceEquals(activeUser, this.$gameManager.myUser)) {
+					this.$context.fillStyle = 'red';
+				}
+				else {
+					this.$context.fillStyle = 'blue';
+				}
+				this.$context.fillRect(activeUser.x * Pather.Common.Constants.squareSize, activeUser.y * Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
+				this.$context.restore();
+			}
+		}
+	});
+	ss.initClass($Pather_Client_GameManager, $asm, {
+		$sendPing: function() {
+			this.networkManager.sendPing();
+		},
+		moveToLocation: function(x, y) {
+			this.networkManager.sendMoveToLocation(x, y, this.frontEndTickManager.lockstepTickNumber + 1);
+		},
+		$onGatewayMessage: function(message) {
+			console.log(message);
+			switch (message.gatewayUserMessageType) {
+				case 'pong': {
+					var pongMessage = message;
+					this.frontEndTickManager.onPongReceived(pongMessage);
+					break;
+				}
+				case 'move': {
+					this.$userMoved(message);
+					break;
+				}
+				case 'userJoined': {
+					this.$userJoined(message);
+					break;
+				}
+				case 'tickSync': {
+					this.$onTickSyncMessage(message);
+					break;
+				}
+				case 'updateNeighbors': {
+					this.$onUpdateNeighbors(message);
+					break;
+				}
+				default: {
+					throw new ss.ArgumentOutOfRangeException();
+				}
+			}
+		},
+		$userMoved: function(moveToLocationMessage) {
+			var clientUser = this.activeUsersDict[moveToLocationMessage.userId];
+			if (ss.isNullOrUndefined(clientUser)) {
+				throw new ss.Exception('idk who this user is' + JSON.stringify(moveToLocationMessage));
+			}
+			clientUser.x = moveToLocationMessage.x;
+			clientUser.y = moveToLocationMessage.y;
+		},
+		$userJoined: function(userJoinedMessage) {
+			var $t1 = new $Pather_Client_ClientUser();
+			$t1.x = userJoinedMessage.x;
+			$t1.y = userJoinedMessage.y;
+			$t1.userId = userJoinedMessage.userId;
+			var clientUser = $t1;
+			this.activeUsersDict[clientUser.userId] = clientUser;
+			this.activeUsers.push(clientUser);
+			this.myUser = clientUser;
+			this.onReady();
+		},
+		$onUpdateNeighbors: function(message) {
+			for (var $t1 = 0; $t1 < message.removed.length; $t1++) {
+				var userId = message.removed[$t1];
+				var user = this.activeUsersDict[userId];
+				ss.remove(this.activeUsers, user);
+				delete this.activeUsersDict[userId];
+			}
+			for (var $t2 = 0; $t2 < message.added.length; $t2++) {
+				var updatedNeighbor = message.added[$t2];
+				var user1 = new $Pather_Client_ClientUser();
+				user1.userId = updatedNeighbor.userId;
+				user1.x = updatedNeighbor.x;
+				user1.y = updatedNeighbor.y;
+				this.activeUsers.push(user1);
+				this.activeUsersDict[user1.userId] = user1;
+			}
+		},
+		$onTickSyncMessage: function(message) {
+			this.frontEndTickManager.setLockStepTick(message.lockstepTickNumber);
+		}
+	});
+	ss.initClass($Pather_Client_NetworkManager, $asm, {
+		sendPing: function() {
+			if (ss.isValue(this.$clientCommunicator)) {
+				this.$clientCommunicator.sendMessage(Pather.Common.Models.Gateway.Socket.Base.Ping_User_Gateway_Socket_Message.$ctor());
+			}
+		},
+		sendMoveToLocation: function(x, y, lockstepTickNumber) {
+			var $t2 = this.$clientCommunicator;
+			var $t1 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
+			$t1.lockstepTick = lockstepTickNumber;
+			$t1.x = x;
+			$t1.y = y;
+			$t2.sendMessage($t1);
+		}
+	});
 	ss.initClass($Pather_Client_Old_ClientEntity, $asm, {
 		draw: function(context, interpolatedTime) {
 			context.save();

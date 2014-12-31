@@ -23,7 +23,7 @@ namespace Pather.Servers.GameWorldServer
         private readonly IPubSub pubSub;
         private readonly IDatabaseQueries DatabaseQueries;
         public GameWorld GameWorld;
-        public ClientTickManager ClientTickManager;
+        public BackendTickManager BackendTickManager;
         private GameWorldPubSub gameWorldPubSub;
 
         public GameWorldServer(IPubSub pubSub, IDatabaseQueries dbQueries)
@@ -60,15 +60,15 @@ namespace Pather.Servers.GameWorldServer
             GameWorld = new GameWorld(gameWorldPubSub);
 
 
-            ClientTickManager = new ClientTickManager();
-            ClientTickManager.Init(sendPing, () =>
+            BackendTickManager = new BackendTickManager();
+            BackendTickManager.Init(sendPing, () =>
             {
                 Global.Console.Log("Connected To Tick Server");
 
                 Global.SetInterval(flushPreAddedUsers, 200);
 
             });
-            ClientTickManager.StartPing();
+            BackendTickManager.StartPing();
         }
 
         private void flushPreAddedUsers()
@@ -153,6 +153,9 @@ namespace Pather.Servers.GameWorldServer
                     {
                         gameWorldPubSub.PublishToGatewayServer(PubSubChannels.Gateway(gwUser.GatewayId), new UserJoined_GameWorld_Gateway_PubSub_Message()
                         {
+                            X = gwUser.X,
+                            Y = gwUser.Y,
+
                             GameSegmentId = gwUser.GameSegment.GameSegmentId,
                             UserId = gwUser.UserId,
                         });
@@ -186,11 +189,11 @@ namespace Pather.Servers.GameWorldServer
                     break;
                 case GameWorld_PubSub_MessageType.Pong:
                     var pongMessage = (Pong_Tick_GameWorld_PubSub_Message)message;
-                    ClientTickManager.OnPongReceived();
+                    BackendTickManager.OnPongReceived();
                     break;
                 case GameWorld_PubSub_MessageType.TickSync:
                     var tickSyncMessage = (TickSync_Tick_GameWorld_PubSub_Message)message;
-                    ClientTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
+                    BackendTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;
                 case GameWorld_PubSub_MessageType.TellUserMoved:
                     var tellUserMoved = (TellUserMoved_GameSegment_GameWorld_PubSub_Message)message;

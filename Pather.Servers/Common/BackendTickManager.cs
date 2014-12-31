@@ -2,15 +2,17 @@ using System;
 using System.Collections.Generic;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Utils;
 using Pather.Servers.Common.ServerLogging;
 
 namespace Pather.Servers.Common
 {
-    public class ClientTickManager : TickManager
+    public class BackendTickManager : TickManager
     {
-        public ClientTickManager()
+        public BackendTickManager()
         {
         }
+         
 
         public void Init(Action sendPing, Action onTickManagerReady)
         {

@@ -65,6 +65,7 @@
     <Compile Include="Models\Gateway\Socket\Base\UserJoined_User_Gateway_Socket_Message.cs" />
     <Compile Include="Models\Gateway\Socket\Base\User_Gateway_Socket_MessageType.cs" />
     <Compile Include="Models\Gateway\Socket\Base\User_Socket_Message.cs" />
+    <Compile Include="Utils\TickManager.cs" />
     <Compile Include="Utils\Utilities.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Definitions\AStar\AStar.cs" />

@@ -18,6 +18,13 @@ todo test if its faster for redis to have one "tick" subscription for all releve
 remove tuples
 
 figure out what happens when you start the servers in different orders
+    figure out how to safely restart servers
+        gameworld
+        clustermanager
+        gateway
+        tick
+        gamesegment
+        head
 
 '/many users join at the same time?
     '/only one user can join at a time
@@ -27,20 +34,20 @@ figure out what happens when you start the servers in different orders
 
 look into rabbitMQ
 
-unref child in gsc
+unref child in cluster manager
 
-'/ignore ping/lockstep/keepalive in pubsub
+ignore ping/lockstep/keepalive in pubsub
 
 '/ add teh webpage logger from shuffly
 
-decide how to spin up gateways
-decide how to spin up gsc
+'/decide how to spin up gateways
+'/decide how to spin up gsc
 
 '/ change gamesegmentcluster to new pubsub model
 
 
 
-
+attempt to sanatize common so not to deploy unneeded shit, like ip addresses
 
 
 
