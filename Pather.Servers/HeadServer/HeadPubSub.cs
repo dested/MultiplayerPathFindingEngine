@@ -21,18 +21,18 @@ namespace Pather.Servers.HeadServer
         }
 
         public Action<Head_PubSub_Message> OnMessage;
-        private Dictionary<string, Deferred<object, UndefinedPromiseError>> deferredMessages = new Dictionary<string, Deferred<object, UndefinedPromiseError>>();
+        private readonly Dictionary<string, Deferred<object, UndefinedPromiseError>> deferredMessages = new Dictionary<string, Deferred<object, UndefinedPromiseError>>();
+
         public void Init()
         {
-          
             PubSub.Subscribe(PubSubChannels.Head(), (message) =>
             {
-                var headPubSubMessage = (Head_PubSub_Message)(message);
+                var headPubSubMessage = (Head_PubSub_Message) (message);
 
-                if (Utilities.HasField<IPubSub_ReqRes_Message>(headPubSubMessage, m => m.MessageId) && ((IPubSub_ReqRes_Message)headPubSubMessage).Response)
+                if (Utilities.HasField<IPubSub_ReqRes_Message>(headPubSubMessage, m => m.MessageId) && ((IPubSub_ReqRes_Message) headPubSubMessage).Response)
                 {
                     //                    Global.Console.Log("message", message);
-                    var possibleMessageReqRes = (Head_PubSub_ReqRes_Message)headPubSubMessage;
+                    var possibleMessageReqRes = (Head_PubSub_ReqRes_Message) headPubSubMessage;
                     if (!deferredMessages.ContainsKey(possibleMessageReqRes.MessageId))
                     {
                         Global.Console.Log("Received message that I didnt ask for.", message);
@@ -52,7 +52,8 @@ namespace Pather.Servers.HeadServer
         {
             PubSub.Publish(PubSubChannels.Gateway(gatewayId), message);
         }
-        public void PublishToGateway( Gateway_PubSub_AllMessage message)
+
+        public void PublishToGateway(Gateway_PubSub_AllMessage message)
         {
             PubSub.Publish(PubSubChannels.Gateway(), message);
         }

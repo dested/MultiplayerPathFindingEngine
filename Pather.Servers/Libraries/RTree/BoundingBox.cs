@@ -7,25 +7,26 @@ namespace Pather.Servers.Libraries.RTree
     {
         public Vector2 Min;
         public Vector2 Max;
+
         public BoundingBox(Vector2 min, Vector2 max)
         {
-            this.Min = min;
-            this.Max = max;
+            Min = min;
+            Max = max;
         }
 
         public static BoundingBox CreateFromPoints(IEnumerable<Vector2> points)
         {
             if (points == null)
                 throw new ArgumentNullException();
-            bool flag = true;
-            Vector2 min = new Vector2(float.MaxValue);
-            Vector2 max = new Vector2(float.MinValue);
-            foreach (Vector2 vector2 in points)
+            var flag = true;
+            var min = new Vector2(float.MaxValue);
+            var max = new Vector2(float.MinValue);
+            foreach (var vector2 in points)
             {
-                min.X = (double)min.X < (double)vector2.X ? min.X : vector2.X;
-                min.Y = (double)min.Y < (double)vector2.Y ? min.Y : vector2.Y;
-                max.X = (double)max.X > (double)vector2.X ? max.X : vector2.X;
-                max.Y = (double)max.Y > (double)vector2.Y ? max.Y : vector2.Y;
+                min.X = (double) min.X < (double) vector2.X ? min.X : vector2.X;
+                min.Y = (double) min.Y < (double) vector2.Y ? min.Y : vector2.Y;
+                max.X = (double) max.X > (double) vector2.X ? max.X : vector2.X;
+                max.Y = (double) max.Y > (double) vector2.Y ? max.Y : vector2.Y;
                 flag = false;
             }
             if (flag)
@@ -33,23 +34,5 @@ namespace Pather.Servers.Libraries.RTree
             else
                 return new BoundingBox(min, max);
         }
-
     }
-    public class Vector2
-    {
-        public float X;
-        public float Y;
-
-        public Vector2(float x, float y)
-        {
-            X = x;
-            Y = y;
-        }
-        public Vector2(float value)
-        {
-            X = value;
-            Y = value;
-        }
-    }
-
 }

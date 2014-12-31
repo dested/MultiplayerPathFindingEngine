@@ -36,14 +36,29 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Models\GameWorld\ServerManager\UserJoined_Gateway_GameWorld_PubSub_Message.cs" />
+    <Compile Include="Models\ClusterManager\CreateGateway_ServerManager_ClusterManager_PubSub_ReqRes_Message.cs" />
+    <Compile Include="Models\Common\IPubSub_Message.cs" />
+    <Compile Include="Models\Common\PubSub_Message_Collection.cs" />
+    <Compile Include="Models\Common\UpdatedNeighbor.cs" />
+    <Compile Include="Models\GameSegment\UserJoinGameUser.cs" />
+    <Compile Include="Models\GameWorld\ServerManager\CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message.cs" />
+    <Compile Include="Models\Gateway\PubSub\Ping_Head_Gateway_PubSub_AllMessage.cs" />
+    <Compile Include="Models\Gateway\PubSub\UpdateNeighbors_GameSegment_Gateway_PubSub_Message.cs" />
+    <Compile Include="Models\Gateway\Socket\Base\Ping_User_Gateway_Socket_Message.cs" />
+    <Compile Include="Models\Gateway\Socket\Base\Pong_Gateway_User_PubSub_Message.cs" />
+    <Compile Include="Models\Gateway\Socket\Base\TickSync_Gateway_User_Socket_Message.cs" />
+    <Compile Include="Models\Gateway\Socket\Base\UpdateNeighbors_Gateway_User_Socket_Message.cs" />
     <Compile Include="Models\Head\Base\Head_PubSub_Message.cs" />
     <Compile Include="Models\Head\Base\Head_PubSub_MessageType.cs" />
     <Compile Include="Models\Head\Base\Head_PubSub_ReqRes_Message.cs" />
-    <Compile Include="Models\Head\Ping_Response_Gateway_Head_PubSub_ReqRes_Message.cs" />
+    <Compile Include="Models\Head\CreateGateway_Response_ServerManager_Head_PubSub_ReqRes_Message.cs" />
+    <Compile Include="Models\Head\Ping_Response_Gateway_Head_PubSub_Message.cs" />
+    <Compile Include="Models\ServerManager\Base\CreateGameSegment_GameWorld_ServerManager_PubSub_ReqRes_Message.cs" />
+    <Compile Include="Models\ServerManager\Base\CreateGateway_Head_ServerManager_PubSub_ReqRes_Message.cs" />
     <Compile Include="Models\ServerManager\Base\ServerManager_PubSub_Message.cs" />
     <Compile Include="Models\ServerManager\Base\ServerManager_PubSub_MessageType.cs" />
     <Compile Include="Models\ServerManager\Base\ServerManager_PubSub_ReqRes_Message.cs" />
+    <Compile Include="Models\ServerManager\CreateGateway_Response_ClusterManager_ServerManager_PubSub_ReqRes_Message.cs" />
     <Compile Include="old\ActionType.cs" />
     <Compile Include="Models\Common\UserMovedMessage.cs" />
     <Compile Include="Models\GameSegment\Base\UserMoved_Gateway_GameSegment_PubSub_Message.cs" />
@@ -108,7 +123,7 @@
     <Compile Include="Libraries\NodeJS\WritableStream.cs" />
     <Compile Include="Utils\Logger.cs" />
     <Compile Include="Utils\LogLevel.cs" />
-    <Compile Include="Models\ClusterManager\CreateGameSegment_GameWorld_ClusterManager_PubSub_ReqRes_Message.cs" />
+    <Compile Include="Models\ClusterManager\CreateGameSegment_ServerManager_ClusterManager_PubSub_ReqRes_Message.cs" />
     <Compile Include="Models\GameSegment\Base\GameSegment_PubSub_AllMessageType.cs" />
     <Compile Include="Models\GameSegment\Base\GameSegment_PubSub_MessageType.cs" />
     <Compile Include="Models\GameSegment\Base\GameSegment_PubSub_AllMessage.cs" />
@@ -138,7 +153,7 @@
     <Compile Include="Models\ClusterManager\Base\ClusterManager_PubSub_MessageType.cs" />
     <Compile Include="Models\Common\IPubSub_ReqRes_Message.cs" />
     <Compile Include="Models\GameSegment\Base\GameSegment_PubSub_Message.cs" />
-    <Compile Include="Models\ServerManager\CreateGameSegment_Response_GameSegmentCluster_GameWorld_PubSub_Message.cs" />
+    <Compile Include="Models\ServerManager\CreateGameSegment_Response_ClusterManager_ServerManager_PubSub_ReqRes_Message.cs" />
     <Compile Include="Models\GameWorld\Base\GameWorld_PubSub_Message.cs" />
     <Compile Include="Models\GameWorld\Base\GameWorld_PubSub_MessageType.cs" />
     <Compile Include="Models\GameWorld\Gateway\UserJoined_Gateway_GameWorld_PubSub_Message.cs" />

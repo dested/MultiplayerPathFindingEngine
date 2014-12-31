@@ -1,7 +1,6 @@
 using System;
 using Pather.Common.Models.ClusterManager.Base;
 using Pather.Common.Models.GameWorld.Base;
-using Pather.Common.Models.ServerManager;
 using Pather.Common.Models.ServerManager.Base;
 using Pather.Servers.Common.PubSub;
 
@@ -24,7 +23,7 @@ namespace Pather.Servers.ClusterManager
         {
             PubSub.Subscribe(PubSubChannels.ClusterManager(ClusterManagerId), (message) =>
             {
-                var gameWorldPubSubMessage = (ClusterManager_PubSub_Message)(message);
+                var gameWorldPubSubMessage = (ClusterManager_PubSub_Message) (message);
                 OnMessage(gameWorldPubSubMessage);
             });
         }
@@ -37,8 +36,6 @@ namespace Pather.Servers.ClusterManager
         public void PublishToServerManager(ServerManager_PubSub_Message message)
         {
             PubSub.Publish(PubSubChannels.ServerManager(), message);
-            
-
         }
     }
 }

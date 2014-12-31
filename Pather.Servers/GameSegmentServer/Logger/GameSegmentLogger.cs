@@ -64,7 +64,7 @@ namespace Pather.Servers.GameSegmentServer.Logger
         public static void LogTellUserMoved(string userId, int x, int y, List<string> neighbors)
         {
 //            Global.Console.Log("Log-- tell User Moved");
- /*           pubsub.Publish(PubSubChannels.GameSegmentLogger(), new GameSegmentLogMessageContent(GameSegmentId, new TellUserMoved_GameSegmentLogMessage()
+            /*           pubsub.Publish(PubSubChannels.GameSegmentLogger(), new GameSegmentLogMessageContent(GameSegmentId, new TellUserMoved_GameSegmentLogMessage()
             {
                 UserId = userId,
                 X = x,

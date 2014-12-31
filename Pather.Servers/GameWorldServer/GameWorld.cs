@@ -2,9 +2,8 @@ using System;
 using System.Collections.Generic;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models.ClusterManager;
 using Pather.Common.Models.GameSegment;
-using Pather.Common.Models.GameWorld.Gateway;
+using Pather.Common.Models.GameWorld.ServerManager;
 using Pather.Common.Models.ServerManager.Base;
 using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
@@ -16,21 +15,21 @@ namespace Pather.Servers.GameWorldServer
     public class GameWorld
     {
         public GameWorldPubSub GameWorldPubSub;
-        public List<Models.GameWorldUser> Users;
+        public List<GameWorldUser> Users;
         public List<GameSegment> GameSegments;
 
         public GameWorld(GameWorldPubSub gameWorldPubSub)
         {
             GameWorldPubSub = gameWorldPubSub;
-            Users = new List<Models.GameWorldUser>();
+            Users = new List<GameWorldUser>();
             GameSegments = new List<GameSegment>();
         }
 
-        public Promise<Models.GameWorldUser, UserJoinError> CreateUser(string gatewayChannel, DBUser dbUser)
+        public Promise<GameWorldUser, UserJoinError> CreateUser(string gatewayChannel, DBUser dbUser)
         {
-            var defer = Q.Defer<Models.GameWorldUser, UserJoinError>();
+            var defer = Q.Defer<GameWorldUser, UserJoinError>();
 
-            var gwUser = new Models.GameWorldUser();
+            var gwUser = new GameWorldUser();
             gwUser.UserId = dbUser.UserId;
             gwUser.X = dbUser.X;
             gwUser.Y = dbUser.Y;
@@ -71,9 +70,6 @@ namespace Pather.Servers.GameWorldServer
             }
 
 
-
-
-
             var promises = GameSegments
                 .Where(seg => seg != gwUser.GameSegment)
                 .Select(seg => seg.TellSegmentAboutRemoveUser(gwUser));
@@ -93,7 +89,7 @@ namespace Pather.Servers.GameWorldServer
         }
 
 
-        private Promise<GameSegment, UndefinedPromiseError> determineGameSegment(Models.GameWorldUser gwUser)
+        private Promise<GameSegment, UndefinedPromiseError> determineGameSegment(GameWorldUser gwUser)
         {
             var deferred = Q.Defer<GameSegment, UndefinedPromiseError>();
             var neighbors = buildNeighborCollection(gwUser);
@@ -107,7 +103,6 @@ namespace Pather.Servers.GameWorldServer
                 var neighborGameSegment = neighbor.User.GameSegment;
                 if (neighborGameSegment.CanAcceptNewUsers())
                 {
-
                     deferred.Resolve(neighborGameSegment);
                     noneFound = false;
                     break;
@@ -180,7 +175,7 @@ namespace Pather.Servers.GameWorldServer
             }
         }
 
-        private List<GameWorldNeighbor> buildNeighborCollection(Models.GameWorldUser pUser)
+        private List<GameWorldNeighbor> buildNeighborCollection(GameWorldUser pUser)
         {
             var count = Users.Count;
 
@@ -192,12 +187,12 @@ namespace Pather.Servers.GameWorldServer
                 var distance = PointDistance(pUser, cUser);
                 neighbors.Add(new GameWorldNeighbor(cUser, distance));
             }
-            neighbors.Sort((a, b) => (int)(a.Distance - b.Distance));
+            neighbors.Sort((a, b) => (int) (a.Distance - b.Distance));
             return neighbors;
         }
 
 
-        private void BuildNeighbors(Models.GameWorldUser pUser, int i = 0)
+        private void BuildNeighbors(GameWorldUser pUser, int i = 0)
         {
             var count = Users.Count;
 
@@ -213,7 +208,7 @@ namespace Pather.Servers.GameWorldServer
             }
         }
 
-        private static double PointDistance(Models.GameWorldUser pUser, Models.GameWorldUser cUser)
+        private static double PointDistance(GameWorldUser pUser, GameWorldUser cUser)
         {
             var mx = pUser.X;
             var my = pUser.Y;
@@ -224,7 +219,7 @@ namespace Pather.Servers.GameWorldServer
             var _x = (cx - mx);
             var _y = (cy - my);
 
-            var dis = Math.Sqrt((_x * _x) + (_y * _y));
+            var dis = Math.Sqrt((_x*_x) + (_y*_y));
             return dis;
         }
 
@@ -242,8 +237,9 @@ namespace Pather.Servers.GameWorldServer
             //todo interpolate path find using setTimeout??
         }
 
-         
-        List<ReoragGameWorldModel> needToReorganize=new List<ReoragGameWorldModel>(); 
+
+        private readonly List<ReoragGameWorldModel> needToReorganize = new List<ReoragGameWorldModel>();
+
         public void ChangeUsersGameSegment(GameWorldUser gameWorldUser, GameSegment bestGameSegment)
         {
             needToReorganize.Add(new ReoragGameWorldModel(gameWorldUser, bestGameSegment));
@@ -253,8 +249,8 @@ namespace Pather.Servers.GameWorldServer
         {
             if (needToReorganize.Count > 0)
             {
-                var reorg = Math.Min(needToReorganize.Count,10);
-                for (int i = reorg - 1; i >= 0; i--)
+                var reorg = Math.Min(needToReorganize.Count, 10);
+                for (var i = reorg - 1; i >= 0; i--)
                 {
                     var newGameSegment = needToReorganize[reorg].BestGameSegment;
                     var oldGameSegment = needToReorganize[reorg].GameWorldUser;
@@ -262,18 +258,6 @@ namespace Pather.Servers.GameWorldServer
 //                    GameWorldPubSub.PublishToGameSegmentWithCallback<>()
                 }
             }
-        }
-    }
-
-    public class ReoragGameWorldModel
-    {
-        public GameWorldUser GameWorldUser { get; set; }
-        public GameSegment BestGameSegment { get; set; }
-
-        public ReoragGameWorldModel(GameWorldUser gameWorldUser, GameSegment bestGameSegment)
-        {
-            GameWorldUser = gameWorldUser;
-            BestGameSegment = bestGameSegment;
         }
     }
 }

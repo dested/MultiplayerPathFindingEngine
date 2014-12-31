@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Pather.Common;
-using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameWorld.GameSegment;
 using Pather.Common.Utils;
@@ -17,24 +16,24 @@ namespace Pather.Servers.GameWorldServer
         public GameSegment(GameWorld gameWorld)
         {
             GameWorld = gameWorld;
-            Users = new List<Models.GameWorldUser>();
-            PreAddedUsers = new List<Models.GameWorldUser>();
+            Users = new List<GameWorldUser>();
+            PreAddedUsers = new List<GameWorldUser>();
         }
 
-        public List<Models.GameWorldUser> PreAddedUsers;
-        public List<Models.GameWorldUser> Users;
+        public List<GameWorldUser> PreAddedUsers;
+        public List<GameWorldUser> Users;
         public string GameSegmentId;
 
 
         public bool CanAcceptNewUsers()
         {
-            return (Users.Count+ PreAddedUsers.Count) < Constants.UsersPerGameSegment;
+            return (Users.Count + PreAddedUsers.Count) < Constants.UsersPerGameSegment;
         }
 
 
-        public Promise<List<Tuple<Models.GameWorldUser, Deferred<Models.GameWorldUser, UserJoinError>>>, UndefinedPromiseError> AddUsersToSegment(List<Tuple<Models.GameWorldUser, Deferred<Models.GameWorldUser, UserJoinError>>> gwUsers)
+        public Promise<List<Tuple<GameWorldUser, Deferred<GameWorldUser, UserJoinError>>>, UndefinedPromiseError> AddUsersToSegment(List<Tuple<GameWorldUser, Deferred<GameWorldUser, UserJoinError>>> gwUsers)
         {
-            var deferred = Q.Defer<List<Tuple<Models.GameWorldUser, Deferred<Models.GameWorldUser, UserJoinError>>>, UndefinedPromiseError>();
+            var deferred = Q.Defer<List<Tuple<GameWorldUser, Deferred<GameWorldUser, UserJoinError>>>, UndefinedPromiseError>();
 
             var collection = gwUsers.Take(30);
             gwUsers.RemoveRange(0, 30);
@@ -63,18 +62,19 @@ namespace Pather.Servers.GameWorldServer
             return deferred.Promise;
         }
 
-        public void PreAddUserToSegment(Models.GameWorldUser gwUser)
+        public void PreAddUserToSegment(GameWorldUser gwUser)
         {
             gwUser.GameSegment = this;
             PreAddedUsers.Add(gwUser);
         }
-        public void RemovePreAddedUserToSegment(Models.GameWorldUser gwUser)
+
+        public void RemovePreAddedUserToSegment(GameWorldUser gwUser)
         {
             PreAddedUsers.Remove(gwUser);
         }
 
 
-        public Promise RemoveUserFromGameSegment(Models.GameWorldUser gwUser)
+        public Promise RemoveUserFromGameSegment(GameWorldUser gwUser)
         {
             var deferred = Q.Defer();
 
@@ -93,9 +93,9 @@ namespace Pather.Servers.GameWorldServer
             return deferred.Promise;
         }
 
-        public Promise<Models.GameWorldUser, UndefinedPromiseError> TellSegmentAboutUser(Models.GameWorldUser gwUser)
+        public Promise<GameWorldUser, UndefinedPromiseError> TellSegmentAboutUser(GameWorldUser gwUser)
         {
-            var deferred = Q.Defer<Models.GameWorldUser, UndefinedPromiseError>();
+            var deferred = Q.Defer<GameWorldUser, UndefinedPromiseError>();
 
             var tellUserJoin = new TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message()
             {
@@ -117,7 +117,7 @@ namespace Pather.Servers.GameWorldServer
             return deferred.Promise;
         }
 
-        public Promise TellSegmentAboutRemoveUser(Models.GameWorldUser gwUser)
+        public Promise TellSegmentAboutRemoveUser(GameWorldUser gwUser)
         {
             var deferred = Q.Defer();
 
@@ -133,6 +133,5 @@ namespace Pather.Servers.GameWorldServer
 
             return deferred.Promise;
         }
-
     }
 }

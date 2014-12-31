@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Serialization;
-using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Common;
 using Pather.Common.Utils;
@@ -59,10 +58,11 @@ namespace Pather.Servers.Common.PubSub
 
 
             Global.SetInterval(NoDelegateFlush(), 10);
-            
+
             dontLog = true;
             return deferred.Promise;
         }
+
         [InlineCode("this.$flush.bind(this)")]
         public static Action NoDelegateFlush()
         {
@@ -70,19 +70,21 @@ namespace Pather.Servers.Common.PubSub
         }
 
 
-        private JsDictionary<string, List<IPubSub_Message>> channelCacheDict = new JsDictionary<string, List<IPubSub_Message>>();
-        private List<Tuple<string, List<IPubSub_Message>>> channelCache = new List<Tuple<string, List<IPubSub_Message>>>();
+        private readonly JsDictionary<string, List<IPubSub_Message>> channelCacheDict = new JsDictionary<string, List<IPubSub_Message>>();
+        private readonly List<Tuple<string, List<IPubSub_Message>>> channelCache = new List<Tuple<string, List<IPubSub_Message>>>();
 
 
         private void flush()
         {
-
             if (channelCache.Count == 0) return;
 
             var count = 0;
             foreach (var channel in channelCache)
             {
-                var pubSubMessageCollection = new PubSub_Message_Collection() { Collection = channel.Item2 };
+                var pubSubMessageCollection = new PubSub_Message_Collection()
+                {
+                    Collection = channel.Item2
+                };
 
                 pubClient.Publish(channel.Item1, Json.Stringify(pubSubMessageCollection));
                 count += channel.Item2.Count;
@@ -90,47 +92,45 @@ namespace Pather.Servers.Common.PubSub
             if (count > 70)
             {
                 Global.Console.Log("Flushing", count);
-            } 
+            }
             channelCacheDict.Clear();
             channelCache.Clear();
         }
 
         public void ReceivedMessage(string channel, IPubSub_Message message)
         {
-                        try
-                        {
-            if (!dontLog)
+            try
             {
-                //                if (channel != PubSubChannels.Tick() && !message.Contains("pong") && !message.Contains("tickSync") /*todo this pong stuff aint gonna fly when you remove namedvalues*/)
-                ServerLogger.LogTransport("Pubsub Message Received", channel, message);
-            }
-            var channelCallback = subbed[channel];
-            if (channelCallback != null)
-            {
-                if (Utilities.HasField<PubSub_Message_Collection>(message, a => a.Collection))
+                if (!dontLog)
                 {
-                    var messages = (PubSub_Message_Collection)message;
-
-                    foreach (var m in messages.Collection)
+                    //                if (channel != PubSubChannels.Tick() && !message.Contains("pong") && !message.Contains("tickSync") /*todo this pong stuff aint gonna fly when you remove namedvalues*/)
+                    ServerLogger.LogTransport("Pubsub Message Received", channel, message);
+                }
+                var channelCallback = subbed[channel];
+                if (channelCallback != null)
+                {
+                    if (Utilities.HasField<PubSub_Message_Collection>(message, a => a.Collection))
                     {
-                        channelCallback(m);
+                        var messages = (PubSub_Message_Collection) message;
+
+                        foreach (var m in messages.Collection)
+                        {
+                            channelCallback(m);
+                        }
+                    }
+
+                    else
+                    {
+                        channelCallback(message);
                     }
                 }
-
-                else
-                {
-                    channelCallback(message);
-                }
-
             }
-
-                        }
-                        catch (Exception e)
-                        {
-                            Global.Console.Log("An exception has occured", e, e.Stack);
-                            Global.Console.Log("Payload Dump", channel, message);
-                            ServerLogger.LogError("Exception", e, e.Stack, channel, message);
-                        }
+            catch (Exception e)
+            {
+                Global.Console.Log("An exception has occured", e, e.Stack);
+                Global.Console.Log("Payload Dump", channel, message);
+                ServerLogger.LogError("Exception", e, e.Stack, channel, message);
+            }
         }
 
         public void DontLog()
@@ -153,7 +153,6 @@ namespace Pather.Servers.Common.PubSub
             if (!dontLog)
                 if (channel != PubSubChannels.Tick())
                     ServerLogger.LogTransport("Pubsub Message Sent", channel, message);
-
 
 
             pubClient.Publish(channel, Json.Stringify(message));
@@ -179,5 +178,4 @@ namespace Pather.Servers.Common.PubSub
             subbed[channel] = callback;
         }
     }
-
 }

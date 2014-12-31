@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Pather.Common.Models.GameSegment.Base;
+
 namespace Pather.Common.Models.GameSegment
 {
     [Serializable]

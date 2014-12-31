@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Common;
 using Pather.Common.Models.GameSegment.Base;
@@ -29,7 +28,7 @@ namespace Pather.Servers.GatewayServer
         public ServerCommunicator ServerCommunicator;
         public GatewayPubSub GatewayPubSub;
         public BackendTickManager BackendTickManager;
-        private readonly DictionaryList<string, GatewayUser> Users = new DictionaryList<string, GatewayUser>(a=>a.UserId);
+        private readonly DictionaryList<string, GatewayUser> Users = new DictionaryList<string, GatewayUser>(a => a.UserId);
 
 
         public GatewayServer(IPubSub pubsub, IPushPop pushPop, ISocketManager socketManager, string gatewayId, int port)
@@ -40,11 +39,10 @@ namespace Pather.Servers.GatewayServer
             this.port = port;
             ServerLogger.InitLogger("Gateway", GatewayId);
 
-            Global.Console.Log(GatewayId,port);
+            Global.Console.Log(GatewayId, port);
 
 
-
-            Q.All(pubsub.Init(),pushPop.Init()).Then(() =>
+            Q.All(pubsub.Init(), pushPop.Init()).Then(() =>
             {
                 GatewayPubSub = new GatewayPubSub(pubsub, GatewayId);
                 GatewayPubSub.OnMessage += OnMessage;
@@ -57,7 +55,6 @@ namespace Pather.Servers.GatewayServer
                     Global.Console.Log("Connected To Tick Server");
                     registerGatewayWithCluster();
                     pubsubReady();
-
                 });
                 BackendTickManager.StartPing();
             });
@@ -94,7 +91,7 @@ namespace Pather.Servers.GatewayServer
                     });
                     break;
                 case Gateway_PubSub_AllMessageType.TickSync:
-                    var tickSyncMessage = (TickSync_Tick_Gateway_PubSub_AllMessage)message;
+                    var tickSyncMessage = (TickSync_Tick_Gateway_PubSub_AllMessage) message;
                     BackendTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
 
                     foreach (var gatewayUser in Users.List)
@@ -119,7 +116,7 @@ namespace Pather.Servers.GatewayServer
             switch (message.Type)
             {
                 case Gateway_PubSub_MessageType.UserJoined:
-                    var userJoinedMessage = (UserJoined_GameWorld_Gateway_PubSub_Message)message;
+                    var userJoinedMessage = (UserJoined_GameWorld_Gateway_PubSub_Message) message;
                     gatewayUser = Users[userJoinedMessage.UserId];
                     if (gatewayUser == null)
                     {
@@ -147,7 +144,7 @@ namespace Pather.Servers.GatewayServer
                         var userMovedMessages = cachedUserMoves[userJoinedMessage.UserId];
                         foreach (var userMovedMessage in userMovedMessages)
                         {
-                    //todo resend these messages
+                            //todo resend these messages
 //                            runUserMoved(userMovedMessage);
                         }
                         cachedUserMoves.Remove(userJoinedMessage.UserId);
@@ -155,23 +152,23 @@ namespace Pather.Servers.GatewayServer
 
                     break;
                 case Gateway_PubSub_MessageType.Pong:
-                    var pongMessage = (Pong_Tick_Gateway_PubSub_Message)message;
+                    var pongMessage = (Pong_Tick_Gateway_PubSub_Message) message;
                     BackendTickManager.OnPongReceived();
 
                     break;
                 case Gateway_PubSub_MessageType.UserMovedCollection:
-                    var userMovedCollectionMessage = (UserMovedCollection_GameSegment_Gateway_PubSub_Message)message;
+                    var userMovedCollectionMessage = (UserMovedCollection_GameSegment_Gateway_PubSub_Message) message;
                     runUserMoved(userMovedCollectionMessage);
                     break;
                 case Gateway_PubSub_MessageType.UpdateNeighbors:
-                    var updateNeighborsMessage = (UpdateNeighbors_GameSegment_Gateway_PubSub_Message)message;
+                    var updateNeighborsMessage = (UpdateNeighbors_GameSegment_Gateway_PubSub_Message) message;
                     gatewayUser = Users[updateNeighborsMessage.UserId];
                     if (gatewayUser == null)
                     {
                         Global.Console.Log("idk who this user is :-(", updateNeighborsMessage.UserId);
                         return;
                     }
-                    ServerCommunicator.SendMessage(gatewayUser.Socket,new UpdateNeighbors_Gateway_User_Socket_Message()
+                    ServerCommunicator.SendMessage(gatewayUser.Socket, new UpdateNeighbors_Gateway_User_Socket_Message()
                     {
                         Added = updateNeighborsMessage.Added,
                         Removed = updateNeighborsMessage.Removed,
@@ -189,7 +186,6 @@ namespace Pather.Servers.GatewayServer
 
             foreach (var userToSendTo in userMovedMessage.Users)
             {
-
                 gatewayUser = Users[userToSendTo];
 
                 if (gatewayUser == null)
@@ -219,10 +215,7 @@ namespace Pather.Servers.GatewayServer
                     Y = userMovedMessage.Y,
                 });
             }
-
         }
-
-
 
 
         private void pubsubReady()
@@ -265,7 +258,7 @@ namespace Pather.Servers.GatewayServer
                         if (Utilities.HasField<User_Gateway_Socket_Message>(message, m => m.UserGatewayMessageType))
                         {
                             //                            Global.Console.Log("Socket message ", message);
-                            HandleUserMessage(user, (User_Gateway_Socket_Message)message);
+                            HandleUserMessage(user, (User_Gateway_Socket_Message) message);
                         }
                     });
             };
@@ -276,13 +269,13 @@ namespace Pather.Servers.GatewayServer
             switch (message.UserGatewayMessageType)
             {
                 case User_Gateway_Socket_MessageType.Ping:
-                    ServerCommunicator.SendMessage(user.Socket,new Pong_Gateway_User_PubSub_Message()
+                    ServerCommunicator.SendMessage(user.Socket, new Pong_Gateway_User_PubSub_Message()
                     {
                         GatewayLatency = BackendTickManager.CurrentServerLatency
                     });
                     break;
                 case User_Gateway_Socket_MessageType.Move:
-                    var moveToLocationMessage = ((MoveToLocation_User_Gateway_Socket_Message)message);
+                    var moveToLocationMessage = ((MoveToLocation_User_Gateway_Socket_Message) message);
 
                     GatewayPubSub.PublishToGameSegment(user.GameSegmentId, new UserMoved_Gateway_GameSegment_PubSub_Message()
                     {
@@ -294,7 +287,7 @@ namespace Pather.Servers.GatewayServer
 
                     break;
                 case User_Gateway_Socket_MessageType.Join:
-                    var userJoinedMessage = ((UserJoined_User_Gateway_Socket_Message)message);
+                    var userJoinedMessage = ((UserJoined_User_Gateway_Socket_Message) message);
                     user.UserId = userJoinedMessage.UserToken;
                     Users.Add(user);
                     GatewayPubSub.PublishToGameWorld(new UserJoined_Gateway_GameWorld_PubSub_Message()

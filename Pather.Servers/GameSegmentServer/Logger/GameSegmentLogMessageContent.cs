@@ -5,7 +5,7 @@ using Pather.Common.Models.Common;
 namespace Pather.Servers.GameSegmentServer.Logger
 {
     [Serializable]
-    public class GameSegmentLogMessageContent:IPubSub_Message
+    public class GameSegmentLogMessageContent : IPubSub_Message
     {
         public DateTime Time;
         public string GameSegmentId;

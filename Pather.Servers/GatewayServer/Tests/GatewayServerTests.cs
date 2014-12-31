@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Serialization;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Common;
 using Pather.Common.Models.GameWorld.Gateway;
@@ -87,13 +86,13 @@ namespace Pather.Servers.GatewayServer.Tests
             {
                 if (channel == gatewayName)
                 {
-                    var userJoined = (UserJoined_GameWorld_Gateway_PubSub_Message)(message);
+                    var userJoined = (UserJoined_GameWorld_Gateway_PubSub_Message) (message);
 
                     DeferredAssert.That(testDeferred, userJoined.UserId).Does.Equal(userToken);
                     testDeferred.Resolve();
                 }
             });
-            var gts = new GatewayServer(pubSub,new PushPop(), socketManager, "gatewayServer1", 1800);
+            var gts = new GatewayServer(pubSub, new PushPop(), socketManager, "gatewayServer1", 1800);
             gatewayName = gts.GatewayId;
 
 

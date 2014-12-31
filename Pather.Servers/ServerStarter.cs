@@ -97,7 +97,7 @@ namespace Pather.Servers
 
         private static void createServerManager()
         {
-            new ServerManager.ServerManager(new PubSub(),new PushPop());
+            new ServerManager.ServerManager(new PubSub(), new PushPop());
         }
 
         private static void createTickServer()
@@ -119,6 +119,7 @@ namespace Pather.Servers
         {
             new ClusterManager.ClusterManager(new PubSub(), new PushPop(), clusterManagerId);
         }
+
         private static void createHeadServer()
         {
             new HeadServer.HeadServer(new PubSub());
@@ -136,7 +137,7 @@ namespace Pather.Servers
 
         private static void createGatewayServer(string gatewayId, int port)
         {
-            new GatewayServer.GatewayServer(new PubSub(),new PushPop(), new SocketIOManager(), gatewayId, port);
+            new GatewayServer.GatewayServer(new PubSub(), new PushPop(), new SocketIOManager(), gatewayId, port);
         }
     }
 }

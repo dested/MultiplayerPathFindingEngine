@@ -1,13 +1,12 @@
 using System;
 using System.Runtime.CompilerServices;
-using Pather.Common;
 using Pather.Common.Models.Common;
 using Pather.Common.Utils;
 
 namespace Pather.Servers.Common.ServerLogging
 {
     [Serializable]
-    public class ServerLogMessage:IPubSub_Message
+    public class ServerLogMessage : IPubSub_Message
     {
         public DateTime Time { get; set; }
         public string ServerType { get; set; }

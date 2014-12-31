@@ -8,10 +8,8 @@ namespace Pather.Client.Libraries
     [IgnoreNamespace]
     public static class jQueryObject
     {
-
         public static void Get(string url, object data, Action<string> callback)
         {
-
         }
     }
 }

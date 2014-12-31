@@ -32,13 +32,13 @@ namespace Pather.Servers.GameSegmentServer
 
             PubSub.Subscribe(PubSubChannels.GameSegment(), (message) =>
             {
-                var gameSegmentPubSubMessage = (GameSegment_PubSub_AllMessage)(message);
+                var gameSegmentPubSubMessage = (GameSegment_PubSub_AllMessage) (message);
                 OnAllMessage(gameSegmentPubSubMessage);
             });
 
             PubSub.Subscribe(PubSubChannels.GameSegment(GameSegmentId), (message) =>
             {
-                var gameSegmentPubSubMessage = (GameSegment_PubSub_Message)(message);
+                var gameSegmentPubSubMessage = (GameSegment_PubSub_Message) (message);
                 if (Utilities.HasField<GameSegment_PubSub_ReqRes_Message>(gameSegmentPubSubMessage, m => m.MessageId) && ((GameSegment_PubSub_ReqRes_Message) gameSegmentPubSubMessage).Response)
                 {
                     var possibleMessageReqRes = (GameSegment_PubSub_ReqRes_Message) gameSegmentPubSubMessage;
@@ -75,6 +75,7 @@ namespace Pather.Servers.GameSegmentServer
         {
             PubSub.Publish(PubSubChannels.GameWorld(), message);
         }
+
         public void PublishToGameWorld_Force(GameWorld_PubSub_Message message)
         {
             PubSub.PublishForce(PubSubChannels.GameWorld(), message);

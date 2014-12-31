@@ -8,7 +8,6 @@ namespace Pather.Servers.Libraries.ExpressJS
     {
         public void Send(object data)
         {
-
         }
     }
 }

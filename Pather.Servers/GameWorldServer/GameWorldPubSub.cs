@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Serialization;
-using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models.ClusterManager.Base;
 using Pather.Common.Models.Common;
 using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.GameWorld.Base;
@@ -26,13 +23,13 @@ namespace Pather.Servers.GameWorldServer
         }
 
         public Action<GameWorld_PubSub_Message> Message;
-        private Dictionary<string, Deferred<object, UndefinedPromiseError>> deferredMessages = new Dictionary<string, Deferred<object, UndefinedPromiseError>>();
+        private readonly Dictionary<string, Deferred<object, UndefinedPromiseError>> deferredMessages = new Dictionary<string, Deferred<object, UndefinedPromiseError>>();
 
         public void Init()
         {
             PubSub.Subscribe(PubSubChannels.GameWorld(), (message) =>
             {
-                var gameWorldPubSubMessage = (GameWorld_PubSub_Message)(message);
+                var gameWorldPubSubMessage = (GameWorld_PubSub_Message) (message);
 
                 if (Utilities.HasField<IPubSub_ReqRes_Message>(gameWorldPubSubMessage, m => m.MessageId) && ((GameWorld_PubSub_ReqRes_Message) gameWorldPubSubMessage).Response)
                 {
@@ -51,6 +48,7 @@ namespace Pather.Servers.GameWorldServer
                 Message(gameWorldPubSubMessage);
             });
         }
+
         public void PublishToGameSegment(string gameSegmentId, GameSegment_PubSub_Message message)
         {
             PubSub.Publish(PubSubChannels.GameSegment(gameSegmentId), message);

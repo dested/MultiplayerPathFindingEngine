@@ -35,6 +35,9 @@ namespace Pather.Servers.Common.SocketManager
             });
         }
 
-        public string URL { get { return url; } }
+        public string URL
+        {
+            get { return url; }
+        }
     }
 }

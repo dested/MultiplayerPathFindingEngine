@@ -6,7 +6,6 @@ namespace Pather.Common.Utils
 {
     public static class EnumerableExtensions
     {
-
         public static JsDictionary<T2, T> ToDictionary<T, T2>(this List<T> items, Func<T, T2> clause)
         {
             var items2 = new JsDictionary<T2, T>();
@@ -105,11 +104,12 @@ namespace Pather.Common.Utils
             }
             return default(T);
         }
+
         public static T First<T>(this IEnumerable<T> items)
         {
             foreach (var item in items)
             {
-                    return item;
+                return item;
             }
             return default(T);
         }
@@ -225,8 +225,9 @@ namespace Pather.Common.Utils
             {
                 items2.Add(clause(item));
             }
-            return items2; 
+            return items2;
         }
+
         [IncludeGenericArguments(false)]
         public static List<T2> SelectMany<T, T2>(this T[] items, Func<T, List<T2>> clause)
         {
@@ -238,6 +239,7 @@ namespace Pather.Common.Utils
             }
             return items2;
         }
+
         [IncludeGenericArguments(false)]
         public static List<T> Take<T>(this List<T> items, int count)
         {

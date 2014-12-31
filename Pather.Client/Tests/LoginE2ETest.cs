@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Html;
-using System.Runtime.CompilerServices;
 using Pather.Client.Libraries;
 using Pather.Client.Utils;
 using Pather.Common;
@@ -35,11 +34,10 @@ namespace Pather.Client.Tests
                     var startTime = new DateTime().GetTime();
 
 
-
                     var moveToLocation = new MoveToLocation_User_Gateway_Socket_Message()
                     {
-                        X = (int)(Math.Random() * 50),
-                        Y = (int)(Math.Random() * 50)
+                        X = (int) (Math.Random()*50),
+                        Y = (int) (Math.Random()*50)
                     };
 
 
@@ -47,7 +45,6 @@ namespace Pather.Client.Tests
                     var userToken = id + "-" + i1;
                     JoinUser(userToken, (communicator, message) =>
                     {
-
                         if (message.UserId == userToken && message.X == moveToLocation.X && message.Y == moveToLocation.Y)
                         {
                             Window.SetTimeout(() =>
@@ -65,24 +62,18 @@ namespace Pather.Client.Tests
                                             Global.Console.Log("Average join time:", average, "ms");
                                             deferred.Resolve();
                                         }
-
-
-
-                                    }, (int)(Math.Random() * 4000));
-
+                                    }, (int) (Math.Random()*4000));
                                 }
                                 else
                                 {
-                                    moveToLocation.X = ((moveToLocation.X + (int)(Math.Random() * 4) - 2) + 50) % 50;
-                                    moveToLocation.Y = ((moveToLocation.Y + (int)(Math.Random() * 4) - 2) + 50) % 50;
+                                    moveToLocation.X = ((moveToLocation.X + (int) (Math.Random()*4) - 2) + 50)%50;
+                                    moveToLocation.Y = ((moveToLocation.Y + (int) (Math.Random()*4) - 2) + 50)%50;
                                     communicator.SendMessage(moveToLocation);
 
                                     Global.Console.Log("Moving User again " + receivedCount, moveToLocation);
-
                                 }
-                            }, (int)(Math.Random() * 1000));
+                            }, (int) (Math.Random()*1000));
                         }
-
                     }).Then((communicator) =>
                     {
                         var joinTime = new DateTime().GetTime() - startTime;
@@ -90,10 +81,9 @@ namespace Pather.Client.Tests
                         averageTimes.Add(joinTime);
                         communicator.SendMessage(moveToLocation);
                     });
-                }, (int)(Math.Random() * 15000));
+                }, (int) (Math.Random()*15000));
             }
         }
-
 
 
         [TestMethod(disable: true)]
@@ -112,7 +102,6 @@ namespace Pather.Client.Tests
                 {
                     defer.Reject();
                 }
-
             }).Then(communicator =>
             {
                 communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
@@ -129,7 +118,7 @@ namespace Pather.Client.Tests
             var id = "salvatore";
             var proposedX = 12;
             var proposedY = 25;
-            int move = 0;
+            var move = 0;
             JoinUser(id + 1, (communicator, message) =>
             {
                 Global.Console.Log("1", message);
@@ -153,7 +142,6 @@ namespace Pather.Client.Tests
                 {
                     //                    defer.Reject();
                 }
-
             }).Then(communicator =>
             {
                 communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
@@ -166,8 +154,6 @@ namespace Pather.Client.Tests
             JoinUser(id + 2, (communicator, message) =>
             {
                 Global.Console.Log("2", message);
-
-
             }).Then(communicator =>
             {
                 communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
@@ -177,7 +163,7 @@ namespace Pather.Client.Tests
                 });
             });
 
-            bool once = true;
+            var once = true;
             JoinUser(id + 3, (communicator, message) =>
             {
                 Global.Console.Log("3", message);
@@ -189,7 +175,6 @@ namespace Pather.Client.Tests
                         X = proposedX + 20,
                         Y = proposedY
                     });
-
                 }
             }).Then(communicator =>
             {
@@ -216,10 +201,10 @@ namespace Pather.Client.Tests
                     method = "get"
                 };
 
-                http.request(options, ((Action<dynamic>)((res) =>
+                http.request(options, ((Action<dynamic>) ((res) =>
                 {
                     res.setEncoding("utf8");
-                    res.on("data", (Action<string>)((chunk) =>
+                    res.on("data", (Action<string>) ((chunk) =>
                     {
                         callback(chunk);
                     }));
@@ -230,7 +215,6 @@ namespace Pather.Client.Tests
                 jQueryObject.Get(url, null, callback);
             }
         }
-
 
 
         private static Promise<ClientCommunicator, UndefinedPromiseError> JoinUser(string userToken, Action<ClientCommunicator, MoveToLocation_Gateway_User_Socket_Message> onMove)
@@ -246,9 +230,8 @@ namespace Pather.Client.Tests
                 {
                     switch (message.GatewayUserMessageType)
                     {
-
                         case Gateway_User_Socket_MessageType.Move:
-                            onMove(clientCommunicator, (MoveToLocation_Gateway_User_Socket_Message)message);
+                            onMove(clientCommunicator, (MoveToLocation_Gateway_User_Socket_Message) message);
                             break;
                         case Gateway_User_Socket_MessageType.UserJoined:
                             deferred.Resolve(clientCommunicator);
@@ -268,8 +251,6 @@ namespace Pather.Client.Tests
                 {
                     UserToken = userToken
                 });
-
-
             });
             return deferred.Promise;
         }

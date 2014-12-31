@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.CompilerServices;
 
 namespace Pather.Common.Utils
 {
@@ -8,6 +7,7 @@ namespace Pather.Common.Utils
     public class DataObject<T>
     {
         public T Data;
+
         public DataObject(T data)
         {
             Data = data;

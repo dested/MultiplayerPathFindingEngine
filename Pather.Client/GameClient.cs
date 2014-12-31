@@ -1,7 +1,6 @@
 ﻿using System.Html;
 using System.Html.Media.Graphics;
 using Pather.Common;
-using Pather.Common.old;
 
 namespace Pather.Client
 {
@@ -10,11 +9,10 @@ namespace Pather.Client
         private CanvasElement canvas;
         private CanvasRenderingContext2D context;
 
-        private GameManager gameManager;
+        private readonly GameManager gameManager;
 
         public GameClient()
         {
-
             gameManager = new GameManager();
             gameManager.OnReady += ReadyToPlay;
         }
@@ -23,14 +21,14 @@ namespace Pather.Client
         {
             if (!Constants.TestServer)
             {
-                canvas = (CanvasElement)Document.GetElementById("canvas");
-                context = (CanvasRenderingContext2D)canvas.GetContext(CanvasContextId.Render2D);
+                canvas = (CanvasElement) Document.GetElementById("canvas");
+                context = (CanvasRenderingContext2D) canvas.GetContext(CanvasContextId.Render2D);
                 canvas.OnMousedown = (ev) =>
                 {
-                    var @event = (dynamic)ev;
+                    var @event = (dynamic) ev;
 
-                    var squareX = ((int)@event.offsetX) / Constants.SquareSize;
-                    var squareY = ((int)@event.offsetY) / Constants.SquareSize;
+                    var squareX = ((int) @event.offsetX)/Constants.SquareSize;
+                    var squareY = ((int) @event.offsetY)/Constants.SquareSize;
 
 
                     gameManager.MoveToLocation(squareX, squareY);
@@ -38,9 +36,7 @@ namespace Pather.Client
 
 
                 Window.RequestAnimationFrame((a) => Draw());
-
             }
-
         }
 
         private void Draw()
@@ -60,7 +56,7 @@ namespace Pather.Client
                     context.FillStyle = "blue";
                 }
 
-                context.FillRect(activeUser.X * Constants.SquareSize, activeUser.Y * Constants.SquareSize, Constants.SquareSize, Constants.SquareSize);
+                context.FillRect(activeUser.X*Constants.SquareSize, activeUser.Y*Constants.SquareSize, Constants.SquareSize, Constants.SquareSize);
                 context.Restore();
             }
         }

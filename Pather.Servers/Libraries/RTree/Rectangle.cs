@@ -23,19 +23,20 @@ using System.Text;
 
 namespace Pather.Servers.Libraries.RTree
 {
-
     /**
      * Currently hardcoded to 2 dimensions, but could be extended.
      * 
      * @author  aled@sourceforge.net
      * @version 1.0b2p1
      */
+
     public class Rectangle
     {
         public float X
         {
             get { return min[0]; }
         }
+
         public float Y
         {
             get { return min[1]; }
@@ -43,11 +44,12 @@ namespace Pather.Servers.Libraries.RTree
 
         public float Width
         {
-            get { return max[0]-min[0]; }
+            get { return max[0] - min[0]; }
         }
+
         public float Height
         {
-            get { return max[1]-min[1]; }
+            get { return max[1] - min[1]; }
         }
 
         /**
@@ -74,12 +76,14 @@ namespace Pather.Servers.Libraries.RTree
           * @param x2 coordinate of the opposite corner
           * @param y2 (see x2)
           */
+
         public Rectangle(float x1, float y1, float x2, float y2, float z1 = 1, float z2 = 1)
         {
             min = new float[DIMENSIONS];
             max = new float[DIMENSIONS];
             set(x1, y1, x2, y2, z1, z2);
         }
+
         public Rectangle(float x1, float y1)
         {
             min = new float[DIMENSIONS];
@@ -93,12 +97,13 @@ namespace Pather.Servers.Libraries.RTree
          * @param min array containing the minimum value for each dimension; ie { min(x), min(y) }
          * @param max array containing the maximum value for each dimension; ie { max(x), max(y) }
          */
+
         public Rectangle(float[] min, float[] max)
         {
             if (min.Length != DIMENSIONS || max.Length != DIMENSIONS)
             {
                 throw new Exception("Error in Rectangle constructor: " +
-                          "min and max arrays must be of length " + DIMENSIONS);
+                                    "min and max arrays must be of length " + DIMENSIONS);
             }
 
             this.min = new float[DIMENSIONS];
@@ -115,6 +120,7 @@ namespace Pather.Servers.Libraries.RTree
           * @param x2 coordinate of the opposite corner
           * @param y2 (see x2)
           */
+
         internal void set(float x1, float y1, float x2, float y2, float z1, float z2)
         {
             min[0] = Math.Min(x1, x2);
@@ -131,12 +137,13 @@ namespace Pather.Servers.Libraries.RTree
          * @param min array containing the minimum value for each dimension; ie { min(x), min(y) }
          * @param max array containing the maximum value for each dimension; ie { max(x), max(y) }
          */
+
         internal void set(float[] min, float[] max)
         {
             this.min[0] = min[0];
             this.min[1] = min[1];
             this.min[2] = min[2];
-            
+
             this.max[0] = max[0];
             this.max[1] = max[1];
             this.max[2] = max[2];
@@ -147,6 +154,7 @@ namespace Pather.Servers.Libraries.RTree
          * 
          * @return copy of this rectangle
          */
+
         internal Rectangle copy()
         {
             return new Rectangle(min, max);
@@ -156,9 +164,10 @@ namespace Pather.Servers.Libraries.RTree
          * Determine whether an edge of this rectangle overlies the equivalent 
          * edge of the passed rectangle
          */
+
         internal bool edgeOverlaps(Rectangle r)
         {
-            for (int i = 0; i < DIMENSIONS; i++)
+            for (var i = 0; i < DIMENSIONS; i++)
             {
                 if (min[i] == r.min[i] || max[i] == r.max[i])
                 {
@@ -180,7 +189,7 @@ namespace Pather.Servers.Libraries.RTree
         {
             // Every dimension must intersect. If any dimension
             // does not intersect, return false immediately.
-            for (int i = 0; i < DIMENSIONS; i++)
+            for (var i = 0; i < DIMENSIONS; i++)
             {
                 if (max[i] < r.min[i] || min[i] > r.max[i])
                 {
@@ -198,9 +207,10 @@ namespace Pather.Servers.Libraries.RTree
          * @return true if this rectangle contains the passed rectangle, false if
          *         it does not
          */
+
         internal bool contains(Rectangle r)
         {
-            for (int i = 0; i < DIMENSIONS; i++)
+            for (var i = 0; i < DIMENSIONS; i++)
             {
                 if (max[i] < r.max[i] || min[i] > r.min[i])
                 {
@@ -218,9 +228,10 @@ namespace Pather.Servers.Libraries.RTree
          * @return true if the passed rectangle contains this rectangle, false if
          *         it does not
          */
+
         internal bool containedBy(Rectangle r)
         {
-            for (int i = 0; i < DIMENSIONS; i++)
+            for (var i = 0; i < DIMENSIONS; i++)
             {
                 if (max[i] > r.max[i] || min[i] < r.min[i])
                 {
@@ -238,19 +249,20 @@ namespace Pather.Servers.Libraries.RTree
          * 
          * @return distance beween this rectangle and the passed point.
          */
+
         internal float distance(RTreePoint p)
         {
             float distanceSquared = 0;
-            for (int i = 0; i < DIMENSIONS; i++)
+            for (var i = 0; i < DIMENSIONS; i++)
             {
-                float greatestMin = Math.Max(min[i], p.coordinates[i]);
-                float leastMax = Math.Min(max[i], p.coordinates[i]);
+                var greatestMin = Math.Max(min[i], p.coordinates[i]);
+                var leastMax = Math.Min(max[i], p.coordinates[i]);
                 if (greatestMin > leastMax)
                 {
-                    distanceSquared += ((greatestMin - leastMax) * (greatestMin - leastMax));
+                    distanceSquared += ((greatestMin - leastMax)*(greatestMin - leastMax));
                 }
             }
-            return (float)Math.Sqrt(distanceSquared);
+            return (float) Math.Sqrt(distanceSquared);
         }
 
         /**
@@ -265,37 +277,38 @@ namespace Pather.Servers.Libraries.RTree
         internal float distance(Rectangle r)
         {
             float distanceSquared = 0;
-            for (int i = 0; i < DIMENSIONS; i++)
+            for (var i = 0; i < DIMENSIONS; i++)
             {
-                float greatestMin = Math.Max(min[i], r.min[i]);
-                float leastMax = Math.Min(max[i], r.max[i]);
+                var greatestMin = Math.Max(min[i], r.min[i]);
+                var leastMax = Math.Min(max[i], r.max[i]);
                 if (greatestMin > leastMax)
                 {
-                    distanceSquared += ((greatestMin - leastMax) * (greatestMin - leastMax));
+                    distanceSquared += ((greatestMin - leastMax)*(greatestMin - leastMax));
                 }
             }
-            return (float)Math.Sqrt(distanceSquared);
+            return (float) Math.Sqrt(distanceSquared);
         }
 
         /**
          * Return the squared distance from this rectangle to the passed point
          */
+
         internal float distanceSquared(int dimension, float point)
         {
             float distanceSquared = 0;
-            float tempDistance = point - max[dimension];
-            for (int i = 0; i < 2; i++)
+            var tempDistance = point - max[dimension];
+            for (var i = 0; i < 2; i++)
             {
                 if (tempDistance > 0)
                 {
-                    distanceSquared = (tempDistance * tempDistance);
+                    distanceSquared = (tempDistance*tempDistance);
                     break;
                 }
                 tempDistance = min[dimension] - point;
             }
             return distanceSquared;
         }
- 
+
         /**
          * Calculate the area by which this rectangle would be enlarged if
          * added to the passed rectangle. Neither rectangle is altered.
@@ -304,10 +317,11 @@ namespace Pather.Servers.Libraries.RTree
          *          compute the difference in area of the union and the
          *          original rectangle
          */
+
         internal float enlargement(Rectangle r)
         {
-            float enlargedArea = (Math.Max(max[0], r.max[0]) - Math.Min(min[0], r.min[0])) *
-                                 (Math.Max(max[1], r.max[1]) - Math.Min(min[1], r.min[1]));
+            var enlargedArea = (Math.Max(max[0], r.max[0]) - Math.Min(min[0], r.min[0]))*
+                               (Math.Max(max[1], r.max[1]) - Math.Min(min[1], r.min[1]));
 
             return enlargedArea - area();
         }
@@ -317,9 +331,10 @@ namespace Pather.Servers.Libraries.RTree
          * 
          * @return The area of this rectangle
          */
+
         internal float area()
         {
-            return (max[0] - min[0]) * (max[1] - min[1]);
+            return (max[0] - min[0])*(max[1] - min[1]);
         }
 
         /**
@@ -328,9 +343,10 @@ namespace Pather.Servers.Libraries.RTree
          * 
          * @param r Rectangle to add to this rectangle
          */
+
         internal void add(Rectangle r)
         {
-            for (int i = 0; i < DIMENSIONS; i++)
+            for (var i = 0; i < DIMENSIONS; i++)
             {
                 if (r.min[i] < min[i])
                 {
@@ -349,9 +365,10 @@ namespace Pather.Servers.Libraries.RTree
          * 
          * @param r The rectangle to union with this rectangle
          */
+
         internal Rectangle union(Rectangle r)
         {
-            Rectangle union = this.copy();
+            var union = copy();
             union.add(r);
             return union;
         }
@@ -363,7 +380,7 @@ namespace Pather.Servers.Libraries.RTree
             if (a1.Length != a2.Length)
                 return false;
 
-            for (int i = 0; i < a1.Length; i++)
+            for (var i = 0; i < a1.Length; i++)
                 if (a1[i] != a2[i])
                     return false;
             return true;
@@ -375,12 +392,13 @@ namespace Pather.Servers.Libraries.RTree
          * 
          * @param o The object to compare with this rectangle
          */
+
         public override bool Equals(object obj)
         {
-            bool equals = false;
-            if (obj.GetType() == typeof(Rectangle))
+            var equals = false;
+            if (obj.GetType() == typeof (Rectangle))
             {
-                Rectangle r = (Rectangle)obj;
+                var r = (Rectangle) obj;
                 if (CompareArrays(r.min, min) && CompareArrays(r.max, max))
                 {
                     equals = true;
@@ -397,6 +415,7 @@ namespace Pather.Servers.Libraries.RTree
          * 
          * @param o The object to compare with this rectangle.
          */
+
         internal bool sameObject(object o)
         {
             return base.Equals(o);
@@ -411,11 +430,11 @@ namespace Pather.Servers.Libraries.RTree
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
 
             // min coordinates
             sb.Append('(');
-            for (int i = 0; i < DIMENSIONS; i++)
+            for (var i = 0; i < DIMENSIONS; i++)
             {
                 if (i > 0)
                 {
@@ -426,7 +445,7 @@ namespace Pather.Servers.Libraries.RTree
             sb.Append("), (");
 
             // max coordinates
-            for (int i = 0; i < DIMENSIONS; i++)
+            for (var i = 0; i < DIMENSIONS; i++)
             {
                 if (i > 0)
                 {

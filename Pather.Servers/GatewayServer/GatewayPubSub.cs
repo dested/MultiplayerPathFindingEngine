@@ -1,5 +1,4 @@
 using System;
-using System.Serialization;
 using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.GameWorld.Base;
 using Pather.Common.Models.Gateway.PubSub.Base;
@@ -27,13 +26,13 @@ namespace Pather.Servers.GatewayServer
         {
             PubSub.Subscribe(PubSubChannels.Gateway(), (message) =>
             {
-                var gameWorldPubSubAllMessage = (Gateway_PubSub_AllMessage)(message);
+                var gameWorldPubSubAllMessage = (Gateway_PubSub_AllMessage) (message);
                 OnAllMessage(gameWorldPubSubAllMessage);
             });
 
             PubSub.Subscribe(PubSubChannels.Gateway(GatewayId), (message) =>
             {
-                var gameWorldPubSubMessage = (Gateway_PubSub_Message)(message);
+                var gameWorldPubSubMessage = (Gateway_PubSub_Message) (message);
                 OnMessage(gameWorldPubSubMessage);
             });
         }

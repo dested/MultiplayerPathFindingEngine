@@ -2701,7 +2701,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 				var gameSegmentUser = this.allUsers.list[$t6];
 				$Pather_Servers_GameSegmentServer_Logger_GameSegmentLogger.logUserJoin(false, gameSegmentUser.userId, gameSegmentUser.x, gameSegmentUser.y, gameSegmentUser.neighbors.keys);
 			}
-			console.log(this.$gameSegmentId, 'Game Segment Initialized', this.allGameSegments);
+			console.log(this.$gameSegmentId, 'Game Segment Initialized');
 			setInterval(ss.mkdel(this, this.buildNeighbors), 2000);
 			this.$registerGameSegmentWithCluster();
 		}));
@@ -3717,7 +3717,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 					return $t7;
 				});
 				var initializeGameSegmentMessage = $t6;
-				console.log('Initalized', initializeGameSegmentMessage);
+				console.log('Initalized');
 				this.$gameWorldPubSub.publishToGameSegment(getAllGameSegments.originGameSegment, initializeGameSegmentMessage);
 				break;
 			}

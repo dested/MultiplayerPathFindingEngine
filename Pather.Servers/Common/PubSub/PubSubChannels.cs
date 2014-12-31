@@ -13,7 +13,6 @@
         private static string serverManager = "ServerManager";
 
 
-
         public static string Tick()
         {
             return tick;

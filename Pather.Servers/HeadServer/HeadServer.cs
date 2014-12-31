@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Gateway.PubSub;
@@ -8,12 +7,8 @@ using Pather.Common.Models.Head;
 using Pather.Common.Models.Head.Base;
 using Pather.Common.Models.ServerManager.Base;
 using Pather.Servers.Common.PubSub;
-using Pather.Servers.Common.PushPop;
-using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.HeadServer.Models;
 using Pather.Servers.Libraries.ExpressJS;
-using Pather.Servers.Libraries.Socket.IO;
-using Pather.Servers.Utils;
 
 namespace Pather.Servers.HeadServer
 {
@@ -66,13 +61,12 @@ namespace Pather.Servers.HeadServer
         }
 
         private int isCurrentlySpawning = 0;
+
         private void shouldSpinUpNewGateway()
         {
-
             if (isCurrentlySpawning == 0)
             {
-
-                int totalConnections = 0;
+                var totalConnections = 0;
                 foreach (var gateway in oldGateways)
                 {
                     totalConnections += gateway.LiveConnections;
@@ -113,7 +107,7 @@ namespace Pather.Servers.HeadServer
             switch (message.Type)
             {
                 case Head_PubSub_MessageType.Ping:
-                    OnPingMessage(((Ping_Response_Gateway_Head_PubSub_Message)message));
+                    OnPingMessage(((Ping_Response_Gateway_Head_PubSub_Message) message));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

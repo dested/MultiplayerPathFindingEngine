@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using Pather.Servers.GameWorldServer.Models;
 using Pather.Common.Utils;
+using Pather.Servers.GameWorldServer.Models;
 using Pather.Servers.Libraries.RTree;
 
 namespace Pather.Servers.GameWorldServer
@@ -10,7 +10,7 @@ namespace Pather.Servers.GameWorldServer
     {
         private readonly List<GameWorldUser> gameWorldUsers;
         private readonly List<GameSegment> segments;
-        private RTree<Models.GameWorldUser> tree;
+        private RTree<GameWorldUser> tree;
         private static int MaxClusterSize = 200;
         private int viewRadius = 60;
 
@@ -41,17 +41,18 @@ namespace Pather.Servers.GameWorldServer
         }
 
         /* Absalom P. Sanguinet's Vibrella.*/
+
         private void GroupToSegments(List<PlayerCluster> clusters)
         {
-            JsDictionary<string, int> numberOfUsersInCluster = new JsDictionary<string, int>();
+            var numberOfUsersInCluster = new JsDictionary<string, int>();
 
             foreach (var playerCluster in clusters)
             {
-                List<Tuple<int, GameSegment>> founds = new List<Tuple<int, GameSegment>>();
+                var founds = new List<Tuple<int, GameSegment>>();
 
                 foreach (var gameSegment in segments)
                 {
-                    int found = 0;
+                    var found = 0;
                     foreach (var gameWorldUser in gameSegment.Users)
                     {
                         if (playerCluster.Players.Contains(gameWorldUser))
@@ -69,7 +70,6 @@ namespace Pather.Servers.GameWorldServer
 
                 while (bestIndex < founds.Count)
                 {
-
                     var bestGameSegment = founds[bestIndex].Item2;
                     if (!numberOfUsersInCluster.ContainsKey(bestGameSegment.GameSegmentId))
                     {
@@ -92,8 +92,6 @@ namespace Pather.Servers.GameWorldServer
                 }
             }
         }
-
-
 
 
 /*
@@ -144,10 +142,8 @@ namespace Pather.Servers.GameWorldServer
 */
 
 
-
         private List<PlayerCluster> buildClusters(List<GameWorldUser> players, int viewRadius)
         {
-
             var clusters = ClusterTree(tree, players, viewRadius);
 
             /*
@@ -173,26 +169,27 @@ namespace Pather.Servers.GameWorldServer
 
             return clusters;
         }
+
         private List<PlayerCluster> ClusterTree(RTree<GameWorldUser> tree, List<GameWorldUser> players, int viewRadius)
         {
             var playerClusterInformations = buildPlayerClusterInformations(tree, players, viewRadius);
 
             var playerClusters = buildPlayerClusters(players, playerClusterInformations);
             return playerClusters;
-
         }
+
         private Dictionary<GameWorldUser, PlayerClusterInfo> buildPlayerClusterInformations(RTree<GameWorldUser> tree, List<GameWorldUser> players, int viewRadius)
         {
-            Dictionary<GameWorldUser, PlayerClusterInfo> playerClusterInformations = new Dictionary<GameWorldUser, PlayerClusterInfo>();
+            var playerClusterInformations = new Dictionary<GameWorldUser, PlayerClusterInfo>();
 
-            for (int index = 0; index < players.Count; index++)
+            for (var index = 0; index < players.Count; index++)
             {
                 var currentPlayer = players[index];
-                List<GameWorldUser> nearest = tree.Nearest(new RTreePoint(currentPlayer.X, currentPlayer.Y), viewRadius);
+                var nearest = tree.Nearest(new RTreePoint(currentPlayer.X, currentPlayer.Y), viewRadius);
 
-                PlayerClusterInfo playerClusterInfo = new PlayerClusterInfo(currentPlayer);
+                var playerClusterInfo = new PlayerClusterInfo(currentPlayer);
 
-                for (int i = 0; i < nearest.Count; i++)
+                for (var i = 0; i < nearest.Count; i++)
                 {
                     var nearPlayer = nearest[i];
                     if (nearPlayer == currentPlayer) continue;
@@ -203,11 +200,12 @@ namespace Pather.Servers.GameWorldServer
             }
             return playerClusterInformations;
         }
+
         private List<PlayerCluster> buildPlayerClusters(List<GameWorldUser> players, Dictionary<GameWorldUser, PlayerClusterInfo> playerClusterInformations)
         {
-            JsDictionary<string, GameWorldUser> hitPlayers = players.ToDictionary(a => a.UserId);
-            List<PlayerCluster> playerClusters = new List<PlayerCluster>();
-            int hitPlayerCount = players.Count;
+            var hitPlayers = players.ToDictionary(a => a.UserId);
+            var playerClusters = new List<PlayerCluster>();
+            var hitPlayerCount = players.Count;
 
 
             var playerClusterInfoHits = new JsDictionary<string, PlayerClusterInfo>();
@@ -219,8 +217,8 @@ namespace Pather.Servers.GameWorldServer
                 playerClusterInfoHitsArray.Clear();
 
                 GetPlayerCluster(playerClusterInfoHits, playerClusterInfoHitsArray, playerClusterInformations, playerClusterInformations[hitPlayers[hitPlayers.Keys.First()]], hitPlayers);
-                PlayerCluster cluster = new PlayerCluster();
-                for (int index = 0; index < playerClusterInfoHitsArray.Count; index++)
+                var cluster = new PlayerCluster();
+                for (var index = 0; index < playerClusterInfoHitsArray.Count; index++)
                 {
                     var playerClusterInfoHit = playerClusterInfoHitsArray[index];
                     cluster.Players.Add(playerClusterInfoHit.Player);
@@ -234,12 +232,13 @@ namespace Pather.Servers.GameWorldServer
             }
             return playerClusters;
         }
-        private void GetPlayerCluster(JsDictionary<string, PlayerClusterInfo> playerClusterInfoHits, List<PlayerClusterInfo> playerClusterInfoHitsArray, Dictionary<GameWorldUser, PlayerClusterInfo> allPlayerClusterInformations, PlayerClusterInfo currentPlayerClusterInfo, JsDictionary<string, GameWorldUser> hitPlayers)
-        {
 
-            List<Tuple<double, PlayerClusterInfo>> neighbors = new List<Tuple<double, PlayerClusterInfo>>();
+        private void GetPlayerCluster(JsDictionary<string, PlayerClusterInfo> playerClusterInfoHits, List<PlayerClusterInfo> playerClusterInfoHitsArray, Dictionary<GameWorldUser, PlayerClusterInfo> allPlayerClusterInformations, PlayerClusterInfo currentPlayerClusterInfo,
+            JsDictionary<string, GameWorldUser> hitPlayers)
+        {
+            var neighbors = new List<Tuple<double, PlayerClusterInfo>>();
             neighbors.Add(new Tuple<double, PlayerClusterInfo>(0, currentPlayerClusterInfo));
-            int totalPlayers = 0;
+            var totalPlayers = 0;
             while (neighbors.Count > 0)
             {
                 var activePlayerClusterInfo = neighbors[0];
@@ -254,66 +253,24 @@ namespace Pather.Servers.GameWorldServer
                 playerClusterInfoHitsArray.Add(activePlayerClusterInfo.Item2);
                 totalPlayers++;
                 if (totalPlayers == MaxClusterSize) return;
-                foreach (Tuple<double, GameWorldUser> playerNeighbor in activePlayerClusterInfo.Item2.Neighbors)
+                foreach (var playerNeighbor in activePlayerClusterInfo.Item2.Neighbors)
                 {
                     neighbors.Add(new Tuple<double, PlayerClusterInfo>(playerNeighbor.Item1, allPlayerClusterInformations[playerNeighbor.Item2]));
                 }
                 neighbors.Remove(activePlayerClusterInfo);
 
-                neighbors.Sort((a, b) => (int)(a.Item1 - b.Item1));
+                neighbors.Sort((a, b) => (int) (a.Item1 - b.Item1));
                 if (neighbors.Count > 100)
                 {
                     neighbors.RemoveRange(100, neighbors.Count - 100);
                 }
-
-
             }
-
-
         }
 
 
         private static double pointDistance(GameWorldUser nearPlayer, GameWorldUser currentPlayer)
         {
             return (Math.Pow(currentPlayer.X - nearPlayer.X, 2) + Math.Pow(currentPlayer.Y - nearPlayer.Y, 2));
-
         }
-
-
     }
-    internal class PlayerClusterInfo
-    {
-        public PlayerClusterInfo(GameWorldUser player)
-        {
-            Player = player;
-            Neighbors = new List<Tuple<double, GameWorldUser>>();
-        }
-
-        public GameWorldUser Player;
-        public List<Tuple<double, GameWorldUser>> Neighbors;
-    }
-
-    public class PlayerCluster
-    {
-        public PlayerCluster()
-        {
-            Players = new List<GameWorldUser>();
-        }
-
-        public List<GameWorldUser> Players;
-        public GameSegment BestGameSegment;
-    }
-    public class PlayerClusterGroup
-    {
-        public PlayerClusterGroup()
-        {
-            PlayerClusters = new List<PlayerCluster>();
-            NumberOfPlayers = 0;
-        }
-
-        public int NumberOfPlayers;
-        public List<PlayerCluster> PlayerClusters;
-    }
-
-
 }

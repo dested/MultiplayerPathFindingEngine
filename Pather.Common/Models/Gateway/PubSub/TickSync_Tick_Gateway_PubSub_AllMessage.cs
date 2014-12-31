@@ -14,12 +14,4 @@ namespace Pather.Common.Models.Gateway.PubSub
 
         public long LockstepTickNumber;
     }
-    [Serializable]
-    public class Ping_Head_Gateway_PubSub_AllMessage : Gateway_PubSub_AllMessage
-    {
-        public Ping_Head_Gateway_PubSub_AllMessage()
-        {
-            Type = Gateway_PubSub_AllMessageType.Ping;
-        }
-    }
 }

@@ -14,12 +14,4 @@ namespace Pather.Common.Models.GameSegment
 
         public List<UserJoinGameUser> Collection;
     }
-    [Serializable]
-    public class UserJoinGameUser
-    {
-        public string UserId;
-        public int X;
-        public int Y;
-        public string GatewayId;
-    }
 }

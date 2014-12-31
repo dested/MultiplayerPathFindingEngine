@@ -1,5 +1,4 @@
 using System;
-using System.Serialization;
 using Pather.Servers.Common.PubSub;
 
 namespace Pather.Servers.Common.ServerLogging
@@ -17,14 +16,14 @@ namespace Pather.Servers.Common.ServerLogging
                 {
                     foreach (var serverType in serverTypes)
                     {
-                        pubsub.Subscribe(PubSubChannels.ServerLogger(serverType), (content) => callback((ServerLogMessage)(content)));
+                        pubsub.Subscribe(PubSubChannels.ServerLogger(serverType), (content) => callback((ServerLogMessage) (content)));
                     }
                 });
         }
 
         public void Subscribe(string channel, Action<ServerLogMessage> callback)
         {
-            pubsub.Subscribe(PubSubChannels.ServerLogger(channel), (content) => callback((ServerLogMessage)(content)));
+            pubsub.Subscribe(PubSubChannels.ServerLogger(channel), (content) => callback((ServerLogMessage) (content)));
         }
     }
 }

@@ -34,7 +34,7 @@ namespace Pather.Servers.ClusterManager
             ClusterManagerPubSub.OnMessage += receiveMessage;
             ClusterManagerPubSub.Init();
 
-            PushPop.Push(ClusterManagerId,null);
+            PushPop.Push(ClusterManagerId, null);
         }
 
 
@@ -43,10 +43,10 @@ namespace Pather.Servers.ClusterManager
             switch (message.Type)
             {
                 case ClusterManager_PubSub_MessageType.CreateGameSegment:
-                    CreateGameSegment(((CreateGameSegment_ServerManager_ClusterManager_PubSub_ReqRes_Message)message));
+                    CreateGameSegment(((CreateGameSegment_ServerManager_ClusterManager_PubSub_ReqRes_Message) message));
                     break;
                 case ClusterManager_PubSub_MessageType.CreateGateway:
-                    CreateGateway(((CreateGateway_ServerManager_ClusterManager_PubSub_ReqRes_Message)message));
+                    CreateGateway(((CreateGateway_ServerManager_ClusterManager_PubSub_ReqRes_Message) message));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -77,11 +77,11 @@ namespace Pather.Servers.ClusterManager
             });
 
 
-            string str = @"C:\Users\deste_000\AppData\Roaming\npm\node-debug.cmd";
+            var str = @"C:\Users\deste_000\AppData\Roaming\npm\node-debug.cmd";
             str = "node";
             var child = spawn(str, new[]
             {
-                "app.js", "gateway",createGatewayMessage.GatewayId, createGatewayMessage.Port.ToString()
+                "app.js", "gateway", createGatewayMessage.GatewayId, createGatewayMessage.Port.ToString()
             }, new
             {
                 stdio = new object[]
@@ -93,7 +93,6 @@ namespace Pather.Servers.ClusterManager
 
             //            child.Unref();
         }
-
 
 
         private void CreateGameSegment(CreateGameSegment_ServerManager_ClusterManager_PubSub_ReqRes_Message createGameSegmentMessage)
@@ -120,7 +119,7 @@ namespace Pather.Servers.ClusterManager
             });
 
 
-            string str = @"C:\Users\deste_000\AppData\Roaming\npm\node-debug.cmd";
+            var str = @"C:\Users\deste_000\AppData\Roaming\npm\node-debug.cmd";
             str = "node";
             var child = spawn(str, new[]
             {

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Serialization;
 using Pather.Common.Models.Common;
 using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.GameWorld.Base;
@@ -27,8 +26,7 @@ namespace Pather.Servers.TickServer
 
             PubSub.Subscribe(PubSubChannels.Tick(), (message) =>
             {
-                
-                OnMessage((Tick_PubSub_Message)message);
+                OnMessage((Tick_PubSub_Message) message);
             });
 
             deferred.Resolve();

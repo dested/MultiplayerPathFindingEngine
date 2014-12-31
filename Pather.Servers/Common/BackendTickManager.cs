@@ -12,7 +12,7 @@ namespace Pather.Servers.Common
         public BackendTickManager()
         {
         }
-         
+
 
         public void Init(Action sendPing, Action onTickManagerReady)
         {
@@ -36,7 +36,6 @@ namespace Pather.Servers.Common
 
         public void OnPongReceived()
         {
-
             if (pingSent == null)
             {
                 Global.Console.Log("Mis pong");

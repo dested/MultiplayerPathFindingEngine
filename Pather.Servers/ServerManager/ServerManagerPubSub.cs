@@ -4,7 +4,6 @@ using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.ClusterManager.Base;
 using Pather.Common.Models.Common;
 using Pather.Common.Models.GameWorld.Base;
-using Pather.Common.Models.Head;
 using Pather.Common.Models.Head.Base;
 using Pather.Common.Models.ServerManager.Base;
 using Pather.Common.Utils;
@@ -23,19 +22,18 @@ namespace Pather.Servers.ServerManager
         }
 
         public Action<ServerManager_PubSub_Message> OnMessage;
-        private Dictionary<string, Deferred<object, UndefinedPromiseError>> deferredMessages = new Dictionary<string, Deferred<object, UndefinedPromiseError>>();
+        private readonly Dictionary<string, Deferred<object, UndefinedPromiseError>> deferredMessages = new Dictionary<string, Deferred<object, UndefinedPromiseError>>();
 
         public void Init()
         {
-          
             PubSub.Subscribe(PubSubChannels.ServerManager(), (message) =>
             {
-                var serverManagerPubSubMessage = (ServerManager_PubSub_Message)(message);
+                var serverManagerPubSubMessage = (ServerManager_PubSub_Message) (message);
 
-                if (Utilities.HasField<IPubSub_ReqRes_Message>(serverManagerPubSubMessage, m => m.MessageId) && ((IPubSub_ReqRes_Message)serverManagerPubSubMessage).Response)
+                if (Utilities.HasField<IPubSub_ReqRes_Message>(serverManagerPubSubMessage, m => m.MessageId) && ((IPubSub_ReqRes_Message) serverManagerPubSubMessage).Response)
                 {
                     //                    Global.Console.Log("message", message);
-                    var possibleMessageReqRes = (ServerManager_PubSub_ReqRes_Message)serverManagerPubSubMessage;
+                    var possibleMessageReqRes = (ServerManager_PubSub_ReqRes_Message) serverManagerPubSubMessage;
                     if (!deferredMessages.ContainsKey(possibleMessageReqRes.MessageId))
                     {
                         Global.Console.Log("Received message that I didnt ask for.", message);
@@ -69,6 +67,7 @@ namespace Pather.Servers.ServerManager
         {
             PubSub.Publish(PubSubChannels.Head(), message);
         }
+
         public void PublishToGameWorld(GameWorld_PubSub_Message message)
         {
             PubSub.Publish(PubSubChannels.GameWorld(), message);

@@ -20,7 +20,7 @@ namespace Pather.Common
 
             LatencyPingInterval = 6*1000;
             NeighborDistance = 20;
-            UsersPerGameSegment =20;
+            UsersPerGameSegment = 20;
             GameSegmentCreationWait = 60;
             GatewayCreationWait = 60;
 
@@ -32,7 +32,7 @@ namespace Pather.Common
             MaxGameSegmentsPerCluster = 10;
         }
 
-        public static int AnimationSteps; 
+        public static int AnimationSteps;
         public static int GameFps;
         public static int DrawTicks;
         public static int DrawFps;
@@ -54,8 +54,7 @@ namespace Pather.Common
 
         public static bool TestServer
         {
-            get { return ((dynamic)Window.Instance).TestServer; }
+            get { return ((dynamic) Window.Instance).TestServer; }
         }
-
     }
 }

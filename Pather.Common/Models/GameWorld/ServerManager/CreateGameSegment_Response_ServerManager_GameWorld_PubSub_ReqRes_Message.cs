@@ -1,7 +1,7 @@
 using System;
 using Pather.Common.Models.GameWorld.Base;
 
-namespace Pather.Common.Models.GameWorld.Gateway
+namespace Pather.Common.Models.GameWorld.ServerManager
 {
     [Serializable]
     public class CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message : GameWorld_PubSub_ReqRes_Message

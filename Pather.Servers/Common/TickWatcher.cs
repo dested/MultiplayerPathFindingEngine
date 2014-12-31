@@ -6,10 +6,10 @@ namespace Pather.Servers.Common
     public class TickWatcher
     {
         private long counter = 0;
-        private long startTime = 0;
+        private readonly long startTime = 0;
+
         public TickWatcher()
         {
-
             startTime = new DateTime().GetTime();
 
             setTimout();
@@ -23,9 +23,9 @@ namespace Pather.Servers.Common
 
             counter++;
 
-            if (counter % 10 == 0)
+            if (counter%10 == 0)
             {
-                Global.Console.Log("Tick called ", counter, "Seconds since start", elap / 1000);
+                Global.Console.Log("Tick called ", counter, "Seconds since start", elap/1000);
             }
 
 
