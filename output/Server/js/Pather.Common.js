@@ -1626,6 +1626,68 @@
 	ss.initGenericClass($Pather_Common_Utils_DataObject$1, $asm, 1);
 	global.Pather.Common.Utils.DataObject$1 = $Pather_Common_Utils_DataObject$1;
 	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Utils.DictionaryList
+	var $Pather_Common_Utils_DictionaryList$2 = function(TKey, T) {
+		var $type = function(setKeyCallback) {
+			this.dictionary = {};
+			this.list = [];
+			this.keys = [];
+			this.$setKeyCallback = null;
+			this.$setKeyCallback = setKeyCallback;
+		};
+		ss.registerGenericClassInstance($type, $Pather_Common_Utils_DictionaryList$2, [TKey, T], {
+			get_count: function() {
+				return this.list.length;
+			},
+			add: function(t) {
+				this.list.push(t);
+				var key = this.$setKeyCallback(t);
+				this.keys.push(key);
+				this.dictionary[key] = t;
+			},
+			remove: function(t) {
+				ss.remove(this.list, t);
+				var key = this.$setKeyCallback(t);
+				this.keys.push(key);
+				delete this.dictionary[key];
+			},
+			get: function(index) {
+				return this.list[index];
+			},
+			get$1: function(key) {
+				return this.dictionary[key];
+			},
+			clear: function() {
+				ss.clear(this.keys);
+				ss.clearKeys(this.dictionary);
+				ss.clear(this.list);
+			},
+			contains$1: function(key) {
+				return ss.keyExists(this.dictionary, key);
+			},
+			contains: function(item) {
+				return ss.contains(this.list, item);
+			},
+			get_item: function(key) {
+				return this.dictionary[key];
+			},
+			get_item$1: function(index) {
+				return this.list[index];
+			},
+			updateKey: function(user) {
+				throw new ss.NotImplementedException();
+			}
+		}, function() {
+			return null;
+		}, function() {
+			return [];
+		});
+		return $type;
+	};
+	$Pather_Common_Utils_DictionaryList$2.__typeName = 'Pather.Common.Utils.DictionaryList$2';
+	ss.initGenericClass($Pather_Common_Utils_DictionaryList$2, $asm, 2);
+	global.Pather.Common.Utils.DictionaryList$2 = $Pather_Common_Utils_DictionaryList$2;
+	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Utils.EnumerableExtensions
 	var $Pather_Common_Utils_EnumerableExtensions = function() {
 	};
@@ -2675,7 +2737,7 @@
 			}
 		},
 		processLockstep: function(lockstepTickNumber) {
-			console.log('Lockstep', this.lockstepTickNumber, (new Date()).getTime());
+			//            Global.Console.Log("Lockstep", LockstepTickNumber, new DateTime().GetTime());
 			//            ServerLogger.LogInformation("Lockstep", LockstepTickNumber, new DateTime().GetTime());
 		}
 	});
@@ -2777,7 +2839,7 @@
 		$Pather_Common_Constants.maxGatewaysPerCluster = 0;
 		$Pather_Common_Constants.maxGameSegmentsPerCluster = 0;
 		//CLIENT
-		$Pather_Common_Constants.squareSize = 8;
+		$Pather_Common_Constants.squareSize = 16;
 		$Pather_Common_Constants.drawFps = 60;
 		$Pather_Common_Constants.numberOfSquares = 150;
 		$Pather_Common_Constants.drawTicks = ss.Int32.div(1000, $Pather_Common_Constants.drawFps);
@@ -2787,11 +2849,11 @@
 		$Pather_Common_Constants.lockstepFps = 2;
 		$Pather_Common_Constants.lockstepTicks = ss.Int32.div(1000, $Pather_Common_Constants.lockstepFps);
 		$Pather_Common_Constants.latencyPingInterval = 6000;
-		$Pather_Common_Constants.neighborDistance = 7;
-		$Pather_Common_Constants.usersPerGameSegment = 2;
+		$Pather_Common_Constants.neighborDistance = 20;
+		$Pather_Common_Constants.usersPerGameSegment = 20;
 		$Pather_Common_Constants.gameSegmentCreationWait = 60;
 		$Pather_Common_Constants.gatewayCreationWait = 60;
-		$Pather_Common_Constants.maxConnectionsPerGateway = 200;
+		$Pather_Common_Constants.maxConnectionsPerGateway = 100;
 		$Pather_Common_Constants.gatewayConnectionSpawnThreshold = 40;
 		$Pather_Common_Constants.maxGatewaysPerCluster = 10;
 		$Pather_Common_Constants.maxGameSegmentsPerCluster = 10;

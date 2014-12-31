@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Pather.Common.Utils;
 
 namespace Pather.Servers.GameSegmentServer.Models
 {
@@ -9,11 +10,11 @@ namespace Pather.Servers.GameSegmentServer.Models
         public int X;
         public int Y;
         public string UserId;
-        public List<GameSegmentNeighbor> Neighbors;
+        public DictionaryList<string,GameSegmentNeighbor> Neighbors;
 
         public GameSegmentUser()
         {
-            Neighbors = new List<GameSegmentNeighbor>();
+            Neighbors = new DictionaryList<string, GameSegmentNeighbor>(a=>a.User.UserId);
         }
 
         public List<GameSegmentNeighbor> OldNeighbors { get; set; }

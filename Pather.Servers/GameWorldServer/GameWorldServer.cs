@@ -201,24 +201,26 @@ namespace Pather.Servers.GameWorldServer
                     break;
                 case GameWorld_PubSub_MessageType.InitializeGameSegment:
                     var getAllGameSegments = ((InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message)message);
-                    gameWorldPubSub.PublishToGameSegment(getAllGameSegments.OriginGameSegment,
-                        new InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message()
+                    var initializeGameSegmentMessage = new InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message()
+                    {
+                        MessageId = getAllGameSegments.MessageId,
+                        GameSegmentIds = GameWorld.GameSegments.Select(a => a.GameSegmentId),
+                        AllUsers = GameWorld.Users.Select(user =>
                         {
-                            MessageId = getAllGameSegments.MessageId,
-                            GameSegmentIds = GameWorld.GameSegments.Select(a => a.GameSegmentId),
-                            AllUsers = GameWorld.Users.Select(user =>
+                            //                                Global.Console.Log("Sending out initial to", getAllGameSegments.OriginGameSegment, user.UserId, user.GatewayId);
+                            return new InitialGameUser()
                             {
-                                //                                Global.Console.Log("Sending out initial to", getAllGameSegments.OriginGameSegment, user.UserId, user.GatewayId);
-                                return new InitialGameUser()
-                                {
-                                    GameSegmentId = user.GameSegment.GameSegmentId,
-                                    UserId = user.UserId,
-                                    GatewayId = user.GatewayId,
-                                    X = user.X,
-                                    Y = user.Y,
-                                };
-                            })
-                        });
+                                GameSegmentId = user.GameSegment.GameSegmentId,
+                                UserId = user.UserId,
+                                GatewayId = user.GatewayId,
+                                X = user.X,
+                                Y = user.Y,
+                            };
+                        })
+                    };
+                    Global.Console.Log("Initalized", initializeGameSegmentMessage);
+                    gameWorldPubSub.PublishToGameSegment(getAllGameSegments.OriginGameSegment,
+                        initializeGameSegmentMessage);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

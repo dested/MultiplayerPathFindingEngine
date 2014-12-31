@@ -490,9 +490,7 @@ var $Pather_Servers_GameSegmentServer_GameSegmentServer = function(pubsub, pushP
 	this.$pushPop = null;
 	this.$gameSegmentId = null;
 	this.myGameSegment = null;
-	this.otherGameSegments = {};
 	this.allUsers = null;
-	this.allUsersDictionary = null;
 	this.allUserGameSegments = null;
 	this.allGameSegments = null;
 	this.messagesProcessed = 0;
@@ -503,6 +501,9 @@ var $Pather_Servers_GameSegmentServer_GameSegmentServer = function(pubsub, pushP
 	this.$pubsub = pubsub;
 	this.$pushPop = pushPop;
 	this.$gameSegmentId = gameSegmentId;
+	this.allUsers = new (ss.makeGenericType(Pather.Common.Utils.DictionaryList$2, [String, $Pather_Servers_GameSegmentServer_Models_GameSegmentUser]))(function(a) {
+		return a.userId;
+	});
 	//Global.SetInterval(() => { Global.Console.Log("keep alive " + new DateTime().ToString().Substring(17, 24)); }, 10 * 1000);
 	//var game = new ServerGame(socketManager, gameServerName);
 	//game.Init();
@@ -512,8 +513,6 @@ var $Pather_Servers_GameSegmentServer_GameSegmentServer = function(pubsub, pushP
 		this.gameSegmentPubSub.onMessage = ss.delegateCombine(this.gameSegmentPubSub.onMessage, ss.mkdel(this, this.$onMessage));
 		this.gameSegmentPubSub.init().then(ss.mkdel(this, this.$ready));
 	}));
-	this.allUsers = [];
-	this.allUsersDictionary = {};
 	//
 	//            Global.SetInterval(() =>
 	//
@@ -529,9 +528,9 @@ $Pather_Servers_GameSegmentServer_GameSegmentServer.$pointDistance = function(pU
 	var my = pUser.y;
 	var cx = cUser.x;
 	var cy = cUser.y;
-	var _x = cx - mx;
-	var _y = cy - my;
-	var dis = Math.sqrt(_x * _x + _y * _y);
+	var x = cx - mx;
+	var y = cy - my;
+	var dis = Math.sqrt(x * x + y * y);
 	return dis;
 };
 global.Pather.Servers.GameSegmentServer.GameSegmentServer = $Pather_Servers_GameSegmentServer_GameSegmentServer;
@@ -721,7 +720,9 @@ var $Pather_Servers_GameSegmentServer_Models_GameSegmentUser = function() {
 	this.userId = null;
 	this.neighbors = null;
 	this.$1$OldNeighborsField = null;
-	this.neighbors = [];
+	this.neighbors = new (ss.makeGenericType(Pather.Common.Utils.DictionaryList$2, [String, $Pather_Servers_GameSegmentServer_Models_GameSegmentNeighbor]))(function(a) {
+		return a.user.userId;
+	});
 };
 $Pather_Servers_GameSegmentServer_Models_GameSegmentUser.__typeName = 'Pather.Servers.GameSegmentServer.Models.GameSegmentUser';
 global.Pather.Servers.GameSegmentServer.Models.GameSegmentUser = $Pather_Servers_GameSegmentServer_Models_GameSegmentUser;
@@ -964,7 +965,9 @@ var $Pather_Servers_GatewayServer_GatewayServer = function(pubsub, pushPop, sock
 	this.serverCommunicator = null;
 	this.gatewayPubSub = null;
 	this.backendTickManager = null;
-	this.$users = [];
+	this.$users = new (ss.makeGenericType(Pather.Common.Utils.DictionaryList$2, [String, $Pather_Servers_GatewayServer_$GatewayUser]))(function(a) {
+		return a.userId;
+	});
 	this.$cachedUserMoves = {};
 	this.set_pushPop(pushPop);
 	this.$socketManager = socketManager;
@@ -1348,9 +1351,6 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 				root.$addEntry(oldRoot.$mbr, oldRoot.$nodeId);
 				this.nodeMap[this.$rootNodeId] = root;
 			}
-			if ($type.$internaL_CONSISTENCY_CHECKING) {
-				this.$checkConsistency(this.$rootNodeId, this.$treeHeight, null);
-			}
 		},
 		delete$1: function(r, item) {
 			var id = this.$itemsToIds[item];
@@ -1586,15 +1586,6 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 				this.$pickNext(n, newNode);
 			}
 			n.$reorganize(this);
-			// check that the MBR stored for each Node&lt;T&gt; is correct.
-			if ($type.$internaL_CONSISTENCY_CHECKING) {
-				if (!n.$mbr.equals(this.$calculateMBR(n))) {
-					this.$log.$error('Error: splitNode old Node<T> MBR wrong');
-				}
-				if (!newNode.$mbr.equals(this.$calculateMBR(newNode))) {
-					this.$log.$error('Error: splitNode new Node<T> MBR wrong');
-				}
-			}
 			// debug code
 			if (this.$log.get_$isDebugEnabled()) {
 				var newArea = n.$mbr.$area() + newNode.$mbr.$area();
@@ -1939,7 +1930,6 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 	$type.$ctor1.prototype = $type.prototype;
 	$type.$version = '1.0b2p1';
 	$type.$defaulT_MAX_NODE_ENTRIES = 10;
-	$type.$internaL_CONSISTENCY_CHECKING = false;
 	$type.$entrY_STATUS_ASSIGNED = 0;
 	$type.$entrY_STATUS_UNASSIGNED = 1;
 	return $type;
@@ -2403,34 +2393,33 @@ ss.initClass($Pather_Servers_Common_PubSub_PubSub, $asm, {
 		ss.clear(this.$channelCache);
 	},
 	receivedMessage: function(channel, message) {
-		//            try
-		//            {
-		if (!this.$dontLog) {
-			//                if (channel != PubSubChannels.Tick() && !message.Contains("pong") && !message.Contains("tickSync") /*todo this pong stuff aint gonna fly when you remove namedvalues*/)
-			$Pather_Servers_Common_ServerLogging_ServerLogger.logTransport('Pubsub Message Received', [channel, message]);
-		}
-		var channelCallback = this.$subbed[channel];
-		if (!ss.staticEquals(channelCallback, null)) {
-			if (Pather.Common.Utils.Utilities.hasField(Pather.Common.Models.Common.PubSub_Message_Collection).call(null, message, function(a) {
-				return a.collection;
-			})) {
-				var messages = message;
-				for (var $t1 = 0; $t1 < messages.collection.length; $t1++) {
-					var m = messages.collection[$t1];
-					channelCallback(m);
+		try {
+			if (!this.$dontLog) {
+				//                if (channel != PubSubChannels.Tick() && !message.Contains("pong") && !message.Contains("tickSync") /*todo this pong stuff aint gonna fly when you remove namedvalues*/)
+				$Pather_Servers_Common_ServerLogging_ServerLogger.logTransport('Pubsub Message Received', [channel, message]);
+			}
+			var channelCallback = this.$subbed[channel];
+			if (!ss.staticEquals(channelCallback, null)) {
+				if (Pather.Common.Utils.Utilities.hasField(Pather.Common.Models.Common.PubSub_Message_Collection).call(null, message, function(a) {
+					return a.collection;
+				})) {
+					var messages = message;
+					for (var $t1 = 0; $t1 < messages.collection.length; $t1++) {
+						var m = messages.collection[$t1];
+						channelCallback(m);
+					}
+				}
+				else {
+					channelCallback(message);
 				}
 			}
-			else {
-				channelCallback(message);
-			}
 		}
-		//            }
-		//            catch (Exception e)
-		//            {
-		//                Global.Console.Log("An exception has occured", e, e.Stack);
-		//                Global.Console.Log("Payload Dump", channel, message);
-		//                ServerLogger.LogError("Exception", e, e.Stack, channel, message);
-		//            }
+		catch ($t2) {
+			var e = ss.Exception.wrap($t2);
+			console.log('An exception has occured', e, e.get_stack());
+			console.log('Payload Dump', channel, message);
+			$Pather_Servers_Common_ServerLogging_ServerLogger.logError('Exception', [e, e.get_stack(), channel, message]);
+		}
 	},
 	dontLog: function() {
 		this.$dontLog = true;
@@ -2614,12 +2603,12 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegment, $asm, {
 			throw new ss.Exception('IDK Who this user is:' + userId);
 		}
 		delete this.users[userId];
-		//            Global.Console.Log(GameSegmentId, "User Left Game Segment");
+		console.log(this.gameSegmentId, 'User Left Game Segment');
 		$Pather_Servers_Common_ServerLogging_ServerLogger.logInformation('User Left Game Segment', ['User count now: ', ss.getKeyCount(this.users)]);
 	},
 	userJoin: function(gameSegmentUser) {
 		this.users[gameSegmentUser.userId] = gameSegmentUser;
-		//            ServerLogger.LogInformation("User Joined A Game Segment");
+		$Pather_Servers_Common_ServerLogging_ServerLogger.logInformation('User Joined A Game Segment', []);
 		//            Global.Console.Log(GameSegmentId, "User Joined A Game Segment", gameSegmentUser.UserId, gameSegmentUser.GatewayId);
 	}
 });
@@ -2685,8 +2674,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 		var $t1 = Pather.Common.Models.GameWorld.GameSegment.InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message.$ctor();
 		$t1.originGameSegment = this.$gameSegmentId;
 		$t2.publishToGameWorldWithCallback(Pather.Common.Models.GameSegment.InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message).call($t2, $t1).then(ss.mkdel(this, function(message) {
-			this.allUsers = [];
-			this.allUsersDictionary = {};
+			this.allUsers.clear();
 			this.allUserGameSegments = {};
 			this.allGameSegments = {};
 			this.myGameSegment = new $Pather_Servers_GameSegmentServer_GameSegment(this.$gameSegmentId);
@@ -2704,19 +2692,16 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 				$t5.x = initialGameUser.x;
 				$t5.y = initialGameUser.y;
 				var user = $t5;
-				this.allUsers.push(user);
-				this.allUsersDictionary[user.userId] = user;
+				this.allUsers.add(user);
 				this.allUserGameSegments[user.userId] = this.allGameSegments[user.gameSegmentId];
 				this.allGameSegments[user.gameSegmentId].userJoin(user);
 			}
 			this.buildNeighbors();
-			for (var $t6 = 0; $t6 < this.allUsers.length; $t6++) {
-				var gameSegmentUser = this.allUsers[$t6];
-				$Pather_Servers_GameSegmentServer_Logger_GameSegmentLogger.logUserJoin(false, gameSegmentUser.userId, gameSegmentUser.x, gameSegmentUser.y, Pather.Common.Utils.EnumerableExtensions.select(gameSegmentUser.neighbors, function(a) {
-					return a.user.userId;
-				}));
+			for (var $t6 = 0; $t6 < this.allUsers.list.length; $t6++) {
+				var gameSegmentUser = this.allUsers.list[$t6];
+				$Pather_Servers_GameSegmentServer_Logger_GameSegmentLogger.logUserJoin(false, gameSegmentUser.userId, gameSegmentUser.x, gameSegmentUser.y, gameSegmentUser.neighbors.keys);
 			}
-			console.log(this.$gameSegmentId, 'Game Segment Initialized');
+			console.log(this.$gameSegmentId, 'Game Segment Initialized', this.allGameSegments);
 			setInterval(ss.mkdel(this, this.buildNeighbors), 2000);
 			this.$registerGameSegmentWithCluster();
 		}));
@@ -2768,7 +2753,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 				break;
 			}
 			case 'userMovedFromGameSegment': {
-				this.$onMessageUserMoved$1(message);
+				this.onMessageUserMoved(message);
 				break;
 			}
 			default: {
@@ -2778,7 +2763,6 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 	},
 	onMessageNewGameSegment: function(message) {
 		var newGameSegment = new $Pather_Servers_GameSegmentServer_GameSegment(message.gameSegmentId);
-		this.otherGameSegments[message.gameSegmentId] = newGameSegment;
 		this.allGameSegments[newGameSegment.gameSegmentId] = newGameSegment;
 		console.log(this.$gameSegmentId, ' Added new Game Segment ', message.gameSegmentId);
 	},
@@ -2786,54 +2770,70 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 		this.$backendTickManager.onPongReceived();
 	},
 	$onMessageUserLeft: function(message) {
-		var user = this.allUsersDictionary[message.userId];
+		var user = this.allUsers.get_item(message.userId);
 		//todo remove user ina  method or something
-		for (var $t1 = 0; $t1 < user.neighbors.length; $t1++) {
-			var gameSegmentNeighbor = user.neighbors[$t1];
-			for (var $t2 = 0; $t2 < gameSegmentNeighbor.user.neighbors.length; $t2++) {
-				var segmentNeighbor = gameSegmentNeighbor.user.neighbors[$t2];
+		var $t1 = [];
+		$t1.push(message.userId);
+		var removed = $t1;
+		for (var $t2 = 0; $t2 < user.neighbors.list.length; $t2++) {
+			var gameSegmentNeighbor = user.neighbors.list[$t2];
+			for (var $t3 = 0; $t3 < gameSegmentNeighbor.user.neighbors.list.length; $t3++) {
+				var segmentNeighbor = gameSegmentNeighbor.user.neighbors.list[$t3];
 				if (ss.referenceEquals(segmentNeighbor.user, user)) {
-					ss.remove(gameSegmentNeighbor.user.neighbors, segmentNeighbor);
+					gameSegmentNeighbor.user.neighbors.remove(segmentNeighbor);
 					break;
 				}
 			}
+			var $t5 = this.gameSegmentPubSub;
+			var $t6 = gameSegmentNeighbor.user.gatewayId;
+			var $t4 = Pather.Common.Models.Gateway.PubSub.UpdateNeighbors_GameSegment_Gateway_PubSub_Message.$ctor();
+			$t4.userId = gameSegmentNeighbor.user.userId;
+			$t4.removed = removed;
+			$t5.publishToGateway($t6, $t4);
 		}
-		ss.clear(user.neighbors);
+		user.neighbors.clear();
 		this.myGameSegment.userLeft(message.userId);
 		delete this.allUserGameSegments[message.userId];
-		ss.remove(this.allUsers, user);
-		delete this.allUsersDictionary[message.userId];
+		this.allUsers.remove(user);
 		$Pather_Servers_GameSegmentServer_Logger_GameSegmentLogger.logUserLeft(true, user.userId);
 		//todo maybe shoudlnt be reqres
-		var $t4 = this.gameSegmentPubSub;
-		var $t3 = Pather.Common.Models.GameWorld.GameSegment.UserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message.$ctor();
-		$t3.messageId = message.messageId;
-		$t4.publishToGameWorld($t3);
+		var $t8 = this.gameSegmentPubSub;
+		var $t7 = Pather.Common.Models.GameWorld.GameSegment.UserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message.$ctor();
+		$t7.messageId = message.messageId;
+		$t8.publishToGameWorld($t7);
 	},
 	$onMessageTellUserLeft: function(message) {
 		var gameSegment = this.allUserGameSegments[message.userId];
 		gameSegment.userLeft(message.userId);
 		delete this.allUserGameSegments[message.userId];
-		var user = this.allUsersDictionary[message.userId];
+		var user = this.allUsers.get_item(message.userId);
+		var $t1 = [];
+		$t1.push(message.userId);
+		var removed = $t1;
 		//todo remove user ina  method or something
-		for (var $t1 = 0; $t1 < user.neighbors.length; $t1++) {
-			var gameSegmentNeighbor = user.neighbors[$t1];
-			for (var $t2 = 0; $t2 < gameSegmentNeighbor.user.neighbors.length; $t2++) {
-				var segmentNeighbor = gameSegmentNeighbor.user.neighbors[$t2];
+		for (var $t2 = 0; $t2 < user.neighbors.list.length; $t2++) {
+			var gameSegmentNeighbor = user.neighbors.list[$t2];
+			for (var $t3 = 0; $t3 < gameSegmentNeighbor.user.neighbors.list.length; $t3++) {
+				var segmentNeighbor = gameSegmentNeighbor.user.neighbors.list[$t3];
 				if (ss.referenceEquals(segmentNeighbor.user, user)) {
-					ss.remove(gameSegmentNeighbor.user.neighbors, segmentNeighbor);
+					gameSegmentNeighbor.user.neighbors.remove(segmentNeighbor);
 					break;
 				}
 			}
+			var $t5 = this.gameSegmentPubSub;
+			var $t6 = gameSegmentNeighbor.user.gatewayId;
+			var $t4 = Pather.Common.Models.Gateway.PubSub.UpdateNeighbors_GameSegment_Gateway_PubSub_Message.$ctor();
+			$t4.userId = gameSegmentNeighbor.user.userId;
+			$t4.removed = removed;
+			$t5.publishToGateway($t6, $t4);
 		}
-		ss.clear(user.neighbors);
-		ss.remove(this.allUsers, user);
-		delete this.allUsersDictionary[message.userId];
+		user.neighbors.clear();
+		this.allUsers.remove(user);
 		$Pather_Servers_GameSegmentServer_Logger_GameSegmentLogger.logUserLeft(false, user.userId);
-		var $t4 = this.gameSegmentPubSub;
-		var $t3 = Pather.Common.Models.GameWorld.GameSegment.TellUserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message.$ctor();
-		$t3.messageId = message.messageId;
-		$t4.publishToGameWorld($t3);
+		var $t8 = this.gameSegmentPubSub;
+		var $t7 = Pather.Common.Models.GameWorld.GameSegment.TellUserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message.$ctor();
+		$t7.messageId = message.messageId;
+		$t8.publishToGameWorld($t7);
 	},
 	$onMessageTellUserJoin: function(message) {
 		var $t1 = new $Pather_Servers_GameSegmentServer_Models_GameSegmentUser();
@@ -2843,16 +2843,13 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 		$t1.x = message.x;
 		$t1.y = message.y;
 		var gameSegmentUser = $t1;
-		var otherGameSegment = this.otherGameSegments[message.gameSegmentId];
-		this.allUsers.push(gameSegmentUser);
-		this.allUsersDictionary[gameSegmentUser.userId] = gameSegmentUser;
+		var otherGameSegment = this.allGameSegments[message.gameSegmentId];
+		this.allUsers.add(gameSegmentUser);
 		this.allUserGameSegments[gameSegmentUser.userId] = otherGameSegment;
-		console.log(this.$gameSegmentId, 'User joined from other gamesegment', message.gameSegmentId, message.userId);
+		//            Global.Console.Log(GameSegmentId, "User joined from other gamesegment", message.GameSegmentId, message.UserId);
 		otherGameSegment.userJoin(gameSegmentUser);
 		this.buildNeighbors();
-		$Pather_Servers_GameSegmentServer_Logger_GameSegmentLogger.logUserJoin(false, gameSegmentUser.userId, gameSegmentUser.x, gameSegmentUser.y, Pather.Common.Utils.EnumerableExtensions.select(gameSegmentUser.neighbors, function(a) {
-			return a.user.userId;
-		}));
+		$Pather_Servers_GameSegmentServer_Logger_GameSegmentLogger.logUserJoin(false, gameSegmentUser.userId, gameSegmentUser.x, gameSegmentUser.y, gameSegmentUser.neighbors.keys);
 		var $t3 = this.gameSegmentPubSub;
 		var $t2 = Pather.Common.Models.GameWorld.GameSegment.TellUserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message.$ctor();
 		$t2.messageId = message.messageId;
@@ -2869,15 +2866,12 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 			$t2.x = userJoinGameUser.x;
 			$t2.y = userJoinGameUser.y;
 			var gameSegmentUser = $t2;
-			this.allUsers.push(gameSegmentUser);
-			this.allUsersDictionary[gameSegmentUser.userId] = gameSegmentUser;
+			this.allUsers.add(gameSegmentUser);
 			this.allUserGameSegments[gameSegmentUser.userId] = this.myGameSegment;
-			console.log(this.$gameSegmentId, 'User joined In Cluster #', this.$messageJoinClusterCount, userJoinGameUser.userId);
+			//                Global.Console.Log(GameSegmentId, "User joined In Cluster #", messageJoinClusterCount, userJoinGameUser.UserId);
 			this.myGameSegment.userJoin(gameSegmentUser);
 			this.buildNeighbors();
-			$Pather_Servers_GameSegmentServer_Logger_GameSegmentLogger.logUserJoin(true, gameSegmentUser.userId, gameSegmentUser.x, gameSegmentUser.y, Pather.Common.Utils.EnumerableExtensions.select(gameSegmentUser.neighbors, function(a) {
-				return a.user.userId;
-			}));
+			$Pather_Servers_GameSegmentServer_Logger_GameSegmentLogger.logUserJoin(true, gameSegmentUser.userId, gameSegmentUser.x, gameSegmentUser.y, gameSegmentUser.neighbors.keys);
 		}
 		var $t4 = this.gameSegmentPubSub;
 		var $t3 = Pather.Common.Models.GameWorld.GameSegment.UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message.$ctor();
@@ -2892,12 +2886,10 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 		//            Global.Console.Log("User moving");
 		if (user.moveTo(message.x, message.y, message.lockstepTick)) {
 			//                BuildNeighbors();
-			console.log(this.$gameSegmentId, 'User ', message.userId, ' can move and has ', JSON.stringify(Pather.Common.Utils.EnumerableExtensions.select(user.neighbors, function(a) {
-				return a.user.userId;
-			})), 'Neighbors');
+			//                Global.Console.Log(GameSegmentId, "User ", message.UserId, " can move and has ", Json.Stringify(user.Neighbors.Keys), "Neighbors");
 			var otherGameSegments = {};
-			var gateways = Pather.Common.Utils.EnumerableExtensions.groupBy(user.neighbors, function(a1) {
-				return a1.user.gatewayId;
+			var gateways = Pather.Common.Utils.EnumerableExtensions.groupBy(user.neighbors.list, function(a) {
+				return a.user.gatewayId;
 			});
 			//todo maybe move this dict to a real object
 			if (!ss.keyExists(gateways, user.gatewayId)) {
@@ -2905,8 +2897,8 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 			}
 			gateways[user.gatewayId].push(new $Pather_Servers_GameSegmentServer_Models_GameSegmentNeighbor(user, 0));
 			//                Global.Console.Log("Neighbors Found: ", user.Neighbors.Count);
-			var neighborGameSegments = Pather.Common.Utils.EnumerableExtensions.groupBy(user.neighbors, function(a2) {
-				return a2.user.gameSegmentId;
+			var neighborGameSegments = Pather.Common.Utils.EnumerableExtensions.groupBy(user.neighbors.list, function(a1) {
+				return a1.user.gameSegmentId;
 			});
 			delete neighborGameSegments[this.$gameSegmentId];
 			var $t1 = new ss.ObjectEnumerator(this.allGameSegments);
@@ -2925,10 +2917,10 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 			try {
 				while ($t2.moveNext()) {
 					var gateway = $t2.current();
-					console.log('sending gateway', gateway.key, gateway.value.length, 'Messages');
+					//                                        Global.Console.Log("sending gateway", gateway.Key, gateway.Value.Count, "Messages");
 					var $t3 = Pather.Common.Models.Gateway.PubSub.UserMovedCollection_GameSegment_Gateway_PubSub_Message.$ctor();
-					$t3.users = Pather.Common.Utils.EnumerableExtensions.select(gateway.value, function(a3) {
-						return a3.user.userId;
+					$t3.users = Pather.Common.Utils.EnumerableExtensions.select(gateway.value, function(a2) {
+						return a2.user.userId;
 					});
 					$t3.userThatMovedId = user.userId;
 					$t3.x = user.x;
@@ -2994,51 +2986,67 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 			$t10.y = user.y;
 			$t10.lockstepTick = message.lockstepTick;
 			$t11.publishToGameWorld($t10);
-			$Pather_Servers_GameSegmentServer_Logger_GameSegmentLogger.logUserMoved(user.userId, user.x, user.y, Pather.Common.Utils.EnumerableExtensions.select(user.neighbors, function(a4) {
-				return a4.user.userId;
-			}));
+			$Pather_Servers_GameSegmentServer_Logger_GameSegmentLogger.logUserMoved(user.userId, user.x, user.y, user.neighbors.keys);
 		}
 	},
-	$onMessageUserMoved$1: function(message) {
+	onMessageUserMoved: function(message) {
 		//todo actually pathfind 
-		var gameSegmentUser = this.allUsersDictionary[message.userId];
+		var gameSegmentUser = this.allUsers.get_item(message.userId);
 		gameSegmentUser.x = message.x;
 		gameSegmentUser.y = message.y;
-		console.log(this.$gameSegmentId, 'Neighbor moved', message.userId);
+		//            Global.Console.Log(GameSegmentId, "Neighbor moved", message.UserId);
 		//            BuildNeighbors();
-		$Pather_Servers_GameSegmentServer_Logger_GameSegmentLogger.logUserMoved(message.userId, message.x, message.y, Pather.Common.Utils.EnumerableExtensions.select(gameSegmentUser.neighbors, function(a) {
-			return a.user.userId;
-		}));
+		$Pather_Servers_GameSegmentServer_Logger_GameSegmentLogger.logUserMoved(message.userId, message.x, message.y, gameSegmentUser.neighbors.keys);
 	},
 	$onMessageTellUserMoved: function(message) {
 		//todo interpolate movement based on tick
-		var gameSegmentUser = this.allUsersDictionary[message.userId];
+		var gameSegmentUser = this.allUsers.get_item(message.userId);
 		if (ss.isNullOrUndefined(gameSegmentUser)) {
-			console.log(this.$gameSegmentId, 'Was told about user that does not exist', message);
+			//                Global.Console.Log(GameSegmentId, "Was told about user that does not exist", message);
 			return;
 		}
 		gameSegmentUser.x = message.x;
 		gameSegmentUser.y = message.y;
-		console.log(this.$gameSegmentId, 'Neighbor moved but i dont care', message.userId);
+		//            Global.Console.Log(GameSegmentId, "Neighbor moved but i dont care", message.UserId);
 		//            BuildNeighbors();
-		$Pather_Servers_GameSegmentServer_Logger_GameSegmentLogger.logTellUserMoved(message.userId, message.x, message.y, Pather.Common.Utils.EnumerableExtensions.select(gameSegmentUser.neighbors, function(a) {
-			return a.user.userId;
-		}));
+		$Pather_Servers_GameSegmentServer_Logger_GameSegmentLogger.logTellUserMoved(message.userId, message.x, message.y, gameSegmentUser.neighbors.keys);
 	},
 	buildNeighbors: function() {
-		console.log(this.$gameSegmentId, 'Building Neighbors');
-		for (var index = 0; index < this.allUsers.length; index++) {
-			var user = this.allUsers[index];
-			user.set_oldNeighbors(ss.arrayClone(user.neighbors));
-			ss.clear(user.neighbors);
+		//            Global.Console.Log(GameSegmentId, "Building Neighbors");
+		for (var index = 0; index < this.allUsers.get_count(); index++) {
+			var user = this.allUsers.get_item$1(index);
+			user.set_oldNeighbors(ss.arrayClone(user.neighbors.list));
+			user.neighbors.clear();
 		}
-		for (var index1 = 0; index1 < this.allUsers.length; index1++) {
-			var user1 = this.allUsers[index1];
-			if (ss.keyExists(this.myGameSegment.users, user1.userId)) {
-				//                    Global.Console.Log("Trying to find neighbor", user.UserId);
-				this.$buildNeighbors(user1, index1);
+		var $t1 = new ss.ObjectEnumerator(this.myGameSegment.users);
+		try {
+			while ($t1.moveNext()) {
+				var user1 = $t1.current();
+				this.$buildNeighbors(user1.value);
 			}
 		}
+		finally {
+			$t1.dispose();
+		}
+		this.$diffNeighbors();
+		//            Global.Console.Log(GameSegmentId, "Updated", AllGameSegments);
+	},
+	$buildNeighbors: function(pUser) {
+		var count = this.allUsers.get_count();
+		for (var c = 0; c < count; c++) {
+			var cUser = this.allUsers.get_item$1(c);
+			if (cUser.neighbors.contains$1(pUser.userId) || ss.referenceEquals(cUser, pUser)) {
+				continue;
+			}
+			var distance = $Pather_Servers_GameSegmentServer_GameSegmentServer.$pointDistance(pUser, cUser);
+			if (distance <= Pather.Common.Constants.neighborDistance) {
+				//                    Global.Console.Log(GameSegmentId,"Neighbor Found", cUser.UserId, pUser.UserId, distance);
+				pUser.neighbors.add(new $Pather_Servers_GameSegmentServer_Models_GameSegmentNeighbor(cUser, distance));
+				cUser.neighbors.add(new $Pather_Servers_GameSegmentServer_Models_GameSegmentNeighbor(pUser, distance));
+			}
+		}
+	},
+	$diffNeighbors: function() {
 		var $t1 = new ss.ObjectEnumerator(this.myGameSegment.users);
 		try {
 			while ($t1.moveNext()) {
@@ -3046,8 +3054,8 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 				var removed = [];
 				var added = [];
 				var gameSegmentUser = userKV.value;
-				for (var $t2 = 0; $t2 < gameSegmentUser.neighbors.length; $t2++) {
-					var gameSegmentNeighbor = gameSegmentUser.neighbors[$t2];
+				for (var $t2 = 0; $t2 < gameSegmentUser.neighbors.list.length; $t2++) {
+					var gameSegmentNeighbor = gameSegmentUser.neighbors.list[$t2];
 					var notIn = true;
 					var $t3 = gameSegmentUser.get_oldNeighbors();
 					for (var $t4 = 0; $t4 < $t3.length; $t4++) {
@@ -3065,8 +3073,8 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 				for (var $t6 = 0; $t6 < $t5.length; $t6++) {
 					var gameSegmentNeighbor1 = $t5[$t6];
 					var notIn1 = true;
-					for (var $t7 = 0; $t7 < gameSegmentUser.neighbors.length; $t7++) {
-						var segmentNeighbor1 = gameSegmentUser.neighbors[$t7];
+					for (var $t7 = 0; $t7 < gameSegmentUser.neighbors.list.length; $t7++) {
+						var segmentNeighbor1 = gameSegmentUser.neighbors.list[$t7];
 						if (ss.referenceEquals(gameSegmentNeighbor1.user, segmentNeighbor1.user)) {
 							notIn1 = false;
 							break;
@@ -3098,18 +3106,6 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 		}
 		finally {
 			$t1.dispose();
-		}
-	},
-	$buildNeighbors: function(pUser, i) {
-		var count = this.allUsers.length;
-		for (var c = i + 1; c < count; c++) {
-			var cUser = this.allUsers[c];
-			var distance = $Pather_Servers_GameSegmentServer_GameSegmentServer.$pointDistance(pUser, cUser);
-			if (distance <= Pather.Common.Constants.neighborDistance) {
-				//                    Global.Console.Log("Neighbor Found", cUser, pUser, distance);
-				pUser.neighbors.push(new $Pather_Servers_GameSegmentServer_Models_GameSegmentNeighbor(cUser, distance));
-				cUser.neighbors.push(new $Pather_Servers_GameSegmentServer_Models_GameSegmentNeighbor(pUser, distance));
-			}
 		}
 	},
 	$onAllMessage: function(message) {
@@ -3705,8 +3701,6 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 			}
 			case 'initializeGameSegment': {
 				var getAllGameSegments = message;
-				var $t8 = this.$gameWorldPubSub;
-				var $t9 = getAllGameSegments.originGameSegment;
 				var $t6 = Pather.Common.Models.GameSegment.InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message.$ctor();
 				$t6.messageId = getAllGameSegments.messageId;
 				$t6.gameSegmentIds = Pather.Common.Utils.EnumerableExtensions.select(this.gameWorld.gameSegments, function(a) {
@@ -3722,7 +3716,9 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 					$t7.y = user.y;
 					return $t7;
 				});
-				$t8.publishToGameSegment($t9, $t6);
+				var initializeGameSegmentMessage = $t6;
+				console.log('Initalized', initializeGameSegmentMessage);
+				this.$gameWorldPubSub.publishToGameSegment(getAllGameSegments.originGameSegment, initializeGameSegmentMessage);
 				break;
 			}
 			default: {
@@ -4074,15 +4070,15 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 				var $t1 = Pather.Common.Models.Head.Ping_Response_Gateway_Head_PubSub_Message.$ctor();
 				$t1.gatewayId = this.gatewayId;
 				$t1.address = this.serverCommunicator.get_URL();
-				$t1.liveConnections = this.$users.length;
+				$t1.liveConnections = this.$users.get_count();
 				$t2.publishToHeadServer($t1);
 				break;
 			}
 			case 'tickSync': {
 				var tickSyncMessage = message;
 				this.backendTickManager.setLockStepTick(tickSyncMessage.lockstepTickNumber);
-				for (var $t3 = 0; $t3 < this.$users.length; $t3++) {
-					var gatewayUser = this.$users[$t3];
+				for (var $t3 = 0; $t3 < this.$users.list.length; $t3++) {
+					var gatewayUser = this.$users.list[$t3];
 					var $t5 = this.serverCommunicator;
 					var $t6 = gatewayUser.socket;
 					var $t4 = Pather.Common.Models.Gateway.Socket.Base.TickSync_Gateway_User_Socket_Message.$ctor();
@@ -4101,9 +4097,7 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 		switch (message.type) {
 			case 'userJoined': {
 				var userJoinedMessage = message;
-				gatewayUser = Pather.Common.Utils.EnumerableExtensions.first$1($Pather_Servers_GatewayServer_$GatewayUser).call(null, this.$users, function(user) {
-					return ss.referenceEquals(user.userId, userJoinedMessage.userId);
-				});
+				gatewayUser = this.$users.get_item(userJoinedMessage.userId);
 				if (ss.isNullOrUndefined(gatewayUser)) {
 					console.log('User succsfully joined, but doesnt exist anymore', userJoinedMessage);
 					var $t2 = this.gatewayPubSub;
@@ -4146,9 +4140,11 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 			}
 			case 'updateNeighbors': {
 				var updateNeighborsMessage = message;
-				gatewayUser = Pather.Common.Utils.EnumerableExtensions.first$1($Pather_Servers_GatewayServer_$GatewayUser).call(null, this.$users, function(user1) {
-					return ss.referenceEquals(user1.userId, updateNeighborsMessage.userId);
-				});
+				gatewayUser = this.$users.get_item(updateNeighborsMessage.userId);
+				if (ss.isNullOrUndefined(gatewayUser)) {
+					console.log('idk who this user is :-(', updateNeighborsMessage.userId);
+					return;
+				}
 				var $t8 = this.serverCommunicator;
 				var $t9 = gatewayUser.socket;
 				var $t7 = Pather.Common.Models.Gateway.Socket.Base.UpdateNeighbors_Gateway_User_Socket_Message.$ctor();
@@ -4165,19 +4161,17 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 	$runUserMoved: function(userMovedMessage) {
 		var gatewayUser;
 		for (var $t1 = 0; $t1 < userMovedMessage.users.length; $t1++) {
-			var userToSendTo = { $: userMovedMessage.users[$t1] };
-			gatewayUser = Pather.Common.Utils.EnumerableExtensions.first$1($Pather_Servers_GatewayServer_$GatewayUser).call(null, this.$users, ss.mkdel({ userToSendTo: userToSendTo }, function(user) {
-				return ss.referenceEquals(user.userId, this.userToSendTo.$);
-			}));
+			var userToSendTo = userMovedMessage.users[$t1];
+			gatewayUser = this.$users.get_item(userToSendTo);
 			if (ss.isNullOrUndefined(gatewayUser)) {
 				//todo find out why user does not exist yet
-				if (!ss.keyExists(this.$cachedUserMoves, userToSendTo.$)) {
-					this.$cachedUserMoves[userToSendTo.$] = [];
+				if (!ss.keyExists(this.$cachedUserMoves, userToSendTo)) {
+					this.$cachedUserMoves[userToSendTo] = [];
 				}
-				var $t3 = this.$cachedUserMoves[userToSendTo.$];
+				var $t3 = this.$cachedUserMoves[userToSendTo];
 				var $t2 = Pather.Common.Models.Common.UserMovedMessage.$ctor();
 				$t2.userThatMovedId = userMovedMessage.userThatMovedId;
-				$t2.userId = userToSendTo.$;
+				$t2.userId = userToSendTo;
 				$t2.lockstepTick = userMovedMessage.lockstepTick;
 				$t2.x = userMovedMessage.x;
 				$t2.y = userMovedMessage.y;
@@ -4198,7 +4192,7 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 		console.log('start socket server');
 		this.serverCommunicator = new $Pather_Servers_Common_ServerCommunicator(this.$socketManager, this.$port);
 		this.serverCommunicator.onDisconnectConnection = ss.delegateCombine(this.serverCommunicator.onDisconnectConnection, ss.mkdel(this, function(socket) {
-			var gatewayUser = Pather.Common.Utils.EnumerableExtensions.first$1($Pather_Servers_GatewayServer_$GatewayUser).call(null, this.$users, function(a) {
+			var gatewayUser = Pather.Common.Utils.EnumerableExtensions.first$1($Pather_Servers_GatewayServer_$GatewayUser).call(null, this.$users.list, function(a) {
 				return ss.referenceEquals(a.socket, socket);
 			});
 			if (ss.isValue(gatewayUser)) {
@@ -4208,15 +4202,17 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 					$t1.userId = gatewayUser.userId;
 					$t2.publishToGameWorld($t1);
 				}
-				ss.remove(this.$users, gatewayUser);
+				this.$users.remove(gatewayUser);
+				console.log('Left', gatewayUser.userId, this.$users.get_count());
 			}
-			console.log('Left', this.$users.length);
+			else {
+				console.log('Left', this.$users.get_count());
+			}
 		}));
 		this.serverCommunicator.onNewConnection = ss.delegateCombine(this.serverCommunicator.onNewConnection, ss.mkdel(this, function(socket1) {
 			var $t3 = $Pather_Servers_GatewayServer_$GatewayUser.$ctor();
 			$t3.socket = socket1;
 			var user = $t3;
-			this.$users.push(user);
 			//                Global.Console.Log("Joined", Users.Count);
 			this.serverCommunicator.listenOnChannel(Pather.Common.Models.Gateway.Socket.Base.Gateway_Socket_Message).call(this.serverCommunicator, socket1, 'Gateway.Message', ss.mkdel(this, function(cSocket, message) {
 				if (Pather.Common.Utils.Utilities.hasField(Pather.Common.Models.Gateway.Socket.Base.User_Gateway_Socket_Message).call(null, message, function(m) {
@@ -4253,6 +4249,7 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 			case 'join': {
 				var userJoinedMessage = message;
 				user.userId = userJoinedMessage.userToken;
+				this.$users.add(user);
 				var $t8 = this.gatewayPubSub;
 				var $t7 = Pather.Common.Models.GameWorld.Gateway.UserJoined_Gateway_GameWorld_PubSub_Message.$ctor();
 				$t7.gatewayId = this.gatewayId;

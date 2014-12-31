@@ -14,8 +14,7 @@ namespace Pather.Client
     {
         public NetworkManager NetworkManager;
         public FrontEndTickManager FrontEndTickManager;
-        public List<ClientUser> ActiveUsers = new List<ClientUser>();
-        public JsDictionary<string, ClientUser> ActiveUsersDict = new JsDictionary<string, ClientUser>();
+        public DictionaryList<string, ClientUser> ActiveUsers = new DictionaryList<string, ClientUser>(a=>a.UserId);
         public ClientUser MyUser;
 
 
@@ -75,7 +74,7 @@ namespace Pather.Client
 
         private void userMoved(MoveToLocation_Gateway_User_Socket_Message moveToLocationMessage)
         {
-            var clientUser = ActiveUsersDict[moveToLocationMessage.UserId];
+            var clientUser = ActiveUsers[moveToLocationMessage.UserId];
             if (clientUser == null)
             {
                 throw new Exception("idk who this user is" + Json.Stringify(moveToLocationMessage));
@@ -93,7 +92,6 @@ namespace Pather.Client
                 Y = userJoinedMessage.Y,
                 UserId = userJoinedMessage.UserId,
             };
-            ActiveUsersDict[clientUser.UserId] = clientUser;
             ActiveUsers.Add(clientUser);
             MyUser = clientUser;
 
@@ -105,9 +103,8 @@ namespace Pather.Client
         {
             foreach (var userId in message.Removed)
             {
-                var user = ActiveUsersDict[userId];
-                ActiveUsers.Remove(user);
-                ActiveUsersDict.Remove(userId);
+                var user = ActiveUsers[userId];
+                ActiveUsers.Remove(user); 
             }
 
             foreach (var updatedNeighbor in message.Added)
@@ -117,8 +114,7 @@ namespace Pather.Client
                 user.X = updatedNeighbor.X;
                 user.Y = updatedNeighbor.Y;
 
-                ActiveUsers.Add(user);
-                ActiveUsersDict[user.UserId] = user;
+                ActiveUsers.Add(user); 
             }
         }
 

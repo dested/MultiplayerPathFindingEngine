@@ -63,8 +63,6 @@ namespace Pather.Servers.Libraries.RTree
         //private TIntObjectHashMap nodeMap = new TIntObjectHashMap();
         public JsDictionary<int, Node<T>> nodeMap = new JsDictionary<int, Node<T>>();
 
-        // internal consistency checking - set to true if debugging tree corruption
-        private const bool INTERNAL_CONSISTENCY_CHECKING = false;
 
         // used to mark the status of entries during a Node&lt;T&gt; split
         private const int ENTRY_STATUS_ASSIGNED = 0;
@@ -242,10 +240,6 @@ namespace Pather.Servers.Libraries.RTree
                 nodeMap[rootNodeId]=root;
             }
 
-            if (INTERNAL_CONSISTENCY_CHECKING)
-            {
-                checkConsistency(rootNodeId, treeHeight, null);
-            }
         }
 
         /// <summary>
@@ -622,19 +616,6 @@ namespace Pather.Servers.Libraries.RTree
 
             n.reorganize(this);
 
-            // check that the MBR stored for each Node&lt;T&gt; is correct.
-            if (INTERNAL_CONSISTENCY_CHECKING)
-            {
-                if (!n.mbr.Equals(calculateMBR(n)))
-                {
-                    log.Error("Error: splitNode old Node<T> MBR wrong");
-                }
-
-                if (!newNode.mbr.Equals(calculateMBR(newNode)))
-                {
-                    log.Error("Error: splitNode new Node<T> MBR wrong");
-                }
-            }
 
             // debug code
             if (log.IsDebugEnabled)

@@ -60,8 +60,9 @@
 	var $Pather_Client_GameManager = function() {
 		this.networkManager = null;
 		this.frontEndTickManager = null;
-		this.activeUsers = [];
-		this.activeUsersDict = {};
+		this.activeUsers = new (ss.makeGenericType(Pather.Common.Utils.DictionaryList$2, [String, $Pather_Client_ClientUser]))(function(a) {
+			return a.userId;
+		});
 		this.myUser = null;
 		this.onReady = null;
 		this.networkManager = new $Pather_Client_NetworkManager();
@@ -260,6 +261,15 @@
 						deferred.resolve(clientCommunicator);
 						break;
 					}
+					case 'tickSync': {
+						break;
+					}
+					case 'pong': {
+						break;
+					}
+					case 'updateNeighbors': {
+						break;
+					}
 					default: {
 						throw new ss.ArgumentOutOfRangeException();
 					}
@@ -369,8 +379,8 @@
 				this.$draw();
 			}));
 			this.$context.clearRect(0, 0, 1200, 1200);
-			for (var $t1 = 0; $t1 < this.$gameManager.activeUsers.length; $t1++) {
-				var activeUser = this.$gameManager.activeUsers[$t1];
+			for (var $t1 = 0; $t1 < this.$gameManager.activeUsers.list.length; $t1++) {
+				var activeUser = this.$gameManager.activeUsers.list[$t1];
 				this.$context.save();
 				if (ss.referenceEquals(activeUser, this.$gameManager.myUser)) {
 					this.$context.fillStyle = 'red';
@@ -420,7 +430,7 @@
 			}
 		},
 		$userMoved: function(moveToLocationMessage) {
-			var clientUser = this.activeUsersDict[moveToLocationMessage.userId];
+			var clientUser = this.activeUsers.get_item(moveToLocationMessage.userId);
 			if (ss.isNullOrUndefined(clientUser)) {
 				throw new ss.Exception('idk who this user is' + JSON.stringify(moveToLocationMessage));
 			}
@@ -433,17 +443,15 @@
 			$t1.y = userJoinedMessage.y;
 			$t1.userId = userJoinedMessage.userId;
 			var clientUser = $t1;
-			this.activeUsersDict[clientUser.userId] = clientUser;
-			this.activeUsers.push(clientUser);
+			this.activeUsers.add(clientUser);
 			this.myUser = clientUser;
 			this.onReady();
 		},
 		$onUpdateNeighbors: function(message) {
 			for (var $t1 = 0; $t1 < message.removed.length; $t1++) {
 				var userId = message.removed[$t1];
-				var user = this.activeUsersDict[userId];
-				ss.remove(this.activeUsers, user);
-				delete this.activeUsersDict[userId];
+				var user = this.activeUsers.get_item(userId);
+				this.activeUsers.remove(user);
 			}
 			for (var $t2 = 0; $t2 < message.added.length; $t2++) {
 				var updatedNeighbor = message.added[$t2];
@@ -451,8 +459,7 @@
 				user1.userId = updatedNeighbor.userId;
 				user1.x = updatedNeighbor.x;
 				user1.y = updatedNeighbor.y;
-				this.activeUsers.push(user1);
-				this.activeUsersDict[user1.userId] = user1;
+				this.activeUsers.add(user1);
 			}
 		},
 		$onTickSyncMessage: function(message) {
@@ -832,6 +839,6 @@
 			this.socket.disconnect();
 		}
 	});
-	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'Login3AndMove', type: 8, sname: 'login3AndMove', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'LoginAndMove', type: 8, sname: 'loginAndMove', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'SlamWWithUsers', type: 8, sname: 'slamWWithUsers', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
+	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'Login3AndMove', type: 8, sname: 'login3AndMove', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'LoginAndMove', type: 8, sname: 'loginAndMove', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'SlamWWithUsers', type: 8, sname: 'slamWWithUsers', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
 	$Pather_Client_$Program.$main();
 })();

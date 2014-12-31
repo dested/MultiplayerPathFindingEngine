@@ -97,8 +97,8 @@ namespace Pather.Servers.Common.PubSub
 
         public void ReceivedMessage(string channel, IPubSub_Message message)
         {
-            //            try
-            //            {
+                        try
+                        {
             if (!dontLog)
             {
                 //                if (channel != PubSubChannels.Tick() && !message.Contains("pong") && !message.Contains("tickSync") /*todo this pong stuff aint gonna fly when you remove namedvalues*/)
@@ -124,13 +124,13 @@ namespace Pather.Servers.Common.PubSub
 
             }
 
-            //            }
-            //            catch (Exception e)
-            //            {
-            //                Global.Console.Log("An exception has occured", e, e.Stack);
-            //                Global.Console.Log("Payload Dump", channel, message);
-            //                ServerLogger.LogError("Exception", e, e.Stack, channel, message);
-            //            }
+                        }
+                        catch (Exception e)
+                        {
+                            Global.Console.Log("An exception has occured", e, e.Stack);
+                            Global.Console.Log("Payload Dump", channel, message);
+                            ServerLogger.LogError("Exception", e, e.Stack, channel, message);
+                        }
         }
 
         public void DontLog()

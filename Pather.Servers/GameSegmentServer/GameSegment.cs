@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Pather.Common.Libraries.NodeJS;
 using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.GameSegmentServer.Models;
 
@@ -25,7 +26,7 @@ namespace Pather.Servers.GameSegmentServer
 
             Users.Remove(userId);
 
-//            Global.Console.Log(GameSegmentId, "User Left Game Segment");
+            Global.Console.Log(GameSegmentId, "User Left Game Segment");
             ServerLogger.LogInformation("User Left Game Segment", "User count now: ", Users.Count);
         }
 
@@ -34,7 +35,7 @@ namespace Pather.Servers.GameSegmentServer
         public void UserJoin(GameSegmentUser gameSegmentUser)
         {
             Users[gameSegmentUser.UserId] = gameSegmentUser;
-//            ServerLogger.LogInformation("User Joined A Game Segment");
+            ServerLogger.LogInformation("User Joined A Game Segment");
 //            Global.Console.Log(GameSegmentId, "User Joined A Game Segment", gameSegmentUser.UserId, gameSegmentUser.GatewayId);
         }
     }

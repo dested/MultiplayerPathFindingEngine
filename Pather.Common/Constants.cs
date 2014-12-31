@@ -7,7 +7,7 @@ namespace Pather.Common
         static Constants()
         {
             //CLIENT
-            SquareSize = 8;
+            SquareSize = 16;
             DrawFps = 60;
             NumberOfSquares = 150;
             DrawTicks = 1000/DrawFps;
@@ -19,13 +19,13 @@ namespace Pather.Common
             LockstepTicks = 1000/LockstepFps;
 
             LatencyPingInterval = 6*1000;
-            NeighborDistance = 7;
-            UsersPerGameSegment =2;
+            NeighborDistance = 20;
+            UsersPerGameSegment =20;
             GameSegmentCreationWait = 60;
             GatewayCreationWait = 60;
 
 
-            MaxConnectionsPerGateway = 200;
+            MaxConnectionsPerGateway = 100;
             GatewayConnectionSpawnThreshold = 40;
 
             MaxGatewaysPerCluster = 10;

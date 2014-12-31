@@ -9,7 +9,6 @@ using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.GameWorld.GameSegment;
 using Pather.Common.Models.GameWorld.Gateway;
 using Pather.Common.Models.Gateway.PubSub;
-using Pather.Common.Models.Gateway.PubSub.Base;
 using Pather.Common.Models.Tick;
 using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
@@ -29,10 +28,7 @@ namespace Pather.Servers.GameSegmentServer
         private readonly IPushPop pushPop;
         private readonly string GameSegmentId;
         public GameSegment MyGameSegment;
-        public JsDictionary<string, GameSegment> OtherGameSegments = new JsDictionary<string, GameSegment>();
-
-        public List<GameSegmentUser> AllUsers;
-        public JsDictionary<string, GameSegmentUser> AllUsersDictionary;
+        public DictionaryList<string,GameSegmentUser> AllUsers;
         public JsDictionary<string, GameSegment> AllUserGameSegments;
         public JsDictionary<string, GameSegment> AllGameSegments;
 
@@ -43,6 +39,7 @@ namespace Pather.Servers.GameSegmentServer
             this.pubsub = pubsub;
             this.pushPop = pushPop;
             GameSegmentId = gameSegmentId;
+            AllUsers = new DictionaryList<string, GameSegmentUser>(a => a.UserId);
 
             //Global.SetInterval(() => { Global.Console.Log("keep alive " + new DateTime().ToString().Substring(17, 24)); }, 10 * 1000);
             //var game = new ServerGame(socketManager, gameServerName);
@@ -56,8 +53,6 @@ namespace Pather.Servers.GameSegmentServer
                     GameSegmentPubSub.OnMessage += onMessage;
                     GameSegmentPubSub.Init().Then(ready);
                 });
-            AllUsers = new List<GameSegmentUser>();
-            AllUsersDictionary = new JsDictionary<string, GameSegmentUser>();
 
 /*
             Global.SetInterval(() =>
@@ -85,8 +80,7 @@ namespace Pather.Servers.GameSegmentServer
                 }).Then(
                     message =>
                     {
-                        AllUsers = new List<GameSegmentUser>();
-                        AllUsersDictionary = new JsDictionary<string, GameSegmentUser>();
+                        AllUsers .Clear();
                         AllUserGameSegments = new JsDictionary<string, GameSegment>();
                         AllGameSegments = new JsDictionary<string, GameSegment>();
 
@@ -98,7 +92,6 @@ namespace Pather.Servers.GameSegmentServer
                         {
                             AllGameSegments[gameSegmentId] = new GameSegment(gameSegmentId);
                         }
-
 
                         foreach (var initialGameUser in message.AllUsers)
                         {
@@ -112,7 +105,6 @@ namespace Pather.Servers.GameSegmentServer
                             };
 
                             AllUsers.Add(user);
-                            AllUsersDictionary[user.UserId] = user;
                             AllUserGameSegments[user.UserId] = AllGameSegments[user.GameSegmentId];
                             AllGameSegments[user.GameSegmentId].UserJoin(user);
 
@@ -120,12 +112,12 @@ namespace Pather.Servers.GameSegmentServer
 
                         BuildNeighbors();
 
-                        foreach (var gameSegmentUser in AllUsers)
+                        foreach (var gameSegmentUser in AllUsers.List)
                         {
-                            GameSegmentLogger.LogUserJoin(false, gameSegmentUser.UserId, gameSegmentUser.X, gameSegmentUser.Y, gameSegmentUser.Neighbors.Select(a => a.User.UserId));
+                            GameSegmentLogger.LogUserJoin(false, gameSegmentUser.UserId, gameSegmentUser.X, gameSegmentUser.Y, gameSegmentUser.Neighbors.Keys);
                         }
 
-                        Global.Console.Log(GameSegmentId, "Game Segment Initialized");
+                        Global.Console.Log(GameSegmentId, "Game Segment Initialized", AllGameSegments);
 
 
                         Global.SetInterval(BuildNeighbors, 2000);
@@ -177,7 +169,7 @@ namespace Pather.Servers.GameSegmentServer
                     onMessagePong((Pong_Tick_GameSegment_PubSub_Message)message);
                     break;
                 case GameSegment_PubSub_MessageType.TellUserMoved:
-                    OnMessageTellUserMoved((TellUserMoved_GameSegment_GameSegment_PubSub_Message)message);
+                    onMessageTellUserMoved((TellUserMoved_GameSegment_GameSegment_PubSub_Message)message);
                     break;
                 case GameSegment_PubSub_MessageType.UserMovedFromGameSegment:
                     onMessageUserMoved((UserMoved_GameSegment_GameSegment_PubSub_Message)message);
@@ -190,9 +182,8 @@ namespace Pather.Servers.GameSegmentServer
         public void OnMessageNewGameSegment(NewGameSegment_GameWorld_GameSegment_PubSub_Message message)
         {
             var newGameSegment = new GameSegment(message.GameSegmentId);
-            OtherGameSegments[message.GameSegmentId] = newGameSegment;
             AllGameSegments[newGameSegment.GameSegmentId] = newGameSegment;
-            Global.Console.Log(this.GameSegmentId, " Added new Game Segment ", message.GameSegmentId);
+            Global.Console.Log(GameSegmentId, " Added new Game Segment ", message.GameSegmentId);
         }
 
 
@@ -203,11 +194,13 @@ namespace Pather.Servers.GameSegmentServer
 
         private void onMessageUserLeft(UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message message)
         {
-            var user = AllUsersDictionary[message.UserId];
+            var user = AllUsers[message.UserId];
             //todo remove user ina  method or something
-            foreach (var gameSegmentNeighbor in user.Neighbors)
+            var removed = new List<string>() { message.UserId };
+
+            foreach (var gameSegmentNeighbor in user.Neighbors.List)
             {
-                foreach (var segmentNeighbor in gameSegmentNeighbor.User.Neighbors)
+                foreach (var segmentNeighbor in gameSegmentNeighbor.User.Neighbors.List)
                 {
                     if (segmentNeighbor.User == user)
                     {
@@ -215,15 +208,21 @@ namespace Pather.Servers.GameSegmentServer
                         break;
                     }
                 }
-            }
 
+
+                GameSegmentPubSub.PublishToGateway(gameSegmentNeighbor.User.GatewayId, new UpdateNeighbors_GameSegment_Gateway_PubSub_Message()
+                {
+                    UserId = gameSegmentNeighbor.User.UserId,
+                    Removed = removed
+                });
+
+            }
             user.Neighbors.Clear();
 
 
             MyGameSegment.UserLeft(message.UserId);
             AllUserGameSegments.Remove(message.UserId);
             AllUsers.Remove(user);
-            AllUsersDictionary.Remove(message.UserId);
             GameSegmentLogger.LogUserLeft(true, user.UserId);
 
             //todo maybe shoudlnt be reqres
@@ -243,13 +242,14 @@ namespace Pather.Servers.GameSegmentServer
             gameSegment.UserLeft(message.UserId);
 
             AllUserGameSegments.Remove(message.UserId);
-            var user = AllUsersDictionary[message.UserId];
+            var user = AllUsers[message.UserId];
 
+            var removed = new List<string>() { message.UserId };
 
             //todo remove user ina  method or something
-            foreach (var gameSegmentNeighbor in user.Neighbors)
+            foreach (var gameSegmentNeighbor in user.Neighbors.List)
             {
-                foreach (var segmentNeighbor in gameSegmentNeighbor.User.Neighbors)
+                foreach (var segmentNeighbor in gameSegmentNeighbor.User.Neighbors.List)
                 {
                     if (segmentNeighbor.User == user)
                     {
@@ -257,6 +257,13 @@ namespace Pather.Servers.GameSegmentServer
                         break;
                     }
                 }
+
+
+                GameSegmentPubSub.PublishToGateway(gameSegmentNeighbor.User.GatewayId, new UpdateNeighbors_GameSegment_Gateway_PubSub_Message()
+                {
+                    UserId=gameSegmentNeighbor.User.UserId,
+                    Removed = removed
+                });
             }
 
             user.Neighbors.Clear();
@@ -264,7 +271,6 @@ namespace Pather.Servers.GameSegmentServer
 
 
             AllUsers.Remove(user);
-            AllUsersDictionary.Remove(message.UserId);
             GameSegmentLogger.LogUserLeft(false, user.UserId);
 
             GameSegmentPubSub.PublishToGameWorld(new TellUserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message()
@@ -285,18 +291,17 @@ namespace Pather.Servers.GameSegmentServer
                 Y = message.Y,
             };
 
-            var otherGameSegment = OtherGameSegments[message.GameSegmentId];
+            var otherGameSegment = AllGameSegments[message.GameSegmentId];
             AllUsers.Add(gameSegmentUser);
-            AllUsersDictionary[gameSegmentUser.UserId] = gameSegmentUser;
             AllUserGameSegments[gameSegmentUser.UserId] = otherGameSegment;
 
-            Global.Console.Log(this.GameSegmentId, "User joined from other gamesegment", message.GameSegmentId, message.UserId);
+//            Global.Console.Log(GameSegmentId, "User joined from other gamesegment", message.GameSegmentId, message.UserId);
 
             otherGameSegment.UserJoin(gameSegmentUser);
 
             BuildNeighbors();
 
-            GameSegmentLogger.LogUserJoin(false, gameSegmentUser.UserId, gameSegmentUser.X, gameSegmentUser.Y, gameSegmentUser.Neighbors.Select(a => a.User.UserId));
+            GameSegmentLogger.LogUserJoin(false, gameSegmentUser.UserId, gameSegmentUser.X, gameSegmentUser.Y, gameSegmentUser.Neighbors.Keys);
 
 
             GameSegmentPubSub.PublishToGameWorld(new TellUserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message()
@@ -323,13 +328,12 @@ namespace Pather.Servers.GameSegmentServer
                 };
 
                 AllUsers.Add(gameSegmentUser);
-                AllUsersDictionary[gameSegmentUser.UserId] = gameSegmentUser;
                 AllUserGameSegments[gameSegmentUser.UserId] = MyGameSegment;
-                Global.Console.Log(this.GameSegmentId, "User joined In Cluster #", messageJoinClusterCount, userJoinGameUser.UserId);
+//                Global.Console.Log(GameSegmentId, "User joined In Cluster #", messageJoinClusterCount, userJoinGameUser.UserId);
 
                 MyGameSegment.UserJoin(gameSegmentUser);
                 BuildNeighbors();
-                GameSegmentLogger.LogUserJoin(true, gameSegmentUser.UserId, gameSegmentUser.X, gameSegmentUser.Y, gameSegmentUser.Neighbors.Select(a => a.User.UserId));
+                GameSegmentLogger.LogUserJoin(true, gameSegmentUser.UserId, gameSegmentUser.X, gameSegmentUser.Y, gameSegmentUser.Neighbors.Keys);
 
             }
 
@@ -352,10 +356,10 @@ namespace Pather.Servers.GameSegmentServer
             if (user.MoveTo(message.X, message.Y, message.LockstepTick))
             {
                 //                BuildNeighbors();
-                Global.Console.Log(this.GameSegmentId, "User ", message.UserId, " can move and has ", Json.Stringify(user.Neighbors.Select(a => a.User.UserId)), "Neighbors");
+//                Global.Console.Log(GameSegmentId, "User ", message.UserId, " can move and has ", Json.Stringify(user.Neighbors.Keys), "Neighbors");
                 var otherGameSegments = new JsDictionary<string, GameSegment>();
 
-                var gateways = user.Neighbors.GroupBy(a => a.User.GatewayId);
+                var gateways = user.Neighbors.List.GroupBy(a => a.User.GatewayId);
                 //todo maybe move this dict to a real object
                 if (!gateways.ContainsKey(user.GatewayId))
                 {
@@ -365,9 +369,9 @@ namespace Pather.Servers.GameSegmentServer
 
                 //                Global.Console.Log("Neighbors Found: ", user.Neighbors.Count);
 
-                var neighborGameSegments = user.Neighbors.GroupBy(a => a.User.GameSegmentId);
+                var neighborGameSegments = user.Neighbors.List.GroupBy(a => a.User.GameSegmentId);
 
-                neighborGameSegments.Remove(this.GameSegmentId);
+                neighborGameSegments.Remove(GameSegmentId);
 
                 foreach (var otherGameSegment in AllGameSegments)
                 {
@@ -379,7 +383,7 @@ namespace Pather.Servers.GameSegmentServer
 
                 foreach (var gateway in gateways)
                 {
-                                        Global.Console.Log("sending gateway", gateway.Key, gateway.Value.Count, "Messages");
+//                                        Global.Console.Log("sending gateway", gateway.Key, gateway.Value.Count, "Messages");
 
 
                     var userMovedCollection = new UserMovedCollection_GameSegment_Gateway_PubSub_Message()
@@ -435,66 +439,93 @@ namespace Pather.Servers.GameSegmentServer
                 });
 
 
-                GameSegmentLogger.LogUserMoved(user.UserId, user.X, user.Y, user.Neighbors.Select(a => a.User.UserId));
+                GameSegmentLogger.LogUserMoved(user.UserId, user.X, user.Y, user.Neighbors.Keys);
             }
         }
 
-        private void onMessageUserMoved(UserMoved_GameSegment_GameSegment_PubSub_Message message)
+        public void onMessageUserMoved(UserMoved_GameSegment_GameSegment_PubSub_Message message)
         {
             //todo actually pathfind 
-            GameSegmentUser gameSegmentUser = AllUsersDictionary[message.UserId];
+            GameSegmentUser gameSegmentUser = AllUsers[message.UserId];
             gameSegmentUser.X = message.X;
             gameSegmentUser.Y = message.Y;
-            Global.Console.Log(this.GameSegmentId, "Neighbor moved", message.UserId);
+//            Global.Console.Log(GameSegmentId, "Neighbor moved", message.UserId);
             //            BuildNeighbors();
-            GameSegmentLogger.LogUserMoved(message.UserId, message.X, message.Y, gameSegmentUser.Neighbors.Select(a => a.User.UserId));
+            GameSegmentLogger.LogUserMoved(message.UserId, message.X, message.Y, gameSegmentUser.Neighbors.Keys);
         }
 
-        private void OnMessageTellUserMoved(TellUserMoved_GameSegment_GameSegment_PubSub_Message message)
+        private void onMessageTellUserMoved(TellUserMoved_GameSegment_GameSegment_PubSub_Message message)
         {
             //todo interpolate movement based on tick
-            GameSegmentUser gameSegmentUser = AllUsersDictionary[message.UserId];
+            GameSegmentUser gameSegmentUser = AllUsers[message.UserId];
             if (gameSegmentUser == null)
             {
-                Global.Console.Log(this.GameSegmentId, "Was told about user that does not exist", message);
+//                Global.Console.Log(GameSegmentId, "Was told about user that does not exist", message);
                 return;
             }
             gameSegmentUser.X = message.X;
             gameSegmentUser.Y = message.Y;
-            Global.Console.Log(this.GameSegmentId, "Neighbor moved but i dont care", message.UserId);
+//            Global.Console.Log(GameSegmentId, "Neighbor moved but i dont care", message.UserId);
             //            BuildNeighbors();
-            GameSegmentLogger.LogTellUserMoved(message.UserId, message.X, message.Y, gameSegmentUser.Neighbors.Select(a => a.User.UserId));
+            GameSegmentLogger.LogTellUserMoved(message.UserId, message.X, message.Y, gameSegmentUser.Neighbors.Keys);
         }
 
         public void BuildNeighbors()
         {
-            Global.Console.Log(this.GameSegmentId, "Building Neighbors");
+//            Global.Console.Log(GameSegmentId, "Building Neighbors");
             for (var index = 0; index < AllUsers.Count; index++)
             {
                 var user = AllUsers[index];
-                user.OldNeighbors = new List<GameSegmentNeighbor>(user.Neighbors);
+                user.OldNeighbors = new List<GameSegmentNeighbor>(user.Neighbors.List);
                 user.Neighbors.Clear();
                 
             }
-            for (var index = 0; index < AllUsers.Count; index++)
+
+
+            foreach (var user in MyGameSegment.Users)
             {
-                var user = AllUsers[index];
-                if (MyGameSegment.Users.ContainsKey(user.UserId))
-                {
-                    //                    Global.Console.Log("Trying to find neighbor", user.UserId);
-                    BuildNeighbors(user, index);
-                }
+                buildNeighbors(user.Value);
             }
 
+            diffNeighbors();
+//            Global.Console.Log(GameSegmentId, "Updated", AllGameSegments);
+        
+        }
 
+
+        private void buildNeighbors(GameSegmentUser pUser)
+        {
+            var count = AllUsers.Count;
+
+            for (var c = 0; c < count; c++)
+            {
+                var cUser = AllUsers[c];
+                if (cUser.Neighbors.Contains(pUser.UserId) || cUser==pUser)
+                {
+                    continue;
+                }
+
+                var distance = pointDistance(pUser, cUser);
+                if (distance <= Constants.NeighborDistance)
+                {
+//                    Global.Console.Log(GameSegmentId,"Neighbor Found", cUser.UserId, pUser.UserId, distance);
+                    pUser.Neighbors.Add(new GameSegmentNeighbor(cUser, distance));
+                    cUser.Neighbors.Add(new GameSegmentNeighbor(pUser, distance));
+                }
+            }
+        }
+
+
+        private void diffNeighbors()
+        {
             foreach (var userKV in MyGameSegment.Users)
             {
-                List<GameSegmentUser> removed = new List<GameSegmentUser>();
-                List<GameSegmentUser> added = new List<GameSegmentUser>();
+                var removed = new List<GameSegmentUser>();
+                var added = new List<GameSegmentUser>();
 
                 var gameSegmentUser = userKV.Value;
 
-                foreach (var gameSegmentNeighbor in gameSegmentUser.Neighbors)
+                foreach (var gameSegmentNeighbor in gameSegmentUser.Neighbors.List)
                 {
                     bool notIn = true;
                     foreach (var segmentNeighbor in gameSegmentUser.OldNeighbors)
@@ -513,7 +544,7 @@ namespace Pather.Servers.GameSegmentServer
                 foreach (var gameSegmentNeighbor in gameSegmentUser.OldNeighbors)
                 {
                     bool notIn = true;
-                    foreach (var segmentNeighbor in gameSegmentUser.Neighbors)
+                    foreach (var segmentNeighbor in gameSegmentUser.Neighbors.List)
                     {
                         if (gameSegmentNeighbor.User == segmentNeighbor.User)
                         {
@@ -528,35 +559,22 @@ namespace Pather.Servers.GameSegmentServer
                 }
 
                 gameSegmentUser.OldNeighbors = null;
-                if(added.Count>0 || removed.Count>0)
-                GameSegmentPubSub.PublishToGateway(gameSegmentUser.GatewayId,new UpdateNeighbors_GameSegment_Gateway_PubSub_Message()
-                {
-                    UserId=gameSegmentUser.UserId,
-                    Removed = removed.Select(a=>a.UserId),
-                    Added = added.Select(a=>new UpdatedNeighbor(){UserId=a.UserId,X=a.X,Y=a.Y})
-                });
-            }
-        
-        }
-
-        private void BuildNeighbors(GameSegmentUser pUser, int i = 0)
-        {
-            var count = AllUsers.Count;
-
-            for (var c = i + 1; c < count; c++)
-            {
-                var cUser = AllUsers[c];
-                var distance = PointDistance(pUser, cUser);
-                if (distance <= Constants.NeighborDistance)
-                {
-                    //                    Global.Console.Log("Neighbor Found", cUser, pUser, distance);
-                    pUser.Neighbors.Add(new GameSegmentNeighbor(cUser, distance));
-                    cUser.Neighbors.Add(new GameSegmentNeighbor(pUser, distance));
-                }
+                if (added.Count > 0 || removed.Count > 0)
+                    GameSegmentPubSub.PublishToGateway(gameSegmentUser.GatewayId, new UpdateNeighbors_GameSegment_Gateway_PubSub_Message()
+                    {
+                        UserId = gameSegmentUser.UserId,
+                        Removed = removed.Select(a => a.UserId),
+                        Added = added.Select(a => new UpdatedNeighbor()
+                        {
+                            UserId = a.UserId,
+                            X = a.X,
+                            Y = a.Y
+                        })
+                    });
             }
         }
 
-        private static double PointDistance(GameSegmentUser pUser, GameSegmentUser cUser)
+        private static double pointDistance(GameSegmentUser pUser, GameSegmentUser cUser)
         {
             var mx = pUser.X;
             var my = pUser.Y;
@@ -564,10 +582,10 @@ namespace Pather.Servers.GameSegmentServer
             var cx = cUser.X;
             var cy = cUser.Y;
 
-            var _x = (cx - mx);
-            var _y = (cy - my);
+            var x = (cx - mx);
+            var y = (cy - my);
 
-            var dis = Math.Sqrt((_x * _x) + (_y * _y));
+            var dis = Math.Sqrt((x * x) + (y * y));
             return dis;
         }
 

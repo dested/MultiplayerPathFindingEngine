@@ -16,7 +16,7 @@ namespace Pather.Client.Tests
     [TestClass()]
     public class LoginE2ETest
     {
-        [TestMethod(disable: true)]
+        [TestMethod()]
         public void SlamWWithUsers(Deferred deferred)
         {
             var users = new List<Promise<ClientCommunicator, UndefinedPromiseError>>();
@@ -123,7 +123,7 @@ namespace Pather.Client.Tests
             });
         }
 
-        [TestMethod()]
+        [TestMethod(disable: true)]
         public void Login3AndMove(Deferred defer)
         {
             var id = "salvatore";
@@ -246,11 +246,18 @@ namespace Pather.Client.Tests
                 {
                     switch (message.GatewayUserMessageType)
                     {
+
                         case Gateway_User_Socket_MessageType.Move:
                             onMove(clientCommunicator, (MoveToLocation_Gateway_User_Socket_Message)message);
                             break;
                         case Gateway_User_Socket_MessageType.UserJoined:
                             deferred.Resolve(clientCommunicator);
+                            break;
+                        case Gateway_User_Socket_MessageType.TickSync:
+                            break;
+                        case Gateway_User_Socket_MessageType.Pong:
+                            break;
+                        case Gateway_User_Socket_MessageType.UpdateNeighbors:
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();

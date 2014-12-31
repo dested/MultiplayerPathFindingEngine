@@ -29,7 +29,7 @@ namespace Pather.Servers.GatewayServer
         public ServerCommunicator ServerCommunicator;
         public GatewayPubSub GatewayPubSub;
         public BackendTickManager BackendTickManager;
-        private readonly List<GatewayUser> Users = new List<GatewayUser>();
+        private readonly DictionaryList<string, GatewayUser> Users = new DictionaryList<string, GatewayUser>(a=>a.UserId);
 
 
         public GatewayServer(IPubSub pubsub, IPushPop pushPop, ISocketManager socketManager, string gatewayId, int port)
@@ -97,7 +97,7 @@ namespace Pather.Servers.GatewayServer
                     var tickSyncMessage = (TickSync_Tick_Gateway_PubSub_AllMessage)message;
                     BackendTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
 
-                    foreach (var gatewayUser in Users)
+                    foreach (var gatewayUser in Users.List)
                     {
                         ServerCommunicator.SendMessage(gatewayUser.Socket, new TickSync_Gateway_User_Socket_Message()
                         {
@@ -120,8 +120,7 @@ namespace Pather.Servers.GatewayServer
             {
                 case Gateway_PubSub_MessageType.UserJoined:
                     var userJoinedMessage = (UserJoined_GameWorld_Gateway_PubSub_Message)message;
-                    gatewayUser = Users.First(user => user.UserId == userJoinedMessage.UserId);
-
+                    gatewayUser = Users[userJoinedMessage.UserId];
                     if (gatewayUser == null)
                     {
                         Global.Console.Log("User succsfully joined, but doesnt exist anymore", userJoinedMessage);
@@ -166,7 +165,12 @@ namespace Pather.Servers.GatewayServer
                     break;
                 case Gateway_PubSub_MessageType.UpdateNeighbors:
                     var updateNeighborsMessage = (UpdateNeighbors_GameSegment_Gateway_PubSub_Message)message;
-                    gatewayUser = Users.First(user => user.UserId == updateNeighborsMessage.UserId);
+                    gatewayUser = Users[updateNeighborsMessage.UserId];
+                    if (gatewayUser == null)
+                    {
+                        Global.Console.Log("idk who this user is :-(", updateNeighborsMessage.UserId);
+                        return;
+                    }
                     ServerCommunicator.SendMessage(gatewayUser.Socket,new UpdateNeighbors_Gateway_User_Socket_Message()
                     {
                         Added = updateNeighborsMessage.Added,
@@ -186,7 +190,7 @@ namespace Pather.Servers.GatewayServer
             foreach (var userToSendTo in userMovedMessage.Users)
             {
 
-                gatewayUser = Users.First(user => user.UserId == userToSendTo);
+                gatewayUser = Users[userToSendTo];
 
                 if (gatewayUser == null)
                 {
@@ -228,7 +232,7 @@ namespace Pather.Servers.GatewayServer
 
             ServerCommunicator.OnDisconnectConnection += (socket) =>
             {
-                var gatewayUser = Users.First(a => a.Socket == socket);
+                var gatewayUser = Users.List.First(a => a.Socket == socket);
 
                 if (gatewayUser != null)
                 {
@@ -240,8 +244,12 @@ namespace Pather.Servers.GatewayServer
                         });
                     }
                     Users.Remove(gatewayUser);
+                    Global.Console.Log("Left", gatewayUser.UserId, Users.Count);
                 }
-                Global.Console.Log("Left", Users.Count);
+                else
+                {
+                    Global.Console.Log("Left", Users.Count);
+                }
             };
 
             ServerCommunicator.OnNewConnection += (socket) =>
@@ -250,7 +258,6 @@ namespace Pather.Servers.GatewayServer
                 {
                     Socket = socket
                 };
-                Users.Add(user);
                 //                Global.Console.Log("Joined", Users.Count);
                 ServerCommunicator.ListenOnChannel(socket, "Gateway.Message",
                     (ISocket cSocket, Gateway_Socket_Message message) =>
@@ -289,6 +296,7 @@ namespace Pather.Servers.GatewayServer
                 case User_Gateway_Socket_MessageType.Join:
                     var userJoinedMessage = ((UserJoined_User_Gateway_Socket_Message)message);
                     user.UserId = userJoinedMessage.UserToken;
+                    Users.Add(user);
                     GatewayPubSub.PublishToGameWorld(new UserJoined_Gateway_GameWorld_PubSub_Message()
                     {
                         GatewayId = GatewayId,

@@ -70,7 +70,7 @@ namespace Pather.Common.Utils
 
         public virtual void ProcessLockstep(long lockstepTickNumber)
         {
-            Global.Console.Log("Lockstep", LockstepTickNumber, new DateTime().GetTime());
+//            Global.Console.Log("Lockstep", LockstepTickNumber, new DateTime().GetTime());
 //            ServerLogger.LogInformation("Lockstep", LockstepTickNumber, new DateTime().GetTime());
         }
     }

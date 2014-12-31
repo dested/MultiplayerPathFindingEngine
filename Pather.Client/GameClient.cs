@@ -47,7 +47,7 @@ namespace Pather.Client
         {
             Window.RequestAnimationFrame((a) => Draw());
             context.ClearRect(0, 0, 1200, 1200);
-            foreach (var activeUser in gameManager.ActiveUsers)
+            foreach (var activeUser in gameManager.ActiveUsers.List)
             {
                 context.Save();
 
