@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameSegment;
+using Pather.Common.Models.GameWorld.Gateway;
 using Pather.Common.Models.GameWorld.ServerManager;
 using Pather.Common.Models.ServerManager.Base;
 using Pather.Common.Utils;
@@ -223,20 +224,7 @@ namespace Pather.Servers.GameWorldServer
             return dis;
         }
 
-        public void UserMoved(string userId, int x, int y, long lockstepTick)
-        {
-            var gwUser = Users.First(a => a.UserId == userId);
-
-            if (gwUser == null)
-            {
-                throw new Exception("User not found: " + userId);
-            }
-
-            gwUser.X = x;
-            gwUser.Y = y;
-            //todo interpolate path find using setTimeout??
-        }
-
+ 
 
         private readonly List<ReoragGameWorldModel> needToReorganize = new List<ReoragGameWorldModel>();
 
@@ -258,6 +246,20 @@ namespace Pather.Servers.GameWorldServer
 //                    GameWorldPubSub.PublishToGameSegmentWithCallback<>()
                 }
             }
+        }
+
+        public void UserAction(TellUserAction_GameSegment_GameWorld_PubSub_Message tellUserAction)
+        {
+           /*todo var gwUser = Users.First(a => a.UserId == userId);
+
+            if (gwUser == null)
+            {
+                throw new Exception("User not found: " + userId);
+            }
+
+            gwUser.X = x;
+            gwUser.Y = y;
+            //todo interpolate path find using setTimeout??*/
         }
     }
 }

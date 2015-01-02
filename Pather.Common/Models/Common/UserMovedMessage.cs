@@ -1,14 +1,12 @@
 ﻿using System;
+using Pather.Common.Models.Common.UserActions;
 
 namespace Pather.Common.Models.Common
 {
     [Serializable]
-    public class UserMovedMessage
+    public class UserActionCacheModel
     {
-        public int X;
-        public int Y;
-        public long LockstepTick;
-        public string UserThatMovedId;
+        public UserAction Action;
         public string UserId;
     }
 }

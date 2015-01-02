@@ -3,6 +3,7 @@ using Pather.Client.Libraries;
 using Pather.Client.Utils;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.Common.UserActions;
 using Pather.Common.Models.Gateway.Socket.Base;
 using Pather.Common.Utils;
 
@@ -40,13 +41,11 @@ namespace Pather.Client
             }
         }
 
-        public void SendMoveToLocation(int x, int y, long lockstepTickNumber)
+        public void SendAction(UserAction action)
         {
-            clientCommunicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
+            clientCommunicator.SendMessage(new UserAction_User_Gateway_Socket_Message()
             {
-                LockstepTick = lockstepTickNumber,
-                X = x,
-                Y = y,
+                Action = action
             });
         }
 

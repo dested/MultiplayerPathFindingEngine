@@ -15,11 +15,10 @@ namespace Pather.Servers.Common
         }
 
 
-        public void Init(Action sendPing, Action onTickManagerReady,Action<long> onProcessLockstep)
+        public void Init(Action sendPing, Action onTickManagerReady)
         {
             this.sendPing = sendPing;
-            this.onTickManagerReady = onTickManagerReady;
-            this.onProcessLockstep = onProcessLockstep;
+            this.onTickManagerReady = onTickManagerReady; 
             Global.SetInterval(StartPing, Constants.LatencyPingInterval);
         }
 
@@ -35,7 +34,7 @@ namespace Pather.Servers.Common
 
         private Action sendPing;
         private Action onTickManagerReady;
-        private Action<long> onProcessLockstep;
+        public Action<long> OnProcessLockstep;
 
         public void OnPongReceived()
         {
@@ -109,7 +108,8 @@ namespace Pather.Servers.Common
         {
             base.ProcessLockstep(lockstepTickNumber);
 
-            onProcessLockstep(lockstepTickNumber);
+            if (OnProcessLockstep!=null)//todo remove this, you should always have onprocesslockset
+            OnProcessLockstep(lockstepTickNumber);
         }
     }
 }

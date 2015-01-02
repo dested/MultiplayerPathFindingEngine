@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Serialization;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.Common.UserActions;
 using Pather.Common.Models.Gateway.Socket.Base;
 using Pather.Common.Utils;
 
@@ -35,7 +36,12 @@ namespace Pather.Client
 
         public void MoveToLocation(int x, int y)
         {
-            NetworkManager.SendMoveToLocation(x, y, FrontEndTickManager.LockstepTickNumber + 1);
+            NetworkManager.SendAction(new MoveUserAction()
+            {
+                X = x,
+                Y = y,
+                LockstepTick = FrontEndTickManager.LockstepTickNumber + 1
+            });
         }
 
 
@@ -46,36 +52,50 @@ namespace Pather.Client
             switch (message.GatewayUserMessageType)
             {
                 case Gateway_User_Socket_MessageType.Pong:
-                    var pongMessage = (Pong_Gateway_User_PubSub_Message) message;
+                    var pongMessage = (Pong_Gateway_User_PubSub_Message)message;
                     FrontEndTickManager.OnPongReceived(pongMessage);
                     break;
-                case Gateway_User_Socket_MessageType.Move:
-                    userMoved(((MoveToLocation_Gateway_User_Socket_Message) message));
+                case Gateway_User_Socket_MessageType.UserAction:
+                    userAction(((UserAction_Gateway_User_Socket_Message)message));
                     break;
                 case Gateway_User_Socket_MessageType.UserJoined:
-                    userJoined(((UserJoined_Gateway_User_Socket_Message) message));
+                    userJoined(((UserJoined_Gateway_User_Socket_Message)message));
                     break;
                 case Gateway_User_Socket_MessageType.TickSync:
-                    onTickSyncMessage((TickSync_Gateway_User_Socket_Message) message);
+                    onTickSyncMessage((TickSync_Gateway_User_Socket_Message)message);
                     break;
                 case Gateway_User_Socket_MessageType.UpdateNeighbors:
-                    onUpdateNeighbors((UpdateNeighbors_Gateway_User_Socket_Message) message);
+                    onUpdateNeighbors((UpdateNeighbors_Gateway_User_Socket_Message)message);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        private void userMoved(MoveToLocation_Gateway_User_Socket_Message moveToLocationMessage)
+        private void userAction(UserAction_Gateway_User_Socket_Message userActionMessage)
         {
-            var clientUser = ActiveUsers[moveToLocationMessage.UserId];
-            if (clientUser == null)
+            switch (userActionMessage.Action.UserActionType)
             {
-                throw new Exception("idk who this user is" + Json.Stringify(moveToLocationMessage));
+                case UserActionType.Move:
+                    var moveUserAction = (MoveUserAction)userActionMessage.Action;
+
+
+                    var clientUser = ActiveUsers[moveUserAction.UserId];
+                    if (clientUser == null)
+                    {
+                        throw new Exception("idk who this user is" + Json.Stringify(moveUserAction));
+                    }
+
+                    clientUser.X = moveUserAction.X;
+                    clientUser.Y = moveUserAction.Y;
+
+
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
 
-            clientUser.X = moveToLocationMessage.X;
-            clientUser.Y = moveToLocationMessage.Y;
+
         }
 
         private void userJoined(UserJoined_Gateway_User_Socket_Message userJoinedMessage)

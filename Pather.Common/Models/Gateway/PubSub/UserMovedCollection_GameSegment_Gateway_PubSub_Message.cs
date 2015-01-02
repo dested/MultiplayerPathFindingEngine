@@ -1,21 +1,19 @@
 using System;
 using System.Collections.Generic;
+using Pather.Common.Models.Common.UserActions;
+using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.Gateway.PubSub.Base;
 
 namespace Pather.Common.Models.Gateway.PubSub
 {
     [Serializable]
-    public class UserMovedCollection_GameSegment_Gateway_PubSub_Message : Gateway_PubSub_Message
+    public class UserActionCollection_GameSegment_Gateway_PubSub_Message : Gateway_PubSub_Message
     {
-        public UserMovedCollection_GameSegment_Gateway_PubSub_Message()
+        public UserActionCollection_GameSegment_Gateway_PubSub_Message()
         {
-            Type = Gateway_PubSub_MessageType.UserMovedCollection;
+            Type = Gateway_PubSub_MessageType.UserActionCollection;
         }
-
-        public int X;
-        public int Y;
-        public long LockstepTick;
-        public string UserThatMovedId;
+        public UserAction Action;
         public List<string> Users;
     }
 }

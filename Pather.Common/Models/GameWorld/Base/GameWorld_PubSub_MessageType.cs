@@ -13,7 +13,7 @@ namespace Pather.Common.Models.GameWorld.Base
         UserLeft,
         Pong,
         InitializeGameSegment,
-        TellUserMoved,
+        TellUserAction,
         CreateGameSegment
     }
 }

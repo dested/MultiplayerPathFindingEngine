@@ -5,6 +5,7 @@ using Pather.Client.Libraries;
 using Pather.Client.Utils;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.Common.UserActions;
 using Pather.Common.Models.Gateway.Socket.Base;
 using Pather.Common.TestFramework;
 using Pather.Common.Utils;
@@ -34,10 +35,15 @@ namespace Pather.Client.Tests
                     var startTime = new DateTime().GetTime();
 
 
-                    var moveToLocation = new MoveToLocation_User_Gateway_Socket_Message()
+                    var moveUserAction = new MoveUserAction()
                     {
+
                         X = (int) (Math.Random()*50),
                         Y = (int) (Math.Random()*50)
+                    };
+                    var moveToLocation = new UserAction_User_Gateway_Socket_Message()
+                    {
+                        Action = moveUserAction
                     };
 
 
@@ -45,7 +51,11 @@ namespace Pather.Client.Tests
                     var userToken = id + "-" + i1;
                     JoinUser(userToken, (communicator, message) =>
                     {
-                        if (message.UserId == userToken && message.X == moveToLocation.X && message.Y == moveToLocation.Y)
+                        if (message.Action.UserActionType != UserActionType.Move) return;
+
+                        var action = (MoveUserAction) message.Action;
+
+                        if (action.UserId == userToken && action.X == moveUserAction.X && action.Y == moveUserAction.Y)
                         {
                             Window.SetTimeout(() =>
                             {
@@ -59,15 +69,19 @@ namespace Pather.Client.Tests
                                         var average = averageTimes.Average(a => a);
                                         Global.Console.Log("Average join time:", average, "ms");
                                         deferred.Resolve();
-                                    };
+                                    }
+                                    ;
                                 }
                                 else
                                 {
-                                    moveToLocation.X = ((moveToLocation.X + (int) (Math.Random()*4) - 2) + 50)%50;
-                                    moveToLocation.Y = ((moveToLocation.Y + (int) (Math.Random()*4) - 2) + 50)%50;
-                                    communicator.SendMessage(moveToLocation);
+                                    moveUserAction.X = ((moveUserAction.X + (int) (Math.Random()*4) - 2) + 50)%50;
+                                    moveUserAction.Y = ((moveUserAction.Y + (int) (Math.Random()*4) - 2) + 50)%50;
+                                    communicator.SendMessage(new UserAction_User_Gateway_Socket_Message()
+                                    {
+                                        Action = moveUserAction,
+                                    });
 
-                                    Global.Console.Log("Moving User again " + receivedCount, moveToLocation);
+                                    Global.Console.Log("Moving User again " + receivedCount, moveUserAction);
                                 }
                             }, (int) (Math.Random()*1000));
                         }
@@ -91,7 +105,11 @@ namespace Pather.Client.Tests
             var proposedY = 25;
             JoinUser(id, (communicator, message) =>
             {
-                if (message.X == proposedX && message.Y == proposedY)
+                if (message.Action.UserActionType != UserActionType.Move) return;
+
+                var action = (MoveUserAction) message.Action;
+
+                if (action.X == proposedX && action.Y == proposedY)
                 {
                     defer.Resolve();
                 }
@@ -101,10 +119,13 @@ namespace Pather.Client.Tests
                 }
             }).Then(communicator =>
             {
-                communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
+                communicator.SendMessage(new UserAction_User_Gateway_Socket_Message()
                 {
-                    X = proposedX,
-                    Y = proposedY
+                    Action = new MoveUserAction()
+                    {
+                        X = proposedX,
+                        Y = proposedY
+                    }
                 });
             });
         }
@@ -124,27 +145,27 @@ namespace Pather.Client.Tests
                     move++;
                     Global.SetTimeout(() =>
                     {
-                        communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
+                        communicator.SendMessage(new UserAction_User_Gateway_Socket_Message()
                         {
-                            X = proposedX + move,
-                            Y = proposedY
+                            Action = new MoveUserAction()
+                            {
+                                X = proposedX + move,
+                                Y = proposedY
+
+                            }
                         });
                     }, 500);
                 }
-                if (message.X == proposedX && message.Y == proposedY)
-                {
-                    //                    defer.Resolve();
-                }
-                else
-                {
-                    //                    defer.Reject();
-                }
             }).Then(communicator =>
             {
-                communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
+                communicator.SendMessage(new UserAction_User_Gateway_Socket_Message()
                 {
-                    X = proposedX,
-                    Y = proposedY
+                    Action = new MoveUserAction()
+                    {
+                        X = proposedX,
+                        Y = proposedY
+
+                    }
                 });
             });
 
@@ -153,10 +174,14 @@ namespace Pather.Client.Tests
                 Global.Console.Log("2", message);
             }).Then(communicator =>
             {
-                communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
+                communicator.SendMessage(new UserAction_User_Gateway_Socket_Message()
                 {
-                    X = proposedX + 1,
-                    Y = proposedY
+                    Action = new MoveUserAction()
+                    {
+                        X = proposedX + 1,
+                        Y = proposedY
+
+                    }
                 });
             });
 
@@ -167,18 +192,24 @@ namespace Pather.Client.Tests
                 if (message.UserId == id + 3 && once)
                 {
                     once = false;
-                    communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
+                    communicator.SendMessage(new UserAction_User_Gateway_Socket_Message()
                     {
-                        X = proposedX + 20,
-                        Y = proposedY
+                        Action = new MoveUserAction()
+                        {
+                            X = proposedX + 20,
+                            Y = proposedY
+                        }
                     });
                 }
             }).Then(communicator =>
             {
-                communicator.SendMessage(new MoveToLocation_User_Gateway_Socket_Message()
+                communicator.SendMessage(new UserAction_User_Gateway_Socket_Message()
                 {
-                    X = proposedX + 1,
-                    Y = proposedY
+                    Action = new MoveUserAction()
+                    {
+                        X = proposedX + 1,
+                        Y = proposedY
+                    }
                 });
             });
         }
@@ -214,7 +245,8 @@ namespace Pather.Client.Tests
         }
 
 
-        private static Promise<ClientCommunicator, UndefinedPromiseError> JoinUser(string userToken, Action<ClientCommunicator, MoveToLocation_Gateway_User_Socket_Message> onMove)
+        private static Promise<ClientCommunicator, UndefinedPromiseError> JoinUser(string userToken,
+            Action<ClientCommunicator, UserAction_Gateway_User_Socket_Message> onUserAction)
         {
             var deferred = Q.Defer<ClientCommunicator, UndefinedPromiseError>();
 
@@ -227,8 +259,8 @@ namespace Pather.Client.Tests
                 {
                     switch (message.GatewayUserMessageType)
                     {
-                        case Gateway_User_Socket_MessageType.Move:
-                            onMove(clientCommunicator, (MoveToLocation_Gateway_User_Socket_Message) message);
+                        case Gateway_User_Socket_MessageType.UserAction:
+                            onUserAction(clientCommunicator, (UserAction_Gateway_User_Socket_Message) message);
                             break;
                         case Gateway_User_Socket_MessageType.UserJoined:
                             deferred.Resolve(clientCommunicator);

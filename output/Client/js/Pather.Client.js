@@ -246,15 +246,15 @@
 			$.get(url, null, callback);
 		}
 	};
-	$Pather_Client_Tests_LoginE2ETest.$joinUser = function(userToken, onMove) {
+	$Pather_Client_Tests_LoginE2ETest.$joinUser = function(userToken, onUserAction) {
 		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_Client_Utils_ClientCommunicator, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
 		$Pather_Client_Tests_LoginE2ETest.getRequest('http://localhost:2222/api/', 2222, function(url) {
 			console.log(url);
 			var clientCommunicator = new $Pather_Client_Utils_ClientCommunicator(url);
 			clientCommunicator.listenForGatewayMessage(function(message) {
 				switch (message.gatewayUserMessageType) {
-					case 'move': {
-						onMove(clientCommunicator, message);
+					case 'userAction': {
+						onUserAction(clientCommunicator, message);
 						break;
 					}
 					case 'userJoined': {
@@ -399,7 +399,12 @@
 			this.networkManager.sendPing();
 		},
 		moveToLocation: function(x, y) {
-			this.networkManager.sendMoveToLocation(x, y, this.frontEndTickManager.lockstepTickNumber + 1);
+			var $t2 = this.networkManager;
+			var $t1 = Pather.Common.Models.Common.UserActions.MoveUserAction.$ctor();
+			$t1.x = x;
+			$t1.y = y;
+			$t1.lockstepTick = this.frontEndTickManager.lockstepTickNumber + 1;
+			$t2.sendAction($t1);
 		},
 		$onGatewayMessage: function(message) {
 			console.log(message);
@@ -409,8 +414,8 @@
 					this.frontEndTickManager.onPongReceived(pongMessage);
 					break;
 				}
-				case 'move': {
-					this.$userMoved(message);
+				case 'userAction': {
+					this.$userAction(message);
 					break;
 				}
 				case 'userJoined': {
@@ -430,13 +435,22 @@
 				}
 			}
 		},
-		$userMoved: function(moveToLocationMessage) {
-			var clientUser = this.activeUsers.get_item(moveToLocationMessage.userId);
-			if (ss.isNullOrUndefined(clientUser)) {
-				throw new ss.Exception('idk who this user is' + JSON.stringify(moveToLocationMessage));
+		$userAction: function(userActionMessage) {
+			switch (userActionMessage.action.userActionType) {
+				case 0: {
+					var moveUserAction = userActionMessage.action;
+					var clientUser = this.activeUsers.get_item(moveUserAction.userId);
+					if (ss.isNullOrUndefined(clientUser)) {
+						throw new ss.Exception('idk who this user is' + JSON.stringify(moveUserAction));
+					}
+					clientUser.x = moveUserAction.x;
+					clientUser.y = moveUserAction.y;
+					break;
+				}
+				default: {
+					throw new ss.ArgumentOutOfRangeException();
+				}
 			}
-			clientUser.x = moveToLocationMessage.x;
-			clientUser.y = moveToLocationMessage.y;
 		},
 		$userJoined: function(userJoinedMessage) {
 			var $t1 = new $Pather_Client_ClientUser();
@@ -473,12 +487,10 @@
 				this.$clientCommunicator.sendMessage(Pather.Common.Models.Gateway.Socket.Base.Ping_User_Gateway_Socket_Message.$ctor());
 			}
 		},
-		sendMoveToLocation: function(x, y, lockstepTickNumber) {
+		sendAction: function(action) {
 			var $t2 = this.$clientCommunicator;
-			var $t1 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
-			$t1.lockstepTick = lockstepTickNumber;
-			$t1.x = x;
-			$t1.y = y;
+			var $t1 = Pather.Common.Models.Gateway.Socket.Base.UserAction_User_Gateway_Socket_Message.$ctor();
+			$t1.action = action;
 			$t2.sendMessage($t1);
 		}
 	});
@@ -706,14 +718,21 @@
 				var i1 = { $: i };
 				setTimeout(ss.mkdel({ i1: i1 }, function() {
 					var startTime = (new Date()).getTime();
-					var $t1 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
+					var $t1 = Pather.Common.Models.Common.UserActions.MoveUserAction.$ctor();
 					$t1.x = ss.Int32.trunc(Math.random() * 50);
 					$t1.y = ss.Int32.trunc(Math.random() * 50);
-					var moveToLocation = $t1;
+					var moveUserAction = $t1;
+					var $t2 = Pather.Common.Models.Gateway.Socket.Base.UserAction_User_Gateway_Socket_Message.$ctor();
+					$t2.action = moveUserAction;
+					var moveToLocation = $t2;
 					var receivedCount = 0;
 					var userToken = id + '-' + this.i1.$;
 					$Pather_Client_Tests_LoginE2ETest.$joinUser(userToken, function(communicator, message) {
-						if (ss.referenceEquals(message.userId, userToken) && message.x === moveToLocation.x && message.y === moveToLocation.y) {
+						if (message.action.userActionType !== 0) {
+							return;
+						}
+						var action = message.action;
+						if (ss.referenceEquals(action.userId, userToken) && action.x === moveUserAction.x && action.y === moveUserAction.y) {
 							window.setTimeout(function() {
 								if (++receivedCount === 200) {
 									communicator.disconnect();
@@ -728,10 +747,12 @@
 									;
 								}
 								else {
-									moveToLocation.x = (moveToLocation.x + ss.Int32.trunc(Math.random() * 4) - 2 + 50) % 50;
-									moveToLocation.y = (moveToLocation.y + ss.Int32.trunc(Math.random() * 4) - 2 + 50) % 50;
-									communicator.sendMessage(moveToLocation);
-									console.log('Moving User again ' + receivedCount, moveToLocation);
+									moveUserAction.x = (moveUserAction.x + ss.Int32.trunc(Math.random() * 4) - 2 + 50) % 50;
+									moveUserAction.y = (moveUserAction.y + ss.Int32.trunc(Math.random() * 4) - 2 + 50) % 50;
+									var $t3 = Pather.Common.Models.Gateway.Socket.Base.UserAction_User_Gateway_Socket_Message.$ctor();
+									$t3.action = moveUserAction;
+									communicator.sendMessage($t3);
+									console.log('Moving User again ' + receivedCount, moveUserAction);
 								}
 							}, ss.Int32.trunc(Math.random() * 1000));
 						}
@@ -749,16 +770,22 @@
 			var proposedX = 12;
 			var proposedY = 25;
 			$Pather_Client_Tests_LoginE2ETest.$joinUser(id, function(communicator, message) {
-				if (message.x === proposedX && message.y === proposedY) {
+				if (message.action.userActionType !== 0) {
+					return;
+				}
+				var action = message.action;
+				if (action.x === proposedX && action.y === proposedY) {
 					defer.resolve();
 				}
 				else {
 					defer.reject();
 				}
 			}).then(function(communicator1) {
-				var $t1 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
-				$t1.x = proposedX;
-				$t1.y = proposedY;
+				var $t1 = Pather.Common.Models.Gateway.Socket.Base.UserAction_User_Gateway_Socket_Message.$ctor();
+				var $t2 = Pather.Common.Models.Common.UserActions.MoveUserAction.$ctor();
+				$t2.x = proposedX;
+				$t2.y = proposedY;
+				$t1.action = $t2;
 				communicator1.sendMessage($t1);
 			});
 		},
@@ -772,47 +799,51 @@
 				if (ss.referenceEquals(message.userId, id + 1) && move < 40) {
 					move++;
 					setTimeout(function() {
-						var $t1 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
-						$t1.x = proposedX + move;
-						$t1.y = proposedY;
+						var $t1 = Pather.Common.Models.Gateway.Socket.Base.UserAction_User_Gateway_Socket_Message.$ctor();
+						var $t2 = Pather.Common.Models.Common.UserActions.MoveUserAction.$ctor();
+						$t2.x = proposedX + move;
+						$t2.y = proposedY;
+						$t1.action = $t2;
 						communicator.sendMessage($t1);
 					}, 500);
 				}
-				if (message.x === proposedX && message.y === proposedY) {
-					//                    defer.Resolve();
-				}
-				else {
-					//                    defer.Reject();
-				}
 			}).then(function(communicator1) {
-				var $t2 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
-				$t2.x = proposedX;
-				$t2.y = proposedY;
-				communicator1.sendMessage($t2);
+				var $t3 = Pather.Common.Models.Gateway.Socket.Base.UserAction_User_Gateway_Socket_Message.$ctor();
+				var $t4 = Pather.Common.Models.Common.UserActions.MoveUserAction.$ctor();
+				$t4.x = proposedX;
+				$t4.y = proposedY;
+				$t3.action = $t4;
+				communicator1.sendMessage($t3);
 			});
 			$Pather_Client_Tests_LoginE2ETest.$joinUser(id + 2, function(communicator2, message1) {
 				console.log('2', message1);
 			}).then(function(communicator3) {
-				var $t3 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
-				$t3.x = proposedX + 1;
-				$t3.y = proposedY;
-				communicator3.sendMessage($t3);
+				var $t5 = Pather.Common.Models.Gateway.Socket.Base.UserAction_User_Gateway_Socket_Message.$ctor();
+				var $t6 = Pather.Common.Models.Common.UserActions.MoveUserAction.$ctor();
+				$t6.x = proposedX + 1;
+				$t6.y = proposedY;
+				$t5.action = $t6;
+				communicator3.sendMessage($t5);
 			});
 			var once = true;
 			$Pather_Client_Tests_LoginE2ETest.$joinUser(id + 3, function(communicator4, message2) {
 				console.log('3', message2);
 				if (ss.referenceEquals(message2.userId, id + 3) && once) {
 					once = false;
-					var $t4 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
-					$t4.x = proposedX + 20;
-					$t4.y = proposedY;
-					communicator4.sendMessage($t4);
+					var $t7 = Pather.Common.Models.Gateway.Socket.Base.UserAction_User_Gateway_Socket_Message.$ctor();
+					var $t8 = Pather.Common.Models.Common.UserActions.MoveUserAction.$ctor();
+					$t8.x = proposedX + 20;
+					$t8.y = proposedY;
+					$t7.action = $t8;
+					communicator4.sendMessage($t7);
 				}
 			}).then(function(communicator5) {
-				var $t5 = Pather.Common.Models.Gateway.Socket.Base.MoveToLocation_User_Gateway_Socket_Message.$ctor();
-				$t5.x = proposedX + 1;
-				$t5.y = proposedY;
-				communicator5.sendMessage($t5);
+				var $t9 = Pather.Common.Models.Gateway.Socket.Base.UserAction_User_Gateway_Socket_Message.$ctor();
+				var $t10 = Pather.Common.Models.Common.UserActions.MoveUserAction.$ctor();
+				$t10.x = proposedX + 1;
+				$t10.y = proposedY;
+				$t9.action = $t10;
+				communicator5.sendMessage($t9);
 			});
 		}
 	});

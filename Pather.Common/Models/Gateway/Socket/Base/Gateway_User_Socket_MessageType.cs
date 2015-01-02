@@ -5,7 +5,7 @@ namespace Pather.Common.Models.Gateway.Socket.Base
     [NamedValues]
     public enum Gateway_User_Socket_MessageType
     {
-        Move,
+        UserAction,
         UserJoined,
         TickSync,
         Pong,

@@ -107,7 +107,7 @@ namespace Pather.Servers.GatewayServer
             }
         }
 
-        private readonly JsDictionary<string, List<UserMovedMessage>> cachedUserMoves = new JsDictionary<string, List<UserMovedMessage>>();
+        private readonly JsDictionary<string, List<UserActionCacheModel>> cachedUserMoves = new JsDictionary<string, List<UserActionCacheModel>>();
 
 
         private void OnMessage(Gateway_PubSub_Message message)
@@ -156,9 +156,9 @@ namespace Pather.Servers.GatewayServer
                     BackendTickManager.OnPongReceived();
 
                     break;
-                case Gateway_PubSub_MessageType.UserMovedCollection:
-                    var userMovedCollectionMessage = (UserMovedCollection_GameSegment_Gateway_PubSub_Message) message;
-                    runUserMoved(userMovedCollectionMessage);
+                case Gateway_PubSub_MessageType.UserActionCollection:
+                    var userActionCollectionMessage = (UserActionCollection_GameSegment_Gateway_PubSub_Message) message;
+                    runUserAction(userActionCollectionMessage);
                     break;
                 case Gateway_PubSub_MessageType.UpdateNeighbors:
                     var updateNeighborsMessage = (UpdateNeighbors_GameSegment_Gateway_PubSub_Message) message;
@@ -180,11 +180,11 @@ namespace Pather.Servers.GatewayServer
             }
         }
 
-        private void runUserMoved(UserMovedCollection_GameSegment_Gateway_PubSub_Message userMovedMessage)
+        private void runUserAction(UserActionCollection_GameSegment_Gateway_PubSub_Message userActionMessage)
         {
             GatewayUser gatewayUser;
 
-            foreach (var userToSendTo in userMovedMessage.Users)
+            foreach (var userToSendTo in userActionMessage.Users)
             {
                 gatewayUser = Users[userToSendTo];
 
@@ -194,25 +194,20 @@ namespace Pather.Servers.GatewayServer
 
                     if (!cachedUserMoves.ContainsKey(userToSendTo))
                     {
-                        cachedUserMoves[userToSendTo] = new List<UserMovedMessage>();
+                        cachedUserMoves[userToSendTo] = new List<UserActionCacheModel>();
                     }
-                    cachedUserMoves[userToSendTo].Add(new UserMovedMessage()
+                    cachedUserMoves[userToSendTo].Add(new UserActionCacheModel()
                     {
-                        UserThatMovedId = userMovedMessage.UserThatMovedId,
                         UserId = userToSendTo,
-                        LockstepTick = userMovedMessage.LockstepTick,
-                        X = userMovedMessage.X,
-                        Y = userMovedMessage.Y,
+                        Action = userActionMessage.Action
                     });
 
                     return;
                 }
-                ServerCommunicator.SendMessage(gatewayUser.Socket, new MoveToLocation_Gateway_User_Socket_Message()
+                ServerCommunicator.SendMessage(gatewayUser.Socket, new UserAction_Gateway_User_Socket_Message()
                 {
-                    UserId = userMovedMessage.UserThatMovedId,
-                    LockstepTick = userMovedMessage.LockstepTick,
-                    X = userMovedMessage.X,
-                    Y = userMovedMessage.Y,
+                    UserId = gatewayUser.UserId,
+                    Action=userActionMessage.Action
                 });
             }
         }
@@ -274,15 +269,13 @@ namespace Pather.Servers.GatewayServer
                         GatewayLatency = BackendTickManager.CurrentServerLatency
                     });
                     break;
-                case User_Gateway_Socket_MessageType.Move:
-                    var moveToLocationMessage = ((MoveToLocation_User_Gateway_Socket_Message) message);
+                case User_Gateway_Socket_MessageType.UserAction:
+                    var userActionMessage = ((UserAction_User_Gateway_Socket_Message) message);
 
-                    GatewayPubSub.PublishToGameSegment(user.GameSegmentId, new UserMoved_Gateway_GameSegment_PubSub_Message()
+                    GatewayPubSub.PublishToGameSegment(user.GameSegmentId, new UserAction_Gateway_GameSegment_PubSub_Message()
                     {
                         UserId = user.UserId,
-                        LockstepTick = moveToLocationMessage.LockstepTick,
-                        X = moveToLocationMessage.X,
-                        Y = moveToLocationMessage.Y,
+                        Action = userActionMessage.Action
                     });
 
                     break;

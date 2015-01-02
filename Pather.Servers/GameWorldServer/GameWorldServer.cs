@@ -173,7 +173,6 @@ namespace Pather.Servers.GameWorldServer
                         if (done) break;
                     }
 
-
                     UserLeft(userLeftMessage).Then(() =>
                     {
                         //todo idk
@@ -187,9 +186,9 @@ namespace Pather.Servers.GameWorldServer
                     var tickSyncMessage = (TickSync_Tick_GameWorld_PubSub_Message) message;
                     BackendTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;
-                case GameWorld_PubSub_MessageType.TellUserMoved:
-                    var tellUserMoved = (TellUserMoved_GameSegment_GameWorld_PubSub_Message) message;
-                    GameWorld.UserMoved(tellUserMoved.UserId, tellUserMoved.X, tellUserMoved.Y, tellUserMoved.LockstepTick);
+                case GameWorld_PubSub_MessageType.TellUserAction:
+                    var tellUserAction = (TellUserAction_GameSegment_GameWorld_PubSub_Message) message;
+                    GameWorld.UserAction(tellUserAction);
                     break;
                 case GameWorld_PubSub_MessageType.InitializeGameSegment:
                     var getAllGameSegments = ((InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message) message);

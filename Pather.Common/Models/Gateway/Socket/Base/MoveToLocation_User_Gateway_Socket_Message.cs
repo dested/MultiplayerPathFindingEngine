@@ -1,17 +1,16 @@
 using System;
+using Pather.Common.Models.Common.UserActions;
 
 namespace Pather.Common.Models.Gateway.Socket.Base
 {
     [Serializable]
-    public class MoveToLocation_User_Gateway_Socket_Message : User_Gateway_Socket_Message
+    public class UserAction_User_Gateway_Socket_Message : User_Gateway_Socket_Message
     {
-        public MoveToLocation_User_Gateway_Socket_Message()
+        public UserAction_User_Gateway_Socket_Message()
         {
-            UserGatewayMessageType = User_Gateway_Socket_MessageType.Move;
+            UserGatewayMessageType = User_Gateway_Socket_MessageType.UserAction;
         }
 
-        public int X;
-        public int Y;
-        public long LockstepTick;
+        public UserAction Action;
     }
 }
