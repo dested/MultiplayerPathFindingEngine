@@ -321,7 +321,7 @@
 			var cur = (new Date()).getTime();
 			this.$pingSent.push(cur - this.$lastPing);
 			this.$lastPing = cur;
-			if (this.$pingSent.length < 3) {
+			if (this.$pingSent.length < 2) {
 				this.$sendPing();
 			}
 			else {
@@ -332,7 +332,8 @@
 				}
 				var roundTripLatency = average / this.$pingSent.length;
 				var oneWayLatency = ss.Int32.div(ss.Int32.trunc(roundTripLatency), 2);
-				this.setServerLatency(oneWayLatency + pongMessage.gatewayLatency);
+				var latency = oneWayLatency + pongMessage.gatewayLatency;
+				this.setServerLatency(latency);
 				this.$pingSent = null;
 			}
 		},
@@ -700,7 +701,7 @@
 			var averageTimes = [];
 			var id = Pather.Common.Utils.Utilities.uniqueId();
 			var done = 0;
-			var totalHits = 300;
+			var totalHits = 50;
 			for (var i = 0; i < totalHits; i++) {
 				var i1 = { $: i };
 				setTimeout(ss.mkdel({ i1: i1 }, function() {
@@ -715,17 +716,16 @@
 						if (ss.referenceEquals(message.userId, userToken) && message.x === moveToLocation.x && message.y === moveToLocation.y) {
 							window.setTimeout(function() {
 								if (++receivedCount === 200) {
-									setTimeout(function() {
-										communicator.disconnect();
-										done++;
-										if (done === totalHits) {
-											var average = Pather.Common.Utils.EnumerableExtensions.average(averageTimes, function(a) {
-												return a;
-											});
-											console.log('Average join time:', average, 'ms');
-											deferred.resolve();
-										}
-									}, ss.Int32.trunc(Math.random() * 4000));
+									communicator.disconnect();
+									done++;
+									if (done === totalHits) {
+										var average = Pather.Common.Utils.EnumerableExtensions.average(averageTimes, function(a) {
+											return a;
+										});
+										console.log('Average join time:', average, 'ms');
+										deferred.resolve();
+									}
+									;
 								}
 								else {
 									moveToLocation.x = (moveToLocation.x + ss.Int32.trunc(Math.random() * 4) - 2 + 50) % 50;

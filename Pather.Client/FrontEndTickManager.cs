@@ -45,7 +45,7 @@ namespace Pather.Client
             pingSent.Add(cur - lastPing);
             lastPing = cur;
 
-            if (pingSent.Count < 3)
+            if (pingSent.Count < 2)
             {
                 sendPing();
             }
@@ -61,7 +61,8 @@ namespace Pather.Client
                 var roundTripLatency = ((double) average/(double) (pingSent.Count));
                 var oneWayLatency = (int) roundTripLatency/2;
 
-                SetServerLatency(oneWayLatency + pongMessage.GatewayLatency);
+                var latency = oneWayLatency + pongMessage.GatewayLatency;
+                SetServerLatency(latency);
                 pingSent = null;
             }
         }

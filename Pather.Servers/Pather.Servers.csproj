@@ -69,7 +69,6 @@
     <Compile Include="GameSegmentServer\Logger\UserMoved_GameSegmentLogMessage.cs" />
     <Compile Include="GameSegmentServer\Models\GameSegmentNeighbor.cs" />
     <Compile Include="GameSegmentServer\Models\GameSegmentUser.cs" />
-    <Compile Include="GameSegmentServer\Old\GameSegmentUser.cs" />
     <Compile Include="GameWorldServer\GameSegment.cs" />
     <Compile Include="GameWorldServer\GameWorld.cs" />
     <Compile Include="GameWorldServer\GameWorldPubSub.cs" />

@@ -33,8 +33,8 @@ namespace Pather.Servers.HeadServer
 
             app.Use(cors());
 
-            Global.SetInterval(pingGateways, 1000);
-            Global.SetInterval(shouldSpinUpNewGateway, 4000);
+            Global.SetInterval(pingGateways, Constants.PingGatewayFromHeadTimeout);
+            Global.SetInterval(shouldSpinUpNewGateway, Constants.SpinUpNewGatewayCheck);
             pingGateways();
             headPubSub.OnMessage += OnMessage;
 

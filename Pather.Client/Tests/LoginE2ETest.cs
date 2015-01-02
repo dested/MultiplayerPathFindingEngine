@@ -24,7 +24,7 @@ namespace Pather.Client.Tests
             var averageTimes = new List<long>();
             var id = Utilities.UniqueId();
             var done = 0;
-            var totalHits = 300;
+            var totalHits = 50;
 
             for (var i = 0; i < totalHits; i++)
             {
@@ -51,18 +51,15 @@ namespace Pather.Client.Tests
                             {
                                 if (++receivedCount == 200)
                                 {
-                                    Global.SetTimeout(() =>
-                                    {
-                                        communicator.Disconnect();
-                                        done++;
+                                    communicator.Disconnect();
+                                    done++;
 
-                                        if (done == totalHits)
-                                        {
-                                            var average = averageTimes.Average(a => a);
-                                            Global.Console.Log("Average join time:", average, "ms");
-                                            deferred.Resolve();
-                                        }
-                                    }, (int) (Math.Random()*4000));
+                                    if (done == totalHits)
+                                    {
+                                        var average = averageTimes.Average(a => a);
+                                        Global.Console.Log("Average join time:", average, "ms");
+                                        deferred.Resolve();
+                                    };
                                 }
                                 else
                                 {

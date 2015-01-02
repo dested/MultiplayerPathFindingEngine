@@ -30,6 +30,9 @@ namespace Pather.Common
 
             MaxGatewaysPerCluster = 10;
             MaxGameSegmentsPerCluster = 10;
+
+            PingGatewayFromHeadTimeout = 1000;
+            SpinUpNewGatewayCheck = 4000;
         }
 
         public static int AnimationSteps;
@@ -56,5 +59,9 @@ namespace Pather.Common
         {
             get { return ((dynamic) Window.Instance).TestServer; }
         }
+
+        public static int SpinUpNewGatewayCheck;
+
+        public static int PingGatewayFromHeadTimeout;
     }
 }

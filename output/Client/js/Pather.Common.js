@@ -15,6 +15,7 @@
 	global.Pather.Common.Models.GameWorld.Base = global.Pather.Common.Models.GameWorld.Base || {};
 	global.Pather.Common.Models.GameWorld.GameSegment = global.Pather.Common.Models.GameWorld.GameSegment || {};
 	global.Pather.Common.Models.GameWorld.Gateway = global.Pather.Common.Models.GameWorld.Gateway || {};
+	global.Pather.Common.Models.GameWorld.ServerManager = global.Pather.Common.Models.GameWorld.ServerManager || {};
 	global.Pather.Common.Models.GameWorld.Tick = global.Pather.Common.Models.GameWorld.Tick || {};
 	global.Pather.Common.Models.Gateway = global.Pather.Common.Models.Gateway || {};
 	global.Pather.Common.Models.Gateway.PubSub = global.Pather.Common.Models.Gateway.PubSub || {};
@@ -671,22 +672,6 @@
 	};
 	global.Pather.Common.Models.GameWorld.GameSegment.UserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message = $Pather_Common_Models_GameWorld_GameSegment_UserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message;
 	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.Models.GameWorld.Gateway.CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message
-	var $Pather_Common_Models_GameWorld_Gateway_CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message = function() {
-	};
-	$Pather_Common_Models_GameWorld_Gateway_CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message.__typeName = 'Pather.Common.Models.GameWorld.Gateway.CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message';
-	$Pather_Common_Models_GameWorld_Gateway_CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message.createInstance = function() {
-		return $Pather_Common_Models_GameWorld_Gateway_CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message.$ctor();
-	};
-	$Pather_Common_Models_GameWorld_Gateway_CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message.$ctor = function() {
-		var $this = $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message.$ctor();
-		$this.gameSegmentId = null;
-		$this.type = 'createGameSegment';
-		$this.response = true;
-		return $this;
-	};
-	global.Pather.Common.Models.GameWorld.Gateway.CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message = $Pather_Common_Models_GameWorld_Gateway_CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message;
-	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.GameWorld.Gateway.TellUserMoved_GameSegment_GameWorld_PubSub_Message
 	var $Pather_Common_Models_GameWorld_Gateway_TellUserMoved_GameSegment_GameWorld_PubSub_Message = function() {
 	};
@@ -735,6 +720,22 @@
 		return $this;
 	};
 	global.Pather.Common.Models.GameWorld.Gateway.UserLeft_Gateway_GameWorld_PubSub_Message = $Pather_Common_Models_GameWorld_Gateway_UserLeft_Gateway_GameWorld_PubSub_Message;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Models.GameWorld.ServerManager.CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message
+	var $Pather_Common_Models_GameWorld_ServerManager_CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message = function() {
+	};
+	$Pather_Common_Models_GameWorld_ServerManager_CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message.__typeName = 'Pather.Common.Models.GameWorld.ServerManager.CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message';
+	$Pather_Common_Models_GameWorld_ServerManager_CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message.createInstance = function() {
+		return $Pather_Common_Models_GameWorld_ServerManager_CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message.$ctor();
+	};
+	$Pather_Common_Models_GameWorld_ServerManager_CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message.$ctor = function() {
+		var $this = $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message.$ctor();
+		$this.gameSegmentId = null;
+		$this.type = 'createGameSegment';
+		$this.response = true;
+		return $this;
+	};
+	global.Pather.Common.Models.GameWorld.ServerManager.CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message = $Pather_Common_Models_GameWorld_ServerManager_CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.GameWorld.Tick.Pong_Tick_GameWorld_PubSub_Message
 	var $Pather_Common_Models_GameWorld_Tick_Pong_Tick_GameWorld_PubSub_Message = function() {
@@ -2051,7 +2052,7 @@
 		return sb;
 	};
 	$Pather_Common_Utils_Utilities.uniqueId = function() {
-		return ss.Guid.format(ss.Guid.newGuid(), 'N').substr(0, 5);
+		return ss.Guid.format(ss.Guid.newGuid(), 'N');
 	};
 	$Pather_Common_Utils_Utilities.hasField = function(T) {
 		return function(message, predicate) {
@@ -2400,10 +2401,10 @@
 	ss.initClass($Pather_Common_Models_GameWorld_GameSegment_TellUserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_Message, $Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameWorld_GameSegment_UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_Message, $Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameWorld_GameSegment_UserLeft_Response_GameSegment_GameWorld_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_Message, $Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
-	ss.initClass($Pather_Common_Models_GameWorld_Gateway_CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_Message, $Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameWorld_Gateway_TellUserMoved_GameSegment_GameWorld_PubSub_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initClass($Pather_Common_Models_GameWorld_Gateway_UserJoined_Gateway_GameWorld_PubSub_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initClass($Pather_Common_Models_GameWorld_Gateway_UserLeft_Gateway_GameWorld_PubSub_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message]);
+	ss.initClass($Pather_Common_Models_GameWorld_ServerManager_CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_ReqRes_Message, [$Pather_Common_Models_Common_IPubSub_Message, $Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
 	ss.initClass($Pather_Common_Models_GameWorld_Tick_Pong_Tick_GameWorld_PubSub_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initClass($Pather_Common_Models_GameWorld_Tick_TickSync_Tick_GameWorld_PubSub_Message, $asm, {}, $Pather_Common_Models_GameWorld_Base_GameWorld_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initClass($Pather_Common_Models_Gateway_PubSub_Base_Gateway_PubSub_AllMessage, $asm, {}, null, [$Pather_Common_Models_Common_IPubSub_Message]);
@@ -2838,6 +2839,8 @@
 		$Pather_Common_Constants.gatewayConnectionSpawnThreshold = 0;
 		$Pather_Common_Constants.maxGatewaysPerCluster = 0;
 		$Pather_Common_Constants.maxGameSegmentsPerCluster = 0;
+		$Pather_Common_Constants.spinUpNewGatewayCheck = 0;
+		$Pather_Common_Constants.pingGatewayFromHeadTimeout = 0;
 		//CLIENT
 		$Pather_Common_Constants.squareSize = 16;
 		$Pather_Common_Constants.drawFps = 60;
@@ -2857,6 +2860,8 @@
 		$Pather_Common_Constants.gatewayConnectionSpawnThreshold = 40;
 		$Pather_Common_Constants.maxGatewaysPerCluster = 10;
 		$Pather_Common_Constants.maxGameSegmentsPerCluster = 10;
+		$Pather_Common_Constants.pingGatewayFromHeadTimeout = 1000;
+		$Pather_Common_Constants.spinUpNewGatewayCheck = 4000;
 	})();
 	(function() {
 		eval('\r\nglobal.$overwiteMethodCallForMocker$=function ($call$,$overwrite$) {\r\n    var $targets$=$call$._targets[0];\r\n    for(var m in $targets$) {\r\n        if($targets$[m]==$call$._targets[1]) {\r\n            $targets$[m]=$overwrite$;\r\n        }\r\n    }\r\n}');

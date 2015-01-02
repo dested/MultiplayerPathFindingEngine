@@ -29,7 +29,7 @@ namespace Pather.Common.Utils
             {
                 LockstepTickNumber = lockStepTickNumber;
                 Global.Console.Log("Force Lockstep", lockStepTickNumber);
-//           TODO     Game.StepManager.ProcessAction(Game.LockstepTickNumber);
+                ProcessLockstep(LockstepTickNumber);
             }
 
             if (LockstepTickNumber < lockStepTickNumber)
@@ -38,7 +38,7 @@ namespace Pather.Common.Utils
                 while (LockstepTickNumber < lockStepTickNumber)
                 {
                     LockstepTickNumber++;
-                    //           TODO     Game.StepManager.ProcessAction(Game.LockstepTickNumber);
+                    ProcessLockstep(LockstepTickNumber);
                 }
             }
 

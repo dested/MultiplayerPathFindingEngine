@@ -7,7 +7,7 @@ namespace Pather.Common.Utils
     {
         public JsDictionary<TKey, T> Dictionary = new JsDictionary<TKey, T>();
         public List<T> List = new List<T>();
-        public List<TKey> Keys = new List<TKey>();
+        public new List<TKey> Keys = new List<TKey>();
 
         private readonly Func<T, TKey> setKeyCallback;
 

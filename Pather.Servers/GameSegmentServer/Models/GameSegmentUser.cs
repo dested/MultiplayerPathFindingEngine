@@ -5,7 +5,7 @@ namespace Pather.Servers.GameSegmentServer.Models
 {
     public class GameSegmentUser
     {
-        public string GameSegmentId;
+        public GameSegment GameSegment;
         public string GatewayId;
         public int X;
         public int Y;
