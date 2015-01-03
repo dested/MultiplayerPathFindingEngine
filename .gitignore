@@ -42,7 +42,8 @@ _ReSharper*/
 
 # Office Temp Files
 ~$*
- 
+
+.idea/
 
 node_modules/
 gulp/passwords.js
