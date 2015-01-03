@@ -34,7 +34,6 @@ namespace Pather.Servers.Common
 
         private Action sendPing;
         private Action onTickManagerReady;
-        public Action<long> OnProcessLockstep;
 
         public void OnPongReceived()
         {
@@ -104,12 +103,6 @@ namespace Pather.Servers.Common
             onTickManagerReady();
         }
 
-        public override void ProcessLockstep(long lockstepTickNumber)
-        {
-            base.ProcessLockstep(lockstepTickNumber);
-
-            if (OnProcessLockstep!=null)//todo remove this, you should always have onprocesslockset
-            OnProcessLockstep(lockstepTickNumber);
-        }
+ 
     }
 }

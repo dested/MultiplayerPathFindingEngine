@@ -10,8 +10,9 @@ namespace Pather.Common.Utils
         }
 
         public long LockstepTickNumber;
+        public Action<long> OnProcessLockstep;
 
-        private long CurrentLockstepTime;
+        public long CurrentLockstepTime;
         public long CurrentServerLatency;
 
         public virtual void Init(long currentLockstepTickNumber)
@@ -68,8 +69,12 @@ namespace Pather.Common.Utils
             }
         }
 
-        public virtual void ProcessLockstep(long lockstepTickNumber)
+        public   void ProcessLockstep(long lockstepTickNumber)
         {
+            if (OnProcessLockstep != null)
+            {
+                OnProcessLockstep(lockstepTickNumber);
+            }
 //            Global.Console.Log("Lockstep", LockstepTickNumber, new DateTime().GetTime());
 //            ServerLogger.LogInformation("Lockstep", LockstepTickNumber, new DateTime().GetTime());
         }

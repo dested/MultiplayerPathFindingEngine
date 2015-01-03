@@ -22,11 +22,36 @@
 		//            game.Init();
 	};
 	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Client.ClientGame
+	var $Pather_Client_ClientGame = function(allUsers, tickManager) {
+		this.tickManager = null;
+		this.board = null;
+		this.$allUsers = null;
+		this.stepManager = null;
+		this.tickManager = tickManager;
+		this.$allUsers = allUsers;
+		this.stepManager = new $Pather_Client_StepManager(this);
+		tickManager.onProcessLockstep = ss.delegateCombine(tickManager.onProcessLockstep, ss.mkdel(this.stepManager, this.stepManager.processAction));
+	};
+	$Pather_Client_ClientGame.__typeName = 'Pather.Client.ClientGame';
+	global.Pather.Client.ClientGame = $Pather_Client_ClientGame;
+	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Client.ClientUser
-	var $Pather_Client_ClientUser = function() {
+	var $Pather_Client_ClientUser = function(game) {
+		this.$game = null;
 		this.userId = null;
+		this.squareX = 0;
+		this.squareY = 0;
 		this.x = 0;
 		this.y = 0;
+		this.speed = 0;
+		this.playerId = null;
+		this.path = null;
+		this.animations = null;
+		this.$game = game;
+		this.animations = [];
+		this.path = [];
+		this.speed = 20;
 	};
 	$Pather_Client_ClientUser.__typeName = 'Pather.Client.ClientUser';
 	global.Pather.Client.ClientUser = $Pather_Client_ClientUser;
@@ -45,13 +70,34 @@
 	$Pather_Client_FrontEndTickManager.__typeName = 'Pather.Client.FrontEndTickManager';
 	global.Pather.Client.FrontEndTickManager = $Pather_Client_FrontEndTickManager;
 	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Client.GameBoard
+	var $Pather_Client_GameBoard = function() {
+		this.grid = null;
+		this.aStarGraph = null;
+	};
+	$Pather_Client_GameBoard.__typeName = 'Pather.Client.GameBoard';
+	global.Pather.Client.GameBoard = $Pather_Client_GameBoard;
+	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Client.GameClient
 	var $Pather_Client_GameClient = function() {
 		this.$canvas = null;
 		this.$context = null;
 		this.$gameManager = null;
+		this.curTickTime = 0;
+		this.tickNumber = 0;
+		this.curGameTime = 0;
+		this.nextGameTime = 0;
+		this.serverLatency = 0;
+		this.trackTickNumber = 0;
+		this.trackLockstepTickNumber = 0;
 		this.$gameManager = new $Pather_Client_GameManager();
 		this.$gameManager.onReady = ss.delegateCombine(this.$gameManager.onReady, ss.mkdel(this, this.$readyToPlay));
+		this.nextGameTime = (new Date()).getTime();
+		this.curGameTime = (new Date()).getTime();
+		this.curTickTime = (new Date()).getTime();
+		setTimeout(ss.mkdel(this, function() {
+			this.tick();
+		}), 1);
 	};
 	$Pather_Client_GameClient.__typeName = 'Pather.Client.GameClient';
 	global.Pather.Client.GameClient = $Pather_Client_GameClient;
@@ -65,12 +111,15 @@
 		});
 		this.myUser = null;
 		this.onReady = null;
+		this.clientGame = null;
 		this.networkManager = new $Pather_Client_NetworkManager();
 		this.frontEndTickManager = new $Pather_Client_FrontEndTickManager();
 		this.networkManager.onMessage = ss.delegateCombine(this.networkManager.onMessage, ss.mkdel(this, this.$onGatewayMessage));
 		this.frontEndTickManager.init$1(ss.mkdel(this, this.$sendPing), function() {
 			console.log('Connected To Tick Server');
 		});
+		this.clientGame = new $Pather_Client_ClientGame(this.activeUsers, this.frontEndTickManager);
+		this.clientGame.init();
 		this.frontEndTickManager.startPing();
 	};
 	$Pather_Client_GameManager.__typeName = 'Pather.Client.GameManager';
@@ -110,6 +159,19 @@
 		}
 	};
 	global.Pather.Client.NetworkManager = $Pather_Client_NetworkManager;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Client.StepManager
+	var $Pather_Client_StepManager = function(serverGame) {
+		this.$serverGame = null;
+		this.lastTickProcessed = 0;
+		this.stepActionsTicks = null;
+		this.$misprocess = 0;
+		this.$serverGame = serverGame;
+		this.stepActionsTicks = new (ss.makeGenericType(ss.Dictionary$2, [ss.Int32, Array]))();
+		this.lastTickProcessed = 0;
+	};
+	$Pather_Client_StepManager.__typeName = 'Pather.Client.StepManager';
+	global.Pather.Client.StepManager = $Pather_Client_StepManager;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Client.Old.ClientEntity
 	var $Pather_Client_Old_ClientEntity = function(game, playerId) {
@@ -301,7 +363,121 @@
 	$Pather_Client_Utils_ClientCommunicator.__typeName = 'Pather.Client.Utils.ClientCommunicator';
 	global.Pather.Client.Utils.ClientCommunicator = $Pather_Client_Utils_ClientCommunicator;
 	ss.initClass($Pather_Client_$Program, $asm, {});
-	ss.initClass($Pather_Client_ClientUser, $asm, {});
+	ss.initClass($Pather_Client_ClientGame, $asm, {
+		init: function() {
+			this.board = new $Pather_Client_GameBoard();
+			this.board.constructGrid();
+		},
+		queueUserAction: function(action) {
+			this.stepManager.queueUserAction(action);
+		},
+		processUserAction: function(action) {
+			switch (action.userActionType) {
+				case 0: {
+					var moveAction = action;
+					var user = this.$allUsers.get_item(moveAction.userId);
+					user.rePathFind(moveAction.x, moveAction.y);
+					break;
+				}
+				default: {
+					throw new ss.ArgumentOutOfRangeException();
+				}
+			}
+		},
+		tellUserAction: function(action) {
+			switch (action.userActionType) {
+				case 0: {
+					break;
+				}
+				default: {
+					throw new ss.ArgumentOutOfRangeException();
+				}
+			}
+		},
+		processUserActionFromNeighbor: function(action) {
+			switch (action.userActionType) {
+				case 0: {
+					break;
+				}
+				default: {
+					throw new ss.ArgumentOutOfRangeException();
+				}
+			}
+		}
+	});
+	ss.initClass($Pather_Client_ClientUser, $asm, {
+		tick: function() {
+			var result = this.path[0];
+			this.animations = [];
+			var projectedX;
+			var projectedY;
+			var projectedSquareX;
+			var projectedSquareY;
+			projectedSquareX = (ss.isNullOrUndefined(result) ? this.squareX : result.x);
+			projectedSquareY = (ss.isNullOrUndefined(result) ? this.squareY : result.y);
+			for (var i = 0; i < Pather.Common.Constants.animationSteps; i++) {
+				this.squareX = ss.Int32.trunc(this.x / Pather.Common.Constants.squareSize);
+				this.squareY = ss.Int32.trunc(this.y / Pather.Common.Constants.squareSize);
+				var fromX = this.x;
+				var fromY = this.y;
+				if (ss.isValue(result) && (this.squareX === result.x && this.squareY === result.y)) {
+					ss.removeAt(this.path, 0);
+					result = this.path[0];
+					projectedSquareX = (ss.isNullOrUndefined(result) ? this.squareX : result.x);
+					projectedSquareY = (ss.isNullOrUndefined(result) ? this.squareY : result.y);
+				}
+				projectedX = projectedSquareX * Pather.Common.Constants.squareSize + ss.Int32.div(Pather.Common.Constants.squareSize, 2);
+				projectedY = projectedSquareY * Pather.Common.Constants.squareSize + ss.Int32.div(Pather.Common.Constants.squareSize, 2);
+				if (projectedX === ss.Int32.trunc(this.x) && projectedY === ss.Int32.trunc(this.y)) {
+					return;
+				}
+				this.x = Pather.Common.Utils.Lerper.moveTowards(this.x, projectedX, this.speed / Pather.Common.Constants.animationSteps);
+				this.y = Pather.Common.Utils.Lerper.moveTowards(this.y, projectedY, this.speed / Pather.Common.Constants.animationSteps);
+				this.animations.push(new Pather.Common.Utils.AnimationPoint(fromX, fromY, this.x, this.y));
+			}
+		},
+		rePathFind: function(squareX, squareY) {
+			var graph = this.$game.board.aStarGraph;
+			var start = graph.grid[this.squareX][this.squareY];
+			var end = graph.grid[squareX][squareY];
+			this.path = ss.arrayClone(astar.search(graph, start, end));
+		},
+		draw: function(context, interpolatedTime) {
+			context.save();
+			if (interpolatedTime < 0) {
+				interpolatedTime = 0;
+			}
+			if (interpolatedTime > 1) {
+				interpolatedTime = 1;
+			}
+			var _x = ss.Int32.trunc(this.x);
+			var _y = ss.Int32.trunc(this.y);
+			if (this.animations.length > 0) {
+				var animationIndex = ss.Int32.trunc(interpolatedTime * Pather.Common.Constants.animationSteps);
+				var animation = this.animations[animationIndex];
+				if (ss.isValue(animation)) {
+					var interpolateStep = interpolatedTime % (1 / Pather.Common.Constants.animationSteps) * Pather.Common.Constants.animationSteps;
+					_x = ss.Int32.trunc(animation.fromX + (animation.x - animation.fromX) * interpolateStep);
+					_y = ss.Int32.trunc(animation.fromY + (animation.y - animation.fromY) * interpolateStep);
+				}
+			}
+			var result = this.path[0];
+			if (ss.isValue(result)) {
+				context.lineWidth = 5;
+				context.strokeStyle = 'yellow';
+				//                context.StrokeRect(result.X * Constants.SquareSize, result.Y * Constants.SquareSize, Constants.SquareSize, Constants.SquareSize);
+			}
+			context.strokeStyle = 'green';
+			//            context.StrokeRect(SquareX * Constants.SquareSize, SquareY * Constants.SquareSize, Constants.SquareSize, Constants.SquareSize);
+			//            Console.WriteLine(_x + " " + _y);
+			context.lineWidth = 5;
+			context.strokeStyle = 'yellow';
+			context.fillStyle = 'red';
+			context.fillRect(_x - ss.Int32.div(Pather.Common.Constants.squareSize, 2), _y - ss.Int32.div(Pather.Common.Constants.squareSize, 2), Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
+			context.strokeRect(_x - ss.Int32.div(Pather.Common.Constants.squareSize, 2), _y - ss.Int32.div(Pather.Common.Constants.squareSize, 2), Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
+			context.restore();
+		}
+	});
 	ss.initClass($Pather_Client_FrontEndTickManager, $asm, {
 		init$1: function(sendPing, onTickManagerReady) {
 			this.$sendPing = sendPing;
@@ -358,6 +534,18 @@
 			this.$onTickManagerReady();
 		}
 	}, Pather.Common.Utils.TickManager);
+	ss.initClass($Pather_Client_GameBoard, $asm, {
+		constructGrid: function() {
+			this.grid = new Array(Pather.Common.Constants.numberOfSquares);
+			for (var x = 0; x < Pather.Common.Constants.numberOfSquares; x++) {
+				this.grid[x] = new Array(Pather.Common.Constants.numberOfSquares);
+				for (var y = 0; y < Pather.Common.Constants.numberOfSquares; y++) {
+					this.grid[x][y] = ((Math.random() * 100 < 15) ? 0 : 1);
+				}
+			}
+			this.aStarGraph = new Graph(this.grid);
+		}
+	});
 	ss.initClass($Pather_Client_GameClient, $asm, {
 		$readyToPlay: function() {
 			if (!Pather.Common.Constants.get_testServer()) {
@@ -380,17 +568,37 @@
 				this.$draw();
 			}));
 			this.$context.clearRect(0, 0, 1200, 1200);
+			var interpolatedTime = ((new Date()).getTime() - this.nextGameTime) / Pather.Common.Constants.gameTicks;
 			for (var $t1 = 0; $t1 < this.$gameManager.activeUsers.list.length; $t1++) {
 				var activeUser = this.$gameManager.activeUsers.list[$t1];
 				this.$context.save();
-				if (ss.referenceEquals(activeUser, this.$gameManager.myUser)) {
-					this.$context.fillStyle = 'red';
-				}
-				else {
-					this.$context.fillStyle = 'blue';
-				}
-				this.$context.fillRect(activeUser.x * Pather.Common.Constants.squareSize, activeUser.y * Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
+				activeUser.draw(this.$context, interpolatedTime);
 				this.$context.restore();
+			}
+		},
+		get_percentCompletedWithLockStep: function() {
+			var vc = (new Date()).getTime();
+			var l = vc - this.$gameManager.frontEndTickManager.currentLockstepTime;
+			return l / Pather.Common.Constants.lockstepTicks;
+		},
+		tick: function() {
+			setTimeout(ss.mkdel(this, function() {
+				this.tick();
+			}), 1);
+			var vc = (new Date()).getTime();
+			var l2 = vc - this.curTickTime;
+			var nextTickTime = ss.Int32.div(l2, Pather.Common.Constants.gameTicks);
+			while (nextTickTime > this.trackTickNumber) {
+				this.trackTickNumber++;
+				this.tickNumber++;
+				for (var $t1 = 0; $t1 < this.$gameManager.activeUsers.list.length; $t1++) {
+					var person = this.$gameManager.activeUsers.list[$t1];
+					person.tick();
+				}
+				//todo probably should only happen once? and not in the loop
+				var v = (new Date()).getTime();
+				this.nextGameTime += v - this.curGameTime;
+				this.curGameTime = v;
 			}
 		}
 	});
@@ -436,24 +644,10 @@
 			}
 		},
 		$userAction: function(userActionMessage) {
-			switch (userActionMessage.action.userActionType) {
-				case 0: {
-					var moveUserAction = userActionMessage.action;
-					var clientUser = this.activeUsers.get_item(moveUserAction.userId);
-					if (ss.isNullOrUndefined(clientUser)) {
-						throw new ss.Exception('idk who this user is' + JSON.stringify(moveUserAction));
-					}
-					clientUser.x = moveUserAction.x;
-					clientUser.y = moveUserAction.y;
-					break;
-				}
-				default: {
-					throw new ss.ArgumentOutOfRangeException();
-				}
-			}
+			this.clientGame.queueUserAction(userActionMessage.action);
 		},
 		$userJoined: function(userJoinedMessage) {
-			var $t1 = new $Pather_Client_ClientUser();
+			var $t1 = new $Pather_Client_ClientUser(this.clientGame);
 			$t1.x = userJoinedMessage.x;
 			$t1.y = userJoinedMessage.y;
 			$t1.userId = userJoinedMessage.userId;
@@ -470,7 +664,7 @@
 			}
 			for (var $t2 = 0; $t2 < message.added.length; $t2++) {
 				var updatedNeighbor = message.added[$t2];
-				var user1 = new $Pather_Client_ClientUser();
+				var user1 = new $Pather_Client_ClientUser(this.clientGame);
 				user1.userId = updatedNeighbor.userId;
 				user1.x = updatedNeighbor.x;
 				user1.y = updatedNeighbor.y;
@@ -492,6 +686,31 @@
 			var $t1 = Pather.Common.Models.Gateway.Socket.Base.UserAction_User_Gateway_Socket_Message.$ctor();
 			$t1.action = action;
 			$t2.sendMessage($t1);
+		}
+	});
+	ss.initClass($Pather_Client_StepManager, $asm, {
+		queueUserAction: function(action) {
+			if (!this.stepActionsTicks.containsKey(action.lockstepTick)) {
+				if (action.lockstepTick <= this.$serverGame.tickManager.lockstepTickNumber) {
+					this.$serverGame.processUserAction(action);
+					console.log('Misprocess of action count', ++this.$misprocess, this.$serverGame.tickManager.lockstepTickNumber - action.lockstepTick);
+					return;
+				}
+				this.stepActionsTicks.set_item(action.lockstepTick, []);
+			}
+			this.stepActionsTicks.get_item(action.lockstepTick).push(action);
+		},
+		processAction: function(lockstepTickNumber) {
+			if (!this.stepActionsTicks.containsKey(lockstepTickNumber)) {
+				return;
+			}
+			var stepActions = this.stepActionsTicks.get_item(lockstepTickNumber);
+			for (var $t1 = 0; $t1 < stepActions.length; $t1++) {
+				var stepAction = stepActions[$t1];
+				this.$serverGame.processUserAction(stepAction);
+			}
+			this.lastTickProcessed = lockstepTickNumber;
+			this.stepActionsTicks.remove(lockstepTickNumber);
 		}
 	});
 	ss.initClass($Pather_Client_Old_ClientEntity, $asm, {

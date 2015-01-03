@@ -11,6 +11,7 @@ namespace Pather.Common.Models.Common.UserActions
     public abstract class UserAction : IAction
     {
         public UserActionType UserActionType;
+        public long LockstepTick;
         public string UserId;
     }
     [Serializable]
@@ -23,7 +24,6 @@ namespace Pather.Common.Models.Common.UserActions
 
         public int X;
         public int Y;
-        public long LockstepTick;
     }
 
     public enum UserActionType

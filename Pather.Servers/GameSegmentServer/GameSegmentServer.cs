@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Pather.Common;
+using Pather.Common.Definitions.AStar;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Common;
 using Pather.Common.Models.Common.UserActions;
@@ -69,8 +70,8 @@ namespace Pather.Servers.GameSegmentServer
             backendTickManager = new BackendTickManager();
             backendTickManager.Init(sendPing, () =>
             {
-                Game = new ServerGame(SendAction,AllUsers);
-                Game.Init(backendTickManager);
+                Game = new ServerGame(SendAction, AllUsers, backendTickManager);
+                Game.Init( );
                 tickManagerReady();
 
             });
@@ -169,7 +170,6 @@ namespace Pather.Servers.GameSegmentServer
                 case GameSegment_PubSub_MessageType.Pong:
                     onMessagePong((Pong_Tick_GameSegment_PubSub_Message)message);
                     break;
-
                 case GameSegment_PubSub_MessageType.UserAction:
                     OnMessageUserAction((UserAction_Gateway_GameSegment_PubSub_Message)message);
                     break;
@@ -191,7 +191,7 @@ namespace Pather.Servers.GameSegmentServer
                 throw new Exception("This aint my user! " + message.UserId);
             }
 
-            Game.ProcessUserAction(MyGameSegment.Users[message.UserId], message.Action);
+            Game.QueueUserAction(MyGameSegment.Users[message.UserId], message.Action);
         }
         private void OnMessageUserAction(UserAction_GameSegment_GameSegment_PubSub_Message message)
         {
@@ -440,7 +440,7 @@ namespace Pather.Servers.GameSegmentServer
 
         public void BuildNeighbors()
         {
-            Global.Console.Log(GameSegmentId, "Building Neighbors");
+//            Global.Console.Log(GameSegmentId, "Building Neighbors");
             for (var index = 0; index < AllUsers.Count; index++)
             {
                 var user = AllUsers[index];
@@ -578,17 +578,47 @@ namespace Pather.Servers.GameSegmentServer
 
     public class ServerGame
     {
+        public TickManager tickManager;
+        private GameBoard Board;
         private DictionaryList<string, GameSegmentUser> allUsers;
         private readonly Action<GameSegmentUser, UserAction> sendAction;
+        public StepManager StepManager;
 
-        public ServerGame(Action<GameSegmentUser, UserAction> sendAction,DictionaryList<string, GameSegmentUser> allUsers)
+        public ServerGame(Action<GameSegmentUser, UserAction> sendAction, DictionaryList<string, GameSegmentUser> allUsers, TickManager tickManager)
         {
+            this.tickManager = tickManager;
             this.allUsers = allUsers;
             this.sendAction = sendAction;
+            StepManager = new StepManager(this);
+            tickManager.OnProcessLockstep += StepManager.ProcessAction;
         }
 
-        public void Init(BackendTickManager backendTickManager)
+
+        public void Init()
         {
+
+            Board = new GameBoard();
+            Board.ConstructGrid();
+        }
+
+        public void QueueUserAction(GameSegmentUser user, UserAction action)
+        {
+            StepManager.QueueUserAction(user, action);
+            switch (action.UserActionType)
+            {
+                case UserActionType.Move:
+                    var moveAction = (MoveUserAction)action;
+                    sendAction(user, new MoveUserAction()
+                    {
+                        X = moveAction.X,
+                        Y = moveAction.Y,
+                        UserId = user.UserId,
+                        LockstepTick = moveAction.LockstepTick
+                    });
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
 
         }
 
@@ -597,18 +627,9 @@ namespace Pather.Servers.GameSegmentServer
             switch (action.UserActionType)
             {
                 case UserActionType.Move:
-                    var moveAction = (MoveUserAction)action;
+                              var moveAction = (MoveUserAction)action;
                     user.X = moveAction.X;
                     user.Y = moveAction.Y;
-
-
-                    sendAction(user, new MoveUserAction()
-                    {
-                        X = moveAction.X,
-                        Y = moveAction.Y,
-                        UserId = user.UserId,
-                        LockstepTick = moveAction.LockstepTick
-                    });
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -637,4 +658,71 @@ namespace Pather.Servers.GameSegmentServer
         }
     }
 
+    public class GameBoard
+    {
+        public int[][] Grid;
+        public AStarGraph AStarGraph;
+        public void ConstructGrid()
+        {
+            Grid = new int[Constants.NumberOfSquares][];
+            for (var x = 0; x < Constants.NumberOfSquares; x++)
+            {
+                Grid[x] = new int[Constants.NumberOfSquares];
+                for (var y = 0; y < Constants.NumberOfSquares; y++)
+                {
+                    Grid[x][y] = (Math.Random() * 100 < 15) ? 0 : 1;
+                }
+            }
+            AStarGraph = new AStarGraph(Grid);
+        }
+
+    }
+
+    public   class StepManager
+    {
+        private readonly ServerGame serverGame;
+
+        public StepManager(ServerGame serverGame)
+        {
+            this.serverGame = serverGame;
+            StepActionsTicks = new Dictionary<long, List<Tuple<GameSegmentUser, UserAction>>>();
+            LastTickProcessed = 0;
+        }
+
+        public long LastTickProcessed;
+        public Dictionary<long, List<Tuple<GameSegmentUser, UserAction>>> StepActionsTicks;
+        private int misprocess;
+        
+        public   void QueueUserAction(GameSegmentUser user, UserAction action)
+        {
+
+            if (!StepActionsTicks.ContainsKey(action.LockstepTick))
+            {
+                if (action.LockstepTick <= serverGame.tickManager.LockstepTickNumber)
+                {
+                    serverGame.ProcessUserAction(user,action);
+                    Global.Console.Log("Misprocess of action count", ++misprocess, serverGame.tickManager.LockstepTickNumber - action.LockstepTick);
+                    return;
+                }
+                StepActionsTicks[action.LockstepTick] = new List<Tuple<GameSegmentUser,UserAction>>();
+            }
+            StepActionsTicks[action.LockstepTick].Add(Tuple.Create(user, action));
+        }
+
+        public void ProcessAction(long lockstepTickNumber)
+        {
+            if (!StepActionsTicks.ContainsKey(lockstepTickNumber))
+            {
+                return;
+            }
+            var stepActions = StepActionsTicks[lockstepTickNumber];
+
+            foreach (var stepAction in stepActions)
+            {
+                serverGame.ProcessUserAction(stepAction.Item1, stepAction.Item2);
+            }
+            LastTickProcessed = lockstepTickNumber;
+            StepActionsTicks.Remove(lockstepTickNumber);
+        }
+    }
 }

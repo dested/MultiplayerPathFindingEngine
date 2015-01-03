@@ -14,12 +14,11 @@ namespace Pather.Servers.TickServer
         public TickServerTickManager(TickPubSub tickPubSub)
         {
             TickPubSub = tickPubSub;
+            OnProcessLockstep += onProcessLockstep;
         }
 
-        public override void ProcessLockstep(long lockstepTickNumber)
+        private void onProcessLockstep(long lockstepTickNumber)
         {
-            base.ProcessLockstep(lockstepTickNumber);
-
             if (lockstepTickNumber%15 == 0 || forceOnNextTick)
             {
                 forceOnNextTick = false;

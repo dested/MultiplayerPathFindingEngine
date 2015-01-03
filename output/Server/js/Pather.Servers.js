@@ -193,7 +193,6 @@ var $Pather_Servers_Common_BackendTickManager = function() {
 	this.$pingSent = null;
 	this.$sendPing = null;
 	this.$onTickManagerReady = null;
-	this.onProcessLockstep = null;
 	this.$hasLockstep = false;
 	this.$hasLatency = false;
 	this.$tickManagerInitialized = false;
@@ -462,6 +461,14 @@ var $Pather_Servers_Database_IDatabaseQueries = function() {
 $Pather_Servers_Database_IDatabaseQueries.__typeName = 'Pather.Servers.Database.IDatabaseQueries';
 global.Pather.Servers.Database.IDatabaseQueries = $Pather_Servers_Database_IDatabaseQueries;
 ////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.GameSegmentServer.GameBoard
+var $Pather_Servers_GameSegmentServer_GameBoard = function() {
+	this.grid = null;
+	this.aStarGraph = null;
+};
+$Pather_Servers_GameSegmentServer_GameBoard.__typeName = 'Pather.Servers.GameSegmentServer.GameBoard';
+global.Pather.Servers.GameSegmentServer.GameBoard = $Pather_Servers_GameSegmentServer_GameBoard;
+////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameSegmentServer.GameSegment
 var $Pather_Servers_GameSegmentServer_GameSegment = function(gameSegmentId) {
 	this.users = {};
@@ -536,14 +543,33 @@ $Pather_Servers_GameSegmentServer_GameSegmentServer.$pointDistance = function(pU
 global.Pather.Servers.GameSegmentServer.GameSegmentServer = $Pather_Servers_GameSegmentServer_GameSegmentServer;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameSegmentServer.ServerGame
-var $Pather_Servers_GameSegmentServer_ServerGame = function(sendAction, allUsers) {
+var $Pather_Servers_GameSegmentServer_ServerGame = function(sendAction, allUsers, tickManager) {
+	this.tickManager = null;
+	this.$board = null;
 	this.$allUsers = null;
 	this.$sendAction = null;
+	this.stepManager = null;
+	this.tickManager = tickManager;
 	this.$allUsers = allUsers;
 	this.$sendAction = sendAction;
+	this.stepManager = new $Pather_Servers_GameSegmentServer_StepManager(this);
+	tickManager.onProcessLockstep = ss.delegateCombine(tickManager.onProcessLockstep, ss.mkdel(this.stepManager, this.stepManager.processAction));
 };
 $Pather_Servers_GameSegmentServer_ServerGame.__typeName = 'Pather.Servers.GameSegmentServer.ServerGame';
 global.Pather.Servers.GameSegmentServer.ServerGame = $Pather_Servers_GameSegmentServer_ServerGame;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.GameSegmentServer.StepManager
+var $Pather_Servers_GameSegmentServer_StepManager = function(serverGame) {
+	this.$serverGame = null;
+	this.lastTickProcessed = 0;
+	this.stepActionsTicks = null;
+	this.$misprocess = 0;
+	this.$serverGame = serverGame;
+	this.stepActionsTicks = new (ss.makeGenericType(ss.Dictionary$2, [ss.Int32, Array]))();
+	this.lastTickProcessed = 0;
+};
+$Pather_Servers_GameSegmentServer_StepManager.__typeName = 'Pather.Servers.GameSegmentServer.StepManager';
+global.Pather.Servers.GameSegmentServer.StepManager = $Pather_Servers_GameSegmentServer_StepManager;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameSegmentServer.Logger.GameSegmentLogger
 var $Pather_Servers_GameSegmentServer_Logger_GameSegmentLogger = function() {
@@ -2131,6 +2157,7 @@ var $Pather_Servers_TickServer_TickServerTickManager = function(tickPubSub) {
 	this.$forceOnNextTick = false;
 	Pather.Common.Utils.TickManager.call(this);
 	this.tickPubSub = tickPubSub;
+	this.onProcessLockstep = ss.delegateCombine(this.onProcessLockstep, ss.mkdel(this, this.$onProcessLockstep));
 };
 $Pather_Servers_TickServer_TickServerTickManager.__typeName = 'Pather.Servers.TickServer.TickServerTickManager';
 global.Pather.Servers.TickServer.TickServerTickManager = $Pather_Servers_TickServer_TickServerTickManager;
@@ -2308,12 +2335,6 @@ ss.initClass($Pather_Servers_Common_BackendTickManager, $asm, {
 	$tickManagerReady: function() {
 		this.init(this.lockstepTickNumber);
 		this.$onTickManagerReady();
-	},
-	processLockstep: function(lockstepTickNumber) {
-		Pather.Common.Utils.TickManager.prototype.processLockstep.call(this, lockstepTickNumber);
-		if (!ss.staticEquals(this.onProcessLockstep, null)) {
-			this.onProcessLockstep(lockstepTickNumber);
-		}
 	}
 }, Pather.Common.Utils.TickManager);
 ss.initClass($Pather_Servers_Common_ConnectionConstants, $asm, {});
@@ -2612,6 +2633,18 @@ ss.initClass($Pather_Servers_Database_DatabaseQueries, $asm, {
 	}
 }, null, [$Pather_Servers_Database_IDatabaseQueries]);
 ss.initClass($Pather_Servers_Database_DBUser, $asm, {});
+ss.initClass($Pather_Servers_GameSegmentServer_GameBoard, $asm, {
+	constructGrid: function() {
+		this.grid = new Array(Pather.Common.Constants.numberOfSquares);
+		for (var x = 0; x < Pather.Common.Constants.numberOfSquares; x++) {
+			this.grid[x] = new Array(Pather.Common.Constants.numberOfSquares);
+			for (var y = 0; y < Pather.Common.Constants.numberOfSquares; y++) {
+				this.grid[x][y] = ((Math.random() * 100 < 15) ? 0 : 1);
+			}
+		}
+		this.aStarGraph = new Graph(this.grid);
+	}
+});
 ss.initClass($Pather_Servers_GameSegmentServer_GameSegment, $asm, {
 	userLeft: function(userId) {
 		var user = this.users[userId];
@@ -2683,8 +2716,8 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 	$ready: function() {
 		this.$backendTickManager = new $Pather_Servers_Common_BackendTickManager();
 		this.$backendTickManager.init$1(ss.mkdel(this, this.$sendPing), ss.mkdel(this, function() {
-			this.$game = new $Pather_Servers_GameSegmentServer_ServerGame(ss.mkdel(this, this.sendAction), this.allUsers);
-			this.$game.init(this.$backendTickManager);
+			this.$game = new $Pather_Servers_GameSegmentServer_ServerGame(ss.mkdel(this, this.sendAction), this.allUsers, this.$backendTickManager);
+			this.$game.init();
 			this.$tickManagerReady();
 		}));
 		this.$backendTickManager.startPing();
@@ -2783,7 +2816,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 		if (!ss.keyExists(this.myGameSegment.users, message.userId)) {
 			throw new ss.Exception('This aint my user! ' + message.userId);
 		}
-		this.$game.processUserAction(this.myGameSegment.users[message.userId], message.action);
+		this.$game.queueUserAction(this.myGameSegment.users[message.userId], message.action);
 	},
 	$onMessageUserAction: function(message) {
 		if (!ss.keyExists(this.myGameSegment.users, message.userId)) {
@@ -2990,7 +3023,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 		$Pather_Servers_GameSegmentServer_Logger_GameSegmentLogger.logUserMoved(user.userId, user.x, user.y, user.neighbors.keys);
 	},
 	buildNeighbors: function() {
-		console.log(this.$gameSegmentId, 'Building Neighbors');
+		//            Global.Console.Log(GameSegmentId, "Building Neighbors");
 		for (var index = 0; index < this.allUsers.get_count(); index++) {
 			var user = this.allUsers.get_item$1(index);
 			user.set_oldNeighbors(ss.arrayClone(user.neighbors.list));
@@ -3100,14 +3133,15 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 	}
 });
 ss.initClass($Pather_Servers_GameSegmentServer_ServerGame, $asm, {
-	init: function(backendTickManager) {
+	init: function() {
+		this.$board = new $Pather_Servers_GameSegmentServer_GameBoard();
+		this.$board.constructGrid();
 	},
-	processUserAction: function(user, action) {
+	queueUserAction: function(user, action) {
+		this.stepManager.queueUserAction(user, action);
 		switch (action.userActionType) {
 			case 0: {
 				var moveAction = action;
-				user.x = moveAction.x;
-				user.y = moveAction.y;
 				var $t2 = this.$sendAction;
 				var $t1 = Pather.Common.Models.Common.UserActions.MoveUserAction.$ctor();
 				$t1.x = moveAction.x;
@@ -3115,6 +3149,19 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGame, $asm, {
 				$t1.userId = user.userId;
 				$t1.lockstepTick = moveAction.lockstepTick;
 				$t2(user, $t1);
+				break;
+			}
+			default: {
+				throw new ss.ArgumentOutOfRangeException();
+			}
+		}
+	},
+	processUserAction: function(user, action) {
+		switch (action.userActionType) {
+			case 0: {
+				var moveAction = action;
+				user.x = moveAction.x;
+				user.y = moveAction.y;
 				break;
 			}
 			default: {
@@ -3141,6 +3188,31 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGame, $asm, {
 				throw new ss.ArgumentOutOfRangeException();
 			}
 		}
+	}
+});
+ss.initClass($Pather_Servers_GameSegmentServer_StepManager, $asm, {
+	queueUserAction: function(user, action) {
+		if (!this.stepActionsTicks.containsKey(action.lockstepTick)) {
+			if (action.lockstepTick <= this.$serverGame.tickManager.lockstepTickNumber) {
+				this.$serverGame.processUserAction(user, action);
+				console.log('Misprocess of action count', ++this.$misprocess, this.$serverGame.tickManager.lockstepTickNumber - action.lockstepTick);
+				return;
+			}
+			this.stepActionsTicks.set_item(action.lockstepTick, []);
+		}
+		this.stepActionsTicks.get_item(action.lockstepTick).push({ item1: user, item2: action });
+	},
+	processAction: function(lockstepTickNumber) {
+		if (!this.stepActionsTicks.containsKey(lockstepTickNumber)) {
+			return;
+		}
+		var stepActions = this.stepActionsTicks.get_item(lockstepTickNumber);
+		for (var $t1 = 0; $t1 < stepActions.length; $t1++) {
+			var stepAction = stepActions[$t1];
+			this.$serverGame.processUserAction(stepAction.item1, stepAction.item2);
+		}
+		this.lastTickProcessed = lockstepTickNumber;
+		this.stepActionsTicks.remove(lockstepTickNumber);
 	}
 });
 ss.initClass($Pather_Servers_GameSegmentServer_Logger_GameSegmentLogger, $asm, {});
@@ -4908,8 +4980,7 @@ ss.initClass($Pather_Servers_TickServer_TickServer, $asm, {
 	}
 });
 ss.initClass($Pather_Servers_TickServer_TickServerTickManager, $asm, {
-	processLockstep: function(lockstepTickNumber) {
-		Pather.Common.Utils.TickManager.prototype.processLockstep.call(this, lockstepTickNumber);
+	$onProcessLockstep: function(lockstepTickNumber) {
 		if (lockstepTickNumber % 15 === 0 || this.$forceOnNextTick) {
 			this.$forceOnNextTick = false;
 			$Pather_Servers_Common_ServerLogging_ServerLogger.logInformation('Pushed Lockstep Tick', [lockstepTickNumber]);

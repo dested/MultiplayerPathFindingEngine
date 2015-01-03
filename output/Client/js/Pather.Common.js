@@ -213,7 +213,6 @@
 		var $this = $Pather_Common_Models_Common_UserActions_UserAction.$ctor();
 		$this.x = 0;
 		$this.y = 0;
-		$this.lockstepTick = 0;
 		$this.userActionType = 0;
 		return $this;
 	};
@@ -226,6 +225,7 @@
 	$Pather_Common_Models_Common_UserActions_UserAction.$ctor = function() {
 		var $this = {};
 		$this.userActionType = 0;
+		$this.lockstepTick = 0;
 		$this.userId = null;
 		return $this;
 	};
@@ -2043,7 +2043,8 @@
 	// Pather.Common.Utils.TickManager
 	var $Pather_Common_Utils_TickManager = function() {
 		this.lockstepTickNumber = 0;
-		this.$currentLockstepTime = 0;
+		this.onProcessLockstep = null;
+		this.currentLockstepTime = 0;
 		this.currentServerLatency = 0;
 	};
 	$Pather_Common_Utils_TickManager.__typeName = 'Pather.Common.Utils.TickManager';
@@ -2735,7 +2736,7 @@
 	ss.initClass($Pather_Common_Utils_TickManager, $asm, {
 		init: function(currentLockstepTickNumber) {
 			this.lockstepTickNumber = currentLockstepTickNumber;
-			this.$currentLockstepTime = (new Date()).getTime();
+			this.currentLockstepTime = (new Date()).getTime();
 			setTimeout(ss.mkdel(this, this.$tick), 1);
 		},
 		setLockStepTick: function(lockStepTickNumber) {
@@ -2752,7 +2753,7 @@
 					this.processLockstep(this.lockstepTickNumber);
 				}
 			}
-			this.$currentLockstepTime = (new Date()).getTime() - this.currentServerLatency;
+			this.currentLockstepTime = (new Date()).getTime() - this.currentServerLatency;
 		},
 		setServerLatency: function(latency) {
 			this.currentServerLatency = latency;
@@ -2760,15 +2761,18 @@
 		$tick: function() {
 			setTimeout(ss.mkdel(this, this.$tick), 1);
 			var vc = (new Date()).getTime();
-			var l = vc - this.$currentLockstepTime;
+			var l = vc - this.currentLockstepTime;
 			while (l > $Pather_Common_Constants.lockstepTicks) {
 				l -= $Pather_Common_Constants.lockstepTicks;
-				this.$currentLockstepTime += $Pather_Common_Constants.lockstepTicks;
+				this.currentLockstepTime += $Pather_Common_Constants.lockstepTicks;
 				this.lockstepTickNumber++;
 				this.processLockstep(this.lockstepTickNumber);
 			}
 		},
 		processLockstep: function(lockstepTickNumber) {
+			if (!ss.staticEquals(this.onProcessLockstep, null)) {
+				this.onProcessLockstep(lockstepTickNumber);
+			}
 			//            Global.Console.Log("Lockstep", LockstepTickNumber, new DateTime().GetTime());
 			//            ServerLogger.LogInformation("Lockstep", LockstepTickNumber, new DateTime().GetTime());
 		}

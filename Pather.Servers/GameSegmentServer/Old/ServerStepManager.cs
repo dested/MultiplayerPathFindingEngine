@@ -2,7 +2,7 @@ using Pather.Common.old;
 
 namespace Pather.Servers.GameSegmentServer.Old
 {
-    public class ServerStepManager : StepManager
+    public class ServerStepManager : Pather.Common.old.StepManager
     {
         public ServerNetworkManager ServerNetworkManager;
 

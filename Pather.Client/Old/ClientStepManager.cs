@@ -7,7 +7,7 @@ using Pather.Common.old;
 
 namespace Pather.Client.Old
 {
-    public class ClientStepManager : StepManager
+    public class ClientStepManager : Pather.Common.old.StepManager
     {
         public ClientNetworkManager ClientNetworkManager;
 
