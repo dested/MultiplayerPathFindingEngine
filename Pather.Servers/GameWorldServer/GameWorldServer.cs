@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameWorld.Base;
@@ -33,6 +34,7 @@ namespace Pather.Servers.GameWorldServer
             DatabaseQueries = dbQueries;
             pubSub.Init().Then(pubsubReady);
             //            new TickWatcher();
+            ConstructGrid();
             Global.SetInterval(reorganize, 60*1000);
         }
 
@@ -150,6 +152,7 @@ namespace Pather.Servers.GameWorldServer
                             Y = gwUser.Y,
                             GameSegmentId = gwUser.GameSegment.GameSegmentId,
                             UserId = gwUser.UserId,
+                            Grid=Grid,
                         });
                     });
                     break;
@@ -196,17 +199,14 @@ namespace Pather.Servers.GameWorldServer
                     {
                         MessageId = getAllGameSegments.MessageId,
                         GameSegmentIds = GameWorld.GameSegments.Select(a => a.GameSegmentId),
-                        AllUsers = GameWorld.Users.Select(user =>
+                        Grid=Grid,
+                        AllUsers = GameWorld.Users.Select(user => new InitialGameUser()
                         {
-                            //                                Global.Console.Log("Sending out initial to", getAllGameSegments.OriginGameSegment, user.UserId, user.GatewayId);
-                            return new InitialGameUser()
-                            {
-                                GameSegmentId = user.GameSegment.GameSegmentId,
-                                UserId = user.UserId,
-                                GatewayId = user.GatewayId,
-                                X = user.X,
-                                Y = user.Y,
-                            };
+                            GameSegmentId = user.GameSegment.GameSegmentId,
+                            UserId = user.UserId,
+                            GatewayId = user.GatewayId,
+                            X = user.X,
+                            Y = user.Y,
                         })
                     };
                     Global.Console.Log("Initalized");
@@ -216,6 +216,21 @@ namespace Pather.Servers.GameWorldServer
                     throw new ArgumentOutOfRangeException();
             }
         }
+
+        public void ConstructGrid()
+        {
+            Grid = new int[Constants.NumberOfSquares][];
+            for (var x = 0; x < Constants.NumberOfSquares; x++)
+            {
+                Grid[x] = new int[Constants.NumberOfSquares];
+                for (var y = 0; y < Constants.NumberOfSquares; y++)
+                {
+                    Grid[x][y] = (Math.Random() * 100 < 15) ? 0 : 1;
+                }
+            }
+        }
+
+        public int[][] Grid;
 
         private readonly JsDictionary<string, List<Tuple<GameWorldUser, Deferred<GameWorldUser, UserJoinError>>>> preAddedUsers = new JsDictionary<string, List<Tuple<GameWorldUser, Deferred<GameWorldUser, UserJoinError>>>>();
         private readonly List<Tuple<UserJoined_Gateway_GameWorld_PubSub_Message, Deferred<GameWorldUser, UserJoinError>>> stalledJoins = new List<Tuple<UserJoined_Gateway_GameWorld_PubSub_Message, Deferred<GameWorldUser, UserJoinError>>>();

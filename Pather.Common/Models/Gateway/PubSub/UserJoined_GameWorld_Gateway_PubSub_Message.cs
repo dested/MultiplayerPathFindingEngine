@@ -15,5 +15,6 @@ namespace Pather.Common.Models.Gateway.PubSub
         public string UserId;
         public int X;
         public int Y;
+        public int[][] Grid;
     }
 }

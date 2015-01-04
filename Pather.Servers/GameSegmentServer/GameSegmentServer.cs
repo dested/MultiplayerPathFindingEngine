@@ -71,7 +71,6 @@ namespace Pather.Servers.GameSegmentServer
             backendTickManager.Init(sendPing, () =>
             {
                 Game = new ServerGame(SendAction, AllUsers, backendTickManager);
-                Game.Init( );
                 tickManagerReady();
 
             });
@@ -90,7 +89,7 @@ namespace Pather.Servers.GameSegmentServer
                     {
                         AllUsers.Clear();
                         AllGameSegments = new JsDictionary<string, GameSegment>();
-
+                        Game.Init(message.Grid);
 
                         MyGameSegment = new GameSegment(GameSegmentId);
                         AllGameSegments[MyGameSegment.GameSegmentId] = MyGameSegment;
@@ -130,6 +129,7 @@ namespace Pather.Servers.GameSegmentServer
                         registerGameSegmentWithCluster();
                     });
         }
+
 
         private void sendPing()
         {
@@ -592,13 +592,14 @@ namespace Pather.Servers.GameSegmentServer
             StepManager = new StepManager(this);
             tickManager.OnProcessLockstep += StepManager.ProcessAction;
         }
+    
 
 
-        public void Init()
+        public void Init(int[][] grid)
         {
 
             Board = new GameBoard();
-            Board.ConstructGrid();
+            Board.Init(grid);
         }
 
         public void QueueUserAction(GameSegmentUser user, UserAction action)
@@ -656,6 +657,7 @@ namespace Pather.Servers.GameSegmentServer
                     throw new ArgumentOutOfRangeException();
             }
         }
+
     }
 
     public class GameBoard
@@ -673,6 +675,11 @@ namespace Pather.Servers.GameSegmentServer
                     Grid[x][y] = (Math.Random() * 100 < 15) ? 0 : 1;
                 }
             }
+            AStarGraph = new AStarGraph(Grid);
+        }
+        public void Init(int[][] grid)
+        {
+            Grid = grid;
             AStarGraph = new AStarGraph(Grid);
         }
 

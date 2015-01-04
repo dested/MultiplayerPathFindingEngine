@@ -870,6 +870,7 @@ var $Pather_Servers_GameWorldServer_GameWorldServer = function(pubSub, dbQueries
 	this.gameWorld = null;
 	this.backendTickManager = null;
 	this.$gameWorldPubSub = null;
+	this.grid = null;
 	this.$preAddedUsers = {};
 	this.$stalledJoins = [];
 	this.$joining = false;
@@ -878,6 +879,7 @@ var $Pather_Servers_GameWorldServer_GameWorldServer = function(pubSub, dbQueries
 	this.$databaseQueries = dbQueries;
 	pubSub.init(6379).then(ss.mkdel(this, this.$pubsubReady));
 	//            new TickWatcher();
+	this.constructGrid();
 	setInterval(ss.mkdel(this, this.$reorganize), 60000);
 };
 $Pather_Servers_GameWorldServer_GameWorldServer.__typeName = 'Pather.Servers.GameWorldServer.GameWorldServer';
@@ -2643,6 +2645,10 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameBoard, $asm, {
 			}
 		}
 		this.aStarGraph = new Graph(this.grid);
+	},
+	init: function(grid) {
+		this.grid = grid;
+		this.aStarGraph = new Graph(this.grid);
 	}
 });
 ss.initClass($Pather_Servers_GameSegmentServer_GameSegment, $asm, {
@@ -2717,7 +2723,6 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 		this.$backendTickManager = new $Pather_Servers_Common_BackendTickManager();
 		this.$backendTickManager.init$1(ss.mkdel(this, this.$sendPing), ss.mkdel(this, function() {
 			this.$game = new $Pather_Servers_GameSegmentServer_ServerGame(ss.mkdel(this, this.sendAction), this.allUsers, this.$backendTickManager);
-			this.$game.init();
 			this.$tickManagerReady();
 		}));
 		this.$backendTickManager.startPing();
@@ -2729,6 +2734,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 		$t2.publishToGameWorldWithCallback(Pather.Common.Models.GameSegment.InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message).call($t2, $t1).then(ss.mkdel(this, function(message) {
 			this.allUsers.clear();
 			this.allGameSegments = {};
+			this.$game.init(message.grid);
 			this.myGameSegment = new $Pather_Servers_GameSegmentServer_GameSegment(this.$gameSegmentId);
 			this.allGameSegments[this.myGameSegment.gameSegmentId] = this.myGameSegment;
 			for (var $t3 = 0; $t3 < message.gameSegmentIds.length; $t3++) {
@@ -3133,9 +3139,9 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 	}
 });
 ss.initClass($Pather_Servers_GameSegmentServer_ServerGame, $asm, {
-	init: function() {
+	init: function(grid) {
 		this.$board = new $Pather_Servers_GameSegmentServer_GameBoard();
-		this.$board.constructGrid();
+		this.$board.init(grid);
 	},
 	queueUserAction: function(user, action) {
 		this.stepManager.queueUserAction(user, action);
@@ -3746,6 +3752,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 					$t1.y = gwUser.y;
 					$t1.gameSegmentId = gwUser.gameSegment.gameSegmentId;
 					$t1.userId = gwUser.userId;
+					$t1.grid = this.grid;
 					$t2.publishToGatewayServer($t3, $t1);
 				}));
 				break;
@@ -3801,8 +3808,8 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 				$t6.gameSegmentIds = Pather.Common.Utils.EnumerableExtensions.select(this.gameWorld.gameSegments, function(a) {
 					return a.gameSegmentId;
 				});
+				$t6.grid = this.grid;
 				$t6.allUsers = Pather.Common.Utils.EnumerableExtensions.select(this.gameWorld.users, function(user) {
-					//                                Global.Console.Log("Sending out initial to", getAllGameSegments.OriginGameSegment, user.UserId, user.GatewayId);
 					var $t7 = Pather.Common.Models.GameSegment.InitialGameUser.$ctor();
 					$t7.gameSegmentId = user.gameSegment.gameSegmentId;
 					$t7.userId = user.userId;
@@ -3818,6 +3825,15 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 			}
 			default: {
 				throw new ss.ArgumentOutOfRangeException();
+			}
+		}
+	},
+	constructGrid: function() {
+		this.grid = new Array(Pather.Common.Constants.numberOfSquares);
+		for (var x = 0; x < Pather.Common.Constants.numberOfSquares; x++) {
+			this.grid[x] = new Array(Pather.Common.Constants.numberOfSquares);
+			for (var y = 0; y < Pather.Common.Constants.numberOfSquares; y++) {
+				this.grid[x][y] = ((Math.random() * 100 < 15) ? 0 : 1);
 			}
 		}
 	},
@@ -4210,6 +4226,7 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 				$t3.y = userJoinedMessage.y;
 				$t3.gameSegmentId = userJoinedMessage.gameSegmentId;
 				$t3.userId = userJoinedMessage.userId;
+				$t3.grid = userJoinedMessage.grid;
 				$t4.sendMessage($t5, $t3);
 				if (ss.keyExists(this.$cachedUserMoves, userJoinedMessage.userId)) {
 					console.log('Removing cached moved for ', userJoinedMessage.userId);

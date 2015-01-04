@@ -28,7 +28,6 @@ namespace Pather.Client
                 Global.Console.Log("Connected To Tick Server");
             });
             clientGame=new ClientGame(ActiveUsers,FrontEndTickManager);
-            clientGame.Init();
 
             FrontEndTickManager.StartPing();
         }
@@ -78,12 +77,7 @@ namespace Pather.Client
 
         private void userAction(UserAction_Gateway_User_Socket_Message userActionMessage)
         {
-
-   
             clientGame.QueueUserAction(userActionMessage.Action);
-
-
-
         }
 
         private void userJoined(UserJoined_Gateway_User_Socket_Message userJoinedMessage)
@@ -96,6 +90,7 @@ namespace Pather.Client
             };
             ActiveUsers.Add(clientUser);
             MyUser = clientUser;
+            clientGame.Init(userJoinedMessage.Grid);
 
             OnReady();
         }
@@ -145,11 +140,10 @@ namespace Pather.Client
         }
 
 
-        public void Init()
+        public void Init(int[][] grid)
         {
-
             Board = new GameBoard();
-            Board.ConstructGrid();
+            Board.Init(grid);
         }
 
         public void QueueUserAction(UserAction action)
@@ -209,6 +203,11 @@ namespace Pather.Client
                     Grid[x][y] = (Math.Random() * 100 < 15) ? 0 : 1;
                 }
             }
+            AStarGraph = new AStarGraph(Grid);
+        }
+        public void Init(int[][] grid)
+        {
+            Grid = grid;
             AStarGraph = new AStarGraph(Grid);
         }
 

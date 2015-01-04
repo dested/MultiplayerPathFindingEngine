@@ -11,6 +11,8 @@ namespace Pather.Client
     {
         private CanvasElement canvas;
         private CanvasRenderingContext2D context;
+        public CanvasElement BackCanvas;
+        public CanvasRenderingContext2D BackContext;
 
         private readonly GameManager gameManager;
 
@@ -34,8 +36,10 @@ namespace Pather.Client
         {
             if (!Constants.TestServer)
             {
-                canvas = (CanvasElement) Document.GetElementById("canvas");
-                context = (CanvasRenderingContext2D) canvas.GetContext(CanvasContextId.Render2D);
+                BackCanvas = (CanvasElement)Document.GetElementById("backCanvas");
+                BackContext = (CanvasRenderingContext2D)BackCanvas.GetContext(CanvasContextId.Render2D);
+                canvas = (CanvasElement)Document.GetElementById("canvas");
+                context = (CanvasRenderingContext2D)canvas.GetContext(CanvasContextId.Render2D);
                 canvas.OnMousedown = (ev) =>
                 {
                     var @event = (dynamic) ev;
@@ -51,10 +55,32 @@ namespace Pather.Client
                 Window.RequestAnimationFrame((a) => Draw());
             }
         }
+        public void DrawBack()
+        {
+            BackContext.Save();
+            BackContext.FillStyle = "black";
+            BackContext.FillRect(0, 0, 1200, 1200);
+
+            BackContext.FillStyle = "blue";
+            for (var y = 0; y < Constants.NumberOfSquares; y++)
+            {
+                for (var x = 0; x < Constants.NumberOfSquares; x++)
+                {
+                    if (gameManager.clientGame.Board.Grid[x][y] == 0)
+                    {
+                        BackContext.FillRect(x * Constants.SquareSize, y * Constants.SquareSize, Constants.SquareSize, Constants.SquareSize);
+                    }
+                }
+            }
+            BackContext.Restore();
+        }
+
 
         private void Draw()
         {
             Window.RequestAnimationFrame((a) => Draw());
+            DrawBack();
+
             context.ClearRect(0, 0, 1200, 1200);
             var interpolatedTime = (((new DateTime()).GetTime() - NextGameTime) / (double)Constants.GameTicks);
             foreach (var activeUser in gameManager.ActiveUsers.List)

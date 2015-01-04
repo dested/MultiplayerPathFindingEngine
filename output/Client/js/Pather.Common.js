@@ -368,6 +368,7 @@
 		var $this = $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message.$ctor();
 		$this.gameSegmentIds = null;
 		$this.allUsers = null;
+		$this.grid = null;
 		$this.type = 'initializeGameSegmentResponse';
 		$this.response = true;
 		return $this;
@@ -885,6 +886,7 @@
 		$this.userId = null;
 		$this.x = 0;
 		$this.y = 0;
+		$this.grid = null;
 		$this.type = 'userJoined';
 		return $this;
 	};
@@ -1095,6 +1097,7 @@
 		$this.userId = null;
 		$this.x = 0;
 		$this.y = 0;
+		$this.grid = null;
 		$this.gatewayUserMessageType = 'userJoined';
 		return $this;
 	};

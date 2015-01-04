@@ -14,5 +14,6 @@ namespace Pather.Common.Models.Gateway.Socket.Base
         public string UserId;
         public int X;
         public int Y;
+        public int[][] Grid;
     }
 }

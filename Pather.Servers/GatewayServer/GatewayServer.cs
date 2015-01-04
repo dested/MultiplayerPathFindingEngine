@@ -135,7 +135,8 @@ namespace Pather.Servers.GatewayServer
                         X = userJoinedMessage.X,
                         Y = userJoinedMessage.Y,
                         GameSegmentId = userJoinedMessage.GameSegmentId,
-                        UserId = userJoinedMessage.UserId
+                        UserId = userJoinedMessage.UserId,
+                        Grid=userJoinedMessage.Grid
                     });
 
                     if (cachedUserMoves.ContainsKey(userJoinedMessage.UserId))

@@ -82,6 +82,8 @@
 	var $Pather_Client_GameClient = function() {
 		this.$canvas = null;
 		this.$context = null;
+		this.backCanvas = null;
+		this.backContext = null;
 		this.$gameManager = null;
 		this.curTickTime = 0;
 		this.tickNumber = 0;
@@ -119,7 +121,6 @@
 			console.log('Connected To Tick Server');
 		});
 		this.clientGame = new $Pather_Client_ClientGame(this.activeUsers, this.frontEndTickManager);
-		this.clientGame.init();
 		this.frontEndTickManager.startPing();
 	};
 	$Pather_Client_GameManager.__typeName = 'Pather.Client.GameManager';
@@ -364,9 +365,9 @@
 	global.Pather.Client.Utils.ClientCommunicator = $Pather_Client_Utils_ClientCommunicator;
 	ss.initClass($Pather_Client_$Program, $asm, {});
 	ss.initClass($Pather_Client_ClientGame, $asm, {
-		init: function() {
+		init: function(grid) {
 			this.board = new $Pather_Client_GameBoard();
-			this.board.constructGrid();
+			this.board.init(grid);
 		},
 		queueUserAction: function(action) {
 			this.stepManager.queueUserAction(action);
@@ -544,13 +545,20 @@
 				}
 			}
 			this.aStarGraph = new Graph(this.grid);
+		},
+		init: function(grid) {
+			this.grid = grid;
+			this.aStarGraph = new Graph(this.grid);
 		}
 	});
 	ss.initClass($Pather_Client_GameClient, $asm, {
 		$readyToPlay: function() {
 			if (!Pather.Common.Constants.get_testServer()) {
-				var $t1 = document.getElementById('canvas');
-				this.$canvas = ss.cast($t1, ss.isValue($t1) && (ss.isInstanceOfType($t1, Element) && $t1.tagName === 'CANVAS'));
+				var $t1 = document.getElementById('backCanvas');
+				this.backCanvas = ss.cast($t1, ss.isValue($t1) && (ss.isInstanceOfType($t1, Element) && $t1.tagName === 'CANVAS'));
+				this.backContext = ss.cast(this.backCanvas.getContext('2d'), CanvasRenderingContext2D);
+				var $t2 = document.getElementById('canvas');
+				this.$canvas = ss.cast($t2, ss.isValue($t2) && (ss.isInstanceOfType($t2, Element) && $t2.tagName === 'CANVAS'));
 				this.$context = ss.cast(this.$canvas.getContext('2d'), CanvasRenderingContext2D);
 				this.$canvas.onmousedown = ss.mkdel(this, function(ev) {
 					var event = ev;
@@ -563,10 +571,25 @@
 				}));
 			}
 		},
+		drawBack: function() {
+			this.backContext.save();
+			this.backContext.fillStyle = 'black';
+			this.backContext.fillRect(0, 0, 1200, 1200);
+			this.backContext.fillStyle = 'blue';
+			for (var y = 0; y < Pather.Common.Constants.numberOfSquares; y++) {
+				for (var x = 0; x < Pather.Common.Constants.numberOfSquares; x++) {
+					if (this.$gameManager.clientGame.board.grid[x][y] === 0) {
+						this.backContext.fillRect(x * Pather.Common.Constants.squareSize, y * Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
+					}
+				}
+			}
+			this.backContext.restore();
+		},
 		$draw: function() {
 			window.requestAnimationFrame(ss.mkdel(this, function(a) {
 				this.$draw();
 			}));
+			this.drawBack();
 			this.$context.clearRect(0, 0, 1200, 1200);
 			var interpolatedTime = ((new Date()).getTime() - this.nextGameTime) / Pather.Common.Constants.gameTicks;
 			for (var $t1 = 0; $t1 < this.$gameManager.activeUsers.list.length; $t1++) {
@@ -654,6 +677,7 @@
 			var clientUser = $t1;
 			this.activeUsers.add(clientUser);
 			this.myUser = clientUser;
+			this.clientGame.init(userJoinedMessage.grid);
 			this.onReady();
 		},
 		$onUpdateNeighbors: function(message) {
