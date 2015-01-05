@@ -2500,12 +2500,8 @@
 		tick: function() {
 			var result = this.path[0];
 			this.animations = [];
-			var projectedX;
-			var projectedY;
-			var projectedSquareX;
-			var projectedSquareY;
-			projectedSquareX = (ss.isNullOrUndefined(result) ? this.squareX : result.x);
-			projectedSquareY = (ss.isNullOrUndefined(result) ? this.squareY : result.y);
+			var projectedSquareX = (ss.isNullOrUndefined(result) ? this.squareX : result.x);
+			var projectedSquareY = (ss.isNullOrUndefined(result) ? this.squareY : result.y);
 			for (var i = 0; i < $Pather_Common_Constants.animationSteps; i++) {
 				this.squareX = ss.Int32.trunc(this.x / $Pather_Common_Constants.squareSize);
 				this.squareY = ss.Int32.trunc(this.y / $Pather_Common_Constants.squareSize);
@@ -2517,8 +2513,8 @@
 					projectedSquareX = (ss.isNullOrUndefined(result) ? this.squareX : result.x);
 					projectedSquareY = (ss.isNullOrUndefined(result) ? this.squareY : result.y);
 				}
-				projectedX = projectedSquareX * $Pather_Common_Constants.squareSize + ss.Int32.div($Pather_Common_Constants.squareSize, 2);
-				projectedY = projectedSquareY * $Pather_Common_Constants.squareSize + ss.Int32.div($Pather_Common_Constants.squareSize, 2);
+				var projectedX = projectedSquareX * $Pather_Common_Constants.squareSize + ss.Int32.div($Pather_Common_Constants.squareSize, 2);
+				var projectedY = projectedSquareY * $Pather_Common_Constants.squareSize + ss.Int32.div($Pather_Common_Constants.squareSize, 2);
 				if (projectedX === ss.Int32.trunc(this.x) && projectedY === ss.Int32.trunc(this.y)) {
 					return;
 				}

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using Pather.Common.Definitions.AStar;
+using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Utils;
 
 namespace Pather.Common.old
@@ -44,6 +46,7 @@ namespace Pather.Common.old
             var start = graph.Grid[SquareX][SquareY];
             var end = graph.Grid[squareX][squareY];
             Path = new List<AStarPath>(AStar.Search(graph, start, end));
+
         }
 
 
@@ -52,19 +55,13 @@ namespace Pather.Common.old
             var result = Path[0];
             Animations = new List<AnimationPoint>();
 
-            int projectedX;
-            int projectedY;
-            int projectedSquareX;
-            int projectedSquareY;
-
-            projectedSquareX = result == null ? SquareX : (result.X);
-            projectedSquareY = result == null ? SquareY : (result.Y);
-
+            int projectedSquareX = result == null ? SquareX : (result.X);
+            int projectedSquareY = result == null ? SquareY : (result.Y);
 
             for (var i = 0; i < Constants.AnimationSteps; i++)
             {
-                SquareX = (int) ((X)/Constants.SquareSize);
-                SquareY = (int) ((Y)/Constants.SquareSize);
+                SquareX = (int)((X) / Constants.SquareSize);
+                SquareY = (int)((Y) / Constants.SquareSize);
                 var fromX = X;
                 var fromY = Y;
 
@@ -79,21 +76,24 @@ namespace Pather.Common.old
                 }
 
 
-                projectedX = projectedSquareX*Constants.SquareSize + Constants.SquareSize/2;
-                projectedY = projectedSquareY*Constants.SquareSize + Constants.SquareSize/2;
+                int projectedX = projectedSquareX * Constants.SquareSize + Constants.SquareSize / 2;
+                int projectedY = projectedSquareY * Constants.SquareSize + Constants.SquareSize / 2;
 
 
-                if (((int) projectedX) == ((int) X) && ((int) projectedY) == ((int) Y))
+                if (((int)projectedX) == ((int)X) && ((int)projectedY) == ((int)Y))
                 {
                     return;
                 }
 
-                X = Lerper.MoveTowards(X, projectedX, (Speed/Constants.AnimationSteps));
-                Y = Lerper.MoveTowards(Y, projectedY, (Speed/Constants.AnimationSteps));
+                X = Lerper.MoveTowards(X, projectedX, (Speed / Constants.AnimationSteps));
+                Y = Lerper.MoveTowards(Y, projectedY, (Speed / Constants.AnimationSteps));
 
 
                 Animations.Add(new AnimationPoint(fromX, fromY, X, Y));
             }
         }
+         
+
+
     }
 }

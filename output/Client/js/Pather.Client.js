@@ -442,6 +442,35 @@
 			var start = graph.grid[this.squareX][this.squareY];
 			var end = graph.grid[squareX][squareY];
 			this.path = ss.arrayClone(astar.search(graph, start, end));
+			debugger;
+			this.buildMovement();
+		},
+		buildMovement: function() {
+			var result = this.path[0];
+			var projectedSquareX = (ss.isNullOrUndefined(result) ? this.squareX : result.x);
+			var projectedSquareY = (ss.isNullOrUndefined(result) ? this.squareY : result.y);
+			var points = [];
+			while (ss.isValue(result)) {
+				this.squareX = ss.Int32.trunc(this.x / Pather.Common.Constants.squareSize);
+				this.squareY = ss.Int32.trunc(this.y / Pather.Common.Constants.squareSize);
+				var fromX = this.x;
+				var fromY = this.y;
+				if (this.squareX === result.x && this.squareY === result.y) {
+					ss.removeAt(this.path, 0);
+					result = this.path[0];
+					projectedSquareX = (ss.isNullOrUndefined(result) ? this.squareX : result.x);
+					projectedSquareY = (ss.isNullOrUndefined(result) ? this.squareY : result.y);
+				}
+				var projectedX = projectedSquareX * Pather.Common.Constants.squareSize + ss.Int32.div(Pather.Common.Constants.squareSize, 2);
+				var projectedY = projectedSquareY * Pather.Common.Constants.squareSize + ss.Int32.div(Pather.Common.Constants.squareSize, 2);
+				if (projectedX === ss.Int32.trunc(this.x) && projectedY === ss.Int32.trunc(this.y)) {
+					break;
+				}
+				this.x = Pather.Common.Utils.Lerper.moveTowards(this.x, projectedX, this.speed);
+				this.y = Pather.Common.Utils.Lerper.moveTowards(this.y, projectedY, this.speed);
+				points.push(new Pather.Common.Utils.AnimationPoint(fromX, fromY, this.x, this.y));
+			}
+			console.log(points);
 		},
 		draw: function(context, interpolatedTime) {
 			context.save();
