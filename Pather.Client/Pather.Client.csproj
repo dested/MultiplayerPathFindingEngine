@@ -33,10 +33,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="ClientUser.cs" />
-    <Compile Include="FrontEndTickManager.cs" />
-    <Compile Include="GameClient.cs" />
-    <Compile Include="GameManager.cs" />
+    <Compile Include="GameFramework\ClientGame.cs" />
+    <Compile Include="GameFramework\ClientGameUser.cs" />
+    <Compile Include="GameFramework\FrontEndTickManager.cs" />
+    <Compile Include="ClientGameView.cs" />
+    <Compile Include="GameFramework\ClientGameManager.cs" />
     <Compile Include="Libraries\jQueryObject.cs" />
     <Compile Include="NetworkManager.cs" />
     <Compile Include="Old\ClientGame.cs" />

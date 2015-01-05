@@ -3,35 +3,25 @@ using System.Diagnostics;
 using System.Html.Media.Graphics;
 using Pather.Common;
 using Pather.Common.Definitions.AStar;
+using Pather.Common.GameFramework;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Utils;
 
-namespace Pather.Client
+namespace Pather.Client.GameFramework
 {
-    public class ClientUser
+    public class ClientGameUser : GameUser, IClientGameEntity
     {
-        private ClientGame game;
 
-        public ClientUser(ClientGame game)
+        public ClientGameUser(ClientGame game, string userId): base(game,userId)
         {
-            this.game = game;
             Animations = new List<AnimationPoint>();
-            Path = new List<AStarPath>();
-            Speed = 20;
         }
 
-        public string UserId;
-        public int SquareX;
-        public int SquareY;
-
-        public double X;
-        public double Y; 
-        public double Speed;
-        public string PlayerId;
-        public List<AStarPath> Path;
         public List<AnimationPoint> Animations;
-        public void Tick()
+        public override void Tick()
         {
+            base.Tick();
+
             var result = Path[0];
             Animations = new List<AnimationPoint>();
 
@@ -78,60 +68,7 @@ namespace Pather.Client
                 Animations.Add(new AnimationPoint(fromX, fromY, X, Y));
             }
 
-        }
-        public void RePathFind(int squareX, int squareY)
-        {
-            var graph = game.Board.AStarGraph;
-
-            var start = graph.Grid[SquareX][SquareY];
-            var end = graph.Grid[squareX][squareY];
-            Path = new List<AStarPath>(AStar.Search(graph, start, end));
-                       Debug.Break();
-            BuildMovement();
-        }
-
-        public void BuildMovement()
-        {
-            var result = Path[0];
-
-            int projectedSquareX = result == null ? SquareX : (result.X);
-            int projectedSquareY = result == null ? SquareY : (result.Y);
-            List<Point> points = new List<Point>();
-
-            while (result != null)
-            {
-                SquareX = (int)((X) / Constants.SquareSize);
-                SquareY = (int)((Y) / Constants.SquareSize);
-
-                if (SquareX == result.X && SquareY == result.Y)
-                {
-                    Path.RemoveAt(0);
-                    result = Path[0];
-
-                    projectedSquareX = result == null ? SquareX : (result.X);
-                    projectedSquareY = result == null ? SquareY : (result.Y);
-                }
-
-
-                int projectedX = projectedSquareX * Constants.SquareSize + Constants.SquareSize / 2;
-                int projectedY = projectedSquareY * Constants.SquareSize + Constants.SquareSize / 2;
-
-
-                if (((int)projectedX) == ((int)X) && ((int)projectedY) == ((int)Y))
-                {
-                    break;
-                }
-
-                X = Lerper.MoveTowards(X, projectedX, (Speed));
-                Y = Lerper.MoveTowards(Y, projectedY, (Speed));
-
-
-                points.Add(new Point(X, Y));
-            }
-            Global.Console.Log(points);
-        }
-
-
+        } 
 
         public void Draw(CanvasRenderingContext2D context, double interpolatedTime)
         {
@@ -175,5 +112,11 @@ namespace Pather.Client
             context.Restore();
 
         }
+         
+    }
+
+    public interface IClientGameEntity
+    {
+        void Draw(CanvasRenderingContext2D context, double interpolatedTime);
     }
 }

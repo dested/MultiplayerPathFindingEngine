@@ -74,9 +74,6 @@ namespace Pather.Common.Utils
             get { return List[index]; }
         }
 
-        public void UpdateKey(T user)
-        {
-            throw new NotImplementedException();
-        }
+      
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Html;
+using Pather.Client.GameFramework;
 using Pather.Common.TestFramework;
 
 namespace Pather.Client
@@ -13,7 +14,7 @@ namespace Pather.Client
                 return;
             }
 
-            var gameClient = new GameClient();
+            var gameClient = new ClientGameView();
 
 
 //            var game = new ClientGame();

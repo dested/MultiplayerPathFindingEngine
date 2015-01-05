@@ -395,17 +395,12 @@ namespace Pather.Servers.Libraries.RTree
 
         public override bool Equals(object obj)
         {
-            var equals = false;
-            if (obj.GetType() == typeof (Rectangle))
-            {
-                var r = (Rectangle) obj;
-                if (CompareArrays(r.min, min) && CompareArrays(r.max, max))
-                {
-                    equals = true;
-                }
-            }
-            return equals;
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((Rectangle) obj);
         }
+       
 
         /** 
          * Determine whether this rectangle is the same as another object
@@ -418,7 +413,7 @@ namespace Pather.Servers.Libraries.RTree
 
         internal bool sameObject(object o)
         {
-            return base.Equals(o);
+            return ReferenceEquals(this, o);
         }
 
         /**

@@ -10,7 +10,6 @@ namespace Pather.Common.Models.Gateway.Socket.Base
             GatewayUserMessageType = Gateway_User_Socket_MessageType.UserJoined;
         }
 
-        public string GameSegmentId;
         public string UserId;
         public int X;
         public int Y;

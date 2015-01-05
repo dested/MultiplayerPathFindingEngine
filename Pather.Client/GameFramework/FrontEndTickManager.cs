@@ -5,7 +5,7 @@ using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Gateway.Socket.Base;
 using Pather.Common.Utils;
 
-namespace Pather.Client
+namespace Pather.Client.GameFramework
 {
     public class FrontEndTickManager : TickManager
     {
