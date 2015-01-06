@@ -38,8 +38,8 @@ namespace Pather.Common.GameFramework
             switch (action.UserActionType)
             {
                 case UserActionType.Move:
-                    var moveAction = (MoveUserAction)action;
-                    var user = (GameUser)ActiveEntities[moveAction.UserId];
+                    var moveAction = (MoveEntityAction)action;
+                    var user = (GameUser)ActiveEntities[moveAction.EntityId];
                     user.RePathFind(moveAction.X, moveAction.Y);
                     break;
                 default:

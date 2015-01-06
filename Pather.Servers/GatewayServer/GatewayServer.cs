@@ -27,7 +27,7 @@ namespace Pather.Servers.GatewayServer
         private readonly int port;
         public ServerCommunicator ServerCommunicator;
         public GatewayPubSub GatewayPubSub;
-        public BackendTickManager BackendTickManager;
+        public BackEndTickManager BackEndTickManager;
         private readonly DictionaryList<string, GatewayUser> Users = new DictionaryList<string, GatewayUser>(a => a.UserId);
 
 
@@ -49,14 +49,14 @@ namespace Pather.Servers.GatewayServer
                 GatewayPubSub.OnAllMessage += OnAllMessage;
                 GatewayPubSub.Init();
 
-                BackendTickManager = new BackendTickManager();
-                BackendTickManager.Init(SendPing, () =>
+                BackEndTickManager = new BackEndTickManager();
+                BackEndTickManager.Init(SendPing, () =>
                 {
                     Global.Console.Log("Connected To Tick Server");
                     registerGatewayWithCluster();
                     pubsubReady();
                 });
-                BackendTickManager.StartPing();
+                BackEndTickManager.StartPing();
             });
         }
 
@@ -92,7 +92,7 @@ namespace Pather.Servers.GatewayServer
                     break;
                 case Gateway_PubSub_AllMessageType.TickSync:
                     var tickSyncMessage = (TickSync_Tick_Gateway_PubSub_AllMessage) message;
-                    BackendTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
+                    BackEndTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
 
                     foreach (var gatewayUser in Users.List)
                     {
@@ -153,7 +153,7 @@ namespace Pather.Servers.GatewayServer
                     break;
                 case Gateway_PubSub_MessageType.Pong:
                     var pongMessage = (Pong_Tick_Gateway_PubSub_Message) message;
-                    BackendTickManager.OnPongReceived();
+                    BackEndTickManager.OnPongReceived();
 
                     break;
                 case Gateway_PubSub_MessageType.UserActionCollection:
@@ -266,7 +266,7 @@ namespace Pather.Servers.GatewayServer
                 case User_Gateway_Socket_MessageType.Ping:
                     ServerCommunicator.SendMessage(user.Socket, new Pong_Gateway_User_PubSub_Message()
                     {
-                        GatewayLatency = BackendTickManager.CurrentServerLatency
+                        GatewayLatency = BackEndTickManager.CurrentServerLatency
                     });
                     break;
                 case User_Gateway_Socket_MessageType.UserAction:

@@ -35,7 +35,7 @@ namespace Pather.Client.Tests
                     var startTime = new DateTime().GetTime();
 
 
-                    var moveUserAction = new MoveUserAction()
+                    var moveUserAction = new MoveEntityAction()
                     {
 
                         X = (int) (Math.Random()*50),
@@ -53,9 +53,9 @@ namespace Pather.Client.Tests
                     {
                         if (message.Action.UserActionType != UserActionType.Move) return;
 
-                        var action = (MoveUserAction) message.Action;
+                        var action = (MoveEntityAction) message.Action;
 
-                        if (action.UserId == userToken && action.X == moveUserAction.X && action.Y == moveUserAction.Y)
+                        if (action.EntityId == userToken && action.X == moveUserAction.X && action.Y == moveUserAction.Y)
                         {
                             Window.SetTimeout(() =>
                             {
@@ -107,7 +107,7 @@ namespace Pather.Client.Tests
             {
                 if (message.Action.UserActionType != UserActionType.Move) return;
 
-                var action = (MoveUserAction) message.Action;
+                var action = (MoveEntityAction) message.Action;
 
                 if (action.X == proposedX && action.Y == proposedY)
                 {
@@ -121,7 +121,7 @@ namespace Pather.Client.Tests
             {
                 communicator.SendMessage(new UserAction_User_Gateway_Socket_Message()
                 {
-                    Action = new MoveUserAction()
+                    Action = new MoveEntityAction()
                     {
                         X = proposedX,
                         Y = proposedY
@@ -147,7 +147,7 @@ namespace Pather.Client.Tests
                     {
                         communicator.SendMessage(new UserAction_User_Gateway_Socket_Message()
                         {
-                            Action = new MoveUserAction()
+                            Action = new MoveEntityAction()
                             {
                                 X = proposedX + move,
                                 Y = proposedY
@@ -160,7 +160,7 @@ namespace Pather.Client.Tests
             {
                 communicator.SendMessage(new UserAction_User_Gateway_Socket_Message()
                 {
-                    Action = new MoveUserAction()
+                    Action = new MoveEntityAction()
                     {
                         X = proposedX,
                         Y = proposedY
@@ -176,7 +176,7 @@ namespace Pather.Client.Tests
             {
                 communicator.SendMessage(new UserAction_User_Gateway_Socket_Message()
                 {
-                    Action = new MoveUserAction()
+                    Action = new MoveEntityAction()
                     {
                         X = proposedX + 1,
                         Y = proposedY
@@ -194,7 +194,7 @@ namespace Pather.Client.Tests
                     once = false;
                     communicator.SendMessage(new UserAction_User_Gateway_Socket_Message()
                     {
-                        Action = new MoveUserAction()
+                        Action = new MoveEntityAction()
                         {
                             X = proposedX + 20,
                             Y = proposedY
@@ -205,7 +205,7 @@ namespace Pather.Client.Tests
             {
                 communicator.SendMessage(new UserAction_User_Gateway_Socket_Message()
                 {
-                    Action = new MoveUserAction()
+                    Action = new MoveEntityAction()
                     {
                         X = proposedX + 1,
                         Y = proposedY

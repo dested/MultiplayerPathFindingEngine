@@ -40,6 +40,7 @@
     <Compile Include="GameFramework\GameBoard.cs" />
     <Compile Include="GameFramework\GameEntity.cs" />
     <Compile Include="GameFramework\GameUser.cs" />
+    <Compile Include="GameFramework\GameEntityNeighbor.cs" />
     <Compile Include="GameFramework\StepManager.cs" />
     <Compile Include="Models\ClusterManager\CreateGateway_ServerManager_ClusterManager_PubSub_ReqRes_Message.cs" />
     <Compile Include="Models\Common\IPubSub_Message.cs" />
@@ -47,7 +48,7 @@
     <Compile Include="Models\Common\UpdatedNeighbor.cs" />
     <Compile Include="Models\Common\UserActions\UserAction.cs" />
     <Compile Include="Models\Common\UserActions\IAction.cs" />
-    <Compile Include="Models\Common\UserActions\MoveUserAction.cs" />
+    <Compile Include="Models\Common\UserActions\MoveEntityAction.cs" />
     <Compile Include="Models\Common\UserActions\UserActionType.cs" />
     <Compile Include="Models\GameSegment\Base\TellUserAction_GameSegment_GameSegment_PubSub_Message.cs" />
     <Compile Include="Models\GameSegment\Base\UserAction_GameSegment_GameSegment_PubSub_Message.cs" />

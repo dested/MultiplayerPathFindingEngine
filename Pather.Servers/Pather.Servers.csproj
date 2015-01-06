@@ -67,8 +67,6 @@
     <Compile Include="GameSegmentServer\Logger\UserJoined_GameSegmentLogMessage.cs" />
     <Compile Include="GameSegmentServer\Logger\UserLeft_GameSegmentLogMessage.cs" />
     <Compile Include="GameSegmentServer\Logger\UserMoved_GameSegmentLogMessage.cs" />
-    <Compile Include="GameSegmentServer\Models\GameSegmentNeighbor.cs" />
-    <Compile Include="GameSegmentServer\Models\GameSegmentUser.cs" />
     <Compile Include="GameSegmentServer\ServerGame.cs" />
     <Compile Include="GameSegmentServer\StepManager.cs" />
     <Compile Include="GameWorldServer\GameSegment.cs" />
@@ -152,7 +150,9 @@
       <Name>Pather.Common</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="GameSegmentServer\Models\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" Condition="!Exists('$(SolutionDir)packages\Saltarelle.Compiler.2.6.2\tools\Saltarelle.Compiler.targets')" />
   <Import Project="$(SolutionDir)packages\Saltarelle.Compiler.2.6.2\tools\Saltarelle.Compiler.targets" Condition="Exists('$(SolutionDir)packages\Saltarelle.Compiler.2.6.2\tools\Saltarelle.Compiler.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

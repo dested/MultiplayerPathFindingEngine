@@ -7,6 +7,6 @@ namespace Pather.Common.Models.Common.UserActions
     {
         public UserActionType UserActionType;
         public long LockstepTick;
-        public string UserId;
+        public string EntityId;
     }
 }

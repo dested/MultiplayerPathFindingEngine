@@ -24,7 +24,7 @@ namespace Pather.Servers.GameWorldServer
         private readonly IPubSub pubSub;
         private readonly IDatabaseQueries DatabaseQueries;
         public GameWorld GameWorld;
-        public BackendTickManager BackendTickManager;
+        public BackEndTickManager BackEndTickManager;
         private GameWorldPubSub gameWorldPubSub;
 
         public GameWorldServer(IPubSub pubSub, IDatabaseQueries dbQueries)
@@ -60,14 +60,14 @@ namespace Pather.Servers.GameWorldServer
             GameWorld = new GameWorld(gameWorldPubSub);
 
 
-            BackendTickManager = new BackendTickManager();
-            BackendTickManager.Init(sendPing, () =>
+            BackEndTickManager = new BackEndTickManager();
+            BackEndTickManager.Init(sendPing, () =>
             {
                 Global.Console.Log("Connected To Tick Server");
 
                 Global.SetInterval(flushPreAddedUsers, 200);
             });
-            BackendTickManager.StartPing();
+            BackEndTickManager.StartPing();
         }
 
         private void flushPreAddedUsers()
@@ -183,11 +183,11 @@ namespace Pather.Servers.GameWorldServer
                     break;
                 case GameWorld_PubSub_MessageType.Pong:
                     var pongMessage = (Pong_Tick_GameWorld_PubSub_Message) message;
-                    BackendTickManager.OnPongReceived();
+                    BackEndTickManager.OnPongReceived();
                     break;
                 case GameWorld_PubSub_MessageType.TickSync:
                     var tickSyncMessage = (TickSync_Tick_GameWorld_PubSub_Message) message;
-                    BackendTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
+                    BackEndTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;
                 case GameWorld_PubSub_MessageType.TellUserAction:
                     var tellUserAction = (TellUserAction_GameSegment_GameWorld_PubSub_Message) message;

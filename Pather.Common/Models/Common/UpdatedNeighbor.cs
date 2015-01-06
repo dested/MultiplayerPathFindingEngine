@@ -6,7 +6,7 @@ namespace Pather.Common.Models.Common
     public class UpdatedNeighbor
     {
         public string UserId;
-        public int X;
-        public int Y;
+        public double X;
+        public double Y;
     }
 }

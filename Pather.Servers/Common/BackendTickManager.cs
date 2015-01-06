@@ -7,10 +7,10 @@ using Pather.Servers.Common.ServerLogging;
 
 namespace Pather.Servers.Common
 {
-    public class BackendTickManager : TickManager
+    public class BackEndTickManager : TickManager
     {
 
-        public BackendTickManager()
+        public BackEndTickManager()
         {
         }
 

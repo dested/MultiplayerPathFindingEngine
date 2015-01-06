@@ -42,7 +42,7 @@ namespace Pather.Client
 
         public void MoveToLocation(int x, int y)
         {
-            NetworkManager.SendAction(new MoveUserAction()
+            NetworkManager.SendAction(new MoveEntityAction()
             {
                 X = x,
                 Y = y,

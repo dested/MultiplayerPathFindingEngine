@@ -8,7 +8,7 @@ namespace Pather.Common.GameFramework
 {
     public class GameUser : GameEntity
     {
-
+     
         public GameUser(Game game, string userId)
             : base(game)
         {
@@ -75,5 +75,6 @@ namespace Pather.Common.GameFramework
             }
             Global.Console.Log(points);
         }
+
     }
 }

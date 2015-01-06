@@ -1,38 +1,37 @@
-using System;
+/*using System;
 using System.Collections.Generic;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Common.UserActions;
-using Pather.Servers.GameSegmentServer.Models;
 
 namespace Pather.Servers.GameSegmentServer
 {
-    public   class StepManager
+    public class StepManager
     {
         private readonly ServerGame serverGame;
 
         public StepManager(ServerGame serverGame)
         {
             this.serverGame = serverGame;
-            StepActionsTicks = new Dictionary<long, List<Tuple<GameSegmentUser, UserAction>>>();
+            StepActionsTicks = new Dictionary<long, List<Tuple<ServerGameUser, UserAction>>>();
             LastTickProcessed = 0;
         }
 
         public long LastTickProcessed;
-        public Dictionary<long, List<Tuple<GameSegmentUser, UserAction>>> StepActionsTicks;
+        public Dictionary<long, List<Tuple<ServerGameUser, UserAction>>> StepActionsTicks;
         private int misprocess;
-        
-        public   void QueueUserAction(GameSegmentUser user, UserAction action)
+
+        public void QueueUserAction(ServerGameUser user, UserAction action)
         {
 
             if (!StepActionsTicks.ContainsKey(action.LockstepTick))
             {
                 if (action.LockstepTick <= serverGame.tickManager.LockstepTickNumber)
                 {
-                    serverGame.ProcessUserAction(user,action);
+                    serverGame.ProcessUserAction(user, action);
                     Global.Console.Log("Misprocess of action count", ++misprocess, serverGame.tickManager.LockstepTickNumber - action.LockstepTick);
                     return;
                 }
-                StepActionsTicks[action.LockstepTick] = new List<Tuple<GameSegmentUser,UserAction>>();
+                StepActionsTicks[action.LockstepTick] = new List<Tuple<ServerGameUser, UserAction>>();
             }
             StepActionsTicks[action.LockstepTick].Add(Tuple.Create(user, action));
         }
@@ -53,4 +52,4 @@ namespace Pather.Servers.GameSegmentServer
             StepActionsTicks.Remove(lockstepTickNumber);
         }
     }
-}
+}*/

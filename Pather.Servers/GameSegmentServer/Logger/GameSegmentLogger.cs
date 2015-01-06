@@ -5,6 +5,7 @@ using Pather.Servers.Common.PubSub;
 
 namespace Pather.Servers.GameSegmentServer.Logger
 {
+/*
     public static class GameSegmentLogger
     {
         private static IPubSub pubsub;
@@ -36,7 +37,7 @@ namespace Pather.Servers.GameSegmentServer.Logger
                 X = x,
                 Y = y,
                 Neighbors = neighbors
-            }, DateTime.Now));*/
+            }, DateTime.Now));#1#
         }
 
         public static void LogUserLeft(bool isMine, string userId)
@@ -46,7 +47,7 @@ namespace Pather.Servers.GameSegmentServer.Logger
             {
                 IsMine = isMine,
                 UserId = userId,
-            }, DateTime.Now));*/
+            }, DateTime.Now));#1#
         }
 
         public static void LogUserMoved(string userId, int x, int y, List<string> neighbors)
@@ -58,7 +59,7 @@ namespace Pather.Servers.GameSegmentServer.Logger
                 X = x,
                 Y = y,
                 Neighbors = neighbors
-            }, DateTime.Now));*/
+            }, DateTime.Now));#1#
         }
 
         public static void LogTellUserMoved(string userId, int x, int y, List<string> neighbors)
@@ -70,7 +71,8 @@ namespace Pather.Servers.GameSegmentServer.Logger
                 X = x,
                 Y = y,
                 Neighbors = neighbors
-            }, DateTime.Now));*/
+            }, DateTime.Now));#1#
         }
     }
+*/
 }

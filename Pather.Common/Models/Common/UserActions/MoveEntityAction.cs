@@ -3,9 +3,9 @@ using System;
 namespace Pather.Common.Models.Common.UserActions
 {
     [Serializable]
-    public class MoveUserAction : UserAction
+    public class MoveEntityAction : UserAction
     {
-        public MoveUserAction()
+        public MoveEntityAction()
         {
             UserActionType = UserActionType.Move;
         }
