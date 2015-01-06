@@ -88,13 +88,10 @@ namespace Pather.Servers.GameSegmentServer
                 user.GameSegment.UserJoin(user);
             }
 
-            serverGame.BuildNeighbors();
-
-            Global.Console.Log(GameSegmentId, "Game Segment Initialized");
-
-            Global.SetInterval(serverGame.BuildNeighbors, 2000);
+            serverGame.Init();
 
             RegisterGameSegmentWithCluster();
+            Global.Console.Log(GameSegmentId, "Game Segment Initialized");
         }
 
 
@@ -134,8 +131,6 @@ namespace Pather.Servers.GameSegmentServer
             }
         }
 
-
-
         private void sendPing()
         {
             GameSegmentPubSub.PublishToTickServer(new Ping_Tick_PubSub_Message()
@@ -145,14 +140,16 @@ namespace Pather.Servers.GameSegmentServer
             });
         }
 
-
-
-        public void Tick(long tickNumber)
-        {
-            serverGame.Tick(tickNumber);
-        }
-
-
+        /*
+         Find all neighbors
+         * find their gateways
+         * find their gamesegments
+         * find all gamesegments theyre not in
+         group send to each gateway
+         send ACTION to each neighbor gamesegment
+         send TELL_ACTION to each other gamesegment
+         send to world
+         */
         public void SendAction(ServerGameUser user, UserAction userAction)
         {
             var otherGameSegments = new JsDictionary<string, GameSegment>();
@@ -193,11 +190,6 @@ namespace Pather.Servers.GameSegmentServer
             };
 
 
-            foreach (var otherGameSegment in otherGameSegments)
-            {
-                GameSegmentPubSub.PublishToGameSegment(otherGameSegment.Key, tellUserAction);
-            }
-
 
             foreach (var neighborGameSegment in neighborGameSegments)
             {
@@ -208,6 +200,12 @@ namespace Pather.Servers.GameSegmentServer
                     Action = userAction
                 });
             }
+
+            foreach (var otherGameSegment in otherGameSegments)
+            {
+                GameSegmentPubSub.PublishToGameSegment(otherGameSegment.Key, tellUserAction);
+            }
+
 
             GameSegmentPubSub.PublishToGameWorld(new TellUserAction_GameSegment_GameWorld_PubSub_Message()
             {
@@ -294,7 +292,7 @@ namespace Pather.Servers.GameSegmentServer
             foreach (var userJoinGameUser in message.Collection)
             {
                 serverGame.UserJoin(userJoinGameUser);
-                //                GameSegmentLogger.LogUserJoin(true, gameSegmentUser.UserId, gameSegmentUser.X, gameSegmentUser.Y, gameSegmentUser.Neighbors.Keys);
+                //                GameSegmentLogger.LogUserJoin(true, serverGameUser.UserId, serverGameUser.X, serverGameUser.Y, serverGameUser.Neighbors.Keys);
             }
 
             GameSegmentPubSub.PublishToGameWorld(new UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message()

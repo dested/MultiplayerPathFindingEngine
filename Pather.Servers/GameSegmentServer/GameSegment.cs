@@ -31,11 +31,11 @@ namespace Pather.Servers.GameSegmentServer
 
         public string GameSegmentId;
 
-        public void UserJoin(ServerGameUser gameSegmentUser)
+        public void UserJoin(ServerGameUser serverGameUser)
         {
-            Users[gameSegmentUser.EntityId] = gameSegmentUser;
+            Users[serverGameUser.EntityId] = serverGameUser;
             ServerLogger.LogInformation("User Joined A Game Segment");
-//            Global.Console.Log(GameSegmentId, "User Joined A Game Segment", gameSegmentUser.UserId, gameSegmentUser.GatewayId);
+            //            Global.Console.Log(GameSegmentId, "User Joined A Game Segment", serverGameUser.UserId, serverGameUser.GatewayId);
         }
     }
 }

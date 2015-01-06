@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using Pather.Common;
+using Pather.Common.Definitions.AStar;
 using Pather.Common.GameFramework;
+using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Utils;
 
 namespace Pather.Servers.GameSegmentServer
@@ -14,60 +16,89 @@ namespace Pather.Servers.GameSegmentServer
         public ServerGameUser(ServerGame game, string userId)
             : base(game, userId)
         {
-            Animations = new List<AnimationPoint>();
-
+            lockstepMovePoints = new List<Point>();
         }
 
-        public List<AnimationPoint> Animations;
+        private List<Point> lockstepMovePoints;
+
         public override void Tick()
         {
             base.Tick();
+        }
 
-            var result = Path[0];
-            Animations = new List<AnimationPoint>();
+        public override void LockstepTick(long lockstepTickNumber)
+        {
+            base.LockstepTick(lockstepTickNumber);
 
-            int projectedX;
-            int projectedY;
-            int projectedSquareX;
-            int projectedSquareY;
-
-            projectedSquareX = result == null ? SquareX : (result.X);
-            projectedSquareY = result == null ? SquareY : (result.Y);
-
-
-            for (var i = 0; i < Constants.AnimationSteps; i++)
+            if (lockstepMovePoints.Count > 0)
             {
+                var point = lockstepMovePoints[0];
+                X = point.X;
+                Y = point.Y;
                 SquareX = (int)((X) / Constants.SquareSize);
                 SquareY = (int)((Y) / Constants.SquareSize);
-                var fromX = X;
-                var fromY = Y;
 
+                lockstepMovePoints.RemoveAt(0);
+                Global.Console.Log(EntityId, X, Y, lockstepMovePoints.Count);
+            }
+        }
 
-                if (result != null && (SquareX == result.X && SquareY == result.Y))
+        public override void RePathFind(int destinationSquareX, int destinationSquareY)
+        {
+            base.RePathFind(destinationSquareX, destinationSquareY);
+            BuildMovement();
+        }
+
+        public void BuildMovement()
+        {
+            var x = X;
+            var y = Y;
+
+            var sqX = SquareX;
+            var sqY = SquareY;
+
+            var result = Path[0];
+
+            int projectedSquareX = result == null ? sqX : (result.X);
+            int projectedSquareY = result == null ? sqY : (result.Y);
+            List<Point> points = new List<Point>();
+
+            var gameTicksPerLockstepTick = Constants.GameFps / Constants.LockstepFps;
+            var gameTick = 0;
+            while (result != null)
+            {
+                sqX = (int)((x) / Constants.SquareSize);
+                sqY = (int)((y) / Constants.SquareSize);
+
+                if (sqX == result.X && sqY == result.Y)
                 {
                     Path.RemoveAt(0);
                     result = Path[0];
 
-                    projectedSquareX = result == null ? SquareX : (result.X);
-                    projectedSquareY = result == null ? SquareY : (result.Y);
+                    projectedSquareX = result == null ? sqX : (result.X);
+                    projectedSquareY = result == null ? sqY : (result.Y);
                 }
 
 
-                projectedX = projectedSquareX * Constants.SquareSize + Constants.SquareSize / 2;
-                projectedY = projectedSquareY * Constants.SquareSize + Constants.SquareSize / 2;
+                int projectedX = projectedSquareX * Constants.SquareSize + Constants.SquareSize / 2;
+                int projectedY = projectedSquareY * Constants.SquareSize + Constants.SquareSize / 2;
 
 
-                if (((int)projectedX) == ((int)X) && ((int)projectedY) == ((int)Y))
+                if (((int)projectedX) == ((int)x) && ((int)projectedY) == ((int)y))
                 {
-                    return;
+                    break;
                 }
 
-                X = Lerper.MoveTowards(X, projectedX, (Speed / Constants.AnimationSteps));
-                Y = Lerper.MoveTowards(Y, projectedY, (Speed / Constants.AnimationSteps));
-
-
-                Animations.Add(new AnimationPoint(fromX, fromY, X, Y));
+                x = Lerper.MoveTowards(x, projectedX, (Speed));
+                y = Lerper.MoveTowards(y, projectedY, (Speed));
+                gameTick++;
+                if (gameTick % gameTicksPerLockstepTick == 0)
+                {
+                    points.Add(new Point(x, y));
+                }
             }
+            lockstepMovePoints = points;
+            Path = new List<AStarPath>();
 
         }
 

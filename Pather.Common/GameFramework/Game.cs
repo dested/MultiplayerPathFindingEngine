@@ -126,5 +126,12 @@ namespace Pather.Common.GameFramework
                 person.Tick();
             }
         }
+        public virtual void LockstepTick(long lockstepTickNumber)
+        {
+            foreach (var entity in ActiveEntities.List)
+            {
+                entity.LockstepTick(lockstepTickNumber);
+            }
+        }
     }
 }

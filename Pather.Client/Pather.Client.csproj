@@ -40,14 +40,10 @@
     <Compile Include="GameFramework\ClientGameManager.cs" />
     <Compile Include="Libraries\jQueryObject.cs" />
     <Compile Include="NetworkManager.cs" />
-    <Compile Include="Old\ClientGame.cs" />
     <Compile Include="Utils\ClientCommunicator.cs" />
     <Compile Include="Libraries\SocketIOClient.cs" />
-    <Compile Include="Old\ClientEntity.cs" />
-    <Compile Include="Old\ClientNetworkManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Old\ClientStepManager.cs" />
     <Compile Include="ServerSlammer.cs" />
     <Compile Include="Tests\LoginE2ETest.cs" />
   </ItemGroup>

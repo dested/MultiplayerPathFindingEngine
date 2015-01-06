@@ -17,25 +17,13 @@ namespace Pather.Servers.Common
             {
                 callback(socket, obj.Data);
             });
-        }
-
-        public void OldListenOnChannel<T>(ISocket socket, string channel, Action<ISocket, T> callback)
-        {
-            socket.On<DataObject<T>>(channel, obj =>
-            {
-                callback(socket, obj.Data);
-            });
-        }
+        } 
 
         public void SendMessage(ISocket socket, User_Socket_Message obj)
         {
             socket.Emit("Gateway.Message", new DataObject<User_Socket_Message>(obj));
         }
-
-        public void OldSendMessage<T>(ISocket socket, string channel, T obj)
-        {
-            socket.Emit(channel, new DataObject<T>(obj));
-        }
+         
 
         public ServerCommunicator(ISocketManager socketManager, int port)
         {

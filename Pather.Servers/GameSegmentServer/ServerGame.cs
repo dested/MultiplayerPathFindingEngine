@@ -22,8 +22,20 @@ namespace Pather.Servers.GameSegmentServer
         {
             this.gameManager = gameManager;
             StepManager = new StepManager(this);
-            tickManager.OnProcessLockstep += StepManager.ProcessAction;
+            tickManager.OnProcessLockstep += LockstepTick;
         }
+        public void Init()
+        {
+            BuildNeighbors();
+            Global.SetInterval(BuildNeighbors, 2000);
+        }
+
+        public override void LockstepTick(long lockstepTickNumber)
+        {
+            base.LockstepTick(lockstepTickNumber);
+            StepManager.ProcessAction(lockstepTickNumber);
+        }
+
 
         public override GameUser CreateGameUser(string userId)
         {
@@ -41,7 +53,7 @@ namespace Pather.Servers.GameSegmentServer
 
 
 
-            if (true /*action is valid*/)
+            if (true /*todo action is valid*/)
             {
                 base.QueueUserAction(action);
                 switch (action.UserActionType)
@@ -122,7 +134,7 @@ namespace Pather.Servers.GameSegmentServer
         public void TellUserJoin(TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message message)
         {
 
-            var gameSegmentUser = new ServerGameUser(this, message.UserId)
+            var serverGameUser = new ServerGameUser(this, message.UserId)
             {
                 GameSegment = gameManager.AllGameSegments[message.GameSegmentId],
                 GatewayId = message.GatewayId,
@@ -131,15 +143,15 @@ namespace Pather.Servers.GameSegmentServer
             };
 
             var otherGameSegment = gameManager.AllGameSegments[message.GameSegmentId];
-            ActiveEntities.Add(gameSegmentUser);
+            ActiveEntities.Add(serverGameUser);
 
             //            Global.Console.Log(GameSegmentId, "User joined from other gamesegment", message.GameSegmentId, message.UserId);
 
-            otherGameSegment.UserJoin(gameSegmentUser);
+            otherGameSegment.UserJoin(serverGameUser);
 
             BuildNeighbors();
 
-            //            GameSegmentLogger.LogUserJoin(false, gameSegmentUser.UserId, gameSegmentUser.X, gameSegmentUser.Y, gameSegmentUser.Neighbors.Keys);
+            //            GameSegmentLogger.LogUserJoin(false, serverGameUser.UserId, serverGameUser.X, serverGameUser.Y, serverGameUser.Neighbors.Keys);
 
         }
 
@@ -192,7 +204,6 @@ namespace Pather.Servers.GameSegmentServer
 
 
 
-
         public void diffNeighbors()
         {
             foreach (var userKV in gameManager.MyGameSegment.Users)
@@ -200,14 +211,14 @@ namespace Pather.Servers.GameSegmentServer
                 var removed = new List<ServerGameUser>();
                 var added = new List<ServerGameUser>();
 
-                var gameSegmentUser = userKV.Value;
+                var serverGameUser = userKV.Value;
 
-                foreach (var gameSegmentNeighbor in gameSegmentUser.Neighbors.List)
+                foreach (var gameEntityNeighbor in serverGameUser.Neighbors.List)
                 {
                     var notIn = true;
-                    foreach (var segmentNeighbor in gameSegmentUser.OldNeighbors)
+                    foreach (var segmentNeighbor in serverGameUser.OldNeighbors)
                     {
-                        if (gameSegmentNeighbor.Entity == segmentNeighbor.Entity)
+                        if (gameEntityNeighbor.Entity == segmentNeighbor.Entity)
                         {
                             notIn = false;
                             break;
@@ -215,13 +226,13 @@ namespace Pather.Servers.GameSegmentServer
                     }
                     if (notIn)
                     {
-                        added.Add((ServerGameUser)gameSegmentNeighbor.Entity);
+                        added.Add((ServerGameUser)gameEntityNeighbor.Entity);
                     }
                 }
-                foreach (var gameSegmentNeighbor in gameSegmentUser.OldNeighbors)
+                foreach (var gameSegmentNeighbor in serverGameUser.OldNeighbors)
                 {
                     var notIn = true;
-                    foreach (var segmentNeighbor in gameSegmentUser.Neighbors.List)
+                    foreach (var segmentNeighbor in serverGameUser.Neighbors.List)
                     {
                         if (gameSegmentNeighbor.Entity == segmentNeighbor.Entity)
                         {
@@ -235,12 +246,12 @@ namespace Pather.Servers.GameSegmentServer
                     }
                 }
 
-                gameSegmentUser.OldNeighbors = null;
+                serverGameUser.OldNeighbors = null;
                 if (added.Count > 0 || removed.Count > 0)
                 {
                     var updateNeighborsMessage = new UpdateNeighbors_GameSegment_Gateway_PubSub_Message()
                     {
-                        UserId = gameSegmentUser.EntityId,
+                        UserId = serverGameUser.EntityId,
                         Removed = removed.Select(a => a.EntityId),
                         Added = added.Select(a => new UpdatedNeighbor()
                         {
@@ -250,7 +261,7 @@ namespace Pather.Servers.GameSegmentServer
                         })
                     };
                     //                    Global.Console.Log(gameManager.GameSegmentId, updateNeighborsMessage);
-                    gameManager.SendToUser(gameSegmentUser, updateNeighborsMessage);
+                    gameManager.SendToUser(serverGameUser, updateNeighborsMessage);
                 }
             }
         }

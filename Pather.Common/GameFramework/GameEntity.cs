@@ -23,8 +23,11 @@ namespace Pather.Common.GameFramework
         public string EntityId;
         public virtual void Tick()
         {
+        }
 
-
+        public virtual void LockstepTick(long lockstepTickNumber)
+        {
+            
         }
     }
 }

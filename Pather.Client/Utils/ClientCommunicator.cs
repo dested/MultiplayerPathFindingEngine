@@ -43,16 +43,7 @@ namespace Pather.Client.Utils
         {
             Socket.On<DataObject<Gateway_User_Socket_Message>>("Gateway.Message", obj => callback(obj.Data));
         }
-
-        public void OldListenOnChannel<T>(string channel, Action<T> callback)
-        {
-            Socket.On<DataObject<T>>(channel, obj => callback(obj.Data));
-        }
-
-        public void OldSendMessage(string channel, object obj)
-        {
-            Socket.Emit(channel, new DataObject<object>(obj));
-        }
+         
 
         public void SendMessage(User_Gateway_Socket_Message obj)
         {

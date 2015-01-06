@@ -9,8 +9,6 @@
 	global.Pather.Common.Models.ClusterManager.Base = global.Pather.Common.Models.ClusterManager.Base || {};
 	global.Pather.Common.Models.Common = global.Pather.Common.Models.Common || {};
 	global.Pather.Common.Models.Common.UserActions = global.Pather.Common.Models.Common.UserActions || {};
-	global.Pather.Common.Models.Game = global.Pather.Common.Models.Game || {};
-	global.Pather.Common.Models.Game.Old = global.Pather.Common.Models.Game.Old || {};
 	global.Pather.Common.Models.GameSegment = global.Pather.Common.Models.GameSegment || {};
 	global.Pather.Common.Models.GameSegment.Base = global.Pather.Common.Models.GameSegment.Base || {};
 	global.Pather.Common.Models.GameWorld = global.Pather.Common.Models.GameWorld || {};
@@ -30,7 +28,6 @@
 	global.Pather.Common.Models.ServerManager.Base = global.Pather.Common.Models.ServerManager.Base || {};
 	global.Pather.Common.Models.Tick = global.Pather.Common.Models.Tick || {};
 	global.Pather.Common.Models.Tick.Base = global.Pather.Common.Models.Tick.Base || {};
-	global.Pather.Common.old = global.Pather.Common.old || {};
 	global.Pather.Common.TestFramework = global.Pather.Common.TestFramework || {};
 	global.Pather.Common.Utils = global.Pather.Common.Utils || {};
 	global.Pather.Common.Utils.Promises = global.Pather.Common.Utils.Promises || {};
@@ -328,108 +325,6 @@
 	};
 	$Pather_Common_Models_Common_UserActions_UserActionType.__typeName = 'Pather.Common.Models.Common.UserActions.UserActionType';
 	global.Pather.Common.Models.Common.UserActions.UserActionType = $Pather_Common_Models_Common_UserActions_UserActionType;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.Models.Game.Old.ConnectedModel
-	var $Pather_Common_Models_Game_Old_ConnectedModel = function() {
-	};
-	$Pather_Common_Models_Game_Old_ConnectedModel.__typeName = 'Pather.Common.Models.Game.Old.ConnectedModel';
-	$Pather_Common_Models_Game_Old_ConnectedModel.createInstance = function() {
-		return $Pather_Common_Models_Game_Old_ConnectedModel.$ctor();
-	};
-	$Pather_Common_Models_Game_Old_ConnectedModel.$ctor = function() {
-		var $this = {};
-		$this.grid = null;
-		return $this;
-	};
-	global.Pather.Common.Models.Game.Old.ConnectedModel = $Pather_Common_Models_Game_Old_ConnectedModel;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.Models.Game.Old.MoveModel
-	var $Pather_Common_Models_Game_Old_MoveModel = function() {
-	};
-	$Pather_Common_Models_Game_Old_MoveModel.__typeName = 'Pather.Common.Models.Game.Old.MoveModel';
-	$Pather_Common_Models_Game_Old_MoveModel.createInstance = function() {
-		return $Pather_Common_Models_Game_Old_MoveModel.$ctor();
-	};
-	$Pather_Common_Models_Game_Old_MoveModel.$ctor = function() {
-		var $this = {};
-		$this.playerId = null;
-		$this.x = 0;
-		$this.y = 0;
-		return $this;
-	};
-	global.Pather.Common.Models.Game.Old.MoveModel = $Pather_Common_Models_Game_Old_MoveModel;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.Models.Game.Old.PingPongModel
-	var $Pather_Common_Models_Game_Old_PingPongModel = function() {
-	};
-	$Pather_Common_Models_Game_Old_PingPongModel.__typeName = 'Pather.Common.Models.Game.Old.PingPongModel';
-	$Pather_Common_Models_Game_Old_PingPongModel.createInstance = function() {
-		return $Pather_Common_Models_Game_Old_PingPongModel.$ctor();
-	};
-	$Pather_Common_Models_Game_Old_PingPongModel.$ctor = function() {
-		var $this = {};
-		return $this;
-	};
-	global.Pather.Common.Models.Game.Old.PingPongModel = $Pather_Common_Models_Game_Old_PingPongModel;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.Models.Game.Old.PlayerJoinModel
-	var $Pather_Common_Models_Game_Old_PlayerJoinModel = function() {
-	};
-	$Pather_Common_Models_Game_Old_PlayerJoinModel.__typeName = 'Pather.Common.Models.Game.Old.PlayerJoinModel';
-	$Pather_Common_Models_Game_Old_PlayerJoinModel.createInstance = function() {
-		return $Pather_Common_Models_Game_Old_PlayerJoinModel.$ctor();
-	};
-	$Pather_Common_Models_Game_Old_PlayerJoinModel.$ctor = function() {
-		var $this = {};
-		$this.playerId = null;
-		return $this;
-	};
-	global.Pather.Common.Models.Game.Old.PlayerJoinModel = $Pather_Common_Models_Game_Old_PlayerJoinModel;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.Models.Game.Old.PlayerModel
-	var $Pather_Common_Models_Game_Old_PlayerModel = function() {
-	};
-	$Pather_Common_Models_Game_Old_PlayerModel.__typeName = 'Pather.Common.Models.Game.Old.PlayerModel';
-	$Pather_Common_Models_Game_Old_PlayerModel.createInstance = function() {
-		return $Pather_Common_Models_Game_Old_PlayerModel.$ctor();
-	};
-	$Pather_Common_Models_Game_Old_PlayerModel.$ctor = function() {
-		var $this = {};
-		$this.playerId = null;
-		$this.x = 0;
-		$this.y = 0;
-		return $this;
-	};
-	global.Pather.Common.Models.Game.Old.PlayerModel = $Pather_Common_Models_Game_Old_PlayerModel;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.Models.Game.Old.PlayerSyncModel
-	var $Pather_Common_Models_Game_Old_PlayerSyncModel = function() {
-	};
-	$Pather_Common_Models_Game_Old_PlayerSyncModel.__typeName = 'Pather.Common.Models.Game.Old.PlayerSyncModel';
-	$Pather_Common_Models_Game_Old_PlayerSyncModel.createInstance = function() {
-		return $Pather_Common_Models_Game_Old_PlayerSyncModel.$ctor();
-	};
-	$Pather_Common_Models_Game_Old_PlayerSyncModel.$ctor = function() {
-		var $this = {};
-		$this.joinedPlayers = null;
-		$this.leftPlayers = null;
-		return $this;
-	};
-	global.Pather.Common.Models.Game.Old.PlayerSyncModel = $Pather_Common_Models_Game_Old_PlayerSyncModel;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.Models.Game.Old.SyncLockstepModel
-	var $Pather_Common_Models_Game_Old_SyncLockstepModel = function() {
-	};
-	$Pather_Common_Models_Game_Old_SyncLockstepModel.__typeName = 'Pather.Common.Models.Game.Old.SyncLockstepModel';
-	$Pather_Common_Models_Game_Old_SyncLockstepModel.createInstance = function() {
-		return $Pather_Common_Models_Game_Old_SyncLockstepModel.$ctor();
-	};
-	$Pather_Common_Models_Game_Old_SyncLockstepModel.$ctor = function() {
-		var $this = {};
-		$this.lockstepTickNumber = 0;
-		return $this;
-	};
-	global.Pather.Common.Models.Game.Old.SyncLockstepModel = $Pather_Common_Models_Game_Old_SyncLockstepModel;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.GameSegment.InitialGameUser
 	var $Pather_Common_Models_GameSegment_InitialGameUser = function() {
@@ -1408,117 +1303,6 @@
 	};
 	$Pather_Common_Models_Tick_Base_Tick_PubSub_MessageType.__typeName = 'Pather.Common.Models.Tick.Base.Tick_PubSub_MessageType';
 	global.Pather.Common.Models.Tick.Base.Tick_PubSub_MessageType = $Pather_Common_Models_Tick_Base_Tick_PubSub_MessageType;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.old.ActionType
-	var $Pather_Common_old_ActionType = function() {
-	};
-	$Pather_Common_old_ActionType.__typeName = 'Pather.Common.old.ActionType';
-	global.Pather.Common.old.ActionType = $Pather_Common_old_ActionType;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.old.Entity
-	var $Pather_Common_old_Entity = function(game, playerId) {
-		this.x = 0;
-		this.y = 0;
-		this.squareX = 0;
-		this.squareY = 0;
-		this.speed = 0;
-		this.playerId = null;
-		this.path = null;
-		this.animations = null;
-		this.$game = null;
-		this.$game = game;
-		this.playerId = playerId;
-		this.x = 0;
-		this.y = 0;
-		this.squareX = 0;
-		this.squareY = 0;
-		this.speed = 40;
-		this.path = [];
-		this.animations = [];
-	};
-	$Pather_Common_old_Entity.__typeName = 'Pather.Common.old.Entity';
-	global.Pather.Common.old.Entity = $Pather_Common_old_Entity;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.old.Game
-	var $Pather_Common_old_Game = function() {
-		this.grid = null;
-		this.players = null;
-		this.curLockstepTime = 0;
-		this.curTickTime = 0;
-		this.stepManager = null;
-		this.tickNumber = 0;
-		this.lockstepTickNumber = 0;
-		this.ready = false;
-		this.curGameTime = 0;
-		this.nextGameTime = 0;
-		this.serverLatency = 0;
-		this.trackTickNumber = 0;
-		this.trackLockstepTickNumber = 0;
-		this.aStarGraph = null;
-		this.players = [];
-		this.nextGameTime = (new Date()).getTime();
-	};
-	$Pather_Common_old_Game.__typeName = 'Pather.Common.old.Game';
-	global.Pather.Common.old.Game = $Pather_Common_old_Game;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.old.IAction
-	var $Pather_Common_old_IAction = function() {
-	};
-	$Pather_Common_old_IAction.__typeName = 'Pather.Common.old.IAction';
-	global.Pather.Common.old.IAction = $Pather_Common_old_IAction;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.old.MoveAction
-	var $Pather_Common_old_MoveAction = function(moveModel, lockstepTickNumber) {
-		this.moveModel = null;
-		this.$1$LockstepTickNumberField = 0;
-		this.moveModel = moveModel;
-		this.set_lockstepTickNumber(lockstepTickNumber);
-	};
-	$Pather_Common_old_MoveAction.__typeName = 'Pather.Common.old.MoveAction';
-	global.Pather.Common.old.MoveAction = $Pather_Common_old_MoveAction;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.old.NoopAction
-	var $Pather_Common_old_NoopAction = function(lockstepTickNumber) {
-		this.$1$LockstepTickNumberField = 0;
-		this.set_lockstepTickNumber(lockstepTickNumber);
-	};
-	$Pather_Common_old_NoopAction.__typeName = 'Pather.Common.old.NoopAction';
-	global.Pather.Common.old.NoopAction = $Pather_Common_old_NoopAction;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.old.SerializableAction
-	var $Pather_Common_old_SerializableAction = function() {
-	};
-	$Pather_Common_old_SerializableAction.__typeName = 'Pather.Common.old.SerializableAction';
-	$Pather_Common_old_SerializableAction.createInstance = function() {
-		return $Pather_Common_old_SerializableAction.$ctor();
-	};
-	$Pather_Common_old_SerializableAction.$ctor = function() {
-		var $this = {};
-		$this.data = null;
-		$this.lockstepTickNumber = 0;
-		$this.type = 0;
-		return $this;
-	};
-	global.Pather.Common.old.SerializableAction = $Pather_Common_old_SerializableAction;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.old.StepManager
-	var $Pather_Common_old_StepManager = function(game) {
-		this.lastTickProcessed = 0;
-		this.game = null;
-		this.stepActionsTicks = null;
-		this.$misprocess = 0;
-		this.game = game;
-		this.stepActionsTicks = new (ss.makeGenericType(ss.Dictionary$2, [ss.Int32, Array]))();
-		this.lastTickProcessed = 0;
-	};
-	$Pather_Common_old_StepManager.__typeName = 'Pather.Common.old.StepManager';
-	global.Pather.Common.old.StepManager = $Pather_Common_old_StepManager;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.old.TickResult
-	var $Pather_Common_old_TickResult = function() {
-	};
-	$Pather_Common_old_TickResult.__typeName = 'Pather.Common.old.TickResult';
-	global.Pather.Common.old.TickResult = $Pather_Common_old_TickResult;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.TestFramework.Assert
 	var $Pather_Common_TestFramework_Assert = function() {
@@ -2569,6 +2353,12 @@
 				var person = this.activeEntities.list[$t1];
 				person.tick();
 			}
+		},
+		lockstepTick: function(lockstepTickNumber) {
+			for (var $t1 = 0; $t1 < this.activeEntities.list.length; $t1++) {
+				var entity = this.activeEntities.list[$t1];
+				entity.lockstepTick(lockstepTickNumber);
+			}
 		}
 	});
 	ss.initClass($Pather_Common_GameFramework_GameBoard, $asm, {
@@ -2595,43 +2385,23 @@
 			this.$1$OldNeighborsField = value;
 		},
 		tick: function() {
+		},
+		lockstepTick: function(lockstepTickNumber) {
 		}
 	});
 	ss.initClass($Pather_Common_GameFramework_GameEntityNeighbor, $asm, {});
 	ss.initClass($Pather_Common_GameFramework_GameUser, $asm, {
 		tick: function() {
+			$Pather_Common_GameFramework_GameEntity.prototype.tick.call(this);
 		},
-		rePathFind: function(squareX, squareY) {
+		lockstepTick: function(lockstepTickNumber) {
+			$Pather_Common_GameFramework_GameEntity.prototype.lockstepTick.call(this, lockstepTickNumber);
+		},
+		rePathFind: function(destinationSquareX, destinationSquareY) {
 			var graph = this.game.board.aStarGraph;
 			var start = graph.grid[this.squareX][this.squareY];
-			var end = graph.grid[squareX][squareY];
+			var end = graph.grid[destinationSquareX][destinationSquareY];
 			this.path = ss.arrayClone(astar.search(graph, start, end));
-			//            BuildMovement();
-		},
-		buildMovement: function() {
-			var result = this.path[0];
-			var projectedSquareX = (ss.isNullOrUndefined(result) ? this.squareX : result.x);
-			var projectedSquareY = (ss.isNullOrUndefined(result) ? this.squareY : result.y);
-			var points = [];
-			while (ss.isValue(result)) {
-				this.squareX = ss.Int32.trunc(this.x / $Pather_Common_Constants.squareSize);
-				this.squareY = ss.Int32.trunc(this.y / $Pather_Common_Constants.squareSize);
-				if (this.squareX === result.x && this.squareY === result.y) {
-					ss.removeAt(this.path, 0);
-					result = this.path[0];
-					projectedSquareX = (ss.isNullOrUndefined(result) ? this.squareX : result.x);
-					projectedSquareY = (ss.isNullOrUndefined(result) ? this.squareY : result.y);
-				}
-				var projectedX = projectedSquareX * $Pather_Common_Constants.squareSize + ss.Int32.div($Pather_Common_Constants.squareSize, 2);
-				var projectedY = projectedSquareY * $Pather_Common_Constants.squareSize + ss.Int32.div($Pather_Common_Constants.squareSize, 2);
-				if (projectedX === ss.Int32.trunc(this.x) && projectedY === ss.Int32.trunc(this.y)) {
-					break;
-				}
-				this.x = $Pather_Common_Utils_Lerper.moveTowards(this.x, projectedX, this.speed);
-				this.y = $Pather_Common_Utils_Lerper.moveTowards(this.y, projectedY, this.speed);
-				points.push(new $Pather_Common_Utils_Point(this.x, this.y));
-			}
-			console.log(points);
 		}
 	}, $Pather_Common_GameFramework_GameEntity);
 	ss.initClass($Pather_Common_GameFramework_StepManager, $asm, {
@@ -2695,13 +2465,6 @@
 	ss.initClass($Pather_Common_Models_Common_UserActions_UserAction, $asm, {}, null, [$Pather_Common_Models_Common_UserActions_IAction]);
 	ss.initClass($Pather_Common_Models_Common_UserActions_MoveEntityAction, $asm, {}, $Pather_Common_Models_Common_UserActions_UserAction, [$Pather_Common_Models_Common_UserActions_IAction]);
 	ss.initEnum($Pather_Common_Models_Common_UserActions_UserActionType, $asm, { move: 0 });
-	ss.initClass($Pather_Common_Models_Game_Old_ConnectedModel, $asm, {});
-	ss.initClass($Pather_Common_Models_Game_Old_MoveModel, $asm, {});
-	ss.initClass($Pather_Common_Models_Game_Old_PingPongModel, $asm, {});
-	ss.initClass($Pather_Common_Models_Game_Old_PlayerJoinModel, $asm, {});
-	ss.initClass($Pather_Common_Models_Game_Old_PlayerModel, $asm, {});
-	ss.initClass($Pather_Common_Models_Game_Old_PlayerSyncModel, $asm, {});
-	ss.initClass($Pather_Common_Models_Game_Old_SyncLockstepModel, $asm, {});
 	ss.initClass($Pather_Common_Models_GameSegment_InitialGameUser, $asm, {});
 	ss.initClass($Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message, $asm, {}, null, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initClass($Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message, $Pather_Common_Models_Common_IPubSub_ReqRes_Message]);
@@ -2775,192 +2538,6 @@
 	ss.initClass($Pather_Common_Models_Tick_Ping_Tick_PubSub_Message, $asm, {}, $Pather_Common_Models_Tick_Base_Tick_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initEnum($Pather_Common_Models_Tick_Ping_Tick_PubSub_Message_OriginType, $asm, { gameSegment: 0, gameWorld: 1, gateway: 2 });
 	ss.initEnum($Pather_Common_Models_Tick_Base_Tick_PubSub_MessageType, $asm, { ping: 'ping' }, true);
-	ss.initEnum($Pather_Common_old_ActionType, $asm, { move: 0, noop: 1 });
-	ss.initClass($Pather_Common_old_Entity, $asm, {
-		init: function(x, y) {
-			this.x = x;
-			this.y = y;
-			this.squareX = ss.Int32.trunc(this.x / $Pather_Common_Constants.squareSize);
-			this.squareY = ss.Int32.trunc(this.y / $Pather_Common_Constants.squareSize);
-		},
-		rePathFind: function(squareX, squareY) {
-			var graph = this.$game.aStarGraph;
-			var start = graph.grid[this.squareX][this.squareY];
-			var end = graph.grid[squareX][squareY];
-			this.path = ss.arrayClone(astar.search(graph, start, end));
-		},
-		tick: function() {
-			var result = this.path[0];
-			this.animations = [];
-			var projectedSquareX = (ss.isNullOrUndefined(result) ? this.squareX : result.x);
-			var projectedSquareY = (ss.isNullOrUndefined(result) ? this.squareY : result.y);
-			for (var i = 0; i < $Pather_Common_Constants.animationSteps; i++) {
-				this.squareX = ss.Int32.trunc(this.x / $Pather_Common_Constants.squareSize);
-				this.squareY = ss.Int32.trunc(this.y / $Pather_Common_Constants.squareSize);
-				var fromX = this.x;
-				var fromY = this.y;
-				if (ss.isValue(result) && (this.squareX === result.x && this.squareY === result.y)) {
-					ss.removeAt(this.path, 0);
-					result = this.path[0];
-					projectedSquareX = (ss.isNullOrUndefined(result) ? this.squareX : result.x);
-					projectedSquareY = (ss.isNullOrUndefined(result) ? this.squareY : result.y);
-				}
-				var projectedX = projectedSquareX * $Pather_Common_Constants.squareSize + ss.Int32.div($Pather_Common_Constants.squareSize, 2);
-				var projectedY = projectedSquareY * $Pather_Common_Constants.squareSize + ss.Int32.div($Pather_Common_Constants.squareSize, 2);
-				if (projectedX === ss.Int32.trunc(this.x) && projectedY === ss.Int32.trunc(this.y)) {
-					return;
-				}
-				this.x = $Pather_Common_Utils_Lerper.moveTowards(this.x, projectedX, this.speed / $Pather_Common_Constants.animationSteps);
-				this.y = $Pather_Common_Utils_Lerper.moveTowards(this.y, projectedY, this.speed / $Pather_Common_Constants.animationSteps);
-				this.animations.push(new $Pather_Common_Utils_AnimationPoint(fromX, fromY, this.x, this.y));
-			}
-		}
-	});
-	ss.initClass($Pather_Common_old_Game, $asm, {
-		createPlayer: function(playerId) {
-			return new $Pather_Common_old_Entity(this, playerId);
-		},
-		constructGrid: function() {
-			this.grid = new Array($Pather_Common_Constants.numberOfSquares);
-			for (var x = 0; x < $Pather_Common_Constants.numberOfSquares; x++) {
-				this.grid[x] = new Array($Pather_Common_Constants.numberOfSquares);
-				for (var y = 0; y < $Pather_Common_Constants.numberOfSquares; y++) {
-					this.grid[x][y] = ((Math.random() * 100 < 15) ? 0 : 1);
-				}
-			}
-			this.aStarGraph = new Graph(this.grid);
-		},
-		init: function() {
-			this.curGameTime = (new Date()).getTime();
-			this.curLockstepTime = (new Date()).getTime();
-			this.curTickTime = (new Date()).getTime();
-			setTimeout(ss.mkdel(this, function() {
-				this.tick();
-			}), 1);
-		},
-		get_percentCompletedWithLockStep: function() {
-			var vc = (new Date()).getTime();
-			var l = vc - this.curLockstepTime;
-			return l / $Pather_Common_Constants.lockstepTicks;
-		},
-		tick: function() {
-			setTimeout(ss.mkdel(this, function() {
-				this.tick();
-			}), 1);
-			var tickResult = 0;
-			if (!this.ready) {
-				return tickResult;
-			}
-			var vc = (new Date()).getTime();
-			var l = vc - this.curLockstepTime;
-			while (l > $Pather_Common_Constants.lockstepTicks) {
-				l -= $Pather_Common_Constants.lockstepTicks;
-				this.curLockstepTime += $Pather_Common_Constants.lockstepTicks;
-				this.lockstepTickNumber++;
-				console.log('Lockstep', this.lockstepTickNumber, (new Date()).getTime());
-				this.stepManager.processAction(this.lockstepTickNumber);
-				tickResult = 2;
-			}
-			var l2 = vc - this.curTickTime;
-			var nextTickTime = ss.Int32.div(l2, $Pather_Common_Constants.gameTicks);
-			while (nextTickTime > this.trackTickNumber) {
-				this.trackTickNumber++;
-				this.tickNumber++;
-				for (var $t1 = 0; $t1 < this.players.length; $t1++) {
-					var person = this.players[$t1];
-					person.tick();
-				}
-				tickResult = ((tickResult === 2) ? 3 : 1);
-				//todo probably should only happen once? and not in the loop
-				var v = (new Date()).getTime();
-				this.nextGameTime += v - this.curGameTime;
-				this.curGameTime = v;
-			}
-			return tickResult;
-		}
-	});
-	ss.initInterface($Pather_Common_old_IAction, $asm, { get_data: null, get_lockstepTickNumber: null, get_type: null, process: null });
-	ss.initClass($Pather_Common_old_MoveAction, $asm, {
-		get_data: function() {
-			return this.moveModel;
-		},
-		get_lockstepTickNumber: function() {
-			return this.$1$LockstepTickNumberField;
-		},
-		set_lockstepTickNumber: function(value) {
-			this.$1$LockstepTickNumberField = value;
-		},
-		process: function(game) {
-			for (var $t1 = 0; $t1 < game.players.length; $t1++) {
-				var person = game.players[$t1];
-				if (ss.referenceEquals(person.playerId, this.moveModel.playerId)) {
-					person.rePathFind(this.moveModel.x, this.moveModel.y);
-				}
-			}
-		},
-		get_type: function() {
-			return 0;
-		}
-	}, null, [$Pather_Common_old_IAction]);
-	ss.initClass($Pather_Common_old_NoopAction, $asm, {
-		get_data: function() {
-			return null;
-		},
-		get_lockstepTickNumber: function() {
-			return this.$1$LockstepTickNumberField;
-		},
-		set_lockstepTickNumber: function(value) {
-			this.$1$LockstepTickNumberField = value;
-		},
-		process: function(game) {
-		},
-		get_type: function() {
-			return 1;
-		}
-	}, null, [$Pather_Common_old_IAction]);
-	ss.initClass($Pather_Common_old_SerializableAction, $asm, {});
-	ss.initClass($Pather_Common_old_StepManager, $asm, {
-		receiveAction: function(serAction) {
-			var action;
-			switch (serAction.type) {
-				case 0: {
-					action = new $Pather_Common_old_MoveAction(serAction.data, serAction.lockstepTickNumber);
-					break;
-				}
-				case 1: {
-					action = new $Pather_Common_old_NoopAction(serAction.lockstepTickNumber);
-					break;
-				}
-				default: {
-					throw new ss.ArgumentOutOfRangeException();
-				}
-			}
-			if (!this.stepActionsTicks.containsKey(serAction.lockstepTickNumber)) {
-				if (serAction.lockstepTickNumber <= this.game.lockstepTickNumber) {
-					action.process(this.game);
-					console.log('Misprocess of action count', ++this.$misprocess, this.game.lockstepTickNumber - serAction.lockstepTickNumber);
-					return;
-				}
-				this.stepActionsTicks.set_item(serAction.lockstepTickNumber, []);
-			}
-			this.stepActionsTicks.get_item(serAction.lockstepTickNumber).push(action);
-		},
-		processAction: function(lockstepTickNumber) {
-			if (!this.stepActionsTicks.containsKey(lockstepTickNumber)) {
-				return;
-			}
-			var stepActions = this.stepActionsTicks.get_item(lockstepTickNumber);
-			//            Global.Console.Log("Actions for", stepActions.Count, "Players");
-			for (var $t1 = 0; $t1 < stepActions.length; $t1++) {
-				var stepAction = stepActions[$t1];
-				stepAction.process(this.game);
-			}
-			this.lastTickProcessed = lockstepTickNumber;
-			this.stepActionsTicks.remove(lockstepTickNumber);
-		},
-		get_networkPlayers: null
-	});
-	ss.initEnum($Pather_Common_old_TickResult, $asm, { none: 0, game: 1, lockstep: 2, both: 3 });
 	ss.initClass($Pather_Common_TestFramework_Assert, $asm, {});
 	ss.initClass($Pather_Common_TestFramework_AssertException, $asm, {
 		get_failedAssertion: function() {
