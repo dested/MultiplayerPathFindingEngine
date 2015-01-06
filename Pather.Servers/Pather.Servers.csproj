@@ -58,6 +58,7 @@
     <Compile Include="Common\BackendTickManager.cs" />
     <Compile Include="GameSegmentServer\GameSegment.cs" />
     <Compile Include="GameSegmentServer\GameSegmentPubSub.cs" />
+    <Compile Include="GameSegmentServer\IServerGameEntity.cs" />
     <Compile Include="GameSegmentServer\Logger\GameSegmentLogger.cs" />
     <Compile Include="GameSegmentServer\Logger\GameSegmentLogMessage.cs" />
     <Compile Include="GameSegmentServer\Logger\GameSegmentLogMessageContent.cs" />
@@ -68,7 +69,8 @@
     <Compile Include="GameSegmentServer\Logger\UserLeft_GameSegmentLogMessage.cs" />
     <Compile Include="GameSegmentServer\Logger\UserMoved_GameSegmentLogMessage.cs" />
     <Compile Include="GameSegmentServer\ServerGame.cs" />
-    <Compile Include="GameSegmentServer\StepManager.cs" />
+    <Compile Include="GameSegmentServer\ServerGameManager.cs" />
+    <Compile Include="GameSegmentServer\ServerGameUser.cs" />
     <Compile Include="GameWorldServer\GameSegment.cs" />
     <Compile Include="GameWorldServer\GameWorld.cs" />
     <Compile Include="GameWorldServer\GameWorldPubSub.cs" />

@@ -30,7 +30,30 @@ namespace Pather.Common.GameFramework
 
         public void QueueUserAction(UserAction action)
         {
-            StepManager.QueueUserAction(action);
+            StepManager.QueueUserAction(new UserActionModel()
+            {
+                Action = action,
+                Type=UserActionModelType.Regular
+            });
+        }
+        public void QueueTellUserAction(UserAction action)
+        {
+            StepManager.QueueUserAction(new UserActionModel()
+            {
+                Action = action,
+                Type = UserActionModelType.Tell
+            });
+
+        }
+        public void QueueUserActionFromNeighbor(UserAction action)
+        {
+            StepManager.QueueUserAction(new UserActionModel()
+            {
+                Action = action,
+                Type = UserActionModelType.Neighbor
+            });
+
+ 
         }
 
         public void ProcessUserAction(UserAction action)
@@ -68,17 +91,9 @@ namespace Pather.Common.GameFramework
             }
         }
 
-        public void MyUserJoined(string userId, int x, int y)
+        public void AddEntity(GameEntity entity)
         {
-
-
-            var clientUser = CreateGameUser(userId);
-            clientUser.X = x;
-            clientUser.Y = y;
-            ActiveEntities.Add(clientUser);
-            MyUser = clientUser;
-
-
+            ActiveEntities.Add(entity);
         }
 
         public virtual GameUser CreateGameUser(string userId)

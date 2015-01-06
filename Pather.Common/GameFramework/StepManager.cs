@@ -1,9 +1,22 @@
+using System;
 using System.Collections.Generic;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Common.UserActions;
 
 namespace Pather.Common.GameFramework
 {
+    public class UserActionModel
+    {
+        public UserAction Action;
+        public UserActionModelType Type;
+    }
+
+    public enum UserActionModelType
+    {
+        Regular,
+        Neighbor,
+        Tell
+    }
     public class StepManager
     {
         private readonly Game game;
@@ -11,29 +24,49 @@ namespace Pather.Common.GameFramework
         public StepManager(Game game)
         {
             this.game = game;
-            StepActionsTicks = new Dictionary<long, List<UserAction>>();
+            StepActionsTicks = new Dictionary<long, List<UserActionModel>>();
             LastTickProcessed = 0;
         }
 
         public long LastTickProcessed;
-        public Dictionary<long, List<UserAction>> StepActionsTicks;
+        public Dictionary<long, List<UserActionModel>> StepActionsTicks;
         private int misprocess;
 
-        public void QueueUserAction(UserAction action)
+        public void QueueUserAction(UserActionModel actionModel)
         {
-
+            var action = actionModel.Action;
             if (!StepActionsTicks.ContainsKey(action.LockstepTick))
             {
                 if (action.LockstepTick <= game.tickManager.LockstepTickNumber)
                 {
-                    game.ProcessUserAction(action);
+                    ProcessUserActionModel(actionModel);
                     Global.Console.Log("Misprocess of action count", ++misprocess, game.tickManager.LockstepTickNumber - action.LockstepTick);
                     return;
                 }
-                StepActionsTicks[action.LockstepTick] = new List<UserAction>();
+                StepActionsTicks[action.LockstepTick] = new List<UserActionModel>();
             }
-            StepActionsTicks[action.LockstepTick].Add(action);
+            StepActionsTicks[action.LockstepTick].Add(actionModel);
         }
+
+        private void ProcessUserActionModel(UserActionModel actionModel)
+        {
+
+            switch (actionModel.Type)
+            {
+                case UserActionModelType.Regular:
+                    game.ProcessUserAction(actionModel.Action);
+                    break;
+                case UserActionModelType.Neighbor:
+                    game.ProcessUserActionFromNeighbor(actionModel.Action);
+                    break;
+                case UserActionModelType.Tell:
+                    game.TellUserAction(actionModel.Action);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
 
         public void ProcessAction(long lockstepTickNumber)
         {
@@ -45,7 +78,7 @@ namespace Pather.Common.GameFramework
 
             foreach (var stepAction in stepActions)
             {
-                game.ProcessUserAction(stepAction);
+                ProcessUserActionModel(stepAction);
             }
             LastTickProcessed = lockstepTickNumber;
             StepActionsTicks.Remove(lockstepTickNumber);

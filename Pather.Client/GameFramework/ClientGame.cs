@@ -11,6 +11,19 @@ namespace Pather.Client.GameFramework
         {
         }
 
+        public void MyUserJoined(string userId, int x, int y)
+        {
+
+
+            var clientUser = CreateGameUser(userId);
+            clientUser.X = x;
+            clientUser.Y = y;
+            ActiveEntities.Add(clientUser);
+            MyUser = clientUser;
+
+
+        }
+
 
         public void DrawEntities(CanvasRenderingContext2D context, double interpolatedTime)
         {

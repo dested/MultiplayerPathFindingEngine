@@ -18,7 +18,7 @@ using Pather.Servers.Common;
 using Pather.Servers.Common.PubSub;
 using Pather.Servers.Common.PushPop;
 using Pather.Servers.Common.ServerLogging;
-using Pather.Servers.GameSegmentServer.Logger;  
+using Pather.Servers.GameSegmentServer.Logger;
 
 namespace Pather.Servers.GameSegmentServer
 {
@@ -33,7 +33,7 @@ namespace Pather.Servers.GameSegmentServer
 
         public GameSegmentServer(IPubSub pubsub, IPushPop pushPop, string gameSegmentId)
         {
-//            GameSegmentLogger.InitLogger(gameSegmentId);
+            //            GameSegmentLogger.InitLogger(gameSegmentId);
             ServerLogger.InitLogger("GameSegment", gameSegmentId);
             this.pubsub = pubsub;
             this.pushPop = pushPop;
@@ -49,22 +49,12 @@ namespace Pather.Servers.GameSegmentServer
                     GameSegmentPubSub = new GameSegmentPubSub(this.pubsub, GameSegmentId);
                     GameSegmentPubSub.OnAllMessage += onAllMessage;
 
-                    gameManager = new ServerGameManager(GameSegmentId,GameSegmentPubSub);
+                    gameManager = new ServerGameManager(GameSegmentId, GameSegmentPubSub);
                     gameManager.RegisterGameSegmentWithCluster += registerGameSegmentWithCluster;
                     gameManager.Init();
 
                 });
-
-            /*
-                        Global.SetInterval(() =>
-                        {
-                            Global.Console.Log(messagesProcessed);
-                        }, 1000);*/
         }
-
-
-       
-
 
         private void registerGameSegmentWithCluster()
         {
@@ -79,15 +69,11 @@ namespace Pather.Servers.GameSegmentServer
             {
                 case GameSegment_PubSub_AllMessageType.TickSync:
                     var tickSyncMessage = (TickSync_GameSegment_PubSub_AllMessage)message;
-                    gameManager.BackEndTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
+                    gameManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
-
     }
-
-
-
 }
