@@ -199,7 +199,8 @@ namespace Pather.Servers.GameWorldServer
                     {
                         MessageId = getAllGameSegments.MessageId,
                         GameSegmentIds = GameWorld.GameSegments.Select(a => a.GameSegmentId),
-                        LockstepTickNumber=BackEndTickManager.LockstepTickNumber,
+                        LockstepTickNumber = BackEndTickManager.LockstepTickNumber,
+                        ServerLatency= BackEndTickManager.CurrentServerLatency,
                         Grid=Grid,
                         AllUsers = GameWorld.Users.Select(user => new InitialGameUser()
                         {

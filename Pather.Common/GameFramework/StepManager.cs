@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Common.UserActions;
 
@@ -10,7 +11,7 @@ namespace Pather.Common.GameFramework
         public UserAction Action;
         public UserActionModelType Type;
     }
-
+    [NamedValues]
     public enum UserActionModelType
     {
         Regular,

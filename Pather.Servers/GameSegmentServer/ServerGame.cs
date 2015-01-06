@@ -59,7 +59,7 @@ namespace Pather.Servers.GameSegmentServer
                 switch (action.UserActionType)
                 {
                     case UserActionType.Move:
-                        var moveAction = (MoveEntityAction) action;
+                        var moveAction = (MoveEntityAction)action;
                         gameManager.SendAction(user, new MoveEntityAction()
                         {
                             X = moveAction.X,
@@ -129,7 +129,7 @@ namespace Pather.Servers.GameSegmentServer
 
         }
 
-        
+
 
         public void TellUserJoin(TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message message)
         {
@@ -268,17 +268,17 @@ namespace Pather.Servers.GameSegmentServer
 
         private static double pointDistance(GameEntity pUser, GameEntity cUser)
         {
-            var mx = pUser.SquareX;
-            var my = pUser.SquareY;
+            var mx = pUser.X;
+            var my = pUser.Y;
 
-            var cx = cUser.SquareX;
-            var cy = cUser.SquareY;
+            var cx = cUser.X;
+            var cy = cUser.Y;
 
             var x = (cx - mx);
             var y = (cy - my);
 
-            var dis = Math.Sqrt((x * x) + (y * y));
-            return dis;
+            var dis = Math.Sqrt((x * x) + (y * y)) ;
+            return Utilities.ToSquare(dis) ;
         }
 
     }

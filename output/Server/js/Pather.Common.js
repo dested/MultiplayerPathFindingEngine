@@ -104,8 +104,6 @@
 		this.$1$OldNeighborsField = null;
 		this.x = 0;
 		this.y = 0;
-		this.squareX = 0;
-		this.squareY = 0;
 		this.entityId = null;
 		this.neighbors = new (ss.makeGenericType($Pather_Common_Utils_DictionaryList$2, [String, $Pather_Common_GameFramework_GameEntityNeighbor]))(function(a) {
 			return a.entity.entityId;
@@ -153,7 +151,7 @@
 	// Pather.Common.GameFramework.UserActionModel
 	var $Pather_Common_GameFramework_UserActionModel = function() {
 		this.action = null;
-		this.type = 0;
+		this.type = null;
 	};
 	$Pather_Common_GameFramework_UserActionModel.__typeName = 'Pather.Common.GameFramework.UserActionModel';
 	global.Pather.Common.GameFramework.UserActionModel = $Pather_Common_GameFramework_UserActionModel;
@@ -302,7 +300,7 @@
 		var $this = $Pather_Common_Models_Common_UserActions_UserAction.$ctor();
 		$this.x = 0;
 		$this.y = 0;
-		$this.userActionType = 0;
+		$this.userActionType = 'move';
 		return $this;
 	};
 	global.Pather.Common.Models.Common.UserActions.MoveEntityAction = $Pather_Common_Models_Common_UserActions_MoveEntityAction;
@@ -313,7 +311,7 @@
 	$Pather_Common_Models_Common_UserActions_UserAction.__typeName = 'Pather.Common.Models.Common.UserActions.UserAction';
 	$Pather_Common_Models_Common_UserActions_UserAction.$ctor = function() {
 		var $this = {};
-		$this.userActionType = 0;
+		$this.userActionType = null;
 		$this.lockstepTick = 0;
 		$this.entityId = null;
 		return $this;
@@ -357,6 +355,7 @@
 		$this.allUsers = null;
 		$this.grid = null;
 		$this.lockstepTickNumber = 0;
+		$this.serverLatency = 0;
 		$this.type = 'initializeGameSegmentResponse';
 		$this.response = true;
 		return $this;
@@ -1086,6 +1085,7 @@
 		$this.y = 0;
 		$this.grid = null;
 		$this.lockstepTickNumber = 0;
+		$this.serverLatency = 0;
 		$this.gatewayUserMessageType = 'userJoined';
 		return $this;
 	};
@@ -1970,6 +1970,9 @@
 			return !(typeof(m) === 'undefined');
 		};
 	};
+	$Pather_Common_Utils_Utilities.toSquare = function(pos) {
+		return ss.Int32.trunc(pos / $Pather_Common_Constants.squareSize);
+	};
 	global.Pather.Common.Utils.Utilities = $Pather_Common_Utils_Utilities;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Utils.Promises.Deferred
@@ -2269,35 +2272,36 @@
 	ss.initEnum($Pather_Common_SocketChannels$Client, $asm, { postAction: 'postAction', joinPlayer: 'joinPlayer', ping: 'ping' }, true);
 	ss.initEnum($Pather_Common_SocketChannels$Server, $asm, { connect: 'connect', postAction: 'postAction', playerSync: 'playerSync', pong: 'pong', syncLockstep: 'syncLockstep' }, true);
 	ss.initClass($Pather_Common_GameFramework_Game, $asm, {
-		init: function(grid, lockstepTickNumber) {
+		init: function(grid, lockstepTickNumber, serverLatency) {
 			this.board = new $Pather_Common_GameFramework_GameBoard();
 			this.board.init(grid);
+			this.tickManager.setServerLatency(serverLatency);
 			this.tickManager.setLockStepTick(lockstepTickNumber);
 		},
 		queueUserAction: function(action) {
 			var $t2 = this.stepManager;
 			var $t1 = new $Pather_Common_GameFramework_UserActionModel();
 			$t1.action = action;
-			$t1.type = 0;
+			$t1.type = 'regular';
 			$t2.queueUserAction($t1);
 		},
 		queueTellUserAction: function(action) {
 			var $t2 = this.stepManager;
 			var $t1 = new $Pather_Common_GameFramework_UserActionModel();
 			$t1.action = action;
-			$t1.type = 2;
+			$t1.type = 'tell';
 			$t2.queueUserAction($t1);
 		},
 		queueUserActionFromNeighbor: function(action) {
 			var $t2 = this.stepManager;
 			var $t1 = new $Pather_Common_GameFramework_UserActionModel();
 			$t1.action = action;
-			$t1.type = 1;
+			$t1.type = 'neighbor';
 			$t2.queueUserAction($t1);
 		},
 		processUserAction: function(action) {
 			switch (action.userActionType) {
-				case 0: {
+				case 'move': {
 					var moveAction = action;
 					var user = ss.cast(this.activeEntities.get_item(moveAction.entityId), $Pather_Common_GameFramework_GameUser);
 					user.rePathFind(moveAction.x, moveAction.y);
@@ -2310,7 +2314,7 @@
 		},
 		tellUserAction: function(action) {
 			switch (action.userActionType) {
-				case 0: {
+				case 'move': {
 					break;
 				}
 				default: {
@@ -2320,7 +2324,7 @@
 		},
 		processUserActionFromNeighbor: function(action) {
 			switch (action.userActionType) {
-				case 0: {
+				case 'move': {
 					break;
 				}
 				default: {
@@ -2397,11 +2401,12 @@
 		lockstepTick: function(lockstepTickNumber) {
 			$Pather_Common_GameFramework_GameEntity.prototype.lockstepTick.call(this, lockstepTickNumber);
 		},
-		rePathFind: function(destinationSquareX, destinationSquareY) {
+		rePathFind: function(destinationX, destinationY) {
 			var graph = this.game.board.aStarGraph;
-			var start = graph.grid[this.squareX][this.squareY];
-			var end = graph.grid[destinationSquareX][destinationSquareY];
-			this.path = ss.arrayClone(astar.search(graph, start, end));
+			var start = graph.grid[$Pather_Common_Utils_Utilities.toSquare(this.x)][$Pather_Common_Utils_Utilities.toSquare(this.y)];
+			var end = graph.grid[$Pather_Common_Utils_Utilities.toSquare(destinationX)][$Pather_Common_Utils_Utilities.toSquare(destinationY)];
+			ss.clear(this.path);
+			ss.arrayAddRange(this.path, astar.search(graph, start, end));
 		}
 	}, $Pather_Common_GameFramework_GameEntity);
 	ss.initClass($Pather_Common_GameFramework_StepManager, $asm, {
@@ -2419,15 +2424,15 @@
 		},
 		$processUserActionModel: function(actionModel) {
 			switch (actionModel.type) {
-				case 0: {
+				case 'regular': {
 					this.$game.processUserAction(actionModel.action);
 					break;
 				}
-				case 1: {
+				case 'neighbor': {
 					this.$game.processUserActionFromNeighbor(actionModel.action);
 					break;
 				}
-				case 2: {
+				case 'tell': {
 					this.$game.tellUserAction(actionModel.action);
 					break;
 				}
@@ -2450,7 +2455,7 @@
 		}
 	});
 	ss.initClass($Pather_Common_GameFramework_UserActionModel, $asm, {});
-	ss.initEnum($Pather_Common_GameFramework_UserActionModelType, $asm, { regular: 0, neighbor: 1, tell: 2 });
+	ss.initEnum($Pather_Common_GameFramework_UserActionModelType, $asm, { regular: 'regular', neighbor: 'neighbor', tell: 'tell' }, true);
 	ss.initInterface($Pather_Common_Models_Common_IPubSub_Message, $asm, {});
 	ss.initClass($Pather_Common_Models_ClusterManager_Base_ClusterManager_PubSub_Message, $asm, {}, null, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initInterface($Pather_Common_Models_Common_IPubSub_ReqRes_Message, $asm, {}, [$Pather_Common_Models_Common_IPubSub_Message]);
@@ -2464,7 +2469,7 @@
 	ss.initInterface($Pather_Common_Models_Common_UserActions_IAction, $asm, {});
 	ss.initClass($Pather_Common_Models_Common_UserActions_UserAction, $asm, {}, null, [$Pather_Common_Models_Common_UserActions_IAction]);
 	ss.initClass($Pather_Common_Models_Common_UserActions_MoveEntityAction, $asm, {}, $Pather_Common_Models_Common_UserActions_UserAction, [$Pather_Common_Models_Common_UserActions_IAction]);
-	ss.initEnum($Pather_Common_Models_Common_UserActions_UserActionType, $asm, { move: 0 });
+	ss.initEnum($Pather_Common_Models_Common_UserActions_UserActionType, $asm, { move: 'move' }, true);
 	ss.initClass($Pather_Common_Models_GameSegment_InitialGameUser, $asm, {});
 	ss.initClass($Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message, $asm, {}, null, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initClass($Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_ReqRes_Message, $asm, {}, $Pather_Common_Models_GameSegment_Base_GameSegment_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message, $Pather_Common_Models_Common_IPubSub_ReqRes_Message]);

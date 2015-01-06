@@ -35,18 +35,17 @@ namespace Pather.Servers.GameSegmentServer
                 var point = lockstepMovePoints[0];
                 X = point.X;
                 Y = point.Y;
-                SquareX = (int)((X) / Constants.SquareSize);
-                SquareY = (int)((Y) / Constants.SquareSize);
-
+          
                 lockstepMovePoints.RemoveAt(0);
                 Global.Console.Log(EntityId, X, Y, lockstepMovePoints.Count);
             }
         }
 
-        public override void RePathFind(int destinationSquareX, int destinationSquareY)
+        public override void RePathFind(double destinationX, double destinationY)
         {
-            base.RePathFind(destinationSquareX, destinationSquareY);
+            base.RePathFind(destinationX, destinationY);
             BuildMovement();
+            Global.Console.Log("Path points:", lockstepMovePoints);
         }
 
         public void BuildMovement()
@@ -54,8 +53,8 @@ namespace Pather.Servers.GameSegmentServer
             var x = X;
             var y = Y;
 
-            var sqX = SquareX;
-            var sqY = SquareY;
+            var sqX = Utilities.ToSquare(x);
+            var sqY = Utilities.ToSquare(y);
 
             var result = Path[0];
 
@@ -67,8 +66,8 @@ namespace Pather.Servers.GameSegmentServer
             var gameTick = 0;
             while (result != null)
             {
-                sqX = (int)((x) / Constants.SquareSize);
-                sqY = (int)((y) / Constants.SquareSize);
+                sqX = Utilities.ToSquare(x);
+                sqY = Utilities.ToSquare(y);
 
                 if (sqX == result.X && sqY == result.Y)
                 {
@@ -98,7 +97,8 @@ namespace Pather.Servers.GameSegmentServer
                 }
             }
             lockstepMovePoints = points;
-            Path = new List<AStarPath>();
+            //todo path should .count==0
+            Path .Clear();
 
         }
 

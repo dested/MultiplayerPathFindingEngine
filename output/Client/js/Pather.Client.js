@@ -51,10 +51,7 @@
 			this.$clientCommunicator.listenForGatewayMessage(ss.mkdel(this, function(message) {
 				this.onMessage(message);
 			}));
-			var $t2 = this.$clientCommunicator;
-			var $t1 = Pather.Common.Models.Gateway.Socket.Base.UserJoined_User_Gateway_Socket_Message.$ctor();
-			$t1.userToken = 'salvatore' + Pather.Common.Utils.Utilities.uniqueId();
-			$t2.sendMessage($t1);
+			this.joinUser();
 		}));
 	};
 	$Pather_Client_NetworkManager.__typeName = 'Pather.Client.NetworkManager';
@@ -223,7 +220,7 @@
 			$t2.sendAction($t1);
 		},
 		$onGatewayMessage: function(message) {
-			console.log(message);
+			console.log('Gateway Message', message);
 			switch (message.gatewayUserMessageType) {
 				case 'pong': {
 					var pongMessage = message;
@@ -255,7 +252,7 @@
 			this.clientGame.queueUserAction(userActionMessage.action);
 		},
 		$userJoined: function(userJoinedMessage) {
-			this.clientGame.init(userJoinedMessage.grid, userJoinedMessage.lockstepTickNumber);
+			this.clientGame.init(userJoinedMessage.grid, userJoinedMessage.lockstepTickNumber, userJoinedMessage.serverLatency);
 			this.clientGame.myUserJoined(userJoinedMessage.userId, userJoinedMessage.x, userJoinedMessage.y);
 			this.onReady();
 		},
@@ -290,6 +287,12 @@
 		}
 	});
 	ss.initClass($Pather_Client_NetworkManager, $asm, {
+		joinUser: function() {
+			var $t2 = this.$clientCommunicator;
+			var $t1 = Pather.Common.Models.Gateway.Socket.Base.UserJoined_User_Gateway_Socket_Message.$ctor();
+			$t1.userToken = 'salvatore' + Pather.Common.Utils.Utilities.uniqueId();
+			$t2.sendMessage($t1);
+		},
 		sendPing: function() {
 			if (ss.isValue(this.$clientCommunicator)) {
 				this.$clientCommunicator.sendMessage(Pather.Common.Models.Gateway.Socket.Base.Ping_User_Gateway_Socket_Message.$ctor());
@@ -332,18 +335,18 @@
 			var projectedY;
 			var projectedSquareX;
 			var projectedSquareY;
-			projectedSquareX = (ss.isNullOrUndefined(result) ? this.squareX : result.x);
-			projectedSquareY = (ss.isNullOrUndefined(result) ? this.squareY : result.y);
+			projectedSquareX = (ss.isNullOrUndefined(result) ? Pather.Common.Utils.Utilities.toSquare(this.x) : result.x);
+			projectedSquareY = (ss.isNullOrUndefined(result) ? Pather.Common.Utils.Utilities.toSquare(this.y) : result.y);
 			for (var i = 0; i < Pather.Common.Constants.animationSteps; i++) {
-				this.squareX = ss.Int32.trunc(this.x / Pather.Common.Constants.squareSize);
-				this.squareY = ss.Int32.trunc(this.y / Pather.Common.Constants.squareSize);
+				var squareX = Pather.Common.Utils.Utilities.toSquare(this.x);
+				var squareY = Pather.Common.Utils.Utilities.toSquare(this.y);
 				var fromX = this.x;
 				var fromY = this.y;
-				if (ss.isValue(result) && (this.squareX === result.x && this.squareY === result.y)) {
+				if (ss.isValue(result) && (squareX === result.x && squareY === result.y)) {
 					ss.removeAt(this.path, 0);
 					result = this.path[0];
-					projectedSquareX = (ss.isNullOrUndefined(result) ? this.squareX : result.x);
-					projectedSquareY = (ss.isNullOrUndefined(result) ? this.squareY : result.y);
+					projectedSquareX = (ss.isNullOrUndefined(result) ? squareX : result.x);
+					projectedSquareY = (ss.isNullOrUndefined(result) ? squareY : result.y);
 				}
 				projectedX = projectedSquareX * Pather.Common.Constants.squareSize + ss.Int32.div(Pather.Common.Constants.squareSize, 2);
 				projectedY = projectedSquareY * Pather.Common.Constants.squareSize + ss.Int32.div(Pather.Common.Constants.squareSize, 2);
@@ -404,9 +407,7 @@
 				this.$contextCollection.add('Foreground', context);
 				canvas.onmousedown = ss.mkdel(this, function(ev) {
 					var event = ev;
-					var squareX = ss.Int32.div(ss.unbox(ss.cast(event.offsetX, ss.Int32)), Pather.Common.Constants.squareSize);
-					var squareY = ss.Int32.div(ss.unbox(ss.cast(event.offsetY, ss.Int32)), Pather.Common.Constants.squareSize);
-					this.$clientGameManager.moveToLocation(squareX, squareY);
+					this.$clientGameManager.moveToLocation(ss.unbox(ss.cast(event.offsetX, ss.Int32)), ss.unbox(ss.cast(event.offsetY, ss.Int32)));
 				});
 				window.requestAnimationFrame(ss.mkdel(this, function(a) {
 					this.$draw();
@@ -518,7 +519,7 @@
 					var receivedCount = 0;
 					var userToken = id + '-' + this.i1.$;
 					$Pather_Client_Tests_LoginE2ETest.$joinUser(userToken, function(communicator, message) {
-						if (message.action.userActionType !== 0) {
+						if (message.action.userActionType !== 'move') {
 							return;
 						}
 						var action = message.action;
@@ -560,7 +561,7 @@
 			var proposedX = 12;
 			var proposedY = 25;
 			$Pather_Client_Tests_LoginE2ETest.$joinUser(id, function(communicator, message) {
-				if (message.action.userActionType !== 0) {
+				if (message.action.userActionType !== 'move') {
 					return;
 				}
 				var action = message.action;

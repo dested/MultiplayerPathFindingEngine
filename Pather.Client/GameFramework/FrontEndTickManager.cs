@@ -82,7 +82,7 @@ namespace Pather.Client.GameFramework
             }
         }
 
-        public override void SetServerLatency(long latency)
+        public override void SetServerLatency(int latency)
         {
             base.SetServerLatency(latency);
             hasLatency = true;

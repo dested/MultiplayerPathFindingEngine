@@ -29,13 +29,15 @@ namespace Pather.Common.GameFramework
             base.LockstepTick(lockstepTickNumber);
         }
 
-        public virtual void RePathFind(int destinationSquareX, int destinationSquareY)
+        public virtual void RePathFind(double destinationX, double destinationY)
         {
             var graph = game.Board.AStarGraph;
 
-            var start = graph.Grid[SquareX][SquareY];
-            var end = graph.Grid[destinationSquareX][destinationSquareY];
-            Path = new List<AStarPath>(AStar.Search(graph, start, end));
+
+            var start = graph.Grid[Utilities.ToSquare(X)][Utilities.ToSquare(Y)];
+            var end = graph.Grid[Utilities.ToSquare(destinationX)][Utilities.ToSquare(destinationY)];
+            Path.Clear();
+            Path.AddRange(AStar.Search(graph, start, end));
         }
     }
 }

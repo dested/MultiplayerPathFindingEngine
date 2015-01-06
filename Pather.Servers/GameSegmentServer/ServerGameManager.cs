@@ -42,15 +42,13 @@ namespace Pather.Servers.GameSegmentServer
         public void Init()
         {
             GameSegmentPubSub.OnMessage += onMessage;
-            GameSegmentPubSub.Init().Then(ready);
+            GameSegmentPubSub.Init().Then(() =>
+            {
+                backEndTickManager.Init(sendPing, tickManagerReady);
+                backEndTickManager.StartPing();
+            });
         }
-
-        private void ready()
-        {
-            backEndTickManager.Init(sendPing, tickManagerReady);
-            backEndTickManager.StartPing();
-        }
-
+         
         private void tickManagerReady()
         {
             GameSegmentPubSub
@@ -64,7 +62,7 @@ namespace Pather.Servers.GameSegmentServer
             serverGame.ActiveEntities.Clear();
             AllGameSegments.Clear();
 
-            serverGame.Init(message.Grid,message.LockstepTickNumber);
+            ((Game)serverGame).Init(message.Grid, message.LockstepTickNumber, message.ServerLatency);
 
             MyGameSegment = new GameSegment(GameSegmentId);
             AllGameSegments[MyGameSegment.GameSegmentId] = MyGameSegment;

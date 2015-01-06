@@ -82,7 +82,7 @@ namespace Pather.Servers.Common
             }
         }
 
-        public override void SetServerLatency(long latency)
+        public override void SetServerLatency(int latency)
         {
             if (CurrentServerLatency != latency)
             {

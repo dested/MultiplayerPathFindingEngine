@@ -1,4 +1,5 @@
 using System;
+using System.Runtime.CompilerServices;
 
 namespace Pather.Common.Utils
 {
@@ -43,6 +44,12 @@ namespace Pather.Common.Utils
         {
             var m = predicate(Script.Reinterpret<T>(message));
             return !Script.IsUndefined(m);
+        }
+
+        public static int ToSquare(double pos)
+        {
+            return (int) (pos/Constants.SquareSize);
+
         }
     }
 }

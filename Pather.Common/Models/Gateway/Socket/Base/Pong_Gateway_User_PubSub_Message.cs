@@ -10,6 +10,6 @@ namespace Pather.Common.Models.Gateway.Socket.Base
             GatewayUserMessageType = Gateway_User_Socket_MessageType.Pong;
         }
 
-        public long GatewayLatency;
+        public int GatewayLatency;
     }
 }

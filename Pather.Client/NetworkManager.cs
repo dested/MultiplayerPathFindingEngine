@@ -25,12 +25,17 @@ namespace Pather.Client
                 {
                     OnMessage(message);
                 });
+                JoinUser();
 
-                clientCommunicator.SendMessage(new UserJoined_User_Gateway_Socket_Message()
-                {
-                    UserToken = "salvatore" + Utilities.UniqueId()
-                });
             });
+        }
+
+        public void JoinUser()
+        {
+            clientCommunicator.SendMessage(new UserJoined_User_Gateway_Socket_Message()
+            {
+                UserToken = "salvatore" + Utilities.UniqueId()
+            }); 
         }
 
         public void SendPing()

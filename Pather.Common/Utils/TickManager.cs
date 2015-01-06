@@ -13,7 +13,7 @@ namespace Pather.Common.Utils
         public Action<long> OnProcessLockstep;
 
         public long CurrentLockstepTime;
-        public long CurrentServerLatency;
+        public int CurrentServerLatency;
 
         public virtual void Init(long currentLockstepTickNumber)
         {
@@ -47,7 +47,7 @@ namespace Pather.Common.Utils
             CurrentLockstepTime = new DateTime().GetTime() - CurrentServerLatency;
         }
 
-        public virtual void SetServerLatency(long latency)
+        public virtual void SetServerLatency(int latency)
         {
             CurrentServerLatency = latency;
         }

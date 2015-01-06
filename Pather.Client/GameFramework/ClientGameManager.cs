@@ -31,7 +31,6 @@ namespace Pather.Client
                 Global.Console.Log("Connected To Tick Server");
             });
             clientGame = new ClientGame(FrontEndTickManager);
-
             FrontEndTickManager.StartPing();
         }
 
@@ -53,7 +52,7 @@ namespace Pather.Client
 
         private void onGatewayMessage(Gateway_User_Socket_Message message)
         {
-            Global.Console.Log(message);
+            Global.Console.Log("Gateway Message", message);
 
             switch (message.GatewayUserMessageType)
             {
@@ -86,7 +85,7 @@ namespace Pather.Client
         private void userJoined(UserJoined_Gateway_User_Socket_Message userJoinedMessage)
         {
 
-            clientGame.Init(userJoinedMessage.Grid, userJoinedMessage.LockstepTickNumber);
+            clientGame.Init(userJoinedMessage.Grid, userJoinedMessage.LockstepTickNumber, userJoinedMessage.ServerLatency);
             
             clientGame.MyUserJoined(userJoinedMessage.UserId, userJoinedMessage.X, userJoinedMessage.Y);
 

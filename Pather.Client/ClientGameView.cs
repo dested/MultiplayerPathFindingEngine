@@ -42,13 +42,9 @@ namespace Pather.Client.GameFramework
                 contextCollection.Add("Foreground", context);
                 canvas.OnMousedown = (ev) =>
                 {
-                    var @event = (dynamic) ev;
+                    var @event = (dynamic) ev; 
 
-                    var squareX = ((int) @event.offsetX)/Constants.SquareSize;
-                    var squareY = ((int) @event.offsetY)/Constants.SquareSize;
-
-
-                    clientGameManager.MoveToLocation(squareX, squareY);
+                    clientGameManager.MoveToLocation(@event.offsetX, @event.offsetY);
                 };
 
 

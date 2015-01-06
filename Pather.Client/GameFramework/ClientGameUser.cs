@@ -30,25 +30,25 @@ namespace Pather.Client.GameFramework
             int projectedSquareX;
             int projectedSquareY;
 
-            projectedSquareX = result == null ? SquareX : (result.X);
-            projectedSquareY = result == null ? SquareY : (result.Y);
+            projectedSquareX = result == null ? Utilities.ToSquare(X) : (result.X);
+            projectedSquareY = result == null ? Utilities.ToSquare(Y) : (result.Y);
 
 
             for (var i = 0; i < Constants.AnimationSteps; i++)
             {
-                SquareX = (int)((X) / Constants.SquareSize);
-                SquareY = (int)((Y) / Constants.SquareSize);
+                var squareX = Utilities.ToSquare(X);
+                var squareY = Utilities.ToSquare(Y);
                 var fromX = X;
                 var fromY = Y;
 
 
-                if (result != null && (SquareX == result.X && SquareY == result.Y))
+                if (result != null && (squareX == result.X && squareY == result.Y))
                 {
                     Path.RemoveAt(0);
                     result = Path[0];
 
-                    projectedSquareX = result == null ? SquareX : (result.X);
-                    projectedSquareY = result == null ? SquareY : (result.Y);
+                    projectedSquareX = result == null ? squareX : (result.X);
+                    projectedSquareY = result == null ? squareY : (result.Y);
                 }
 
 
