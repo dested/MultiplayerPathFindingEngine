@@ -3,6 +3,7 @@
 	var $asm = {};
 	global.Pather = global.Pather || {};
 	global.Pather.Client = global.Pather.Client || {};
+	global.Pather.Client.GameFramework = global.Pather.Client.GameFramework || {};
 	global.Pather.Client.Old = global.Pather.Client.Old || {};
 	global.Pather.Client.Tests = global.Pather.Client.Tests || {};
 	global.Pather.Client.Utils = global.Pather.Client.Utils || {};
@@ -17,114 +18,29 @@
 			Pather.Common.TestFramework.TestFramework.runTests(null);
 			return;
 		}
-		var gameClient = new $Pather_Client_GameClient();
+		var gameClient = new $Pather_Client_GameFramework_ClientGameView();
 		//            var game = new ClientGame();
 		//            game.Init();
 	};
 	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Client.ClientGame
-	var $Pather_Client_ClientGame = function(allUsers, tickManager) {
-		this.tickManager = null;
-		this.board = null;
-		this.$allUsers = null;
-		this.stepManager = null;
-		this.tickManager = tickManager;
-		this.$allUsers = allUsers;
-		this.stepManager = new $Pather_Client_StepManager(this);
-		tickManager.onProcessLockstep = ss.delegateCombine(tickManager.onProcessLockstep, ss.mkdel(this.stepManager, this.stepManager.processAction));
-	};
-	$Pather_Client_ClientGame.__typeName = 'Pather.Client.ClientGame';
-	global.Pather.Client.ClientGame = $Pather_Client_ClientGame;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Client.ClientUser
-	var $Pather_Client_ClientUser = function(game) {
-		this.$game = null;
-		this.userId = null;
-		this.squareX = 0;
-		this.squareY = 0;
-		this.x = 0;
-		this.y = 0;
-		this.speed = 0;
-		this.playerId = null;
-		this.path = null;
-		this.animations = null;
-		this.$game = game;
-		this.animations = [];
-		this.path = [];
-		this.speed = 20;
-	};
-	$Pather_Client_ClientUser.__typeName = 'Pather.Client.ClientUser';
-	global.Pather.Client.ClientUser = $Pather_Client_ClientUser;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Client.FrontEndTickManager
-	var $Pather_Client_FrontEndTickManager = function() {
-		this.$lastPing = 0;
-		this.$pingSent = null;
-		this.$sendPing = null;
-		this.$onTickManagerReady = null;
-		this.$hasLockstep = false;
-		this.$hasLatency = false;
-		this.$tickManagerInitialized = false;
-		Pather.Common.Utils.TickManager.call(this);
-	};
-	$Pather_Client_FrontEndTickManager.__typeName = 'Pather.Client.FrontEndTickManager';
-	global.Pather.Client.FrontEndTickManager = $Pather_Client_FrontEndTickManager;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Client.GameBoard
-	var $Pather_Client_GameBoard = function() {
-		this.grid = null;
-		this.aStarGraph = null;
-	};
-	$Pather_Client_GameBoard.__typeName = 'Pather.Client.GameBoard';
-	global.Pather.Client.GameBoard = $Pather_Client_GameBoard;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Client.GameClient
-	var $Pather_Client_GameClient = function() {
-		this.$canvas = null;
-		this.$context = null;
-		this.backCanvas = null;
-		this.backContext = null;
-		this.$gameManager = null;
-		this.curTickTime = 0;
-		this.tickNumber = 0;
-		this.curGameTime = 0;
-		this.nextGameTime = 0;
-		this.serverLatency = 0;
-		this.trackTickNumber = 0;
-		this.trackLockstepTickNumber = 0;
-		this.$gameManager = new $Pather_Client_GameManager();
-		this.$gameManager.onReady = ss.delegateCombine(this.$gameManager.onReady, ss.mkdel(this, this.$readyToPlay));
-		this.nextGameTime = (new Date()).getTime();
-		this.curGameTime = (new Date()).getTime();
-		this.curTickTime = (new Date()).getTime();
-		setTimeout(ss.mkdel(this, function() {
-			this.tick();
-		}), 1);
-	};
-	$Pather_Client_GameClient.__typeName = 'Pather.Client.GameClient';
-	global.Pather.Client.GameClient = $Pather_Client_GameClient;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Client.GameManager
-	var $Pather_Client_GameManager = function() {
+	// Pather.Client.ClientGameManager
+	var $Pather_Client_ClientGameManager = function() {
 		this.networkManager = null;
 		this.frontEndTickManager = null;
-		this.activeUsers = new (ss.makeGenericType(Pather.Common.Utils.DictionaryList$2, [String, $Pather_Client_ClientUser]))(function(a) {
-			return a.userId;
-		});
 		this.myUser = null;
 		this.onReady = null;
 		this.clientGame = null;
 		this.networkManager = new $Pather_Client_NetworkManager();
-		this.frontEndTickManager = new $Pather_Client_FrontEndTickManager();
+		this.frontEndTickManager = new $Pather_Client_GameFramework_FrontEndTickManager();
 		this.networkManager.onMessage = ss.delegateCombine(this.networkManager.onMessage, ss.mkdel(this, this.$onGatewayMessage));
 		this.frontEndTickManager.init$1(ss.mkdel(this, this.$sendPing), function() {
 			console.log('Connected To Tick Server');
 		});
-		this.clientGame = new $Pather_Client_ClientGame(this.activeUsers, this.frontEndTickManager);
+		this.clientGame = new $Pather_Client_GameFramework_ClientGame(this.frontEndTickManager);
 		this.frontEndTickManager.startPing();
 	};
-	$Pather_Client_GameManager.__typeName = 'Pather.Client.GameManager';
-	global.Pather.Client.GameManager = $Pather_Client_GameManager;
+	$Pather_Client_ClientGameManager.__typeName = 'Pather.Client.ClientGameManager';
+	global.Pather.Client.ClientGameManager = $Pather_Client_ClientGameManager;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Client.NetworkManager
 	var $Pather_Client_NetworkManager = function() {
@@ -161,18 +77,64 @@
 	};
 	global.Pather.Client.NetworkManager = $Pather_Client_NetworkManager;
 	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Client.StepManager
-	var $Pather_Client_StepManager = function(serverGame) {
-		this.$serverGame = null;
-		this.lastTickProcessed = 0;
-		this.stepActionsTicks = null;
-		this.$misprocess = 0;
-		this.$serverGame = serverGame;
-		this.stepActionsTicks = new (ss.makeGenericType(ss.Dictionary$2, [ss.Int32, Array]))();
-		this.lastTickProcessed = 0;
+	// Pather.Client.GameFramework.ClientGame
+	var $Pather_Client_GameFramework_ClientGame = function(tickManager) {
+		Pather.Common.GameFramework.Game.call(this, tickManager);
 	};
-	$Pather_Client_StepManager.__typeName = 'Pather.Client.StepManager';
-	global.Pather.Client.StepManager = $Pather_Client_StepManager;
+	$Pather_Client_GameFramework_ClientGame.__typeName = 'Pather.Client.GameFramework.ClientGame';
+	global.Pather.Client.GameFramework.ClientGame = $Pather_Client_GameFramework_ClientGame;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Client.GameFramework.ClientGameUser
+	var $Pather_Client_GameFramework_ClientGameUser = function(game, userId) {
+		this.animations = null;
+		Pather.Common.GameFramework.GameUser.call(this, game, userId);
+		this.animations = [];
+	};
+	$Pather_Client_GameFramework_ClientGameUser.__typeName = 'Pather.Client.GameFramework.ClientGameUser';
+	global.Pather.Client.GameFramework.ClientGameUser = $Pather_Client_GameFramework_ClientGameUser;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Client.GameFramework.ClientGameView
+	var $Pather_Client_GameFramework_ClientGameView = function() {
+		this.$contextCollection = new (ss.makeGenericType(ss.Dictionary$2, [String, CanvasRenderingContext2D]))();
+		this.$clientGameManager = null;
+		this.curTickTime = 0;
+		this.tickNumber = 0;
+		this.curGameTime = 0;
+		this.nextGameTime = 0;
+		this.serverLatency = 0;
+		this.trackTickNumber = 0;
+		this.trackLockstepTickNumber = 0;
+		this.$clientGameManager = new $Pather_Client_ClientGameManager();
+		this.$clientGameManager.onReady = ss.delegateCombine(this.$clientGameManager.onReady, ss.mkdel(this, this.$readyToPlay));
+		this.nextGameTime = (new Date()).getTime();
+		this.curGameTime = (new Date()).getTime();
+		this.curTickTime = (new Date()).getTime();
+		setTimeout(ss.mkdel(this, function() {
+			this.tick();
+		}), 1);
+	};
+	$Pather_Client_GameFramework_ClientGameView.__typeName = 'Pather.Client.GameFramework.ClientGameView';
+	global.Pather.Client.GameFramework.ClientGameView = $Pather_Client_GameFramework_ClientGameView;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Client.GameFramework.FrontEndTickManager
+	var $Pather_Client_GameFramework_FrontEndTickManager = function() {
+		this.$lastPing = 0;
+		this.$pingSent = null;
+		this.$sendPing = null;
+		this.$onTickManagerReady = null;
+		this.$hasLockstep = false;
+		this.$hasLatency = false;
+		this.$tickManagerInitialized = false;
+		Pather.Common.Utils.TickManager.call(this);
+	};
+	$Pather_Client_GameFramework_FrontEndTickManager.__typeName = 'Pather.Client.GameFramework.FrontEndTickManager';
+	global.Pather.Client.GameFramework.FrontEndTickManager = $Pather_Client_GameFramework_FrontEndTickManager;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Client.GameFramework.IClientGameEntity
+	var $Pather_Client_GameFramework_IClientGameEntity = function() {
+	};
+	$Pather_Client_GameFramework_IClientGameEntity.__typeName = 'Pather.Client.GameFramework.IClientGameEntity';
+	global.Pather.Client.GameFramework.IClientGameEntity = $Pather_Client_GameFramework_IClientGameEntity;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Client.Old.ClientEntity
 	var $Pather_Client_Old_ClientEntity = function(game, playerId) {
@@ -364,20 +326,40 @@
 	$Pather_Client_Utils_ClientCommunicator.__typeName = 'Pather.Client.Utils.ClientCommunicator';
 	global.Pather.Client.Utils.ClientCommunicator = $Pather_Client_Utils_ClientCommunicator;
 	ss.initClass($Pather_Client_$Program, $asm, {});
-	ss.initClass($Pather_Client_ClientGame, $asm, {
-		init: function(grid) {
-			this.board = new $Pather_Client_GameBoard();
-			this.board.init(grid);
+	ss.initClass($Pather_Client_ClientGameManager, $asm, {
+		$sendPing: function() {
+			this.networkManager.sendPing();
 		},
-		queueUserAction: function(action) {
-			this.stepManager.queueUserAction(action);
+		moveToLocation: function(x, y) {
+			var $t2 = this.networkManager;
+			var $t1 = Pather.Common.Models.Common.UserActions.MoveEntityAction.$ctor();
+			$t1.x = x;
+			$t1.y = y;
+			$t1.lockstepTick = this.frontEndTickManager.lockstepTickNumber + 1;
+			$t2.sendAction($t1);
 		},
-		processUserAction: function(action) {
-			switch (action.userActionType) {
-				case 0: {
-					var moveAction = action;
-					var user = this.$allUsers.get_item(moveAction.userId);
-					user.rePathFind(moveAction.x, moveAction.y);
+		$onGatewayMessage: function(message) {
+			console.log(message);
+			switch (message.gatewayUserMessageType) {
+				case 'pong': {
+					var pongMessage = message;
+					this.frontEndTickManager.onPongReceived(pongMessage);
+					break;
+				}
+				case 'userAction': {
+					this.$userAction(message);
+					break;
+				}
+				case 'userJoined': {
+					this.$userJoined(message);
+					break;
+				}
+				case 'tickSync': {
+					this.$onTickSyncMessage(message);
+					break;
+				}
+				case 'updateNeighbors': {
+					this.$onUpdateNeighbors(message);
 					break;
 				}
 				default: {
@@ -385,29 +367,81 @@
 				}
 			}
 		},
-		tellUserAction: function(action) {
-			switch (action.userActionType) {
-				case 0: {
-					break;
-				}
-				default: {
-					throw new ss.ArgumentOutOfRangeException();
-				}
-			}
+		$userAction: function(userActionMessage) {
+			this.clientGame.queueUserAction(userActionMessage.action);
 		},
-		processUserActionFromNeighbor: function(action) {
-			switch (action.userActionType) {
-				case 0: {
-					break;
-				}
-				default: {
-					throw new ss.ArgumentOutOfRangeException();
+		$userJoined: function(userJoinedMessage) {
+			this.clientGame.init(userJoinedMessage.grid, userJoinedMessage.lockstepTickNumber);
+			this.clientGame.myUserJoined(userJoinedMessage.userId, userJoinedMessage.x, userJoinedMessage.y);
+			this.onReady();
+		},
+		$onUpdateNeighbors: function(message) {
+			this.clientGame.updateNeighbors(message.added, message.removed);
+		},
+		$onTickSyncMessage: function(message) {
+			this.frontEndTickManager.setLockStepTick(message.lockstepTickNumber);
+		},
+		draw: function(contextCollection, interpolatedTime) {
+			contextCollection.get_item('Foreground').clearRect(0, 0, 1200, 1200);
+			this.$drawBackground(contextCollection.get_item('Background'));
+			this.clientGame.drawEntities(contextCollection.get_item('Foreground'), interpolatedTime);
+		},
+		$drawBackground: function(context) {
+			context.clearRect(0, 0, 1200, 1200);
+			context.save();
+			context.fillStyle = 'black';
+			context.fillRect(0, 0, 1200, 1200);
+			context.fillStyle = 'blue';
+			for (var y = 0; y < Pather.Common.Constants.numberOfSquares; y++) {
+				for (var x = 0; x < Pather.Common.Constants.numberOfSquares; x++) {
+					if (this.clientGame.board.grid[x][y] === 0) {
+						context.fillRect(x * Pather.Common.Constants.squareSize, y * Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
+					}
 				}
 			}
+			context.restore();
+		},
+		tick: function(tickNumber) {
+			this.clientGame.tick(tickNumber);
 		}
 	});
-	ss.initClass($Pather_Client_ClientUser, $asm, {
+	ss.initClass($Pather_Client_NetworkManager, $asm, {
+		sendPing: function() {
+			if (ss.isValue(this.$clientCommunicator)) {
+				this.$clientCommunicator.sendMessage(Pather.Common.Models.Gateway.Socket.Base.Ping_User_Gateway_Socket_Message.$ctor());
+			}
+		},
+		sendAction: function(action) {
+			var $t2 = this.$clientCommunicator;
+			var $t1 = Pather.Common.Models.Gateway.Socket.Base.UserAction_User_Gateway_Socket_Message.$ctor();
+			$t1.action = action;
+			$t2.sendMessage($t1);
+		}
+	});
+	ss.initClass($Pather_Client_GameFramework_ClientGame, $asm, {
+		myUserJoined: function(userId, x, y) {
+			var clientUser = this.createGameUser(userId);
+			clientUser.x = x;
+			clientUser.y = y;
+			this.activeEntities.add(clientUser);
+			this.myUser = clientUser;
+		},
+		createGameUser: function(userId) {
+			return new $Pather_Client_GameFramework_ClientGameUser(this, userId);
+		},
+		drawEntities: function(context, interpolatedTime) {
+			for (var $t1 = 0; $t1 < this.activeEntities.list.length; $t1++) {
+				var entity = this.activeEntities.list[$t1];
+				context.save();
+				entity.draw(context, interpolatedTime);
+				context.restore();
+			}
+		}
+	}, Pather.Common.GameFramework.Game);
+	ss.initInterface($Pather_Client_GameFramework_IClientGameEntity, $asm, { draw: null });
+	ss.initClass($Pather_Client_GameFramework_ClientGameUser, $asm, {
 		tick: function() {
+			Pather.Common.GameFramework.GameUser.prototype.tick.call(this);
 			var result = this.path[0];
 			this.animations = [];
 			var projectedX;
@@ -436,41 +470,6 @@
 				this.y = Pather.Common.Utils.Lerper.moveTowards(this.y, projectedY, this.speed / Pather.Common.Constants.animationSteps);
 				this.animations.push(new Pather.Common.Utils.AnimationPoint(fromX, fromY, this.x, this.y));
 			}
-		},
-		rePathFind: function(squareX, squareY) {
-			var graph = this.$game.board.aStarGraph;
-			var start = graph.grid[this.squareX][this.squareY];
-			var end = graph.grid[squareX][squareY];
-			this.path = ss.arrayClone(astar.search(graph, start, end));
-			debugger;
-			this.buildMovement();
-		},
-		buildMovement: function() {
-			var result = this.path[0];
-			var projectedSquareX = (ss.isNullOrUndefined(result) ? this.squareX : result.x);
-			var projectedSquareY = (ss.isNullOrUndefined(result) ? this.squareY : result.y);
-			var points = [];
-			while (ss.isValue(result)) {
-				this.squareX = ss.Int32.trunc(this.x / Pather.Common.Constants.squareSize);
-				this.squareY = ss.Int32.trunc(this.y / Pather.Common.Constants.squareSize);
-				var fromX = this.x;
-				var fromY = this.y;
-				if (this.squareX === result.x && this.squareY === result.y) {
-					ss.removeAt(this.path, 0);
-					result = this.path[0];
-					projectedSquareX = (ss.isNullOrUndefined(result) ? this.squareX : result.x);
-					projectedSquareY = (ss.isNullOrUndefined(result) ? this.squareY : result.y);
-				}
-				var projectedX = projectedSquareX * Pather.Common.Constants.squareSize + ss.Int32.div(Pather.Common.Constants.squareSize, 2);
-				var projectedY = projectedSquareY * Pather.Common.Constants.squareSize + ss.Int32.div(Pather.Common.Constants.squareSize, 2);
-				if (projectedX === ss.Int32.trunc(this.x) && projectedY === ss.Int32.trunc(this.y)) {
-					break;
-				}
-				this.x = Pather.Common.Utils.Lerper.moveTowards(this.x, projectedX, this.speed);
-				this.y = Pather.Common.Utils.Lerper.moveTowards(this.y, projectedY, this.speed);
-				points.push(new Pather.Common.Utils.AnimationPoint(fromX, fromY, this.x, this.y));
-			}
-			console.log(points);
 		},
 		draw: function(context, interpolatedTime) {
 			context.save();
@@ -507,8 +506,58 @@
 			context.strokeRect(_x - ss.Int32.div(Pather.Common.Constants.squareSize, 2), _y - ss.Int32.div(Pather.Common.Constants.squareSize, 2), Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
 			context.restore();
 		}
+	}, Pather.Common.GameFramework.GameUser, [$Pather_Client_GameFramework_IClientGameEntity]);
+	ss.initClass($Pather_Client_GameFramework_ClientGameView, $asm, {
+		$readyToPlay: function() {
+			if (!Pather.Common.Constants.get_testServer()) {
+				var $t1 = document.getElementById('backCanvas');
+				var backCanvas = ss.cast($t1, ss.isValue($t1) && (ss.isInstanceOfType($t1, Element) && $t1.tagName === 'CANVAS'));
+				var backContext = ss.cast(backCanvas.getContext('2d'), CanvasRenderingContext2D);
+				var $t2 = document.getElementById('canvas');
+				var canvas = ss.cast($t2, ss.isValue($t2) && (ss.isInstanceOfType($t2, Element) && $t2.tagName === 'CANVAS'));
+				var context = ss.cast(canvas.getContext('2d'), CanvasRenderingContext2D);
+				this.$contextCollection.add('Background', backContext);
+				this.$contextCollection.add('Foreground', context);
+				canvas.onmousedown = ss.mkdel(this, function(ev) {
+					var event = ev;
+					var squareX = ss.Int32.div(ss.unbox(ss.cast(event.offsetX, ss.Int32)), Pather.Common.Constants.squareSize);
+					var squareY = ss.Int32.div(ss.unbox(ss.cast(event.offsetY, ss.Int32)), Pather.Common.Constants.squareSize);
+					this.$clientGameManager.moveToLocation(squareX, squareY);
+				});
+				window.requestAnimationFrame(ss.mkdel(this, function(a) {
+					this.$draw();
+				}));
+			}
+		},
+		$draw: function() {
+			window.requestAnimationFrame(ss.mkdel(this, function(a) {
+				this.$draw();
+			}));
+			var interpolatedTime = ((new Date()).getTime() - this.nextGameTime) / Pather.Common.Constants.gameTicks;
+			this.$clientGameManager.draw(this.$contextCollection, interpolatedTime);
+		},
+		get_percentCompletedWithLockStep: function() {
+			var vc = (new Date()).getTime();
+			var l = vc - this.$clientGameManager.frontEndTickManager.currentLockstepTime;
+			return l / Pather.Common.Constants.lockstepTicks;
+		},
+		tick: function() {
+			setTimeout(ss.mkdel(this, this.tick), 1);
+			var vc = (new Date()).getTime();
+			var l2 = vc - this.curTickTime;
+			var nextTickTime = ss.Int32.div(l2, Pather.Common.Constants.gameTicks);
+			while (nextTickTime > this.trackTickNumber) {
+				this.trackTickNumber++;
+				this.tickNumber++;
+				this.$clientGameManager.tick(this.tickNumber);
+				//todo probably should only happen once? and not in the loop
+				var v = (new Date()).getTime();
+				this.nextGameTime += v - this.curGameTime;
+				this.curGameTime = v;
+			}
+		}
 	});
-	ss.initClass($Pather_Client_FrontEndTickManager, $asm, {
+	ss.initClass($Pather_Client_GameFramework_FrontEndTickManager, $asm, {
 		init$1: function(sendPing, onTickManagerReady) {
 			this.$sendPing = sendPing;
 			this.$onTickManagerReady = onTickManagerReady;
@@ -564,208 +613,6 @@
 			this.$onTickManagerReady();
 		}
 	}, Pather.Common.Utils.TickManager);
-	ss.initClass($Pather_Client_GameBoard, $asm, {
-		constructGrid: function() {
-			this.grid = new Array(Pather.Common.Constants.numberOfSquares);
-			for (var x = 0; x < Pather.Common.Constants.numberOfSquares; x++) {
-				this.grid[x] = new Array(Pather.Common.Constants.numberOfSquares);
-				for (var y = 0; y < Pather.Common.Constants.numberOfSquares; y++) {
-					this.grid[x][y] = ((Math.random() * 100 < 15) ? 0 : 1);
-				}
-			}
-			this.aStarGraph = new Graph(this.grid);
-		},
-		init: function(grid) {
-			this.grid = grid;
-			this.aStarGraph = new Graph(this.grid);
-		}
-	});
-	ss.initClass($Pather_Client_GameClient, $asm, {
-		$readyToPlay: function() {
-			if (!Pather.Common.Constants.get_testServer()) {
-				var $t1 = document.getElementById('backCanvas');
-				this.backCanvas = ss.cast($t1, ss.isValue($t1) && (ss.isInstanceOfType($t1, Element) && $t1.tagName === 'CANVAS'));
-				this.backContext = ss.cast(this.backCanvas.getContext('2d'), CanvasRenderingContext2D);
-				var $t2 = document.getElementById('canvas');
-				this.$canvas = ss.cast($t2, ss.isValue($t2) && (ss.isInstanceOfType($t2, Element) && $t2.tagName === 'CANVAS'));
-				this.$context = ss.cast(this.$canvas.getContext('2d'), CanvasRenderingContext2D);
-				this.$canvas.onmousedown = ss.mkdel(this, function(ev) {
-					var event = ev;
-					var squareX = ss.Int32.div(ss.unbox(ss.cast(event.offsetX, ss.Int32)), Pather.Common.Constants.squareSize);
-					var squareY = ss.Int32.div(ss.unbox(ss.cast(event.offsetY, ss.Int32)), Pather.Common.Constants.squareSize);
-					this.$gameManager.moveToLocation(squareX, squareY);
-				});
-				window.requestAnimationFrame(ss.mkdel(this, function(a) {
-					this.$draw();
-				}));
-			}
-		},
-		drawBack: function() {
-			this.backContext.save();
-			this.backContext.fillStyle = 'black';
-			this.backContext.fillRect(0, 0, 1200, 1200);
-			this.backContext.fillStyle = 'blue';
-			for (var y = 0; y < Pather.Common.Constants.numberOfSquares; y++) {
-				for (var x = 0; x < Pather.Common.Constants.numberOfSquares; x++) {
-					if (this.$gameManager.clientGame.board.grid[x][y] === 0) {
-						this.backContext.fillRect(x * Pather.Common.Constants.squareSize, y * Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
-					}
-				}
-			}
-			this.backContext.restore();
-		},
-		$draw: function() {
-			window.requestAnimationFrame(ss.mkdel(this, function(a) {
-				this.$draw();
-			}));
-			this.drawBack();
-			this.$context.clearRect(0, 0, 1200, 1200);
-			var interpolatedTime = ((new Date()).getTime() - this.nextGameTime) / Pather.Common.Constants.gameTicks;
-			for (var $t1 = 0; $t1 < this.$gameManager.activeUsers.list.length; $t1++) {
-				var activeUser = this.$gameManager.activeUsers.list[$t1];
-				this.$context.save();
-				activeUser.draw(this.$context, interpolatedTime);
-				this.$context.restore();
-			}
-		},
-		get_percentCompletedWithLockStep: function() {
-			var vc = (new Date()).getTime();
-			var l = vc - this.$gameManager.frontEndTickManager.currentLockstepTime;
-			return l / Pather.Common.Constants.lockstepTicks;
-		},
-		tick: function() {
-			setTimeout(ss.mkdel(this, function() {
-				this.tick();
-			}), 1);
-			var vc = (new Date()).getTime();
-			var l2 = vc - this.curTickTime;
-			var nextTickTime = ss.Int32.div(l2, Pather.Common.Constants.gameTicks);
-			while (nextTickTime > this.trackTickNumber) {
-				this.trackTickNumber++;
-				this.tickNumber++;
-				for (var $t1 = 0; $t1 < this.$gameManager.activeUsers.list.length; $t1++) {
-					var person = this.$gameManager.activeUsers.list[$t1];
-					person.tick();
-				}
-				//todo probably should only happen once? and not in the loop
-				var v = (new Date()).getTime();
-				this.nextGameTime += v - this.curGameTime;
-				this.curGameTime = v;
-			}
-		}
-	});
-	ss.initClass($Pather_Client_GameManager, $asm, {
-		$sendPing: function() {
-			this.networkManager.sendPing();
-		},
-		moveToLocation: function(x, y) {
-			var $t2 = this.networkManager;
-			var $t1 = Pather.Common.Models.Common.UserActions.MoveUserAction.$ctor();
-			$t1.x = x;
-			$t1.y = y;
-			$t1.lockstepTick = this.frontEndTickManager.lockstepTickNumber + 1;
-			$t2.sendAction($t1);
-		},
-		$onGatewayMessage: function(message) {
-			console.log(message);
-			switch (message.gatewayUserMessageType) {
-				case 'pong': {
-					var pongMessage = message;
-					this.frontEndTickManager.onPongReceived(pongMessage);
-					break;
-				}
-				case 'userAction': {
-					this.$userAction(message);
-					break;
-				}
-				case 'userJoined': {
-					this.$userJoined(message);
-					break;
-				}
-				case 'tickSync': {
-					this.$onTickSyncMessage(message);
-					break;
-				}
-				case 'updateNeighbors': {
-					this.$onUpdateNeighbors(message);
-					break;
-				}
-				default: {
-					throw new ss.ArgumentOutOfRangeException();
-				}
-			}
-		},
-		$userAction: function(userActionMessage) {
-			this.clientGame.queueUserAction(userActionMessage.action);
-		},
-		$userJoined: function(userJoinedMessage) {
-			var $t1 = new $Pather_Client_ClientUser(this.clientGame);
-			$t1.x = userJoinedMessage.x;
-			$t1.y = userJoinedMessage.y;
-			$t1.userId = userJoinedMessage.userId;
-			var clientUser = $t1;
-			this.activeUsers.add(clientUser);
-			this.myUser = clientUser;
-			this.clientGame.init(userJoinedMessage.grid);
-			this.onReady();
-		},
-		$onUpdateNeighbors: function(message) {
-			for (var $t1 = 0; $t1 < message.removed.length; $t1++) {
-				var userId = message.removed[$t1];
-				var user = this.activeUsers.get_item(userId);
-				this.activeUsers.remove(user);
-			}
-			for (var $t2 = 0; $t2 < message.added.length; $t2++) {
-				var updatedNeighbor = message.added[$t2];
-				var user1 = new $Pather_Client_ClientUser(this.clientGame);
-				user1.userId = updatedNeighbor.userId;
-				user1.x = updatedNeighbor.x;
-				user1.y = updatedNeighbor.y;
-				this.activeUsers.add(user1);
-			}
-		},
-		$onTickSyncMessage: function(message) {
-			this.frontEndTickManager.setLockStepTick(message.lockstepTickNumber);
-		}
-	});
-	ss.initClass($Pather_Client_NetworkManager, $asm, {
-		sendPing: function() {
-			if (ss.isValue(this.$clientCommunicator)) {
-				this.$clientCommunicator.sendMessage(Pather.Common.Models.Gateway.Socket.Base.Ping_User_Gateway_Socket_Message.$ctor());
-			}
-		},
-		sendAction: function(action) {
-			var $t2 = this.$clientCommunicator;
-			var $t1 = Pather.Common.Models.Gateway.Socket.Base.UserAction_User_Gateway_Socket_Message.$ctor();
-			$t1.action = action;
-			$t2.sendMessage($t1);
-		}
-	});
-	ss.initClass($Pather_Client_StepManager, $asm, {
-		queueUserAction: function(action) {
-			if (!this.stepActionsTicks.containsKey(action.lockstepTick)) {
-				if (action.lockstepTick <= this.$serverGame.tickManager.lockstepTickNumber) {
-					this.$serverGame.processUserAction(action);
-					console.log('Misprocess of action count', ++this.$misprocess, this.$serverGame.tickManager.lockstepTickNumber - action.lockstepTick);
-					return;
-				}
-				this.stepActionsTicks.set_item(action.lockstepTick, []);
-			}
-			this.stepActionsTicks.get_item(action.lockstepTick).push(action);
-		},
-		processAction: function(lockstepTickNumber) {
-			if (!this.stepActionsTicks.containsKey(lockstepTickNumber)) {
-				return;
-			}
-			var stepActions = this.stepActionsTicks.get_item(lockstepTickNumber);
-			for (var $t1 = 0; $t1 < stepActions.length; $t1++) {
-				var stepAction = stepActions[$t1];
-				this.$serverGame.processUserAction(stepAction);
-			}
-			this.lastTickProcessed = lockstepTickNumber;
-			this.stepActionsTicks.remove(lockstepTickNumber);
-		}
-	});
 	ss.initClass($Pather_Client_Old_ClientEntity, $asm, {
 		draw: function(context, interpolatedTime) {
 			context.save();
@@ -990,7 +837,7 @@
 				var i1 = { $: i };
 				setTimeout(ss.mkdel({ i1: i1 }, function() {
 					var startTime = (new Date()).getTime();
-					var $t1 = Pather.Common.Models.Common.UserActions.MoveUserAction.$ctor();
+					var $t1 = Pather.Common.Models.Common.UserActions.MoveEntityAction.$ctor();
 					$t1.x = ss.Int32.trunc(Math.random() * 50);
 					$t1.y = ss.Int32.trunc(Math.random() * 50);
 					var moveUserAction = $t1;
@@ -1004,7 +851,7 @@
 							return;
 						}
 						var action = message.action;
-						if (ss.referenceEquals(action.userId, userToken) && action.x === moveUserAction.x && action.y === moveUserAction.y) {
+						if (ss.referenceEquals(action.entityId, userToken) && action.x === moveUserAction.x && action.y === moveUserAction.y) {
 							window.setTimeout(function() {
 								if (++receivedCount === 200) {
 									communicator.disconnect();
@@ -1054,7 +901,7 @@
 				}
 			}).then(function(communicator1) {
 				var $t1 = Pather.Common.Models.Gateway.Socket.Base.UserAction_User_Gateway_Socket_Message.$ctor();
-				var $t2 = Pather.Common.Models.Common.UserActions.MoveUserAction.$ctor();
+				var $t2 = Pather.Common.Models.Common.UserActions.MoveEntityAction.$ctor();
 				$t2.x = proposedX;
 				$t2.y = proposedY;
 				$t1.action = $t2;
@@ -1072,7 +919,7 @@
 					move++;
 					setTimeout(function() {
 						var $t1 = Pather.Common.Models.Gateway.Socket.Base.UserAction_User_Gateway_Socket_Message.$ctor();
-						var $t2 = Pather.Common.Models.Common.UserActions.MoveUserAction.$ctor();
+						var $t2 = Pather.Common.Models.Common.UserActions.MoveEntityAction.$ctor();
 						$t2.x = proposedX + move;
 						$t2.y = proposedY;
 						$t1.action = $t2;
@@ -1081,7 +928,7 @@
 				}
 			}).then(function(communicator1) {
 				var $t3 = Pather.Common.Models.Gateway.Socket.Base.UserAction_User_Gateway_Socket_Message.$ctor();
-				var $t4 = Pather.Common.Models.Common.UserActions.MoveUserAction.$ctor();
+				var $t4 = Pather.Common.Models.Common.UserActions.MoveEntityAction.$ctor();
 				$t4.x = proposedX;
 				$t4.y = proposedY;
 				$t3.action = $t4;
@@ -1091,7 +938,7 @@
 				console.log('2', message1);
 			}).then(function(communicator3) {
 				var $t5 = Pather.Common.Models.Gateway.Socket.Base.UserAction_User_Gateway_Socket_Message.$ctor();
-				var $t6 = Pather.Common.Models.Common.UserActions.MoveUserAction.$ctor();
+				var $t6 = Pather.Common.Models.Common.UserActions.MoveEntityAction.$ctor();
 				$t6.x = proposedX + 1;
 				$t6.y = proposedY;
 				$t5.action = $t6;
@@ -1103,7 +950,7 @@
 				if (ss.referenceEquals(message2.userId, id + 3) && once) {
 					once = false;
 					var $t7 = Pather.Common.Models.Gateway.Socket.Base.UserAction_User_Gateway_Socket_Message.$ctor();
-					var $t8 = Pather.Common.Models.Common.UserActions.MoveUserAction.$ctor();
+					var $t8 = Pather.Common.Models.Common.UserActions.MoveEntityAction.$ctor();
 					$t8.x = proposedX + 20;
 					$t8.y = proposedY;
 					$t7.action = $t8;
@@ -1111,7 +958,7 @@
 				}
 			}).then(function(communicator5) {
 				var $t9 = Pather.Common.Models.Gateway.Socket.Base.UserAction_User_Gateway_Socket_Message.$ctor();
-				var $t10 = Pather.Common.Models.Common.UserActions.MoveUserAction.$ctor();
+				var $t10 = Pather.Common.Models.Common.UserActions.MoveEntityAction.$ctor();
 				$t10.x = proposedX + 1;
 				$t10.y = proposedY;
 				$t9.action = $t10;

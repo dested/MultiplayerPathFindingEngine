@@ -12,7 +12,6 @@ namespace Pather.Servers.GameSegmentServer.Old
         {
             Global.Console.Log(gameServerName + " Has come online");
             StepManager = new ServerStepManager(this, new ServerNetworkManager(this, socketManager));
-            ConstructGrid();
             Ready = true;
         }
 

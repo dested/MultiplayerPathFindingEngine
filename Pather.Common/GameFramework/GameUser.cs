@@ -31,8 +31,7 @@ namespace Pather.Common.GameFramework
             var start = graph.Grid[SquareX][SquareY];
             var end = graph.Grid[squareX][squareY];
             Path = new List<AStarPath>(AStar.Search(graph, start, end));
-            Debug.Break();
-            BuildMovement();
+//            BuildMovement();
         }
 
         public void BuildMovement()

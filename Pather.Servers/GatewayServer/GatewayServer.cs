@@ -135,7 +135,8 @@ namespace Pather.Servers.GatewayServer
                         X = userJoinedMessage.X,
                         Y = userJoinedMessage.Y,
                         UserId = userJoinedMessage.UserId,
-                        Grid=userJoinedMessage.Grid
+                        Grid=userJoinedMessage.Grid,
+                        LockstepTickNumber=BackEndTickManager.LockstepTickNumber
                     });
 
                     if (cachedUserMoves.ContainsKey(userJoinedMessage.UserId))

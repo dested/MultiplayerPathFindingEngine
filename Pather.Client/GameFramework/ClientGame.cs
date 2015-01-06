@@ -24,6 +24,10 @@ namespace Pather.Client.GameFramework
 
         }
 
+        public override GameUser CreateGameUser(string userId)
+        {
+            return new ClientGameUser(this, userId);
+        }
 
         public void DrawEntities(CanvasRenderingContext2D context, double interpolatedTime)
         {

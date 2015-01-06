@@ -64,7 +64,7 @@ namespace Pather.Servers.GameSegmentServer
             serverGame.ActiveEntities.Clear();
             AllGameSegments.Clear();
 
-            serverGame.Init(message.Grid);
+            serverGame.Init(message.Grid,message.LockstepTickNumber);
 
             MyGameSegment = new GameSegment(GameSegmentId);
             AllGameSegments[MyGameSegment.GameSegmentId] = MyGameSegment;

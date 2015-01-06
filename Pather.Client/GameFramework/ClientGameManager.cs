@@ -86,7 +86,8 @@ namespace Pather.Client
         private void userJoined(UserJoined_Gateway_User_Socket_Message userJoinedMessage)
         {
 
-            clientGame.Init(userJoinedMessage.Grid);
+            clientGame.Init(userJoinedMessage.Grid, userJoinedMessage.LockstepTickNumber);
+            
             clientGame.MyUserJoined(userJoinedMessage.UserId, userJoinedMessage.X, userJoinedMessage.Y);
 
 

@@ -25,7 +25,11 @@ namespace Pather.Servers.GameSegmentServer
             tickManager.OnProcessLockstep += StepManager.ProcessAction;
         }
 
-         
+        public override GameUser CreateGameUser(string userId)
+        {
+            return new ServerGameUser(this, userId);
+        }
+
 
         /*todo: instead of move, you need a process action. that action gets sent directly to the game logic manager,
          you need ot be able to respond to just a user, or a user and his neighbors
@@ -94,6 +98,22 @@ namespace Pather.Servers.GameSegmentServer
             user.Neighbors.Clear();
 
             ActiveEntities.Remove(user);
+
+        }
+        public void UserJoin(UserJoinGameUser userJoinGameUser)
+        {
+
+            var serverGameUser = new ServerGameUser(this, userJoinGameUser.UserId)
+            {
+                GameSegment = gameManager.AllGameSegments[gameManager.GameSegmentId],
+                GatewayId = userJoinGameUser.GatewayId,
+                X = userJoinGameUser.X,
+                Y = userJoinGameUser.Y,
+            };
+
+            ActiveEntities.Add(serverGameUser);
+            serverGameUser.GameSegment.UserJoin(serverGameUser);
+            BuildNeighbors();
 
         }
 
@@ -168,22 +188,6 @@ namespace Pather.Servers.GameSegmentServer
 
 
 
-        public void UserJoin(UserJoinGameUser userJoinGameUser)
-        {
-
-            var serverGameUser = new ServerGameUser(this, userJoinGameUser.UserId)
-            {
-                GameSegment = gameManager.AllGameSegments[gameManager.GameSegmentId],
-                GatewayId = userJoinGameUser.GatewayId,
-                X = userJoinGameUser.X,
-                Y = userJoinGameUser.Y,
-            };
-
-            ActiveEntities.Add(serverGameUser);
-            serverGameUser.GameSegment.UserJoin(serverGameUser);
-            BuildNeighbors();
-
-        }
 
 
 
@@ -253,11 +257,11 @@ namespace Pather.Servers.GameSegmentServer
 
         private static double pointDistance(GameEntity pUser, GameEntity cUser)
         {
-            var mx = pUser.X;
-            var my = pUser.Y;
+            var mx = pUser.SquareX;
+            var my = pUser.SquareY;
 
-            var cx = cUser.X;
-            var cy = cUser.Y;
+            var cx = cUser.SquareX;
+            var cy = cUser.SquareY;
 
             var x = (cx - mx);
             var y = (cy - my);

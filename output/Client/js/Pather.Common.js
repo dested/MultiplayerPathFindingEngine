@@ -3,6 +3,7 @@
 	var $asm = {};
 	global.Pather = global.Pather || {};
 	global.Pather.Common = global.Pather.Common || {};
+	global.Pather.Common.GameFramework = global.Pather.Common.GameFramework || {};
 	global.Pather.Common.Models = global.Pather.Common.Models || {};
 	global.Pather.Common.Models.ClusterManager = global.Pather.Common.Models.ClusterManager || {};
 	global.Pather.Common.Models.ClusterManager.Base = global.Pather.Common.Models.ClusterManager.Base || {};
@@ -74,6 +75,97 @@
 	};
 	$Pather_Common_SocketChannels$Server.__typeName = 'Pather.Common.SocketChannels$Server';
 	global.Pather.Common.SocketChannels$Server = $Pather_Common_SocketChannels$Server;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.GameFramework.Game
+	var $Pather_Common_GameFramework_Game = function(tickManager) {
+		this.tickManager = null;
+		this.board = null;
+		this.stepManager = null;
+		this.activeEntities = new (ss.makeGenericType($Pather_Common_Utils_DictionaryList$2, [String, $Pather_Common_GameFramework_GameEntity]))(function(a) {
+			return a.entityId;
+		});
+		this.myUser = null;
+		this.tickManager = tickManager;
+		this.stepManager = new $Pather_Common_GameFramework_StepManager(this);
+		tickManager.onProcessLockstep = ss.delegateCombine(tickManager.onProcessLockstep, ss.mkdel(this.stepManager, this.stepManager.processAction));
+	};
+	$Pather_Common_GameFramework_Game.__typeName = 'Pather.Common.GameFramework.Game';
+	global.Pather.Common.GameFramework.Game = $Pather_Common_GameFramework_Game;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.GameFramework.GameBoard
+	var $Pather_Common_GameFramework_GameBoard = function() {
+		this.grid = null;
+		this.aStarGraph = null;
+	};
+	$Pather_Common_GameFramework_GameBoard.__typeName = 'Pather.Common.GameFramework.GameBoard';
+	global.Pather.Common.GameFramework.GameBoard = $Pather_Common_GameFramework_GameBoard;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.GameFramework.GameEntity
+	var $Pather_Common_GameFramework_GameEntity = function(game) {
+		this.game = null;
+		this.neighbors = null;
+		this.$1$OldNeighborsField = null;
+		this.x = 0;
+		this.y = 0;
+		this.squareX = 0;
+		this.squareY = 0;
+		this.entityId = null;
+		this.neighbors = new (ss.makeGenericType($Pather_Common_Utils_DictionaryList$2, [String, $Pather_Common_GameFramework_GameEntityNeighbor]))(function(a) {
+			return a.entity.entityId;
+		});
+		this.game = game;
+	};
+	$Pather_Common_GameFramework_GameEntity.__typeName = 'Pather.Common.GameFramework.GameEntity';
+	global.Pather.Common.GameFramework.GameEntity = $Pather_Common_GameFramework_GameEntity;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.GameFramework.GameEntityNeighbor
+	var $Pather_Common_GameFramework_GameEntityNeighbor = function(cEntity, distance) {
+		this.entity = null;
+		this.distance = 0;
+		this.distance = distance;
+		this.entity = cEntity;
+	};
+	$Pather_Common_GameFramework_GameEntityNeighbor.__typeName = 'Pather.Common.GameFramework.GameEntityNeighbor';
+	global.Pather.Common.GameFramework.GameEntityNeighbor = $Pather_Common_GameFramework_GameEntityNeighbor;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.GameFramework.GameUser
+	var $Pather_Common_GameFramework_GameUser = function(game, userId) {
+		this.speed = 0;
+		this.path = null;
+		$Pather_Common_GameFramework_GameEntity.call(this, game);
+		this.entityId = userId;
+		this.path = [];
+		this.speed = 20;
+	};
+	$Pather_Common_GameFramework_GameUser.__typeName = 'Pather.Common.GameFramework.GameUser';
+	global.Pather.Common.GameFramework.GameUser = $Pather_Common_GameFramework_GameUser;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.GameFramework.StepManager
+	var $Pather_Common_GameFramework_StepManager = function(game) {
+		this.$game = null;
+		this.lastTickProcessed = 0;
+		this.stepActionsTicks = null;
+		this.$misprocess = 0;
+		this.$game = game;
+		this.stepActionsTicks = new (ss.makeGenericType(ss.Dictionary$2, [ss.Int32, Array]))();
+		this.lastTickProcessed = 0;
+	};
+	$Pather_Common_GameFramework_StepManager.__typeName = 'Pather.Common.GameFramework.StepManager';
+	global.Pather.Common.GameFramework.StepManager = $Pather_Common_GameFramework_StepManager;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.GameFramework.UserActionModel
+	var $Pather_Common_GameFramework_UserActionModel = function() {
+		this.action = null;
+		this.type = 0;
+	};
+	$Pather_Common_GameFramework_UserActionModel.__typeName = 'Pather.Common.GameFramework.UserActionModel';
+	global.Pather.Common.GameFramework.UserActionModel = $Pather_Common_GameFramework_UserActionModel;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.GameFramework.UserActionModelType
+	var $Pather_Common_GameFramework_UserActionModelType = function() {
+	};
+	$Pather_Common_GameFramework_UserActionModelType.__typeName = 'Pather.Common.GameFramework.UserActionModelType';
+	global.Pather.Common.GameFramework.UserActionModelType = $Pather_Common_GameFramework_UserActionModelType;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.ClusterManager.CreateGameSegment_ServerManager_ClusterManager_PubSub_ReqRes_Message
 	var $Pather_Common_Models_ClusterManager_CreateGameSegment_ServerManager_ClusterManager_PubSub_ReqRes_Message = function() {
@@ -202,21 +294,21 @@
 	$Pather_Common_Models_Common_UserActions_IAction.__typeName = 'Pather.Common.Models.Common.UserActions.IAction';
 	global.Pather.Common.Models.Common.UserActions.IAction = $Pather_Common_Models_Common_UserActions_IAction;
 	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.Models.Common.UserActions.MoveUserAction
-	var $Pather_Common_Models_Common_UserActions_MoveUserAction = function() {
+	// Pather.Common.Models.Common.UserActions.MoveEntityAction
+	var $Pather_Common_Models_Common_UserActions_MoveEntityAction = function() {
 	};
-	$Pather_Common_Models_Common_UserActions_MoveUserAction.__typeName = 'Pather.Common.Models.Common.UserActions.MoveUserAction';
-	$Pather_Common_Models_Common_UserActions_MoveUserAction.createInstance = function() {
-		return $Pather_Common_Models_Common_UserActions_MoveUserAction.$ctor();
+	$Pather_Common_Models_Common_UserActions_MoveEntityAction.__typeName = 'Pather.Common.Models.Common.UserActions.MoveEntityAction';
+	$Pather_Common_Models_Common_UserActions_MoveEntityAction.createInstance = function() {
+		return $Pather_Common_Models_Common_UserActions_MoveEntityAction.$ctor();
 	};
-	$Pather_Common_Models_Common_UserActions_MoveUserAction.$ctor = function() {
+	$Pather_Common_Models_Common_UserActions_MoveEntityAction.$ctor = function() {
 		var $this = $Pather_Common_Models_Common_UserActions_UserAction.$ctor();
 		$this.x = 0;
 		$this.y = 0;
 		$this.userActionType = 0;
 		return $this;
 	};
-	global.Pather.Common.Models.Common.UserActions.MoveUserAction = $Pather_Common_Models_Common_UserActions_MoveUserAction;
+	global.Pather.Common.Models.Common.UserActions.MoveEntityAction = $Pather_Common_Models_Common_UserActions_MoveEntityAction;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Models.Common.UserActions.UserAction
 	var $Pather_Common_Models_Common_UserActions_UserAction = function() {
@@ -226,7 +318,7 @@
 		var $this = {};
 		$this.userActionType = 0;
 		$this.lockstepTick = 0;
-		$this.userId = null;
+		$this.entityId = null;
 		return $this;
 	};
 	global.Pather.Common.Models.Common.UserActions.UserAction = $Pather_Common_Models_Common_UserActions_UserAction;
@@ -369,6 +461,7 @@
 		$this.gameSegmentIds = null;
 		$this.allUsers = null;
 		$this.grid = null;
+		$this.lockstepTickNumber = 0;
 		$this.type = 'initializeGameSegmentResponse';
 		$this.response = true;
 		return $this;
@@ -1093,11 +1186,11 @@
 	};
 	$Pather_Common_Models_Gateway_Socket_Base_UserJoined_Gateway_User_Socket_Message.$ctor = function() {
 		var $this = $Pather_Common_Models_Gateway_Socket_Base_Gateway_User_Socket_Message.$ctor();
-		$this.gameSegmentId = null;
 		$this.userId = null;
 		$this.x = 0;
 		$this.y = 0;
 		$this.grid = null;
+		$this.lockstepTickNumber = 0;
 		$this.gatewayUserMessageType = 'userJoined';
 		return $this;
 	};
@@ -1704,9 +1797,6 @@
 			},
 			get_item$1: function(index) {
 				return this.list[index];
-			},
-			updateKey: function(user) {
-				throw new ss.NotImplementedException();
 			}
 		}, function() {
 			return null;
@@ -1723,6 +1813,11 @@
 	var $Pather_Common_Utils_EnumerableExtensions = function() {
 	};
 	$Pather_Common_Utils_EnumerableExtensions.__typeName = 'Pather.Common.Utils.EnumerableExtensions';
+	$Pather_Common_Utils_EnumerableExtensions.as$1 = function(T, T2) {
+		return function(t) {
+			return ss.cast(t, T2);
+		};
+	};
 	$Pather_Common_Utils_EnumerableExtensions.toDictionary = function(T, T2) {
 		return function(items, clause) {
 			var items2 = {};
@@ -2389,6 +2484,203 @@
 	ss.initClass($Pather_Common_SocketChannels, $asm, {});
 	ss.initEnum($Pather_Common_SocketChannels$Client, $asm, { postAction: 'postAction', joinPlayer: 'joinPlayer', ping: 'ping' }, true);
 	ss.initEnum($Pather_Common_SocketChannels$Server, $asm, { connect: 'connect', postAction: 'postAction', playerSync: 'playerSync', pong: 'pong', syncLockstep: 'syncLockstep' }, true);
+	ss.initClass($Pather_Common_GameFramework_Game, $asm, {
+		init: function(grid, lockstepTickNumber) {
+			this.board = new $Pather_Common_GameFramework_GameBoard();
+			this.board.init(grid);
+			this.tickManager.setLockStepTick(lockstepTickNumber);
+		},
+		queueUserAction: function(action) {
+			var $t2 = this.stepManager;
+			var $t1 = new $Pather_Common_GameFramework_UserActionModel();
+			$t1.action = action;
+			$t1.type = 0;
+			$t2.queueUserAction($t1);
+		},
+		queueTellUserAction: function(action) {
+			var $t2 = this.stepManager;
+			var $t1 = new $Pather_Common_GameFramework_UserActionModel();
+			$t1.action = action;
+			$t1.type = 2;
+			$t2.queueUserAction($t1);
+		},
+		queueUserActionFromNeighbor: function(action) {
+			var $t2 = this.stepManager;
+			var $t1 = new $Pather_Common_GameFramework_UserActionModel();
+			$t1.action = action;
+			$t1.type = 1;
+			$t2.queueUserAction($t1);
+		},
+		processUserAction: function(action) {
+			switch (action.userActionType) {
+				case 0: {
+					var moveAction = action;
+					var user = ss.cast(this.activeEntities.get_item(moveAction.entityId), $Pather_Common_GameFramework_GameUser);
+					user.rePathFind(moveAction.x, moveAction.y);
+					break;
+				}
+				default: {
+					throw new ss.ArgumentOutOfRangeException();
+				}
+			}
+		},
+		tellUserAction: function(action) {
+			switch (action.userActionType) {
+				case 0: {
+					break;
+				}
+				default: {
+					throw new ss.ArgumentOutOfRangeException();
+				}
+			}
+		},
+		processUserActionFromNeighbor: function(action) {
+			switch (action.userActionType) {
+				case 0: {
+					break;
+				}
+				default: {
+					throw new ss.ArgumentOutOfRangeException();
+				}
+			}
+		},
+		addEntity: function(entity) {
+			this.activeEntities.add(entity);
+		},
+		createGameUser: function(userId) {
+			return new $Pather_Common_GameFramework_GameUser(this, userId);
+		},
+		updateNeighbors: function(added, removed) {
+			for (var $t1 = 0; $t1 < removed.length; $t1++) {
+				var userId = removed[$t1];
+				var user = this.activeEntities.get_item(userId);
+				this.activeEntities.remove(user);
+			}
+			for (var $t2 = 0; $t2 < added.length; $t2++) {
+				var updatedNeighbor = added[$t2];
+				var user1 = this.createGameUser(updatedNeighbor.userId);
+				user1.x = updatedNeighbor.x;
+				user1.y = updatedNeighbor.y;
+				this.activeEntities.add(user1);
+			}
+		},
+		tick: function(tickNumber) {
+			for (var $t1 = 0; $t1 < this.activeEntities.list.length; $t1++) {
+				var person = this.activeEntities.list[$t1];
+				person.tick();
+			}
+		}
+	});
+	ss.initClass($Pather_Common_GameFramework_GameBoard, $asm, {
+		constructGrid: function() {
+			this.grid = new Array($Pather_Common_Constants.numberOfSquares);
+			for (var x = 0; x < $Pather_Common_Constants.numberOfSquares; x++) {
+				this.grid[x] = new Array($Pather_Common_Constants.numberOfSquares);
+				for (var y = 0; y < $Pather_Common_Constants.numberOfSquares; y++) {
+					this.grid[x][y] = ((Math.random() * 100 < 15) ? 0 : 1);
+				}
+			}
+			this.aStarGraph = new Graph(this.grid);
+		},
+		init: function(grid) {
+			this.grid = grid;
+			this.aStarGraph = new Graph(this.grid);
+		}
+	});
+	ss.initClass($Pather_Common_GameFramework_GameEntity, $asm, {
+		get_oldNeighbors: function() {
+			return this.$1$OldNeighborsField;
+		},
+		set_oldNeighbors: function(value) {
+			this.$1$OldNeighborsField = value;
+		},
+		tick: function() {
+		}
+	});
+	ss.initClass($Pather_Common_GameFramework_GameEntityNeighbor, $asm, {});
+	ss.initClass($Pather_Common_GameFramework_GameUser, $asm, {
+		tick: function() {
+		},
+		rePathFind: function(squareX, squareY) {
+			var graph = this.game.board.aStarGraph;
+			var start = graph.grid[this.squareX][this.squareY];
+			var end = graph.grid[squareX][squareY];
+			this.path = ss.arrayClone(astar.search(graph, start, end));
+			//            BuildMovement();
+		},
+		buildMovement: function() {
+			var result = this.path[0];
+			var projectedSquareX = (ss.isNullOrUndefined(result) ? this.squareX : result.x);
+			var projectedSquareY = (ss.isNullOrUndefined(result) ? this.squareY : result.y);
+			var points = [];
+			while (ss.isValue(result)) {
+				this.squareX = ss.Int32.trunc(this.x / $Pather_Common_Constants.squareSize);
+				this.squareY = ss.Int32.trunc(this.y / $Pather_Common_Constants.squareSize);
+				if (this.squareX === result.x && this.squareY === result.y) {
+					ss.removeAt(this.path, 0);
+					result = this.path[0];
+					projectedSquareX = (ss.isNullOrUndefined(result) ? this.squareX : result.x);
+					projectedSquareY = (ss.isNullOrUndefined(result) ? this.squareY : result.y);
+				}
+				var projectedX = projectedSquareX * $Pather_Common_Constants.squareSize + ss.Int32.div($Pather_Common_Constants.squareSize, 2);
+				var projectedY = projectedSquareY * $Pather_Common_Constants.squareSize + ss.Int32.div($Pather_Common_Constants.squareSize, 2);
+				if (projectedX === ss.Int32.trunc(this.x) && projectedY === ss.Int32.trunc(this.y)) {
+					break;
+				}
+				this.x = $Pather_Common_Utils_Lerper.moveTowards(this.x, projectedX, this.speed);
+				this.y = $Pather_Common_Utils_Lerper.moveTowards(this.y, projectedY, this.speed);
+				points.push(new $Pather_Common_Utils_Point(this.x, this.y));
+			}
+			console.log(points);
+		}
+	}, $Pather_Common_GameFramework_GameEntity);
+	ss.initClass($Pather_Common_GameFramework_StepManager, $asm, {
+		queueUserAction: function(actionModel) {
+			var action = actionModel.action;
+			if (!this.stepActionsTicks.containsKey(action.lockstepTick)) {
+				if (action.lockstepTick <= this.$game.tickManager.lockstepTickNumber) {
+					this.$processUserActionModel(actionModel);
+					console.log('Misprocess of action count', ++this.$misprocess, this.$game.tickManager.lockstepTickNumber - action.lockstepTick);
+					return;
+				}
+				this.stepActionsTicks.set_item(action.lockstepTick, []);
+			}
+			this.stepActionsTicks.get_item(action.lockstepTick).push(actionModel);
+		},
+		$processUserActionModel: function(actionModel) {
+			switch (actionModel.type) {
+				case 0: {
+					this.$game.processUserAction(actionModel.action);
+					break;
+				}
+				case 1: {
+					this.$game.processUserActionFromNeighbor(actionModel.action);
+					break;
+				}
+				case 2: {
+					this.$game.tellUserAction(actionModel.action);
+					break;
+				}
+				default: {
+					throw new ss.ArgumentOutOfRangeException();
+				}
+			}
+		},
+		processAction: function(lockstepTickNumber) {
+			if (!this.stepActionsTicks.containsKey(lockstepTickNumber)) {
+				return;
+			}
+			var stepActions = this.stepActionsTicks.get_item(lockstepTickNumber);
+			for (var $t1 = 0; $t1 < stepActions.length; $t1++) {
+				var stepAction = stepActions[$t1];
+				this.$processUserActionModel(stepAction);
+			}
+			this.lastTickProcessed = lockstepTickNumber;
+			this.stepActionsTicks.remove(lockstepTickNumber);
+		}
+	});
+	ss.initClass($Pather_Common_GameFramework_UserActionModel, $asm, {});
+	ss.initEnum($Pather_Common_GameFramework_UserActionModelType, $asm, { regular: 0, neighbor: 1, tell: 2 });
 	ss.initInterface($Pather_Common_Models_Common_IPubSub_Message, $asm, {});
 	ss.initClass($Pather_Common_Models_ClusterManager_Base_ClusterManager_PubSub_Message, $asm, {}, null, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initInterface($Pather_Common_Models_Common_IPubSub_ReqRes_Message, $asm, {}, [$Pather_Common_Models_Common_IPubSub_Message]);
@@ -2401,7 +2693,7 @@
 	ss.initClass($Pather_Common_Models_Common_UserActionCacheModel, $asm, {});
 	ss.initInterface($Pather_Common_Models_Common_UserActions_IAction, $asm, {});
 	ss.initClass($Pather_Common_Models_Common_UserActions_UserAction, $asm, {}, null, [$Pather_Common_Models_Common_UserActions_IAction]);
-	ss.initClass($Pather_Common_Models_Common_UserActions_MoveUserAction, $asm, {}, $Pather_Common_Models_Common_UserActions_UserAction, [$Pather_Common_Models_Common_UserActions_IAction]);
+	ss.initClass($Pather_Common_Models_Common_UserActions_MoveEntityAction, $asm, {}, $Pather_Common_Models_Common_UserActions_UserAction, [$Pather_Common_Models_Common_UserActions_IAction]);
 	ss.initEnum($Pather_Common_Models_Common_UserActions_UserActionType, $asm, { move: 0 });
 	ss.initClass($Pather_Common_Models_Game_Old_ConnectedModel, $asm, {});
 	ss.initClass($Pather_Common_Models_Game_Old_MoveModel, $asm, {});

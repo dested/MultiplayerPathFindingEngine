@@ -199,6 +199,7 @@ namespace Pather.Servers.GameWorldServer
                     {
                         MessageId = getAllGameSegments.MessageId,
                         GameSegmentIds = GameWorld.GameSegments.Select(a => a.GameSegmentId),
+                        LockstepTickNumber=BackEndTickManager.LockstepTickNumber,
                         Grid=Grid,
                         AllUsers = GameWorld.Users.Select(user => new InitialGameUser()
                         {

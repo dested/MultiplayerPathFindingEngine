@@ -120,7 +120,7 @@ namespace Pather.Servers.ClusterManager
 
 
             var str = @"C:\Users\deste_000\AppData\Roaming\npm\node-debug.cmd";
-            str = "node";
+//            str = "node";
             var child = spawn(str, new[]
             {
                 "app.js", "gamesegment", createGameSegmentMessage.GameSegmentId

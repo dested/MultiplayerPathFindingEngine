@@ -91,7 +91,7 @@ namespace Pather.Client.GameFramework
 
         public void Tick()
         {
-            Global.SetTimeout(() => Tick(), 1);
+            Global.SetTimeout(Tick, 1);
 
 
             var vc = new DateTime().GetTime();

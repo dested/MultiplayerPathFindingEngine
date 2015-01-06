@@ -96,6 +96,7 @@ var astar = {
 
             // Normal case -- move currentNode from open to closed, process each of its neighbors.
             currentNode.closed = true;
+            hitNodes.push(currentNode);
 
             // Find all neighbors for the current node.
             var neighbors = graph.neighbors(currentNode);
