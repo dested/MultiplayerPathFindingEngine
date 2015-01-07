@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Html.Media.Graphics;
 using Pather.Common;
-using Pather.Common.Definitions.AStar;
 using Pather.Common.GameFramework;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Utils;
@@ -11,29 +9,28 @@ namespace Pather.Client.GameFramework
 {
     public class ClientGameUser : GameUser, IClientGameEntity
     {
-
-        public ClientGameUser(ClientGame game, string userId): base(game,userId)
+        public ClientGameUser(ClientGame game, string userId) : base(game, userId)
         {
             Animations = new List<AnimationStep>();
         }
 
         public List<AnimationStep> Animations;
+
         public override void Tick()
         {
             base.Tick();
             Animations.Clear();
 
 
-
             var nextPathPoint = Path[0];
             if (nextPathPoint == null) return;
 
             Global.Console.Log(EntityId, X, Y, game.tickManager.LockstepTickNumber);
-            int halfSquareSize = Constants.SquareSize / 2;
-            double animationDividedSpeed = (Speed / Constants.NumberOfAnimationSteps);
+            var halfSquareSize = Constants.SquareSize/2;
+            var animationDividedSpeed = (Speed/Constants.NumberOfAnimationSteps);
 
-            int projectedX = nextPathPoint.X * Constants.SquareSize + halfSquareSize;
-            int projectedY = nextPathPoint.Y * Constants.SquareSize + halfSquareSize;
+            var projectedX = nextPathPoint.X*Constants.SquareSize + halfSquareSize;
+            var projectedY = nextPathPoint.Y*Constants.SquareSize + halfSquareSize;
 
 
             for (var i = 0; i < Constants.NumberOfAnimationSteps; i++)
@@ -49,11 +46,11 @@ namespace Pather.Client.GameFramework
                     nextPathPoint = Path[0];
 
                     if (nextPathPoint == null) return;
-                    projectedX = nextPathPoint.X * Constants.SquareSize + halfSquareSize;
-                    projectedY = nextPathPoint.Y * Constants.SquareSize + halfSquareSize;
+                    projectedX = nextPathPoint.X*Constants.SquareSize + halfSquareSize;
+                    projectedY = nextPathPoint.Y*Constants.SquareSize + halfSquareSize;
                 }
 
-                if ((projectedX) == (int)X && (projectedY) == (int)Y)
+                if ((projectedX) == (int) X && (projectedY) == (int) Y)
                 {
                     return;
                 }
@@ -64,8 +61,7 @@ namespace Pather.Client.GameFramework
 
                 Animations.Add(new AnimationStep(fromX, fromY, X, Y));
             }
-
-        } 
+        }
 
         public void Draw(CanvasRenderingContext2D context, double interpolatedTime)
         {
@@ -74,17 +70,17 @@ namespace Pather.Client.GameFramework
             if (interpolatedTime < 0) interpolatedTime = 0;
             if (interpolatedTime > 1) interpolatedTime = 1;
 
-            var _x = (int)X;
-            var _y = (int)Y;
+            var _x = (int) X;
+            var _y = (int) Y;
             if (Animations.Count > 0)
             {
-                var animationIndex = ((int)(interpolatedTime * Constants.NumberOfAnimationSteps));
+                var animationIndex = ((int) (interpolatedTime*Constants.NumberOfAnimationSteps));
                 var animation = Animations[animationIndex];
                 if (animation != null)
                 {
-                    var interpolateStep = (interpolatedTime % (1.0 / Constants.NumberOfAnimationSteps)) * Constants.NumberOfAnimationSteps;
-                    _x = (int)(animation.FromX + (animation.X - animation.FromX) * interpolateStep);
-                    _y = (int)(animation.FromY + (animation.Y - animation.FromY) * interpolateStep);
+                    var interpolateStep = (interpolatedTime%(1.0/Constants.NumberOfAnimationSteps))*Constants.NumberOfAnimationSteps;
+                    _x = (int) (animation.FromX + (animation.X - animation.FromX)*interpolateStep);
+                    _y = (int) (animation.FromY + (animation.Y - animation.FromY)*interpolateStep);
                 }
             }
 
@@ -104,16 +100,9 @@ namespace Pather.Client.GameFramework
             context.LineWidth = 5;
             context.StrokeStyle = "yellow";
             context.FillStyle = "red";
-            context.FillRect((_x) - (Constants.SquareSize / 2), (_y) - (Constants.SquareSize / 2), (Constants.SquareSize), (Constants.SquareSize));
-            context.StrokeRect((_x) - (Constants.SquareSize / 2), (_y) - (Constants.SquareSize / 2), (Constants.SquareSize), (Constants.SquareSize));
+            context.FillRect((_x) - (Constants.SquareSize/2), (_y) - (Constants.SquareSize/2), (Constants.SquareSize), (Constants.SquareSize));
+            context.StrokeRect((_x) - (Constants.SquareSize/2), (_y) - (Constants.SquareSize/2), (Constants.SquareSize), (Constants.SquareSize));
             context.Restore();
-
         }
-         
-    }
-
-    public interface IClientGameEntity
-    {
-        void Draw(CanvasRenderingContext2D context, double interpolatedTime);
     }
 }

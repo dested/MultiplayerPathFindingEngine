@@ -37,7 +37,6 @@ namespace Pather.Client.Tests
 
                     var moveUserAction = new MoveEntityAction()
                     {
-
                         X = (int) (Math.Random()*50),
                         Y = (int) (Math.Random()*50)
                     };
@@ -151,7 +150,6 @@ namespace Pather.Client.Tests
                             {
                                 X = proposedX + move,
                                 Y = proposedY
-
                             }
                         });
                     }, 500);
@@ -164,7 +162,6 @@ namespace Pather.Client.Tests
                     {
                         X = proposedX,
                         Y = proposedY
-
                     }
                 });
             });
@@ -180,7 +177,6 @@ namespace Pather.Client.Tests
                     {
                         X = proposedX + 1,
                         Y = proposedY
-
                     }
                 });
             });

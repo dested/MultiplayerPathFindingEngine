@@ -9,7 +9,6 @@ namespace Pather.Servers.Common
 {
     public class BackEndTickManager : TickManager
     {
-
         public BackEndTickManager()
         {
         }
@@ -18,7 +17,7 @@ namespace Pather.Servers.Common
         public void Init(Action sendPing, Action onTickManagerReady)
         {
             this.sendPing = sendPing;
-            this.onTickManagerReady = onTickManagerReady; 
+            this.onTickManagerReady = onTickManagerReady;
             Global.SetInterval(StartPing, Constants.LatencyPingInterval);
         }
 
@@ -71,6 +70,7 @@ namespace Pather.Servers.Common
         private bool hasLockstep = false;
         private bool hasLatency = false;
         private bool tickManagerInitialized = false;
+
         public override void SetLockStepTick(long lockStepTickNumber)
         {
             base.SetLockStepTick(lockStepTickNumber);
@@ -102,7 +102,5 @@ namespace Pather.Servers.Common
             Init(LockstepTickNumber);
             onTickManagerReady();
         }
-
- 
     }
 }

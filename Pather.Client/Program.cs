@@ -1,5 +1,4 @@
 ﻿using System.Html;
-using Pather.Client.GameFramework;
 using Pather.Common.TestFramework;
 
 namespace Pather.Client

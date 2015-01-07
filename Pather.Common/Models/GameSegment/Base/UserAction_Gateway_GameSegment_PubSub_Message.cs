@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.CompilerServices;
 using Pather.Common.Models.Common.UserActions;
 
 namespace Pather.Common.Models.GameSegment.Base
@@ -11,6 +10,7 @@ namespace Pather.Common.Models.GameSegment.Base
         {
             Type = GameSegment_PubSub_MessageType.UserAction;
         }
+
         public string UserId;
         public UserAction Action;
     }

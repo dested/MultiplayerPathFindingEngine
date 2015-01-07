@@ -6,12 +6,10 @@ namespace Pather.Common.Utils
 {
     public static class EnumerableExtensions
     {
-
-        public static T2 As<T,T2>(this T t) where T2:T
+        public static T2 As<T, T2>(this T t) where T2 : T
         {
-            return (T2)t;
+            return (T2) t;
         }
-
 
 
         public static JsDictionary<T2, T> ToDictionary<T, T2>(this List<T> items, Func<T, T2> clause)

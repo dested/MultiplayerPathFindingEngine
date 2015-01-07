@@ -1,23 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models.Common.UserActions;
 
 namespace Pather.Common.GameFramework
 {
-    public class UserActionModel
-    {
-        public UserAction Action;
-        public UserActionModelType Type;
-    }
-    [NamedValues]
-    public enum UserActionModelType
-    {
-        Regular,
-        Neighbor,
-        Tell
-    }
     public class StepManager
     {
         private readonly Game game;
@@ -51,7 +37,6 @@ namespace Pather.Common.GameFramework
 
         private void ProcessUserActionModel(UserActionModel actionModel)
         {
-
             switch (actionModel.Type)
             {
                 case UserActionModelType.Regular:

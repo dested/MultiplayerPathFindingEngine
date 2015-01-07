@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Diagnostics;
 using Pather.Common.Definitions.AStar;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Common.UserActions;
@@ -9,7 +8,6 @@ namespace Pather.Common.GameFramework
 {
     public class GameUser : GameEntity
     {
-
         public GameUser(Game game, string userId)
             : base(game)
         {
@@ -20,6 +18,7 @@ namespace Pather.Common.GameFramework
 
         public double Speed;
         public List<AStarLockstepPath> Path;
+
         public override void Tick()
         {
             base.Tick();
@@ -39,7 +38,7 @@ namespace Pather.Common.GameFramework
             var end = graph.Grid[Utilities.ToSquare(destinationAction.X)][Utilities.ToSquare(destinationAction.Y)];
             Path.Clear();
             Path.AddRange(AStar.Search(graph, start, end).Select(a => new AStarLockstepPath(a.X, a.Y)));
-            Global.Console.Log("Path",Path);
+            Global.Console.Log("Path", Path);
         }
 
 

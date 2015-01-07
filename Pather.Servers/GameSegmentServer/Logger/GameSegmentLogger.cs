@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Pather.Common.Libraries.NodeJS;
-using Pather.Servers.Common.PubSub;
-
-namespace Pather.Servers.GameSegmentServer.Logger
+﻿namespace Pather.Servers.GameSegmentServer.Logger
 {
 /*
     public static class GameSegmentLogger

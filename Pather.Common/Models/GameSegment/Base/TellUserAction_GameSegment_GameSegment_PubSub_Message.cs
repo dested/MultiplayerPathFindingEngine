@@ -10,6 +10,7 @@ namespace Pather.Common.Models.GameSegment.Base
         {
             Type = GameSegment_PubSub_MessageType.TellGameSegmentAction;
         }
+
         public string UserId;
         public UserAction Action;
         public string OriginatingGameSegmentId;

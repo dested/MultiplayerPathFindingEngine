@@ -2,16 +2,17 @@
 using System.Collections.Generic;
 using System.Html;
 using System.Html.Media.Graphics;
+using Pather.Client.GameFramework;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 
-namespace Pather.Client.GameFramework
+namespace Pather.Client
 {
     public class ClientGameView
     {
-        private Dictionary<string, CanvasRenderingContext2D> contextCollection =
+        private readonly Dictionary<string, CanvasRenderingContext2D> contextCollection =
             new Dictionary<string, CanvasRenderingContext2D>();
- 
+
         private readonly ClientGameManager clientGameManager;
 
         public ClientGameView()
@@ -19,9 +20,7 @@ namespace Pather.Client.GameFramework
             clientGameManager = new ClientGameManager();
             clientGameManager.OnReady += ReadyToPlay;
 
-            
-            
-            
+
             NextGameTime = new DateTime().GetTime();
 
             CurGameTime = new DateTime().GetTime();
@@ -34,15 +33,15 @@ namespace Pather.Client.GameFramework
         {
             if (!Constants.TestServer)
             {
-                var backCanvas = (CanvasElement)Document.GetElementById("backCanvas");
-                var backContext = (CanvasRenderingContext2D)backCanvas.GetContext(CanvasContextId.Render2D);
-               var canvas = (CanvasElement)Document.GetElementById("canvas");
-               var context = (CanvasRenderingContext2D)canvas.GetContext(CanvasContextId.Render2D);
+                var backCanvas = (CanvasElement) Document.GetElementById("backCanvas");
+                var backContext = (CanvasRenderingContext2D) backCanvas.GetContext(CanvasContextId.Render2D);
+                var canvas = (CanvasElement) Document.GetElementById("canvas");
+                var context = (CanvasRenderingContext2D) canvas.GetContext(CanvasContextId.Render2D);
                 contextCollection.Add("Background", backContext);
                 contextCollection.Add("Foreground", context);
                 canvas.OnMousedown = (ev) =>
                 {
-                    var @event = (dynamic) ev; 
+                    var @event = (dynamic) ev;
 
                     clientGameManager.MoveToLocation(@event.offsetX, @event.offsetY);
                 };
@@ -50,23 +49,22 @@ namespace Pather.Client.GameFramework
 
                 Window.RequestAnimationFrame((a) => Draw());
             }
-        } 
+        }
 
 
         private void Draw()
         {
             Window.RequestAnimationFrame((a) => Draw());
 
-            var interpolatedTime = (((new DateTime()).GetTime() - NextGameTime) / (double)Constants.GameTicks);
+            var interpolatedTime = (((new DateTime()).GetTime() - NextGameTime)/(double) Constants.GameTicks);
 
-            clientGameManager.Draw(contextCollection,interpolatedTime);
-
+            clientGameManager.Draw(contextCollection, interpolatedTime);
         }
-              
-        public long CurTickTime; 
-        public long TickNumber; 
-         
-        public long CurGameTime; 
+
+        public long CurTickTime;
+        public long TickNumber;
+
+        public long CurGameTime;
         public long NextGameTime;
         public int ServerLatency;
         public long TrackTickNumber;
@@ -91,7 +89,7 @@ namespace Pather.Client.GameFramework
 
 
             var vc = new DateTime().GetTime();
-           
+
             var l2 = (vc - CurTickTime);
             var nextTickTime = l2/Constants.GameTicks;
             while (nextTickTime > TrackTickNumber)
@@ -105,8 +103,6 @@ namespace Pather.Client.GameFramework
                 NextGameTime += v - CurGameTime;
                 CurGameTime = v;
             }
-
         }
-
     }
 }

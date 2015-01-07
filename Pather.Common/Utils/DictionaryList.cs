@@ -73,7 +73,5 @@ namespace Pather.Common.Utils
         {
             get { return List[index]; }
         }
-
-      
     }
 }

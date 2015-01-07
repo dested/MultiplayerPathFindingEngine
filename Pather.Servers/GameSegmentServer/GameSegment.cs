@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Servers.Common.ServerLogging; 
+using Pather.Servers.Common.ServerLogging;
 
 namespace Pather.Servers.GameSegmentServer
 {

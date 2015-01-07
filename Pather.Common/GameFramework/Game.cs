@@ -35,9 +35,10 @@ namespace Pather.Common.GameFramework
             StepManager.QueueUserAction(new UserActionModel()
             {
                 Action = action,
-                Type=UserActionModelType.Regular
+                Type = UserActionModelType.Regular
             });
         }
+
         public void QueueTellUserAction(UserAction action)
         {
             StepManager.QueueUserAction(new UserActionModel()
@@ -45,8 +46,8 @@ namespace Pather.Common.GameFramework
                 Action = action,
                 Type = UserActionModelType.Tell
             });
-
         }
+
         public void QueueUserActionFromNeighbor(UserAction action)
         {
             StepManager.QueueUserAction(new UserActionModel()
@@ -54,8 +55,6 @@ namespace Pather.Common.GameFramework
                 Action = action,
                 Type = UserActionModelType.Neighbor
             });
-
- 
         }
 
         public void ProcessUserAction(UserAction action)
@@ -64,15 +63,15 @@ namespace Pather.Common.GameFramework
             switch (action.UserActionType)
             {
                 case UserActionType.Move:
-                    var moveAction = (MoveEntityAction)action;
-                    user = (GameUser)ActiveEntities[moveAction.EntityId];
+                    var moveAction = (MoveEntityAction) action;
+                    user = (GameUser) ActiveEntities[moveAction.EntityId];
                     user.RePathFind(moveAction);
                     break;
                 case UserActionType.MoveEntityOnPath:
-                    var moveEntityOnPath = (MoveEntityOnPathAction)action;
-                    user = (GameUser)ActiveEntities[moveEntityOnPath.EntityId];
+                    var moveEntityOnPath = (MoveEntityOnPathAction) action;
+                    user = (GameUser) ActiveEntities[moveEntityOnPath.EntityId];
 
-                    int removeStart = 0;
+                    var removeStart = 0;
                     for (; removeStart < moveEntityOnPath.Path.Count; removeStart++)
                     {
                         var aStarLockstepPath = moveEntityOnPath.Path[removeStart];
@@ -87,7 +86,7 @@ namespace Pather.Common.GameFramework
                     user.SetPath(moveEntityOnPath.Path);
                     break;
                 case UserActionType.UpdateNeighbors:
-                    var updateNeighborAction = (UpdateNeighborsAction)action;
+                    var updateNeighborAction = (UpdateNeighborsAction) action;
                     UpdateNeighbors(updateNeighborAction.Added, updateNeighborAction.Removed);
                     break;
                 default:
@@ -163,6 +162,7 @@ namespace Pather.Common.GameFramework
                 person.Tick();
             }
         }
+
         public virtual void LockstepTick(long lockstepTickNumber)
         {
             foreach (var entity in ActiveEntities.List)

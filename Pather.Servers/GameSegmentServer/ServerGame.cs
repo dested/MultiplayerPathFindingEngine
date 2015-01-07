@@ -6,16 +6,14 @@ using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Common;
 using Pather.Common.Models.Common.UserActions;
 using Pather.Common.Models.GameSegment;
-using Pather.Common.Models.GameWorld.GameSegment;
 using Pather.Common.Models.Gateway.PubSub;
 using Pather.Common.Utils;
-using Pather.Servers.GameSegmentServer.Logger;
 
 namespace Pather.Servers.GameSegmentServer
 {
     public class ServerGame : Game
     {
-        private ServerGameManager gameManager;
+        private readonly ServerGameManager gameManager;
 
         public ServerGame(ServerGameManager gameManager, TickManager tickManager)
             : base(tickManager)
@@ -24,6 +22,7 @@ namespace Pather.Servers.GameSegmentServer
             StepManager = new StepManager(this);
             tickManager.OnProcessLockstep += LockstepTick;
         }
+
         public void Init()
         {
             BuildNeighbors();
@@ -52,14 +51,13 @@ namespace Pather.Servers.GameSegmentServer
             action.EntityId = user.EntityId;
 
 
-
             if (true /*todo action is valid*/)
             {
                 base.QueueUserAction(action);
                 switch (action.UserActionType)
                 {
                     case UserActionType.Move:
-                        var moveAction = (MoveEntityAction)action;
+                        var moveAction = (MoveEntityAction) action;
                         gameManager.SendAction(user, new MoveEntityAction()
                         {
                             X = moveAction.X,
@@ -81,7 +79,7 @@ namespace Pather.Servers.GameSegmentServer
 
         public void UserLeft(string userId)
         {
-            var user = (ServerGameUser)ActiveEntities[userId];
+            var user = (ServerGameUser) ActiveEntities[userId];
             var gameSegment = user.GameSegment;
             gameSegment.UserLeft(userId);
 
@@ -93,7 +91,7 @@ namespace Pather.Servers.GameSegmentServer
 
             foreach (var gameEntityNeighbor in user.Neighbors.List)
             {
-                var serverGameUser = ((ServerGameUser)gameEntityNeighbor.Entity);
+                var serverGameUser = ((ServerGameUser) gameEntityNeighbor.Entity);
 
                 var neighbors = serverGameUser.Neighbors;
                 foreach (var entityNeighbor in neighbors.List)
@@ -124,11 +122,10 @@ namespace Pather.Servers.GameSegmentServer
             user.Neighbors.Clear();
 
             ActiveEntities.Remove(user);
-
         }
+
         public void UserJoin(UserJoinGameUser userJoinGameUser)
         {
-
             var serverGameUser = new ServerGameUser(this, userJoinGameUser.UserId)
             {
                 GameSegment = gameManager.AllGameSegments[gameManager.GameSegmentId],
@@ -140,14 +137,11 @@ namespace Pather.Servers.GameSegmentServer
             ActiveEntities.Add(serverGameUser);
             serverGameUser.GameSegment.UserJoin(serverGameUser);
             BuildNeighbors();
-
         }
-
 
 
         public void TellUserJoin(TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message message)
         {
-
             var serverGameUser = new ServerGameUser(this, message.UserId)
             {
                 GameSegment = gameManager.AllGameSegments[message.GameSegmentId],
@@ -166,9 +160,7 @@ namespace Pather.Servers.GameSegmentServer
             BuildNeighbors();
 
             //            GameSegmentLogger.LogUserJoin(false, serverGameUser.UserId, serverGameUser.X, serverGameUser.Y, serverGameUser.Neighbors.Keys);
-
         }
-
 
 
         public void BuildNeighbors()
@@ -208,14 +200,8 @@ namespace Pather.Servers.GameSegmentServer
                     pUser.Neighbors.Add(new GameEntityNeighbor(cUser, distance));
                     cUser.Neighbors.Add(new GameEntityNeighbor(pUser, distance));
                 }
-
             }
         }
-
-
-
-
-
 
 
         public void diffNeighbors()
@@ -240,7 +226,7 @@ namespace Pather.Servers.GameSegmentServer
                     }
                     if (notIn)
                     {
-                        added.Add((ServerGameUser)gameEntityNeighbor.Entity);
+                        added.Add((ServerGameUser) gameEntityNeighbor.Entity);
                     }
                 }
                 foreach (var gameSegmentNeighbor in serverGameUser.OldNeighbors)
@@ -256,18 +242,21 @@ namespace Pather.Servers.GameSegmentServer
                     }
                     if (notIn)
                     {
-                        removed.Add((ServerGameUser)gameSegmentNeighbor.Entity);
+                        removed.Add((ServerGameUser) gameSegmentNeighbor.Entity);
                     }
                 }
 
                 serverGameUser.OldNeighbors = null;
                 if (added.Count > 0 || removed.Count > 0)
                 {
-                    long lockstepTickToRun = tickManager.LockstepTickNumber + 1;
+                    var lockstepTickToRun = tickManager.LockstepTickNumber + 1;
 
                     gameManager.SendToUser(serverGameUser, new UserActionCollection_GameSegment_Gateway_PubSub_Message()
                     {
-                        Users = new List<string>() { serverGameUser.EntityId},
+                        Users = new List<string>()
+                        {
+                            serverGameUser.EntityId
+                        },
                         Action = new UpdateNeighborsAction()
                         {
                             Removed = removed.Select(a => a.EntityId),
@@ -283,7 +272,7 @@ namespace Pather.Servers.GameSegmentServer
                                     Y = point.Y
                                 };
                             }),
-                            LockstepTick = lockstepTickToRun+1//todo this sholnt be plus 1, i think theres somethign wrong with getpositionatlockstep
+                            LockstepTick = lockstepTickToRun + 1 //todo this sholnt be plus 1, i think theres somethign wrong with getpositionatlockstep
                         }
                     });
                 }
@@ -301,9 +290,8 @@ namespace Pather.Servers.GameSegmentServer
             var x = (cx - mx);
             var y = (cy - my);
 
-            var dis = Math.Sqrt((x * x) + (y * y));
+            var dis = Math.Sqrt((x*x) + (y*y));
             return Utilities.ToSquare(dis);
         }
-
     }
 }

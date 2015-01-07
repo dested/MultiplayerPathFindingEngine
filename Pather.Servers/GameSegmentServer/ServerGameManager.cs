@@ -9,7 +9,6 @@ using Pather.Common.Models.GameWorld.GameSegment;
 using Pather.Common.Models.GameWorld.Gateway;
 using Pather.Common.Models.Gateway.PubSub;
 using Pather.Common.Models.Gateway.PubSub.Base;
-using Pather.Common.Models.Gateway.Socket.Base;
 using Pather.Common.Models.Tick;
 using Pather.Common.Utils;
 using Pather.Servers.Common;
@@ -20,9 +19,9 @@ namespace Pather.Servers.GameSegmentServer
     public class ServerGameManager
     {
         public GameSegment MyGameSegment;
-        private GameSegmentPubSub GameSegmentPubSub;
-        private BackEndTickManager backEndTickManager;
-        private ServerGame serverGame;
+        private readonly GameSegmentPubSub GameSegmentPubSub;
+        private readonly BackEndTickManager backEndTickManager;
+        private readonly ServerGame serverGame;
         public string GameSegmentId;
         public JsDictionary<string, GameSegment> AllGameSegments;
 
@@ -48,12 +47,15 @@ namespace Pather.Servers.GameSegmentServer
                 backEndTickManager.StartPing();
             });
         }
-         
+
         private void tickManagerReady()
         {
             GameSegmentPubSub
                 .PublishToGameWorldWithCallback<InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message>
-                (new InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message(){OriginGameSegment = GameSegmentId})
+                (new InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message()
+                {
+                    OriginGameSegment = GameSegmentId
+                })
                 .Then(initializeGameSegment);
         }
 
@@ -98,31 +100,31 @@ namespace Pather.Servers.GameSegmentServer
             switch (message.Type)
             {
                 case GameSegment_PubSub_MessageType.UserJoin:
-                    onMessageUserJoin((UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message)message);
+                    onMessageUserJoin((UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.TellUserJoin:
-                    onMessageTellUserJoin((TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message)message);
+                    onMessageTellUserJoin((TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.TellUserLeft:
-                    onMessageTellUserLeft((TellUserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message)message);
+                    onMessageTellUserLeft((TellUserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.UserLeft:
-                    onMessageUserLeft((UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message)message);
+                    onMessageUserLeft((UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.NewGameSegment:
-                    OnMessageNewGameSegment((NewGameSegment_GameWorld_GameSegment_PubSub_Message)message);
+                    OnMessageNewGameSegment((NewGameSegment_GameWorld_GameSegment_PubSub_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.Pong:
-                    onMessagePong((Pong_Tick_GameSegment_PubSub_Message)message);
+                    onMessagePong((Pong_Tick_GameSegment_PubSub_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.UserAction:
-                    OnMessageUserAction((UserAction_Gateway_GameSegment_PubSub_Message)message);
+                    OnMessageUserAction((UserAction_Gateway_GameSegment_PubSub_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.GameSegmentAction:
-                    OnMessageUserAction((UserAction_GameSegment_GameSegment_PubSub_Message)message);
+                    OnMessageUserAction((UserAction_GameSegment_GameSegment_PubSub_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.TellGameSegmentAction:
-                    OnMessageUserAction((TellUserAction_GameSegment_GameSegment_PubSub_Message)message);
+                    OnMessageUserAction((TellUserAction_GameSegment_GameSegment_PubSub_Message) message);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -148,10 +150,11 @@ namespace Pather.Servers.GameSegmentServer
          send TELL_ACTION to each other gamesegment
          send to world
          */
+
         public void SendAction(ServerGameUser user, UserAction userAction)
         {
             var otherGameSegments = new JsDictionary<string, GameSegment>();
-            var gateways = user.Neighbors.List.GroupBy(a => ((ServerGameUser)a.Entity).GatewayId);
+            var gateways = user.Neighbors.List.GroupBy(a => ((ServerGameUser) a.Entity).GatewayId);
             //todo maybe move this dict to a real object
             if (!gateways.ContainsKey(user.GatewayId))
             {
@@ -159,7 +162,7 @@ namespace Pather.Servers.GameSegmentServer
             }
             gateways[user.GatewayId].Add(new GameEntityNeighbor(user, 0));
 
-            var neighborGameSegments = user.Neighbors.List.GroupBy(a => ((ServerGameUser)a.Entity).GameSegment);
+            var neighborGameSegments = user.Neighbors.List.GroupBy(a => ((ServerGameUser) a.Entity).GameSegment);
 
             neighborGameSegments.Remove(MyGameSegment);
             foreach (var otherGameSegment in AllGameSegments)
@@ -188,7 +191,6 @@ namespace Pather.Servers.GameSegmentServer
             };
 
 
-
             foreach (var neighborGameSegment in neighborGameSegments)
             {
                 GameSegmentPubSub.PublishToGameSegment(neighborGameSegment.Key.GameSegmentId, new UserAction_GameSegment_GameSegment_PubSub_Message()
@@ -211,8 +213,6 @@ namespace Pather.Servers.GameSegmentServer
                 OriginatingGameSegmentId = GameSegmentId,
                 Action = userAction
             });
-
-
         }
 
         private void OnMessageUserAction(UserAction_Gateway_GameSegment_PubSub_Message message)
@@ -224,6 +224,7 @@ namespace Pather.Servers.GameSegmentServer
 
             serverGame.QueueUserAction(MyGameSegment.Users[message.UserId], message.Action);
         }
+
         private void OnMessageUserAction(UserAction_GameSegment_GameSegment_PubSub_Message message)
         {
             if (!MyGameSegment.Users.ContainsKey(message.UserId))
@@ -231,8 +232,9 @@ namespace Pather.Servers.GameSegmentServer
                 throw new Exception("This aint my user! " + message.UserId);
             }
 
-            serverGame.QueueUserActionFromNeighbor( message.Action);
+            serverGame.QueueUserActionFromNeighbor(message.Action);
         }
+
         private void OnMessageUserAction(TellUserAction_GameSegment_GameSegment_PubSub_Message message)
         {
             if (!MyGameSegment.Users.ContainsKey(message.UserId))
@@ -240,7 +242,7 @@ namespace Pather.Servers.GameSegmentServer
                 throw new Exception("This aint my user! " + message.UserId);
             }
 
-            serverGame.QueueTellUserAction( message.Action);
+            serverGame.QueueTellUserAction(message.Action);
         }
 
         public void OnMessageNewGameSegment(NewGameSegment_GameWorld_GameSegment_PubSub_Message message)

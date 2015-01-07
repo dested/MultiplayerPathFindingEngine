@@ -69,7 +69,7 @@ namespace Pather.Common.Utils
             }
         }
 
-        public   void ProcessLockstep(long lockstepTickNumber)
+        public void ProcessLockstep(long lockstepTickNumber)
         {
             if (OnProcessLockstep != null)
             {

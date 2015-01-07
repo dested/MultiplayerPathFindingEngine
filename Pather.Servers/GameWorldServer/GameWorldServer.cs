@@ -152,7 +152,7 @@ namespace Pather.Servers.GameWorldServer
                             Y = gwUser.Y,
                             GameSegmentId = gwUser.GameSegment.GameSegmentId,
                             UserId = gwUser.UserId,
-                            Grid=Grid,
+                            Grid = Grid,
                         });
                     });
                     break;
@@ -200,8 +200,8 @@ namespace Pather.Servers.GameWorldServer
                         MessageId = getAllGameSegments.MessageId,
                         GameSegmentIds = GameWorld.GameSegments.Select(a => a.GameSegmentId),
                         LockstepTickNumber = BackEndTickManager.LockstepTickNumber,
-                        ServerLatency= BackEndTickManager.CurrentServerLatency,
-                        Grid=Grid,
+                        ServerLatency = BackEndTickManager.CurrentServerLatency,
+                        Grid = Grid,
                         AllUsers = GameWorld.Users.Select(user => new InitialGameUser()
                         {
                             GameSegmentId = user.GameSegment.GameSegmentId,
@@ -227,7 +227,7 @@ namespace Pather.Servers.GameWorldServer
                 Grid[x] = new int[Constants.NumberOfSquares];
                 for (var y = 0; y < Constants.NumberOfSquares; y++)
                 {
-                    Grid[x][y] = (Math.Random() * 100 < 15) ? 0 : 1;
+                    Grid[x][y] = (Math.Random()*100 < 15) ? 0 : 1;
                 }
             }
         }

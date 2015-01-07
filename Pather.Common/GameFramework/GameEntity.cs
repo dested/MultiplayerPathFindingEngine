@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using Pather.Common.Utils;
 
 namespace Pather.Common.GameFramework
@@ -19,13 +18,13 @@ namespace Pather.Common.GameFramework
         public double X;
         public double Y;
         public string EntityId;
+
         public virtual void Tick()
         {
         }
 
         public virtual void LockstepTick(long lockstepTickNumber)
         {
-            
         }
     }
 }

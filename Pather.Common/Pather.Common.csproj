@@ -36,16 +36,22 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Definitions\AStar\AStarLockstepPath.cs" />
     <Compile Include="GameFramework\Game.cs" />
     <Compile Include="GameFramework\GameBoard.cs" />
     <Compile Include="GameFramework\GameEntity.cs" />
     <Compile Include="GameFramework\GameUser.cs" />
     <Compile Include="GameFramework\GameEntityNeighbor.cs" />
     <Compile Include="GameFramework\StepManager.cs" />
+    <Compile Include="GameFramework\UserActionModel.cs" />
+    <Compile Include="GameFramework\UserActionModelType.cs" />
     <Compile Include="Models\ClusterManager\CreateGateway_ServerManager_ClusterManager_PubSub_ReqRes_Message.cs" />
+    <Compile Include="Models\Common\InProgressAction.cs" />
     <Compile Include="Models\Common\IPubSub_Message.cs" />
     <Compile Include="Models\Common\PubSub_Message_Collection.cs" />
     <Compile Include="Models\Common\UpdatedNeighbor.cs" />
+    <Compile Include="Models\Common\UserActions\MoveEntityOnPathAction.cs" />
+    <Compile Include="Models\Common\UserActions\UpdateNeighborsAction.cs" />
     <Compile Include="Models\Common\UserActions\UserAction.cs" />
     <Compile Include="Models\Common\UserActions\IAction.cs" />
     <Compile Include="Models\Common\UserActions\MoveEntityAction.cs" />
@@ -90,6 +96,7 @@
     <Compile Include="Models\Gateway\Socket\Base\User_Gateway_Socket_MessageType.cs" />
     <Compile Include="Models\Gateway\Socket\Base\User_Socket_Message.cs" />
     <Compile Include="Utils\DictionaryList.cs" />
+    <Compile Include="Utils\IntPoint.cs" />
     <Compile Include="Utils\TickManager.cs" />
     <Compile Include="Utils\Utilities.cs" />
     <Compile Include="Constants.cs" />

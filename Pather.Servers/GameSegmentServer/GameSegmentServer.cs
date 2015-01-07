@@ -1,24 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using Pather.Common;
-using Pather.Common.Definitions.AStar;
-using Pather.Common.GameFramework;
-using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models.Common;
-using Pather.Common.Models.Common.UserActions;
 using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameSegment.Base;
-using Pather.Common.Models.GameWorld.GameSegment;
-using Pather.Common.Models.GameWorld.Gateway;
-using Pather.Common.Models.Gateway.PubSub;
-using Pather.Common.Models.Tick;
-using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
-using Pather.Servers.Common;
 using Pather.Servers.Common.PubSub;
 using Pather.Servers.Common.PushPop;
 using Pather.Servers.Common.ServerLogging;
-using Pather.Servers.GameSegmentServer.Logger;
 
 namespace Pather.Servers.GameSegmentServer
 {
@@ -52,7 +38,6 @@ namespace Pather.Servers.GameSegmentServer
                     gameManager = new ServerGameManager(GameSegmentId, GameSegmentPubSub);
                     gameManager.RegisterGameSegmentWithCluster += registerGameSegmentWithCluster;
                     gameManager.Init();
-
                 });
         }
 
@@ -68,7 +53,7 @@ namespace Pather.Servers.GameSegmentServer
             switch (message.Type)
             {
                 case GameSegment_PubSub_AllMessageType.TickSync:
-                    var tickSyncMessage = (TickSync_GameSegment_PubSub_AllMessage)message;
+                    var tickSyncMessage = (TickSync_GameSegment_PubSub_AllMessage) message;
                     gameManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;
                 default:

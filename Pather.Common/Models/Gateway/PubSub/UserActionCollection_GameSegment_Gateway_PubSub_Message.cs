@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using Pather.Common.Models.Common.UserActions;
-using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.Gateway.PubSub.Base;
 
 namespace Pather.Common.Models.Gateway.PubSub
@@ -13,6 +12,7 @@ namespace Pather.Common.Models.Gateway.PubSub
         {
             Type = Gateway_PubSub_MessageType.UserActionCollection;
         }
+
         public UserAction Action;
         public List<string> Users;
     }

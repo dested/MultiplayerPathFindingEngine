@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Html.Media.Graphics;
-using System.Serialization;
-using Pather.Client.GameFramework;
 using Pather.Common;
-using Pather.Common.Definitions.AStar;
-using Pather.Common.GameFramework;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models.Common;
 using Pather.Common.Models.Common.UserActions;
 using Pather.Common.Models.Gateway.Socket.Base;
-using Pather.Common.Utils;
 
-namespace Pather.Client
+namespace Pather.Client.GameFramework
 {
     public class ClientGameManager
     {
@@ -21,6 +15,7 @@ namespace Pather.Client
         public ClientGameUser MyUser;
         public Action OnReady;
         public ClientGame clientGame;
+
         public ClientGameManager()
         {
             NetworkManager = new NetworkManager();
@@ -57,17 +52,17 @@ namespace Pather.Client
             switch (message.GatewayUserMessageType)
             {
                 case Gateway_User_Socket_MessageType.Pong:
-                    var pongMessage = (Pong_Gateway_User_PubSub_Message)message;
+                    var pongMessage = (Pong_Gateway_User_PubSub_Message) message;
                     FrontEndTickManager.OnPongReceived(pongMessage);
                     break;
                 case Gateway_User_Socket_MessageType.UserAction:
-                    userAction(((UserAction_Gateway_User_Socket_Message)message));
+                    userAction(((UserAction_Gateway_User_Socket_Message) message));
                     break;
                 case Gateway_User_Socket_MessageType.UserJoined:
-                    userJoined(((UserJoined_Gateway_User_Socket_Message)message));
+                    userJoined(((UserJoined_Gateway_User_Socket_Message) message));
                     break;
                 case Gateway_User_Socket_MessageType.TickSync:
-                    onTickSyncMessage((TickSync_Gateway_User_Socket_Message)message);
+                    onTickSyncMessage((TickSync_Gateway_User_Socket_Message) message);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -81,11 +76,9 @@ namespace Pather.Client
 
         private void userJoined(UserJoined_Gateway_User_Socket_Message userJoinedMessage)
         {
-
             clientGame.Init(userJoinedMessage.Grid, userJoinedMessage.LockstepTickNumber, userJoinedMessage.ServerLatency);
-            
-            clientGame.MyUserJoined(userJoinedMessage.UserId, userJoinedMessage.X, userJoinedMessage.Y);
 
+            clientGame.MyUserJoined(userJoinedMessage.UserId, userJoinedMessage.X, userJoinedMessage.Y);
 
 
             OnReady();
@@ -101,7 +94,6 @@ namespace Pather.Client
             contextCollection["Foreground"].ClearRect(0, 0, 1200, 1200);
             DrawBackground(contextCollection["Background"]);
             clientGame.DrawEntities(contextCollection["Foreground"], interpolatedTime);
-
         }
 
         private void DrawBackground(CanvasRenderingContext2D context)
@@ -118,18 +110,16 @@ namespace Pather.Client
                 {
                     if (clientGame.Board.Grid[x][y] == 0)
                     {
-                        context.FillRect(x * Constants.SquareSize, y * Constants.SquareSize, Constants.SquareSize, Constants.SquareSize);
+                        context.FillRect(x*Constants.SquareSize, y*Constants.SquareSize, Constants.SquareSize, Constants.SquareSize);
                     }
                 }
             }
             context.Restore();
-
         }
 
         public void Tick(long tickNumber)
         {
             clientGame.Tick(tickNumber);
-
         }
     }
 }

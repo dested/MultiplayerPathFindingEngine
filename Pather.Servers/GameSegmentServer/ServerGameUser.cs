@@ -11,12 +11,11 @@ namespace Pather.Servers.GameSegmentServer
 {
     public class ServerGameUser : GameUser, IServerGameEntity
     {
-
-
         public GameSegment GameSegment;
         public string GatewayId;
         public List<InProgressAction> InProgressActions;
-        private List<Point> lockstepMovePoints;
+        private readonly List<Point> lockstepMovePoints;
+
         public ServerGameUser(ServerGame game, string userId)
             : base(game, userId)
         {
@@ -30,8 +29,7 @@ namespace Pather.Servers.GameSegmentServer
 
             if (lockstepTickNumber < lockstepMovePoints.Count + game.tickManager.LockstepTickNumber)
             {
-
-                return lockstepMovePoints[(int)(lockstepTickNumber - game.tickManager.LockstepTickNumber)];
+                return lockstepMovePoints[(int) (lockstepTickNumber - game.tickManager.LockstepTickNumber)];
             }
 
             return point;
@@ -56,7 +54,7 @@ namespace Pather.Servers.GameSegmentServer
 
         private void emptyInProgressActions(long lockstepTickNumber)
         {
-            for (int index = InProgressActions.Count - 1; index >= 0; index--)
+            for (var index = InProgressActions.Count - 1; index >= 0; index--)
             {
                 var inProgressAction = InProgressActions[index];
                 if (inProgressAction.EndingLockStepTicking < lockstepTickNumber)
@@ -75,13 +73,13 @@ namespace Pather.Servers.GameSegmentServer
             {
                 EntityId = destinationAction.EntityId,
                 LockstepTick = destinationAction.LockstepTick,
-                Path = new List<AStarLockstepPath>(Path) 
+                Path = new List<AStarLockstepPath>(Path)
             };
             ProjectMovement();
             Global.Console.Log("Move entity on path:", moveEntityOnPathAction);
             InProgressActions.Add(new InProgressAction(moveEntityOnPathAction, destinationAction.LockstepTick + lockstepMovePoints.Count));
 
-            
+
             //            Global.Console.Log("Path points:", InProgressActions);
         }
 
@@ -92,26 +90,25 @@ namespace Pather.Servers.GameSegmentServer
             //            Global.Console.Log(EntityId,"Projecting movement");
 
             var pathCopy = new List<AStarLockstepPath>(Path);
-            long startingLockstepTickNumber = this.game.tickManager.LockstepTickNumber;
+            var startingLockstepTickNumber = game.tickManager.LockstepTickNumber;
 
             var nextPathPoint = pathCopy[0];
             lockstepMovePoints.Clear();
             if (nextPathPoint == null) return;
-            var gameTicksPerLockstepTick = Constants.GameFps / Constants.LockstepFps;
+            var gameTicksPerLockstepTick = Constants.GameFps/Constants.LockstepFps;
             var gameTick = 0;
 
-            int halfSquareSize = Constants.SquareSize / 2;
-            double animationDividedSpeed = (Speed / Constants.NumberOfAnimationSteps);
+            var halfSquareSize = Constants.SquareSize/2;
+            var animationDividedSpeed = (Speed/Constants.NumberOfAnimationSteps);
 
 
-
-            int projectedX = nextPathPoint.X * Constants.SquareSize + halfSquareSize;
-            int projectedY = nextPathPoint.Y * Constants.SquareSize + halfSquareSize;
+            var projectedX = nextPathPoint.X*Constants.SquareSize + halfSquareSize;
+            var projectedY = nextPathPoint.Y*Constants.SquareSize + halfSquareSize;
             //            Global.Console.Log(EntityId, projectedX,projectedY);
 
             while (true)
             {
-                bool over = false;
+                var over = false;
 
                 for (var i = 0; i < Constants.NumberOfAnimationSteps; i++)
                 {
@@ -132,11 +129,11 @@ namespace Pather.Servers.GameSegmentServer
                             break;
                         }
 
-                        projectedX = nextPathPoint.X * Constants.SquareSize + halfSquareSize;
-                        projectedY = nextPathPoint.Y * Constants.SquareSize + halfSquareSize;
+                        projectedX = nextPathPoint.X*Constants.SquareSize + halfSquareSize;
+                        projectedY = nextPathPoint.Y*Constants.SquareSize + halfSquareSize;
                     }
 
-                    if ((projectedX) == (int)x && (projectedY) == (int)y)
+                    if ((projectedX) == (int) x && (projectedY) == (int) y)
                     {
                         //                        Global.Console.Log(EntityId, "done");
                         over = true;
@@ -150,20 +147,19 @@ namespace Pather.Servers.GameSegmentServer
 
                 //                Global.Console.Log(EntityId, x, y);
                 gameTick++;
-                if (gameTick % gameTicksPerLockstepTick == 0)
+                if (gameTick%gameTicksPerLockstepTick == 0)
                 {
                     lockstepMovePoints.Add(new Point(x, y));
                 }
             }
 
-            if (gameTick % gameTicksPerLockstepTick != 0)
+            if (gameTick%gameTicksPerLockstepTick != 0)
             {
                 lockstepMovePoints.Add(new Point(x, y));
             }
 
             //todo path should .count==0
             Path.Clear();
-            
         }
     }
 }

@@ -135,8 +135,8 @@ namespace Pather.Servers.GatewayServer
                         X = userJoinedMessage.X,
                         Y = userJoinedMessage.Y,
                         UserId = userJoinedMessage.UserId,
-                        Grid=userJoinedMessage.Grid,
-                        LockstepTickNumber=BackEndTickManager.LockstepTickNumber
+                        Grid = userJoinedMessage.Grid,
+                        LockstepTickNumber = BackEndTickManager.LockstepTickNumber
                     });
 
                     if (cachedUserMoves.ContainsKey(userJoinedMessage.UserId))
@@ -193,7 +193,7 @@ namespace Pather.Servers.GatewayServer
                 ServerCommunicator.SendMessage(gatewayUser.Socket, new UserAction_Gateway_User_Socket_Message()
                 {
                     UserId = gatewayUser.UserId,
-                    Action=userActionMessage.Action
+                    Action = userActionMessage.Action
                 });
             }
         }

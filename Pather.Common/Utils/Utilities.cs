@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.CompilerServices;
 
 namespace Pather.Common.Utils
 {
@@ -49,7 +48,6 @@ namespace Pather.Common.Utils
         public static int ToSquare(double pos)
         {
             return (int) (pos/Constants.SquareSize);
-
         }
     }
 }

@@ -224,7 +224,6 @@ namespace Pather.Servers.GameWorldServer
             return dis;
         }
 
- 
 
         private readonly List<ReoragGameWorldModel> needToReorganize = new List<ReoragGameWorldModel>();
 
@@ -250,7 +249,7 @@ namespace Pather.Servers.GameWorldServer
 
         public void UserAction(TellUserAction_GameSegment_GameWorld_PubSub_Message tellUserAction)
         {
-           /*todo var gwUser = Users.First(a => a.UserId == userId);
+            /*todo var gwUser = Users.First(a => a.UserId == userId);
 
             if (gwUser == null)
             {

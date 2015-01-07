@@ -43,7 +43,7 @@ namespace Pather.Client.Utils
         {
             Socket.On<DataObject<Gateway_User_Socket_Message>>("Gateway.Message", obj => callback(obj.Data));
         }
-         
+
 
         public void SendMessage(User_Gateway_Socket_Message obj)
         {
