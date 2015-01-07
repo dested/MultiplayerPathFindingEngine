@@ -27,7 +27,7 @@ namespace Pather.Servers.GameSegmentServer
         public void Init()
         {
             BuildNeighbors();
-            Global.SetInterval(BuildNeighbors, 2000);
+            Global.SetInterval(BuildNeighbors, Constants.BuildNeighborsTimeout);
         }
 
         public override void LockstepTick(long lockstepTickNumber)
@@ -68,6 +68,10 @@ namespace Pather.Servers.GameSegmentServer
                             LockstepTick = moveAction.LockstepTick
                         });
                         break;
+                    case UserActionType.UpdateNeighbors:
+                        throw new Exception("Should not get action from user");
+                    case UserActionType.MoveEntityOnPath:
+                        throw new Exception("Should not get action from user");
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
@@ -101,10 +105,20 @@ namespace Pather.Servers.GameSegmentServer
                     }
                 }
 
-                gameManager.SendToUser(serverGameUser, new UpdateNeighbors_GameSegment_Gateway_PubSub_Message()
+
+                gameManager.SendToUser(serverGameUser, new UserActionCollection_GameSegment_Gateway_PubSub_Message()
                 {
-                    UserId = serverGameUser.EntityId,
-                    Removed = removed
+                    Users = new List<string>()
+                    {
+                        serverGameUser.EntityId
+                    },
+                    Action = new UpdateNeighborsAction()
+                    {
+                        Removed = removed,
+                        EntityId = serverGameUser.EntityId,
+                        Added = new List<UpdatedNeighbor>(),
+                        LockstepTick = tickManager.LockstepTickNumber + 1
+                    }
                 });
             }
             user.Neighbors.Clear();
@@ -249,19 +263,29 @@ namespace Pather.Servers.GameSegmentServer
                 serverGameUser.OldNeighbors = null;
                 if (added.Count > 0 || removed.Count > 0)
                 {
-                    var updateNeighborsMessage = new UpdateNeighbors_GameSegment_Gateway_PubSub_Message()
+                    long lockstepTickToRun = tickManager.LockstepTickNumber + 1;
+
+                    gameManager.SendToUser(serverGameUser, new UserActionCollection_GameSegment_Gateway_PubSub_Message()
                     {
-                        UserId = serverGameUser.EntityId,
-                        Removed = removed.Select(a => a.EntityId),
-                        Added = added.Select(a => new UpdatedNeighbor()
+                        Users = new List<string>() { serverGameUser.EntityId},
+                        Action = new UpdateNeighborsAction()
                         {
-                            UserId = a.EntityId,
-                            X = a.X,
-                            Y = a.Y
-                        })
-                    };
-                    //                    Global.Console.Log(gameManager.GameSegmentId, updateNeighborsMessage);
-                    gameManager.SendToUser(serverGameUser, updateNeighborsMessage);
+                            Removed = removed.Select(a => a.EntityId),
+                            EntityId = serverGameUser.EntityId,
+                            Added = added.Select(a =>
+                            {
+                                var point = a.GetPositionAtLockstep(lockstepTickToRun);
+                                return new UpdatedNeighbor()
+                                {
+                                    UserId = a.EntityId,
+                                    InProgressActions = a.InProgressActions,
+                                    X = point.X,
+                                    Y = point.Y
+                                };
+                            }),
+                            LockstepTick = lockstepTickToRun+1//todo this sholnt be plus 1, i think theres somethign wrong with getpositionatlockstep
+                        }
+                    });
                 }
             }
         }
@@ -277,8 +301,8 @@ namespace Pather.Servers.GameSegmentServer
             var x = (cx - mx);
             var y = (cy - my);
 
-            var dis = Math.Sqrt((x * x) + (y * y)) ;
-            return Utilities.ToSquare(dis) ;
+            var dis = Math.Sqrt((x * x) + (y * y));
+            return Utilities.ToSquare(dis);
         }
 
     }

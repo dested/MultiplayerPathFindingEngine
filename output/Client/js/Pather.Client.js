@@ -239,10 +239,6 @@
 					this.$onTickSyncMessage(message);
 					break;
 				}
-				case 'updateNeighbors': {
-					this.$onUpdateNeighbors(message);
-					break;
-				}
 				default: {
 					throw new ss.ArgumentOutOfRangeException();
 				}
@@ -255,9 +251,6 @@
 			this.clientGame.init(userJoinedMessage.grid, userJoinedMessage.lockstepTickNumber, userJoinedMessage.serverLatency);
 			this.clientGame.myUserJoined(userJoinedMessage.userId, userJoinedMessage.x, userJoinedMessage.y);
 			this.onReady();
-		},
-		$onUpdateNeighbors: function(message) {
-			this.clientGame.updateNeighbors(message.added, message.removed);
 		},
 		$onTickSyncMessage: function(message) {
 			this.frontEndTickManager.setLockStepTick(message.lockstepTickNumber);
@@ -329,33 +322,36 @@
 	ss.initClass($Pather_Client_GameFramework_ClientGameUser, $asm, {
 		tick: function() {
 			Pather.Common.GameFramework.GameUser.prototype.tick.call(this);
-			var result = this.path[0];
-			this.animations = [];
-			var projectedX;
-			var projectedY;
-			var projectedSquareX;
-			var projectedSquareY;
-			projectedSquareX = (ss.isNullOrUndefined(result) ? Pather.Common.Utils.Utilities.toSquare(this.x) : result.x);
-			projectedSquareY = (ss.isNullOrUndefined(result) ? Pather.Common.Utils.Utilities.toSquare(this.y) : result.y);
-			for (var i = 0; i < Pather.Common.Constants.animationSteps; i++) {
+			ss.clear(this.animations);
+			var nextPathPoint = this.path[0];
+			if (ss.isNullOrUndefined(nextPathPoint)) {
+				return;
+			}
+			console.log(this.entityId, this.x, this.y, this.game.tickManager.lockstepTickNumber);
+			var halfSquareSize = ss.Int32.div(Pather.Common.Constants.squareSize, 2);
+			var animationDividedSpeed = this.speed / Pather.Common.Constants.numberOfAnimationSteps;
+			var projectedX = nextPathPoint.x * Pather.Common.Constants.squareSize + halfSquareSize;
+			var projectedY = nextPathPoint.y * Pather.Common.Constants.squareSize + halfSquareSize;
+			for (var i = 0; i < Pather.Common.Constants.numberOfAnimationSteps; i++) {
 				var squareX = Pather.Common.Utils.Utilities.toSquare(this.x);
 				var squareY = Pather.Common.Utils.Utilities.toSquare(this.y);
 				var fromX = this.x;
 				var fromY = this.y;
-				if (ss.isValue(result) && (squareX === result.x && squareY === result.y)) {
+				if (squareX === nextPathPoint.x && squareY === nextPathPoint.y) {
 					ss.removeAt(this.path, 0);
-					result = this.path[0];
-					projectedSquareX = (ss.isNullOrUndefined(result) ? squareX : result.x);
-					projectedSquareY = (ss.isNullOrUndefined(result) ? squareY : result.y);
+					nextPathPoint = this.path[0];
+					if (ss.isNullOrUndefined(nextPathPoint)) {
+						return;
+					}
+					projectedX = nextPathPoint.x * Pather.Common.Constants.squareSize + halfSquareSize;
+					projectedY = nextPathPoint.y * Pather.Common.Constants.squareSize + halfSquareSize;
 				}
-				projectedX = projectedSquareX * Pather.Common.Constants.squareSize + ss.Int32.div(Pather.Common.Constants.squareSize, 2);
-				projectedY = projectedSquareY * Pather.Common.Constants.squareSize + ss.Int32.div(Pather.Common.Constants.squareSize, 2);
 				if (projectedX === ss.Int32.trunc(this.x) && projectedY === ss.Int32.trunc(this.y)) {
 					return;
 				}
-				this.x = Pather.Common.Utils.Lerper.moveTowards(this.x, projectedX, this.speed / Pather.Common.Constants.animationSteps);
-				this.y = Pather.Common.Utils.Lerper.moveTowards(this.y, projectedY, this.speed / Pather.Common.Constants.animationSteps);
-				this.animations.push(new Pather.Common.Utils.AnimationPoint(fromX, fromY, this.x, this.y));
+				this.x = Pather.Common.Utils.Lerper.moveTowards(this.x, projectedX, animationDividedSpeed);
+				this.y = Pather.Common.Utils.Lerper.moveTowards(this.y, projectedY, animationDividedSpeed);
+				this.animations.push(new Pather.Common.Utils.AnimationStep(fromX, fromY, this.x, this.y));
 			}
 		},
 		draw: function(context, interpolatedTime) {
@@ -369,10 +365,10 @@
 			var _x = ss.Int32.trunc(this.x);
 			var _y = ss.Int32.trunc(this.y);
 			if (this.animations.length > 0) {
-				var animationIndex = ss.Int32.trunc(interpolatedTime * Pather.Common.Constants.animationSteps);
+				var animationIndex = ss.Int32.trunc(interpolatedTime * Pather.Common.Constants.numberOfAnimationSteps);
 				var animation = this.animations[animationIndex];
 				if (ss.isValue(animation)) {
-					var interpolateStep = interpolatedTime % (1 / Pather.Common.Constants.animationSteps) * Pather.Common.Constants.animationSteps;
+					var interpolateStep = interpolatedTime % (1 / Pather.Common.Constants.numberOfAnimationSteps) * Pather.Common.Constants.numberOfAnimationSteps;
 					_x = ss.Int32.trunc(animation.fromX + (animation.x - animation.fromX) * interpolateStep);
 					_y = ss.Int32.trunc(animation.fromY + (animation.y - animation.fromY) * interpolateStep);
 				}

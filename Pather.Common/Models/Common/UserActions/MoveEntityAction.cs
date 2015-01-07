@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using Pather.Common.Definitions.AStar;
+using Pather.Common.Utils;
 
 namespace Pather.Common.Models.Common.UserActions
 {
@@ -10,7 +13,29 @@ namespace Pather.Common.Models.Common.UserActions
             UserActionType = UserActionType.Move;
         }
 
-        public int X;
-        public int Y;
+        public double X;
+        public double Y;
+    }
+
+    [Serializable]
+    public class MoveEntityOnPathAction : UserAction
+    {
+        public MoveEntityOnPathAction()
+        {
+            UserActionType = UserActionType.MoveEntityOnPath;
+        }
+
+        public List<AStarLockstepPath> Path;
+    }
+
+    [Serializable]
+    public class UpdateNeighborsAction : UserAction
+    {
+        public UpdateNeighborsAction()
+        {
+            UserActionType = UserActionType.UpdateNeighbors;
+        }
+        public List<UpdatedNeighbor> Added;
+        public List<string> Removed;
     }
 }

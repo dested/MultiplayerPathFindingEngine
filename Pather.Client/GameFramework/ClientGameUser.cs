@@ -14,58 +14,55 @@ namespace Pather.Client.GameFramework
 
         public ClientGameUser(ClientGame game, string userId): base(game,userId)
         {
-            Animations = new List<AnimationPoint>();
+            Animations = new List<AnimationStep>();
         }
 
-        public List<AnimationPoint> Animations;
+        public List<AnimationStep> Animations;
         public override void Tick()
         {
             base.Tick();
-
-            var result = Path[0];
-            Animations = new List<AnimationPoint>();
-
-            int projectedX;
-            int projectedY;
-            int projectedSquareX;
-            int projectedSquareY;
-
-            projectedSquareX = result == null ? Utilities.ToSquare(X) : (result.X);
-            projectedSquareY = result == null ? Utilities.ToSquare(Y) : (result.Y);
+            Animations.Clear();
 
 
-            for (var i = 0; i < Constants.AnimationSteps; i++)
+
+            var nextPathPoint = Path[0];
+            if (nextPathPoint == null) return;
+
+            Global.Console.Log(EntityId, X, Y, game.tickManager.LockstepTickNumber);
+            int halfSquareSize = Constants.SquareSize / 2;
+            double animationDividedSpeed = (Speed / Constants.NumberOfAnimationSteps);
+
+            int projectedX = nextPathPoint.X * Constants.SquareSize + halfSquareSize;
+            int projectedY = nextPathPoint.Y * Constants.SquareSize + halfSquareSize;
+
+
+            for (var i = 0; i < Constants.NumberOfAnimationSteps; i++)
             {
                 var squareX = Utilities.ToSquare(X);
                 var squareY = Utilities.ToSquare(Y);
                 var fromX = X;
                 var fromY = Y;
 
-
-                if (result != null && (squareX == result.X && squareY == result.Y))
+                if (squareX == nextPathPoint.X && squareY == nextPathPoint.Y)
                 {
                     Path.RemoveAt(0);
-                    result = Path[0];
+                    nextPathPoint = Path[0];
 
-                    projectedSquareX = result == null ? squareX : (result.X);
-                    projectedSquareY = result == null ? squareY : (result.Y);
+                    if (nextPathPoint == null) return;
+                    projectedX = nextPathPoint.X * Constants.SquareSize + halfSquareSize;
+                    projectedY = nextPathPoint.Y * Constants.SquareSize + halfSquareSize;
                 }
 
-
-                projectedX = projectedSquareX * Constants.SquareSize + Constants.SquareSize / 2;
-                projectedY = projectedSquareY * Constants.SquareSize + Constants.SquareSize / 2;
-
-
-                if (((int)projectedX) == ((int)X) && ((int)projectedY) == ((int)Y))
+                if ((projectedX) == (int)X && (projectedY) == (int)Y)
                 {
                     return;
                 }
 
-                X = Lerper.MoveTowards(X, projectedX, (Speed / Constants.AnimationSteps));
-                Y = Lerper.MoveTowards(Y, projectedY, (Speed / Constants.AnimationSteps));
+                X = Lerper.MoveTowards(X, projectedX, animationDividedSpeed);
+                Y = Lerper.MoveTowards(Y, projectedY, animationDividedSpeed);
 
 
-                Animations.Add(new AnimationPoint(fromX, fromY, X, Y));
+                Animations.Add(new AnimationStep(fromX, fromY, X, Y));
             }
 
         } 
@@ -81,11 +78,11 @@ namespace Pather.Client.GameFramework
             var _y = (int)Y;
             if (Animations.Count > 0)
             {
-                var animationIndex = ((int)(interpolatedTime * Constants.AnimationSteps));
+                var animationIndex = ((int)(interpolatedTime * Constants.NumberOfAnimationSteps));
                 var animation = Animations[animationIndex];
                 if (animation != null)
                 {
-                    var interpolateStep = (interpolatedTime % (1.0 / Constants.AnimationSteps)) * Constants.AnimationSteps;
+                    var interpolateStep = (interpolatedTime % (1.0 / Constants.NumberOfAnimationSteps)) * Constants.NumberOfAnimationSteps;
                     _x = (int)(animation.FromX + (animation.X - animation.FromX) * interpolateStep);
                     _y = (int)(animation.FromY + (animation.Y - animation.FromY) * interpolateStep);
                 }

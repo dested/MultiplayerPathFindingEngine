@@ -69,9 +69,6 @@ namespace Pather.Client
                 case Gateway_User_Socket_MessageType.TickSync:
                     onTickSyncMessage((TickSync_Gateway_User_Socket_Message)message);
                     break;
-                case Gateway_User_Socket_MessageType.UpdateNeighbors:
-                    onUpdateNeighbors((UpdateNeighbors_Gateway_User_Socket_Message)message);
-                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -94,17 +91,10 @@ namespace Pather.Client
             OnReady();
         }
 
-
-        private void onUpdateNeighbors(UpdateNeighbors_Gateway_User_Socket_Message message)
-        {
-            clientGame.UpdateNeighbors(message.Added, message.Removed);
-        }
-
         private void onTickSyncMessage(TickSync_Gateway_User_Socket_Message message)
         {
             FrontEndTickManager.SetLockStepTick(message.LockstepTickNumber);
         }
-
 
         public void Draw(Dictionary<string, CanvasRenderingContext2D> contextCollection, double interpolatedTime)
         {

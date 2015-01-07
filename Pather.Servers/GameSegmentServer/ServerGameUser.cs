@@ -3,6 +3,8 @@ using Pather.Common;
 using Pather.Common.Definitions.AStar;
 using Pather.Common.GameFramework;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.Common;
+using Pather.Common.Models.Common.UserActions;
 using Pather.Common.Utils;
 
 namespace Pather.Servers.GameSegmentServer
@@ -13,17 +15,26 @@ namespace Pather.Servers.GameSegmentServer
 
         public GameSegment GameSegment;
         public string GatewayId;
+        public List<InProgressAction> InProgressActions;
+        private List<Point> lockstepMovePoints;
         public ServerGameUser(ServerGame game, string userId)
             : base(game, userId)
         {
             lockstepMovePoints = new List<Point>();
+            InProgressActions = new List<InProgressAction>();
         }
 
-        private List<Point> lockstepMovePoints;
-
-        public override void Tick()
+        public Point GetPositionAtLockstep(long lockstepTickNumber)
         {
-            base.Tick();
+            var point = new Point(X, Y);
+
+            if (lockstepTickNumber < lockstepMovePoints.Count + game.tickManager.LockstepTickNumber)
+            {
+
+                return lockstepMovePoints[(int)(lockstepTickNumber - game.tickManager.LockstepTickNumber)];
+            }
+
+            return point;
         }
 
         public override void LockstepTick(long lockstepTickNumber)
@@ -35,73 +46,124 @@ namespace Pather.Servers.GameSegmentServer
                 var point = lockstepMovePoints[0];
                 X = point.X;
                 Y = point.Y;
-          
+
                 lockstepMovePoints.RemoveAt(0);
-                Global.Console.Log(EntityId, X, Y, lockstepMovePoints.Count);
+                Global.Console.Log(EntityId, X, Y, lockstepMovePoints.Count, lockstepTickNumber);
+            }
+
+            emptyInProgressActions(lockstepTickNumber);
+        }
+
+        private void emptyInProgressActions(long lockstepTickNumber)
+        {
+            for (int index = InProgressActions.Count - 1; index >= 0; index--)
+            {
+                var inProgressAction = InProgressActions[index];
+                if (inProgressAction.EndingLockStepTicking < lockstepTickNumber)
+                {
+                    InProgressActions.Remove(inProgressAction);
+                }
             }
         }
 
-        public override void RePathFind(double destinationX, double destinationY)
+        public override void RePathFind(MoveEntityAction destinationAction)
         {
-            base.RePathFind(destinationX, destinationY);
-            BuildMovement();
-            Global.Console.Log("Path points:", lockstepMovePoints);
+            base.RePathFind(destinationAction);
+
+
+            var moveEntityOnPathAction = new MoveEntityOnPathAction()
+            {
+                EntityId = destinationAction.EntityId,
+                LockstepTick = destinationAction.LockstepTick,
+                Path = new List<AStarLockstepPath>(Path) 
+            };
+            ProjectMovement();
+            Global.Console.Log("Move entity on path:", moveEntityOnPathAction);
+            InProgressActions.Add(new InProgressAction(moveEntityOnPathAction, destinationAction.LockstepTick + lockstepMovePoints.Count));
+
+            
+            //            Global.Console.Log("Path points:", InProgressActions);
         }
 
-        public void BuildMovement()
+        public void ProjectMovement()
         {
             var x = X;
             var y = Y;
+            //            Global.Console.Log(EntityId,"Projecting movement");
 
-            var sqX = Utilities.ToSquare(x);
-            var sqY = Utilities.ToSquare(y);
+            var pathCopy = new List<AStarLockstepPath>(Path);
+            long startingLockstepTickNumber = this.game.tickManager.LockstepTickNumber;
 
-            var result = Path[0];
-
-            int projectedSquareX = result == null ? sqX : (result.X);
-            int projectedSquareY = result == null ? sqY : (result.Y);
-            List<Point> points = new List<Point>();
-
+            var nextPathPoint = pathCopy[0];
+            lockstepMovePoints.Clear();
+            if (nextPathPoint == null) return;
             var gameTicksPerLockstepTick = Constants.GameFps / Constants.LockstepFps;
             var gameTick = 0;
-            while (result != null)
+
+            int halfSquareSize = Constants.SquareSize / 2;
+            double animationDividedSpeed = (Speed / Constants.NumberOfAnimationSteps);
+
+
+
+            int projectedX = nextPathPoint.X * Constants.SquareSize + halfSquareSize;
+            int projectedY = nextPathPoint.Y * Constants.SquareSize + halfSquareSize;
+            //            Global.Console.Log(EntityId, projectedX,projectedY);
+
+            while (true)
             {
-                sqX = Utilities.ToSquare(x);
-                sqY = Utilities.ToSquare(y);
+                bool over = false;
 
-                if (sqX == result.X && sqY == result.Y)
+                for (var i = 0; i < Constants.NumberOfAnimationSteps; i++)
                 {
-                    Path.RemoveAt(0);
-                    result = Path[0];
+                    var squareX = Utilities.ToSquare(x);
+                    var squareY = Utilities.ToSquare(y);
 
-                    projectedSquareX = result == null ? sqX : (result.X);
-                    projectedSquareY = result == null ? sqY : (result.Y);
+                    if (squareX == nextPathPoint.X && squareY == nextPathPoint.Y)
+                    {
+                        nextPathPoint.RemovedAtLockstep = startingLockstepTickNumber + lockstepMovePoints.Count;
+                        pathCopy.RemoveAt(0);
+                        nextPathPoint = pathCopy[0];
+                        //                        Global.Console.Log(EntityId, "next path");
+
+                        if (nextPathPoint == null)
+                        {
+                            //                            Global.Console.Log(EntityId, "done");
+                            over = true;
+                            break;
+                        }
+
+                        projectedX = nextPathPoint.X * Constants.SquareSize + halfSquareSize;
+                        projectedY = nextPathPoint.Y * Constants.SquareSize + halfSquareSize;
+                    }
+
+                    if ((projectedX) == (int)x && (projectedY) == (int)y)
+                    {
+                        //                        Global.Console.Log(EntityId, "done");
+                        over = true;
+                        break;
+                    }
+
+                    x = Lerper.MoveTowards(x, projectedX, animationDividedSpeed);
+                    y = Lerper.MoveTowards(y, projectedY, animationDividedSpeed);
                 }
+                if (over) break;
 
-
-                int projectedX = projectedSquareX * Constants.SquareSize + Constants.SquareSize / 2;
-                int projectedY = projectedSquareY * Constants.SquareSize + Constants.SquareSize / 2;
-
-
-                if (((int)projectedX) == ((int)x) && ((int)projectedY) == ((int)y))
-                {
-                    break;
-                }
-
-                x = Lerper.MoveTowards(x, projectedX, (Speed));
-                y = Lerper.MoveTowards(y, projectedY, (Speed));
+                //                Global.Console.Log(EntityId, x, y);
                 gameTick++;
                 if (gameTick % gameTicksPerLockstepTick == 0)
                 {
-                    points.Add(new Point(x, y));
+                    lockstepMovePoints.Add(new Point(x, y));
                 }
             }
-            lockstepMovePoints = points;
+
+            if (gameTick % gameTicksPerLockstepTick != 0)
+            {
+                lockstepMovePoints.Add(new Point(x, y));
+            }
+
             //todo path should .count==0
-            Path .Clear();
-
+            Path.Clear();
+            
         }
-
-
     }
 }

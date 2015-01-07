@@ -11,7 +11,7 @@ namespace Pather.Common
             DrawFps = 60;
             NumberOfSquares = 150;
             DrawTicks = 1000/DrawFps;
-            AnimationSteps = 5;
+            NumberOfAnimationSteps = 5;
 
             GameFps = 10;
             GameTicks = 1000/GameFps;
@@ -33,9 +33,11 @@ namespace Pather.Common
 
             PingGatewayFromHeadTimeout = 1000;
             SpinUpNewGatewayCheck = 4000;
+
+            BuildNeighborsTimeout = 200;
         }
 
-        public static int AnimationSteps;
+        public static int NumberOfAnimationSteps;
         public static int GameFps;
         public static int DrawTicks;
         public static int DrawFps;
@@ -53,12 +55,14 @@ namespace Pather.Common
         public static int GatewayConnectionSpawnThreshold;
         public static int MaxGatewaysPerCluster;
         public static int MaxGameSegmentsPerCluster;
+        public static int BuildNeighborsTimeout;
 
 
         public static bool TestServer
         {
             get { return ((dynamic) Window.Instance).TestServer; }
         }
+
 
         public static int SpinUpNewGatewayCheck;
 

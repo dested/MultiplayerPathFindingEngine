@@ -60,23 +60,51 @@ namespace Pather.Common.GameFramework
 
         public void ProcessUserAction(UserAction action)
         {
+            GameUser user;
             switch (action.UserActionType)
             {
                 case UserActionType.Move:
                     var moveAction = (MoveEntityAction)action;
-                    var user = (GameUser)ActiveEntities[moveAction.EntityId];
-                    user.RePathFind(moveAction.X, moveAction.Y);
+                    user = (GameUser)ActiveEntities[moveAction.EntityId];
+                    user.RePathFind(moveAction);
+                    break;
+                case UserActionType.MoveEntityOnPath:
+                    var moveEntityOnPath = (MoveEntityOnPathAction)action;
+                    user = (GameUser)ActiveEntities[moveEntityOnPath.EntityId];
+
+                    int removeStart = 0;
+                    for (; removeStart < moveEntityOnPath.Path.Count; removeStart++)
+                    {
+                        var aStarLockstepPath = moveEntityOnPath.Path[removeStart];
+                        if (aStarLockstepPath.RemovedAtLockstep > tickManager.LockstepTickNumber)
+                        {
+                            break;
+                        }
+                    }
+                    moveEntityOnPath.Path.RemoveRange(0, removeStart);
+
+
+                    user.SetPath(moveEntityOnPath.Path);
+                    break;
+                case UserActionType.UpdateNeighbors:
+                    var updateNeighborAction = (UpdateNeighborsAction)action;
+                    UpdateNeighbors(updateNeighborAction.Added, updateNeighborAction.Removed);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
+
         public void TellUserAction(UserAction action)
         {
             switch (action.UserActionType)
             {
                 case UserActionType.Move:
                     break;
+                case UserActionType.UpdateNeighbors:
+                    throw new Exception("Should not get from tell");
+                case UserActionType.MoveEntityOnPath:
+                    throw new Exception("Should not get from tell");
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -88,6 +116,10 @@ namespace Pather.Common.GameFramework
             {
                 case UserActionType.Move:
                     break;
+                case UserActionType.MoveEntityOnPath:
+                    throw new Exception("Should not get from neighbor");
+                case UserActionType.UpdateNeighbors:
+                    throw new Exception("Should not get from neighbor");
                 default:
                     throw new ArgumentOutOfRangeException();
             }
@@ -117,6 +149,10 @@ namespace Pather.Common.GameFramework
                 user.X = updatedNeighbor.X;
                 user.Y = updatedNeighbor.Y;
                 ActiveEntities.Add(user);
+                foreach (var inProgressAction in updatedNeighbor.InProgressActions)
+                {
+                    ProcessUserAction(inProgressAction.Action);
+                }
             }
         }
 

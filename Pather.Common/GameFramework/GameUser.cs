@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Pather.Common.Definitions.AStar;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.Common.UserActions;
 using Pather.Common.Utils;
 
 namespace Pather.Common.GameFramework
@@ -13,12 +14,12 @@ namespace Pather.Common.GameFramework
             : base(game)
         {
             EntityId = userId;
-            Path = new List<AStarPath>();
+            Path = new List<AStarLockstepPath>();
             Speed = 20;
         }
 
         public double Speed;
-        public List<AStarPath> Path;
+        public List<AStarLockstepPath> Path;
         public override void Tick()
         {
             base.Tick();
@@ -29,15 +30,24 @@ namespace Pather.Common.GameFramework
             base.LockstepTick(lockstepTickNumber);
         }
 
-        public virtual void RePathFind(double destinationX, double destinationY)
+        public virtual void RePathFind(MoveEntityAction destinationAction)
         {
             var graph = game.Board.AStarGraph;
 
 
             var start = graph.Grid[Utilities.ToSquare(X)][Utilities.ToSquare(Y)];
-            var end = graph.Grid[Utilities.ToSquare(destinationX)][Utilities.ToSquare(destinationY)];
+            var end = graph.Grid[Utilities.ToSquare(destinationAction.X)][Utilities.ToSquare(destinationAction.Y)];
             Path.Clear();
-            Path.AddRange(AStar.Search(graph, start, end));
+            Path.AddRange(AStar.Search(graph, start, end).Select(a => new AStarLockstepPath(a.X, a.Y)));
+            Global.Console.Log("Path",Path);
+        }
+
+
+        public void SetPath(List<AStarLockstepPath> path)
+        {
+            Path.Clear();
+            Path.AddRange(path);
+            Global.Console.Log("Path", Path);
         }
     }
 }

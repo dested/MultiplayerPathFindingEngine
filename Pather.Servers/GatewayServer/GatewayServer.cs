@@ -161,21 +161,6 @@ namespace Pather.Servers.GatewayServer
                     var userActionCollectionMessage = (UserActionCollection_GameSegment_Gateway_PubSub_Message) message;
                     runUserAction(userActionCollectionMessage);
                     break;
-                case Gateway_PubSub_MessageType.UpdateNeighbors:
-                    var updateNeighborsMessage = (UpdateNeighbors_GameSegment_Gateway_PubSub_Message) message;
-                    gatewayUser = Users[updateNeighborsMessage.UserId];
-                    if (gatewayUser == null)
-                    {
-                        Global.Console.Log("idk who this user is :-(", updateNeighborsMessage.UserId);
-                        return;
-                    }
-                    ServerCommunicator.SendMessage(gatewayUser.Socket, new UpdateNeighbors_Gateway_User_Socket_Message()
-                    {
-                        Added = updateNeighborsMessage.Added,
-                        Removed = updateNeighborsMessage.Removed,
-                    });
-
-                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }

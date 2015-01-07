@@ -62,7 +62,7 @@ namespace Pather.Servers.GameSegmentServer
             serverGame.ActiveEntities.Clear();
             AllGameSegments.Clear();
 
-            ((Game)serverGame).Init(message.Grid, message.LockstepTickNumber, message.ServerLatency);
+            serverGame.Init(message.Grid, message.LockstepTickNumber, message.ServerLatency);
 
             MyGameSegment = new GameSegment(GameSegmentId);
             AllGameSegments[MyGameSegment.GameSegmentId] = MyGameSegment;
@@ -142,7 +142,7 @@ namespace Pather.Servers.GameSegmentServer
          Find all neighbors
          * find their gateways
          * find their gamesegments
-         * find all gamesegments theyre not in
+         * find all gamesegments theyre NOT in
          group send to each gateway
          send ACTION to each neighbor gamesegment
          send TELL_ACTION to each other gamesegment

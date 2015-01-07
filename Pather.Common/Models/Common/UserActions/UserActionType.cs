@@ -5,6 +5,8 @@ namespace Pather.Common.Models.Common.UserActions
     [NamedValues]
     public enum UserActionType
     {
-        Move
+        Move,
+        UpdateNeighbors,
+        MoveEntityOnPath
     }
 }

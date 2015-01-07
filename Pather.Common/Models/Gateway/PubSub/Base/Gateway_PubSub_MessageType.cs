@@ -7,7 +7,6 @@ namespace Pather.Common.Models.Gateway.PubSub.Base
     {
         UserJoined,
         Pong,
-        UserActionCollection,
-        UpdateNeighbors
+        UserActionCollection
     }
 }
