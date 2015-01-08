@@ -8,8 +8,9 @@ namespace Pather.Common
         {
             //CLIENT
             SquareSize = 16;
-            DrawFps = 60;
             NumberOfSquares = 150;
+
+            DrawFps = 60;
             DrawTicks = 1000/DrawFps;
             NumberOfAnimationSteps = 5;
 
@@ -35,6 +36,10 @@ namespace Pather.Common
             SpinUpNewGatewayCheck = 4000;
 
             BuildNeighborsTimeout = 200;
+
+            ReorganizeGameWorldInterval = 1000;
+
+            NumberOfReorganizedPlayersPerSession = 10;
         }
 
         public static int NumberOfAnimationSteps;
@@ -56,12 +61,15 @@ namespace Pather.Common
         public static int MaxGatewaysPerCluster;
         public static int MaxGameSegmentsPerCluster;
         public static int BuildNeighborsTimeout;
+        public static int ReorganizeGameWorldInterval;
 
 
         public static bool TestServer
         {
             get { return ((dynamic) Window.Instance).TestServer; }
         }
+
+        public static int NumberOfReorganizedPlayersPerSession;
 
 
         public static int SpinUpNewGatewayCheck;

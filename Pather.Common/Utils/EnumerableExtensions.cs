@@ -235,7 +235,13 @@ namespace Pather.Common.Utils
         }
 
         [IncludeGenericArguments(false)]
-        public static List<T2> SelectMany<T, T2>(this T[] items, Func<T, List<T2>> clause)
+        public static T Last<T>(this List<T> items)
+        {
+            return items[items.Count - 1];
+        }
+
+        [IncludeGenericArguments(false)]
+        public static List<T2> SelectMany<T, T2>(this List<T> items, Func<T, List<T2>> clause)
         {
             var items2 = new List<T2>();
 
@@ -278,6 +284,21 @@ namespace Pather.Common.Utils
                 }
             }
             return items2.ToArray();
+        }
+
+        [IncludeGenericArguments(false)]
+        public static List<T> Where<T>(this List<T> items, Func<T, bool> clause)
+        {
+            var items2 = new List<T>();
+
+            foreach (var item in items)
+            {
+                if (clause(item))
+                {
+                    items2.Add(item);
+                }
+            }
+            return items2;
         }
 
         [IncludeGenericArguments(false)]

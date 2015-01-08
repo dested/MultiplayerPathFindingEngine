@@ -703,8 +703,12 @@ var $Pather_Servers_GameWorldServer_GameWorld = function(gameWorldPubSub) {
 	this.gameSegments = null;
 	this.$needToReorganize = [];
 	this.gameWorldPubSub = gameWorldPubSub;
-	this.users = [];
-	this.gameSegments = [];
+	this.users = new (ss.makeGenericType(Pather.Common.Utils.DictionaryList$2, [String, $Pather_Servers_GameWorldServer_Models_GameWorldUser]))(function(a) {
+		return a.userId;
+	});
+	this.gameSegments = new (ss.makeGenericType(Pather.Common.Utils.DictionaryList$2, [String, $Pather_Servers_GameWorldServer_GameSegment]))(function(a1) {
+		return a1.gameSegmentId;
+	});
 };
 $Pather_Servers_GameWorldServer_GameWorld.__typeName = 'Pather.Servers.GameWorldServer.GameWorld';
 $Pather_Servers_GameWorldServer_GameWorld.$pointDistance = function(pUser, cUser) {
@@ -2761,10 +2765,19 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGame, $asm, {
 					});
 					$t10.entityId = serverGameUser.entityId;
 					$t10.added = Pather.Common.Utils.EnumerableExtensions.select(added, ss.mkdel({ lockstepTickToRun: lockstepTickToRun }, function(a1) {
-						var point = a1.getPositionAtLockstep(this.lockstepTickToRun.$);
+						var inProgressActions = Pather.Common.Utils.EnumerableExtensions.where$1(a1.inProgressActions, ss.mkdel({ lockstepTickToRun: this.lockstepTickToRun }, function(action) {
+							return action.endingLockStepTicking > this.lockstepTickToRun.$;
+						}));
+						var point;
+						if (inProgressActions.length === 0) {
+							point = a1.getPositionAtLockstep(this.lockstepTickToRun.$ - 1);
+						}
+						else {
+							point = a1.getPositionAtLockstep(this.lockstepTickToRun.$);
+						}
 						var $t11 = Pather.Common.Models.Common.UpdatedNeighbor.$ctor();
 						$t11.userId = a1.entityId;
-						$t11.inProgressActions = a1.inProgressActions;
+						$t11.inProgressActions = inProgressActions;
 						$t11.x = point.x;
 						$t11.y = point.y;
 						return $t11;
@@ -2942,12 +2955,6 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameManager, $asm, {
 		finally {
 			$t9.dispose();
 		}
-		var $t11 = this.$gameSegmentPubSub;
-		var $t10 = Pather.Common.Models.GameWorld.Gateway.TellUserAction_GameSegment_GameWorld_PubSub_Message.$ctor();
-		$t10.userId = user.entityId;
-		$t10.originatingGameSegmentId = this.gameSegmentId;
-		$t10.action = userAction;
-		$t11.publishToGameWorld($t10);
 	},
 	$onMessageUserAction$2: function(message) {
 		if (!ss.keyExists(this.myGameSegment.users, message.userId)) {
@@ -3013,15 +3020,21 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameManager, $asm, {
 	},
 	sendToUser: function(serverGameUser, gatewayPubSubMessage) {
 		this.$gameSegmentPubSub.publishToGateway(serverGameUser.gatewayId, gatewayPubSubMessage);
+	},
+	sendToGameWorld: function(userAction) {
+		var $t2 = this.$gameSegmentPubSub;
+		var $t1 = Pather.Common.Models.GameWorld.Gateway.TellUserAction_GameSegment_GameWorld_PubSub_Message.$ctor();
+		$t1.originatingGameSegmentId = this.gameSegmentId;
+		$t1.action = userAction;
+		$t2.publishToGameWorld($t1);
 	}
 });
 ss.initClass($Pather_Servers_GameSegmentServer_ServerGameUser, $asm, {
 	getPositionAtLockstep: function(lockstepTickNumber) {
-		var point = Pather.Common.Utils.Point.$ctor(this.x, this.y);
 		if (lockstepTickNumber < this.$lockstepMovePoints.length + this.game.tickManager.lockstepTickNumber) {
 			return this.$lockstepMovePoints[lockstepTickNumber - this.game.tickManager.lockstepTickNumber];
 		}
-		return point;
+		return Pather.Common.Utils.Point.$ctor(this.x, this.y);
 	},
 	lockstepTick: function(lockstepTickNumber) {
 		Pather.Common.GameFramework.GameUser.prototype.lockstepTick.call(this, lockstepTickNumber);
@@ -3037,7 +3050,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameUser, $asm, {
 	$emptyInProgressActions: function(lockstepTickNumber) {
 		for (var index = this.inProgressActions.length - 1; index >= 0; index--) {
 			var inProgressAction = this.inProgressActions[index];
-			if (inProgressAction.endingLockStepTicking < lockstepTickNumber) {
+			if (inProgressAction.endingLockStepTicking <= lockstepTickNumber) {
 				ss.remove(this.inProgressActions, inProgressAction);
 			}
 		}
@@ -3107,8 +3120,10 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameUser, $asm, {
 				this.$lockstepMovePoints.push(Pather.Common.Utils.Point.$ctor(x, y));
 			}
 		}
-		if (gameTick % gameTicksPerLockstepTick !== 0) {
-			this.$lockstepMovePoints.push(Pather.Common.Utils.Point.$ctor(x, y));
+		var lastLockstepMovePoint = Pather.Common.Utils.EnumerableExtensions.last(this.$lockstepMovePoints);
+		if (ss.isValue(lastLockstepMovePoint)) {
+			lastLockstepMovePoint.x = x;
+			lastLockstepMovePoint.y = y;
 		}
 		//todo path should .count==0
 		ss.clear(this.path);
@@ -3213,13 +3228,12 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 			gameSegment.preAddUserToSegment(gwUser);
 			defer.resolve(gwUser);
 		});
+		setTimeout(ss.mkdel(this, this.reorganize), Pather.Common.Constants.reorganizeGameWorldInterval);
 		return defer.promise;
 	},
 	userLeft: function(dbUser) {
 		var deferred = Pather.Common.Utils.Promises.Q.defer();
-		var gwUser = Pather.Common.Utils.EnumerableExtensions.first$1($Pather_Servers_GameWorldServer_Models_GameWorldUser).call(null, this.users, function(a) {
-			return ss.referenceEquals(a.userId, dbUser.userId);
-		});
+		var gwUser = this.users.get_item(dbUser.userId);
 		if (ss.isNullOrUndefined(gwUser)) {
 			console.log('IDK WHO THIS USER IS', dbUser);
 			throw new ss.Exception('IDK WHO THIS USER IS');
@@ -3236,14 +3250,14 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 				}
 			}
 		}
-		var promises = Pather.Common.Utils.EnumerableExtensions.select$1(Pather.Common.Utils.EnumerableExtensions.where(this.gameSegments, function(seg) {
+		var promises = Pather.Common.Utils.EnumerableExtensions.select(Pather.Common.Utils.EnumerableExtensions.where$1(this.gameSegments.list, function(seg) {
 			return !ss.referenceEquals(seg, gwUser.gameSegment);
 		}), function(seg1) {
 			return seg1.tellSegmentAboutRemoveUser(gwUser);
 		});
 		promises.push(gwUser.gameSegment.removeUserFromGameSegment(gwUser));
 		Pather.Common.Utils.Promises.Q.all$2(promises).then(ss.mkdel(this, function() {
-			ss.remove(this.users, gwUser);
+			this.users.remove(gwUser);
 			console.log('User left', gwUser.userId);
 			deferred.resolve();
 		}));
@@ -3264,8 +3278,8 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 			}
 		}
 		if (noneFound) {
-			for (var $t1 = 0; $t1 < this.gameSegments.length; $t1++) {
-				var gameSegment = this.gameSegments[$t1];
+			for (var $t1 = 0; $t1 < this.gameSegments.list.length; $t1++) {
+				var gameSegment = this.gameSegments.list[$t1];
 				if (gameSegment.canAcceptNewUsers()) {
 					deferred.resolve(gameSegment);
 					noneFound = false;
@@ -3283,35 +3297,35 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 		this.gameWorldPubSub.publishToServerManagerWithCallback(Pather.Common.Models.GameWorld.ServerManager.CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message).call(this.gameWorldPubSub, Pather.Common.Models.ServerManager.Base.CreateGameSegment_GameWorld_ServerManager_PubSub_ReqRes_Message.$ctor()).then(ss.mkdel(this, function(createGameMessageResponse) {
 			var gs = new $Pather_Servers_GameWorldServer_GameSegment(this);
 			gs.gameSegmentId = createGameMessageResponse.gameSegmentId;
-			for (var $t1 = 0; $t1 < this.gameSegments.length; $t1++) {
-				var gameSegment = this.gameSegments[$t1];
+			for (var $t1 = 0; $t1 < this.gameSegments.list.length; $t1++) {
+				var gameSegment = this.gameSegments.list[$t1];
 				var $t3 = this.gameWorldPubSub;
 				var $t4 = gameSegment.gameSegmentId;
 				var $t2 = Pather.Common.Models.GameSegment.NewGameSegment_GameWorld_GameSegment_PubSub_Message.$ctor();
 				$t2.gameSegmentId = gs.gameSegmentId;
 				$t3.publishToGameSegment($t4, $t2);
 			}
-			this.gameSegments.push(gs);
+			this.gameSegments.add(gs);
 			deferred.resolve(gs);
 		}));
 		return deferred.promise;
 	},
 	buildNeighbors: function() {
-		var count = this.users.length;
+		var count = this.users.get_count();
 		for (var i = 0; i < count; i++) {
-			var pUser = this.users[i];
+			var pUser = this.users.get_item$1(i);
 			ss.clear(pUser.get_neighbors());
 		}
 		for (var i1 = 0; i1 < count; i1++) {
-			var pUser1 = this.users[i1];
+			var pUser1 = this.users.get_item$1(i1);
 			this.$buildNeighbors(pUser1, i1);
 		}
 	},
 	$buildNeighborCollection: function(pUser) {
-		var count = this.users.length;
+		var count = this.users.get_count();
 		var neighbors = [];
 		for (var c = 0; c < count; c++) {
-			var cUser = this.users[c];
+			var cUser = this.users.get_item$1(c);
 			var distance = $Pather_Servers_GameWorldServer_GameWorld.$pointDistance(pUser, cUser);
 			neighbors.push(new $Pather_Servers_GameWorldServer_Models_GameWorldNeighbor(cUser, distance));
 		}
@@ -3321,9 +3335,9 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 		return neighbors;
 	},
 	$buildNeighbors: function(pUser, i) {
-		var count = this.users.length;
+		var count = this.users.get_count();
 		for (var c = i; c < count; c++) {
-			var cUser = this.users[c];
+			var cUser = this.users.get_item$1(c);
 			var distance = $Pather_Servers_GameWorldServer_GameWorld.$pointDistance(pUser, cUser);
 			if (distance <= Pather.Common.Constants.neighborDistance) {
 				pUser.get_neighbors().push(new $Pather_Servers_GameWorldServer_Models_GameWorldNeighbor(cUser, distance));
@@ -3336,15 +3350,16 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 	},
 	reorganize: function() {
 		if (this.$needToReorganize.length > 0) {
-			var reorg = Math.min(this.$needToReorganize.length, 10);
+			var reorg = Math.min(this.$needToReorganize.length, Pather.Common.Constants.numberOfReorganizedPlayersPerSession);
 			for (var i = reorg - 1; i >= 0; i--) {
 				var newGameSegment = this.$needToReorganize[reorg].get_bestGameSegment();
 				var oldGameSegment = this.$needToReorganize[reorg].get_gameWorldUser();
-				//                    GameWorldPubSub.PublishToGameSegmentWithCallback<>()
+				//               todo idk     GameWorldPubSub.PublishToGameSegmentWithCallback<>()
 			}
 		}
 	},
 	userAction: function(tellUserAction) {
+		var user = this.users.get_item(tellUserAction.userId);
 		//todo var gwUser = Users.First(a => a.UserId == userId);
 		//
 		//if (gwUser == null)
@@ -3405,7 +3420,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldPubSub, $asm, {
 });
 ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 	$reorganize: function() {
-		var clusters = $Pather_Servers_GameWorldServer_ReorganizeManager.reorganize(this.gameWorld.users, this.gameWorld.gameSegments);
+		var clusters = $Pather_Servers_GameWorldServer_ReorganizeManager.reorganize(this.gameWorld.users.list, this.gameWorld.gameSegments.list);
 		for (var $t1 = 0; $t1 < clusters.length; $t1++) {
 			var playerCluster = clusters[$t1];
 			for (var $t2 = 0; $t2 < playerCluster.players.length; $t2++) {
@@ -3444,7 +3459,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 						console.log('No users to resolve adding to segment', this.items.$);
 						return;
 					}
-					var promises = Pather.Common.Utils.EnumerableExtensions.selectMany(Pather.Common.Utils.EnumerableExtensions.where(this.$this.gameWorld.gameSegments, ss.mkdel({ gameSegment: this.gameSegment }, function(seg) {
+					var promises = Pather.Common.Utils.EnumerableExtensions.selectMany(Pather.Common.Utils.EnumerableExtensions.where$1(this.$this.gameWorld.gameSegments.list, ss.mkdel({ gameSegment: this.gameSegment }, function(seg) {
 						return !ss.referenceEquals(seg, this.gameSegment.$);
 					})), function(seg1) {
 						return Pather.Common.Utils.EnumerableExtensions.select(users, function(user) {
@@ -3454,10 +3469,10 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 					Pather.Common.Utils.Promises.Q.all$3($Pather_Servers_GameWorldServer_Models_GameWorldUser, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null, promises).then(ss.mkdel(this.$this, function(gwUsers) {
 						for (var $t2 = 0; $t2 < users.length; $t2++) {
 							var u = users[$t2];
-							this.gameWorld.users.push(u.item1);
+							this.gameWorld.users.add(u.item1);
 							u.item2.resolve(u.item1);
 						}
-						console.log(this.gameWorld.users.length, 'Users total');
+						console.log(this.gameWorld.users.get_count(), 'Users total');
 						//Global.Console.Log("",
 						//"Gameworld added user to game segment", gameSegment.GameSegmentId,
 						//"Total Players:", Users.Count,
@@ -3541,13 +3556,11 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 				var getAllGameSegments = message;
 				var $t6 = Pather.Common.Models.GameSegment.InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message.$ctor();
 				$t6.messageId = getAllGameSegments.messageId;
-				$t6.gameSegmentIds = Pather.Common.Utils.EnumerableExtensions.select(this.gameWorld.gameSegments, function(a) {
-					return a.gameSegmentId;
-				});
+				$t6.gameSegmentIds = this.gameWorld.gameSegments.keys;
 				$t6.lockstepTickNumber = this.backEndTickManager.lockstepTickNumber;
 				$t6.serverLatency = this.backEndTickManager.currentServerLatency;
 				$t6.grid = this.grid;
-				$t6.allUsers = Pather.Common.Utils.EnumerableExtensions.select(this.gameWorld.users, function(user) {
+				$t6.allUsers = Pather.Common.Utils.EnumerableExtensions.select(this.gameWorld.users.list, function(user) {
 					var $t7 = Pather.Common.Models.GameSegment.InitialGameUser.$ctor();
 					$t7.gameSegmentId = user.gameSegment.gameSegmentId;
 					$t7.userId = user.userId;
@@ -3599,7 +3612,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 		}
 		else {
 			this.$stalledJoins.push({ item1: message, item2: deferred });
-			console.log(this.gameWorld.users.length, 'Users total');
+			console.log(this.gameWorld.users.get_count(), 'Users total');
 		}
 		return deferred.promise;
 	},

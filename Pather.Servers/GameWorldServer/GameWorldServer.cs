@@ -40,7 +40,7 @@ namespace Pather.Servers.GameWorldServer
 
         private void reorganize()
         {
-            var clusters = ReorganizeManager.Reorganize(GameWorld.Users, GameWorld.GameSegments);
+            var clusters = ReorganizeManager.Reorganize(GameWorld.Users.List, GameWorld.GameSegments.List);
             foreach (var playerCluster in clusters)
             {
                 foreach (var gameWorldUser in playerCluster.Players)
@@ -98,7 +98,7 @@ namespace Pather.Servers.GameWorldServer
 
                             return;
                         }
-                        var promises = GameWorld.GameSegments
+                        var promises = GameWorld.GameSegments.List
                             .Where(seg => seg != gameSegment)
                             .SelectMany(seg => users.Select(user => seg.TellSegmentAboutUser(user.Item1)));
 
@@ -198,11 +198,11 @@ namespace Pather.Servers.GameWorldServer
                     var initializeGameSegmentMessage = new InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message()
                     {
                         MessageId = getAllGameSegments.MessageId,
-                        GameSegmentIds = GameWorld.GameSegments.Select(a => a.GameSegmentId),
+                        GameSegmentIds = GameWorld.GameSegments.Keys,
                         LockstepTickNumber = BackEndTickManager.LockstepTickNumber,
                         ServerLatency = BackEndTickManager.CurrentServerLatency,
                         Grid = Grid,
-                        AllUsers = GameWorld.Users.Select(user => new InitialGameUser()
+                        AllUsers = GameWorld.Users.List.Select(user => new InitialGameUser()
                         {
                             GameSegmentId = user.GameSegment.GameSegmentId,
                             UserId = user.UserId,

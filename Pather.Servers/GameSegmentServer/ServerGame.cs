@@ -263,11 +263,22 @@ namespace Pather.Servers.GameSegmentServer
                             EntityId = serverGameUser.EntityId,
                             Added = added.Select(a =>
                             {
-                                var point = a.GetPositionAtLockstep(lockstepTickToRun);
+                                var inProgressActions = a.InProgressActions.Where(action => action.EndingLockStepTicking > lockstepTickToRun);
+
+                                Point point;
+                                if (inProgressActions.Count == 0)
+                                {
+                                    point = a.GetPositionAtLockstep(lockstepTickToRun - 1);
+                                }
+                                else
+                                {
+                                    point = a.GetPositionAtLockstep(lockstepTickToRun);
+                                }
+
                                 return new UpdatedNeighbor()
                                 {
                                     UserId = a.EntityId,
-                                    InProgressActions = a.InProgressActions,
+                                    InProgressActions = inProgressActions,
                                     X = point.X,
                                     Y = point.Y
                                 };

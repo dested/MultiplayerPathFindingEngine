@@ -1672,7 +1672,7 @@
 		}
 		return -1;
 	};
-	$Pather_Common_Utils_EnumerableExtensions.where$1 = function(items, clause) {
+	$Pather_Common_Utils_EnumerableExtensions.where$2 = function(items, clause) {
 		var items2 = [];
 		for (var $t1 = 0; $t1 < items.length; $t1++) {
 			var item = items[$t1];
@@ -1833,6 +1833,9 @@
 		}
 		return items2;
 	};
+	$Pather_Common_Utils_EnumerableExtensions.last = function(items) {
+		return items[items.length - 1];
+	};
 	$Pather_Common_Utils_EnumerableExtensions.selectMany = function(items, clause) {
 		var items2 = [];
 		for (var $t1 = 0; $t1 < items.length; $t1++) {
@@ -1869,6 +1872,16 @@
 			$t1.dispose();
 		}
 		return Array.prototype.slice.call(items2);
+	};
+	$Pather_Common_Utils_EnumerableExtensions.where$1 = function(items, clause) {
+		var items2 = [];
+		for (var $t1 = 0; $t1 < items.length; $t1++) {
+			var item = items[$t1];
+			if (clause(item)) {
+				items2.push(item);
+			}
+		}
+		return items2;
 	};
 	$Pather_Common_Utils_EnumerableExtensions.select = function(items, clause) {
 		var items2 = [];
@@ -2363,7 +2376,7 @@
 					var removeStart = 0;
 					for (; removeStart < moveEntityOnPath.path.length; removeStart++) {
 						var aStarLockstepPath = moveEntityOnPath.path[removeStart];
-						if (aStarLockstepPath.removedAtLockstep > this.tickManager.lockstepTickNumber) {
+						if (aStarLockstepPath.removedAtLockstep >= this.tickManager.lockstepTickNumber) {
 							break;
 						}
 					}
@@ -2494,12 +2507,12 @@
 			ss.arrayAddRange(this.path, $Pather_Common_Utils_EnumerableExtensions.select$1(astar.search(graph, start, end), function(a) {
 				return $Pather_Common_Definitions_AStar_AStarLockstepPath.$ctor(a.x, a.y);
 			}));
-			console.log('Path', this.path);
+			console.log('Path', JSON.stringify(this.path));
 		},
 		setPath: function(path) {
 			ss.clear(this.path);
 			ss.arrayAddRange(this.path, path);
-			console.log('Path', this.path);
+			console.log('Path', JSON.stringify(this.path));
 		}
 	}, $Pather_Common_GameFramework_GameEntity);
 	ss.initClass($Pather_Common_GameFramework_StepManager, $asm, {
@@ -2843,12 +2856,14 @@
 		$Pather_Common_Constants.maxGatewaysPerCluster = 0;
 		$Pather_Common_Constants.maxGameSegmentsPerCluster = 0;
 		$Pather_Common_Constants.buildNeighborsTimeout = 0;
+		$Pather_Common_Constants.reorganizeGameWorldInterval = 0;
+		$Pather_Common_Constants.numberOfReorganizedPlayersPerSession = 0;
 		$Pather_Common_Constants.spinUpNewGatewayCheck = 0;
 		$Pather_Common_Constants.pingGatewayFromHeadTimeout = 0;
 		//CLIENT
 		$Pather_Common_Constants.squareSize = 16;
-		$Pather_Common_Constants.drawFps = 60;
 		$Pather_Common_Constants.numberOfSquares = 150;
+		$Pather_Common_Constants.drawFps = 60;
 		$Pather_Common_Constants.drawTicks = ss.Int32.div(1000, $Pather_Common_Constants.drawFps);
 		$Pather_Common_Constants.numberOfAnimationSteps = 5;
 		$Pather_Common_Constants.gameFps = 10;
@@ -2867,6 +2882,8 @@
 		$Pather_Common_Constants.pingGatewayFromHeadTimeout = 1000;
 		$Pather_Common_Constants.spinUpNewGatewayCheck = 4000;
 		$Pather_Common_Constants.buildNeighborsTimeout = 200;
+		$Pather_Common_Constants.reorganizeGameWorldInterval = 1000;
+		$Pather_Common_Constants.numberOfReorganizedPlayersPerSession = 10;
 	})();
 	(function() {
 		eval('\r\nglobal.$overwiteMethodCallForMocker$=function ($call$,$overwrite$) {\r\n    var $targets$=$call$._targets[0];\r\n    for(var m in $targets$) {\r\n        if($targets$[m]==$call$._targets[1]) {\r\n            $targets$[m]=$overwrite$;\r\n        }\r\n    }\r\n}');

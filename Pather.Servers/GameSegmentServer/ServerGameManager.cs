@@ -5,6 +5,7 @@ using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Common.UserActions;
 using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameSegment.Base;
+using Pather.Common.Models.GameWorld.Base;
 using Pather.Common.Models.GameWorld.GameSegment;
 using Pather.Common.Models.GameWorld.Gateway;
 using Pather.Common.Models.Gateway.PubSub;
@@ -205,14 +206,7 @@ namespace Pather.Servers.GameSegmentServer
             {
                 GameSegmentPubSub.PublishToGameSegment(otherGameSegment.Key, tellUserAction);
             }
-
-
-            GameSegmentPubSub.PublishToGameWorld(new TellUserAction_GameSegment_GameWorld_PubSub_Message()
-            {
-                UserId = user.EntityId,
-                OriginatingGameSegmentId = GameSegmentId,
-                Action = userAction
-            });
+             
         }
 
         private void OnMessageUserAction(UserAction_Gateway_GameSegment_PubSub_Message message)
@@ -310,6 +304,14 @@ namespace Pather.Servers.GameSegmentServer
         public void SendToUser(ServerGameUser serverGameUser, Gateway_PubSub_Message gatewayPubSubMessage)
         {
             GameSegmentPubSub.PublishToGateway(serverGameUser.GatewayId, gatewayPubSubMessage);
+        }
+        public void SendToGameWorld(UserAction userAction)
+        {
+            GameSegmentPubSub.PublishToGameWorld(new TellUserAction_GameSegment_GameWorld_PubSub_Message()
+            {
+                OriginatingGameSegmentId = GameSegmentId,
+                Action = userAction
+            });
         }
     }
 }

@@ -25,14 +25,12 @@ namespace Pather.Servers.GameSegmentServer
 
         public Point GetPositionAtLockstep(long lockstepTickNumber)
         {
-            var point = new Point(X, Y);
-
             if (lockstepTickNumber < lockstepMovePoints.Count + game.tickManager.LockstepTickNumber)
             {
                 return lockstepMovePoints[(int) (lockstepTickNumber - game.tickManager.LockstepTickNumber)];
             }
 
-            return point;
+            return new Point(X, Y);
         }
 
         public override void LockstepTick(long lockstepTickNumber)
@@ -57,7 +55,7 @@ namespace Pather.Servers.GameSegmentServer
             for (var index = InProgressActions.Count - 1; index >= 0; index--)
             {
                 var inProgressAction = InProgressActions[index];
-                if (inProgressAction.EndingLockStepTicking < lockstepTickNumber)
+                if (inProgressAction.EndingLockStepTicking <= lockstepTickNumber)
                 {
                     InProgressActions.Remove(inProgressAction);
                 }
@@ -153,9 +151,12 @@ namespace Pather.Servers.GameSegmentServer
                 }
             }
 
-            if (gameTick%gameTicksPerLockstepTick != 0)
+
+            var lastLockstepMovePoint = lockstepMovePoints.Last();
+            if (lastLockstepMovePoint != null)
             {
-                lockstepMovePoints.Add(new Point(x, y));
+                lastLockstepMovePoint.X = x;
+                lastLockstepMovePoint.Y = y;
             }
 
             //todo path should .count==0

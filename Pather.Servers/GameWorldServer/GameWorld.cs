@@ -16,14 +16,14 @@ namespace Pather.Servers.GameWorldServer
     public class GameWorld
     {
         public GameWorldPubSub GameWorldPubSub;
-        public List<GameWorldUser> Users;
-        public List<GameSegment> GameSegments;
+        public DictionaryList<string,GameWorldUser> Users;
+        public DictionaryList<string, GameSegment> GameSegments;
 
         public GameWorld(GameWorldPubSub gameWorldPubSub)
         {
             GameWorldPubSub = gameWorldPubSub;
-            Users = new List<GameWorldUser>();
-            GameSegments = new List<GameSegment>();
+            Users = new DictionaryList<string, GameWorldUser>(a=>a.UserId);
+            GameSegments = new DictionaryList<string, GameSegment>(a=>a.GameSegmentId);
         }
 
         public Promise<GameWorldUser, UserJoinError> CreateUser(string gatewayChannel, DBUser dbUser)
@@ -42,6 +42,7 @@ namespace Pather.Servers.GameWorldServer
                 gameSegment.PreAddUserToSegment(gwUser);
                 defer.Resolve(gwUser);
             });
+            Global.SetTimeout(Reorganize, Constants.ReorganizeGameWorldInterval);
             return defer.Promise;
         }
 
@@ -49,7 +50,7 @@ namespace Pather.Servers.GameWorldServer
         {
             var deferred = Q.Defer();
 
-            var gwUser = Users.First(a => a.UserId == dbUser.UserId);
+            var gwUser = Users[dbUser.UserId];
 
             if (gwUser == null)
             {
@@ -71,7 +72,7 @@ namespace Pather.Servers.GameWorldServer
             }
 
 
-            var promises = GameSegments
+            var promises = GameSegments.List
                 .Where(seg => seg != gwUser.GameSegment)
                 .Select(seg => seg.TellSegmentAboutRemoveUser(gwUser));
 
@@ -112,7 +113,7 @@ namespace Pather.Servers.GameWorldServer
 
             if (noneFound)
             {
-                foreach (var gameSegment in GameSegments)
+                foreach (var gameSegment in GameSegments.List)
                 {
                     if (gameSegment.CanAcceptNewUsers())
                     {
@@ -144,7 +145,7 @@ namespace Pather.Servers.GameWorldServer
                     gs.GameSegmentId = createGameMessageResponse.GameSegmentId;
 
 
-                    foreach (var gameSegment in GameSegments)
+                    foreach (var gameSegment in GameSegments.List)
                     {
                         GameWorldPubSub.PublishToGameSegment(gameSegment.GameSegmentId, new NewGameSegment_GameWorld_GameSegment_PubSub_Message()
                         {
@@ -236,19 +237,21 @@ namespace Pather.Servers.GameWorldServer
         {
             if (needToReorganize.Count > 0)
             {
-                var reorg = Math.Min(needToReorganize.Count, 10);
+                var reorg = Math.Min(needToReorganize.Count, Constants.NumberOfReorganizedPlayersPerSession);
                 for (var i = reorg - 1; i >= 0; i--)
                 {
                     var newGameSegment = needToReorganize[reorg].BestGameSegment;
                     var oldGameSegment = needToReorganize[reorg].GameWorldUser;
 
-//                    GameWorldPubSub.PublishToGameSegmentWithCallback<>()
+
+//               todo idk     GameWorldPubSub.PublishToGameSegmentWithCallback<>()
                 }
             }
         }
 
         public void UserAction(TellUserAction_GameSegment_GameWorld_PubSub_Message tellUserAction)
         {
+            var user = Users[tellUserAction.UserId];
             /*todo var gwUser = Users.First(a => a.UserId == userId);
 
             if (gwUser == null)
