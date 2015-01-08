@@ -1578,16 +1578,22 @@
 				return this.list.length;
 			},
 			add: function(t) {
-				this.list.push(t);
 				var key = this.$setKeyCallback(t);
+				this.list.push(t);
 				this.keys.push(key);
 				this.dictionary[key] = t;
 			},
 			remove: function(t) {
-				ss.remove(this.list, t);
 				var key = this.$setKeyCallback(t);
-				this.keys.push(key);
+				ss.remove(this.list, t);
+				ss.remove(this.keys, key);
 				delete this.dictionary[key];
+			},
+			remove$1: function(tkey) {
+				var t = this.dictionary[tkey];
+				ss.remove(this.list, t);
+				ss.remove(this.keys, tkey);
+				delete this.dictionary[tkey];
 			},
 			get: function(index) {
 				return this.list[index];

@@ -23,18 +23,27 @@ namespace Pather.Common.Utils
 
         public void Add(T t)
         {
-            List.Add(t);
             var key = setKeyCallback(t);
+
+            List.Add(t);
             Keys.Add(key);
             Dictionary[key] = t;
         }
 
         public void Remove(T t)
         {
-            List.Remove(t);
             var key = setKeyCallback(t);
-            Keys.Add(key);
+
+            List.Remove(t);
+            Keys.Remove(key);
             Dictionary.Remove(key);
+        }
+        public void Remove(TKey tkey)
+        {
+            var t = Dictionary[tkey];
+            List.Remove(t);
+            Keys.Remove(tkey);
+            Dictionary.Remove(tkey);
         }
 
         public T Get(int index)

@@ -53,7 +53,7 @@ namespace Pather.Servers.GameSegmentServer
 
             if (true /*todo action is valid*/)
             {
-                base.QueueUserAction(action);
+                QueueUserAction(action);
                 switch (action.UserActionType)
                 {
                     case UserActionType.Move:
@@ -174,9 +174,9 @@ namespace Pather.Servers.GameSegmentServer
             }
 
 
-            foreach (var user in gameManager.MyGameSegment.Users)
+            foreach (var user in gameManager.MyGameSegment.Users.List)
             {
-                BuildNeighbors(user.Value);
+                BuildNeighbors(user);
             }
 
             diffNeighbors();
@@ -206,12 +206,12 @@ namespace Pather.Servers.GameSegmentServer
 
         public void diffNeighbors()
         {
-            foreach (var userKV in gameManager.MyGameSegment.Users)
+            foreach (var user in gameManager.MyGameSegment.Users.List)
             {
                 var removed = new List<ServerGameUser>();
                 var added = new List<ServerGameUser>();
 
-                var serverGameUser = userKV.Value;
+                var serverGameUser = user;
 
                 foreach (var gameEntityNeighbor in serverGameUser.Neighbors.List)
                 {
@@ -266,6 +266,8 @@ namespace Pather.Servers.GameSegmentServer
                                 var inProgressActions = a.InProgressActions.Where(action => action.EndingLockStepTicking > lockstepTickToRun);
 
                                 Point point;
+
+                                //todo this doesnt feel right...
                                 if (inProgressActions.Count == 0)
                                 {
                                     point = a.GetPositionAtLockstep(lockstepTickToRun - 1);

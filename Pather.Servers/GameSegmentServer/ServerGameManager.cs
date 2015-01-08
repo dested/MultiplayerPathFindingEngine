@@ -211,7 +211,7 @@ namespace Pather.Servers.GameSegmentServer
 
         private void OnMessageUserAction(UserAction_Gateway_GameSegment_PubSub_Message message)
         {
-            if (!MyGameSegment.Users.ContainsKey(message.UserId))
+            if (!MyGameSegment.Users.Contains(message.UserId))
             {
                 throw new Exception("This aint my user! " + message.UserId);
             }
@@ -221,7 +221,7 @@ namespace Pather.Servers.GameSegmentServer
 
         private void OnMessageUserAction(UserAction_GameSegment_GameSegment_PubSub_Message message)
         {
-            if (!MyGameSegment.Users.ContainsKey(message.UserId))
+            if (!MyGameSegment.Users.Contains(message.UserId))
             {
                 throw new Exception("This aint my user! " + message.UserId);
             }
@@ -231,7 +231,7 @@ namespace Pather.Servers.GameSegmentServer
 
         private void OnMessageUserAction(TellUserAction_GameSegment_GameSegment_PubSub_Message message)
         {
-            if (!MyGameSegment.Users.ContainsKey(message.UserId))
+            if (!MyGameSegment.Users.Contains(message.UserId))
             {
                 throw new Exception("This aint my user! " + message.UserId);
             }

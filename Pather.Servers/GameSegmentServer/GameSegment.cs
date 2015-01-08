@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Utils;
 using Pather.Servers.Common.ServerLogging;
 
 namespace Pather.Servers.GameSegmentServer
@@ -12,7 +13,7 @@ namespace Pather.Servers.GameSegmentServer
             GameSegmentId = gameSegmentId;
         }
 
-        public JsDictionary<string, ServerGameUser> Users = new JsDictionary<string, ServerGameUser>();
+        public DictionaryList<string, ServerGameUser> Users = new DictionaryList<string, ServerGameUser>(a=>a.EntityId);
 
 
         public void UserLeft(string userId)
@@ -33,7 +34,7 @@ namespace Pather.Servers.GameSegmentServer
 
         public void UserJoin(ServerGameUser serverGameUser)
         {
-            Users[serverGameUser.EntityId] = serverGameUser;
+            Users.Add(serverGameUser);
             ServerLogger.LogInformation("User Joined A Game Segment");
             //            Global.Console.Log(GameSegmentId, "User Joined A Game Segment", serverGameUser.UserId, serverGameUser.GatewayId);
         }
