@@ -81,7 +81,7 @@ namespace Pather.Servers.Libraries.RTree
         {
             for (var i = 0; i < entryCount; i++)
             {
-                if (id == ids[i] && r.Equals(entries[i]))
+                if (id == ids[i] && r == entries[i])
                 {
                     return i;
                 }

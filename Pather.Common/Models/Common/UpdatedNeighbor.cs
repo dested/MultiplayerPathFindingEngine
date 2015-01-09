@@ -9,6 +9,6 @@ namespace Pather.Common.Models.Common
         public string UserId;
         public double X;
         public double Y;
-        public List<InProgressAction> InProgressActions;
+        public List<InProgressClientAction> InProgressClientActions;
     }
 }

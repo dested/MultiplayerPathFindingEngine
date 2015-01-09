@@ -1,18 +1,18 @@
 using System;
-using Pather.Common.Models.Common.UserActions;
+using Pather.Common.Models.Common.Actions.ClientActions.Base;
 
 namespace Pather.Common.Models.Common
 {
     [Serializable]
-    public class InProgressAction
+    public class InProgressClientAction
     {
-        public InProgressAction(UserAction action, long endingLockStepTicking)
+        public InProgressClientAction(ClientAction action, long endingLockStepTicking)
         {
             Action = action;
             EndingLockStepTicking = endingLockStepTicking;
         }
 
-        public UserAction Action;
+        public ClientAction Action;
         public long EndingLockStepTicking;
     }
 }

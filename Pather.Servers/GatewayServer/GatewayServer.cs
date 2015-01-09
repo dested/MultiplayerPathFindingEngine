@@ -107,7 +107,7 @@ namespace Pather.Servers.GatewayServer
             }
         }
 
-        private readonly JsDictionary<string, List<UserActionCacheModel>> cachedUserMoves = new JsDictionary<string, List<UserActionCacheModel>>();
+        private readonly JsDictionary<string, List<ClientActionCacheModel>> cachedUserMoves = new JsDictionary<string, List<ClientActionCacheModel>>();
 
 
         private void OnMessage(Gateway_PubSub_Message message)
@@ -157,20 +157,20 @@ namespace Pather.Servers.GatewayServer
                     BackEndTickManager.OnPongReceived();
 
                     break;
-                case Gateway_PubSub_MessageType.UserActionCollection:
-                    var userActionCollectionMessage = (UserActionCollection_GameSegment_Gateway_PubSub_Message) message;
-                    runUserAction(userActionCollectionMessage);
+                case Gateway_PubSub_MessageType.ClientActionCollection:
+                    var clientActionCollectionMessage = (ClientActionCollection_GameSegment_Gateway_PubSub_Message) message;
+                    processClientAction(clientActionCollectionMessage);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        private void runUserAction(UserActionCollection_GameSegment_Gateway_PubSub_Message userActionMessage)
+        private void processClientAction(ClientActionCollection_GameSegment_Gateway_PubSub_Message clientActionMessage)
         {
             GatewayUser gatewayUser;
 
-            foreach (var userToSendTo in userActionMessage.Users)
+            foreach (var userToSendTo in clientActionMessage.Users)
             {
                 gatewayUser = Users[userToSendTo];
 
@@ -180,20 +180,20 @@ namespace Pather.Servers.GatewayServer
 
                     if (!cachedUserMoves.ContainsKey(userToSendTo))
                     {
-                        cachedUserMoves[userToSendTo] = new List<UserActionCacheModel>();
+                        cachedUserMoves[userToSendTo] = new List<ClientActionCacheModel>();
                     }
-                    cachedUserMoves[userToSendTo].Add(new UserActionCacheModel()
+                    cachedUserMoves[userToSendTo].Add(new ClientActionCacheModel()
                     {
                         UserId = userToSendTo,
-                        Action = userActionMessage.Action
+                        ClientAction = clientActionMessage.ClientAction
                     });
 
                     return;
                 }
-                ServerCommunicator.SendMessage(gatewayUser.Socket, new UserAction_Gateway_User_Socket_Message()
+                ServerCommunicator.SendMessage(gatewayUser.Socket, new ClientAction_Gateway_User_Socket_Message()
                 {
                     UserId = gatewayUser.UserId,
-                    Action = userActionMessage.Action
+                    Action = clientActionMessage.ClientAction
                 });
             }
         }
@@ -255,13 +255,13 @@ namespace Pather.Servers.GatewayServer
                         GatewayLatency = BackEndTickManager.CurrentServerLatency
                     });
                     break;
-                case User_Gateway_Socket_MessageType.UserAction:
-                    var userActionMessage = ((UserAction_User_Gateway_Socket_Message) message);
+                case User_Gateway_Socket_MessageType.GameSegmentAction:
+                    var gameSegmentActionMessage = ((GameSegmentAction_User_Gateway_Socket_Message) message);
 
-                    GatewayPubSub.PublishToGameSegment(user.GameSegmentId, new UserAction_Gateway_GameSegment_PubSub_Message()
+                    GatewayPubSub.PublishToGameSegment(user.GameSegmentId, new GameSegmentAction_Gateway_GameSegment_PubSub_Message()
                     {
                         UserId = user.UserId,
-                        Action = userActionMessage.Action
+                        Action = gameSegmentActionMessage.GameSegmentAction
                     });
 
                     break;

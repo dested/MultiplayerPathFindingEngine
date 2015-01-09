@@ -131,7 +131,7 @@ namespace Pather.Servers.GameWorldServer
             });
         }
 
-        /*   when a user gets Action succesful join, he should get his xy, and can send an updated xy to the Game server
+        /*todo  when a user gets Action succesful join, he should get his xy, and can send an updated xy to the Game server
             send the data to neighbors
                 update neighbors preiodically
             then handle the path finding aspect
@@ -189,9 +189,9 @@ namespace Pather.Servers.GameWorldServer
                     var tickSyncMessage = (TickSync_Tick_GameWorld_PubSub_Message) message;
                     BackEndTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;
-                case GameWorld_PubSub_MessageType.TellUserAction:
-                    var tellUserAction = (TellUserAction_GameSegment_GameWorld_PubSub_Message) message;
-                    GameWorld.UserAction(tellUserAction);
+                case GameWorld_PubSub_MessageType.GameWorldAction:
+                    var gameWorldAction = (GameWorldAction_GameSegment_GameWorld_PubSub_Message) message;
+                    GameWorld.GameWorldAction(gameWorldAction);
                     break;
                 case GameWorld_PubSub_MessageType.InitializeGameSegment:
                     var getAllGameSegments = ((InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message) message);
@@ -252,7 +252,7 @@ namespace Pather.Servers.GameWorldServer
                     {
                         GameWorld.CreateUser(message.GatewayId, dbUser).Then(user =>
                         {
-                            if (!Script.Reinterpret<bool>(preAddedUsers[user.GameSegment.GameSegmentId]))
+                            if (!preAddedUsers.ContainsKey(user.GameSegment.GameSegmentId))
                             {
                                 preAddedUsers[user.GameSegment.GameSegmentId] = new List<Tuple<GameWorldUser, Deferred<GameWorldUser, UserJoinError>>>();
                             }

@@ -160,7 +160,7 @@ namespace Pather.Servers.Common.PubSub
 
         private void addToCache(string channel, IPubSub_Message message)
         {
-            if (!Script.Reinterpret<bool>(channelCacheDict[channel]))
+            if (!channelCacheDict.ContainsKey(channel))
             {
                 channelCacheDict[channel] = new List<IPubSub_Message>();
                 channelCache.Add(new Tuple<string, List<IPubSub_Message>>(channel, channelCacheDict[channel]));

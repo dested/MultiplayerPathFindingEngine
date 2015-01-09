@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Utils;
 using Pather.Servers.Common.ServerLogging;
@@ -13,7 +12,7 @@ namespace Pather.Servers.GameSegmentServer
             GameSegmentId = gameSegmentId;
         }
 
-        public DictionaryList<string, ServerGameUser> Users = new DictionaryList<string, ServerGameUser>(a=>a.EntityId);
+        public DictionaryList<string, ServerGameUser> Users = new DictionaryList<string, ServerGameUser>(a => a.EntityId);
 
 
         public void UserLeft(string userId)

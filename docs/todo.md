@@ -6,6 +6,8 @@ figure out auth
 data base
 verify move
 
+change all excpetions to something logical 
+
 '/logout of gameworld server
     spin down game segment
 

@@ -39,6 +39,7 @@
     <Compile Include="ClientGameView.cs" />
     <Compile Include="GameFramework\ClientGameManager.cs" />
     <Compile Include="GameFramework\IClientGameEntity.cs" />
+    <Compile Include="GameFramework\StepManager.cs" />
     <Compile Include="Libraries\jQueryObject.cs" />
     <Compile Include="NetworkManager.cs" />
     <Compile Include="Utils\ClientCommunicator.cs" />

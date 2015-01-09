@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Html.Media.Graphics;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models.Common.UserActions;
+using Pather.Common.Models.Common.Actions.GameSegmentAction;
 using Pather.Common.Models.Gateway.Socket.Base;
 
 namespace Pather.Client.GameFramework
@@ -36,7 +36,7 @@ namespace Pather.Client.GameFramework
 
         public void MoveToLocation(int x, int y)
         {
-            NetworkManager.SendAction(new MoveEntityAction()
+            NetworkManager.SendClientAction(new MoveEntity_GameSegmentAction()
             {
                 X = x,
                 Y = y,
@@ -55,11 +55,11 @@ namespace Pather.Client.GameFramework
                     var pongMessage = (Pong_Gateway_User_PubSub_Message) message;
                     FrontEndTickManager.OnPongReceived(pongMessage);
                     break;
-                case Gateway_User_Socket_MessageType.UserAction:
-                    userAction(((UserAction_Gateway_User_Socket_Message) message));
+                case Gateway_User_Socket_MessageType.ClientAction:
+                    onClientAction(((ClientAction_Gateway_User_Socket_Message) message));
                     break;
                 case Gateway_User_Socket_MessageType.UserJoined:
-                    userJoined(((UserJoined_Gateway_User_Socket_Message) message));
+                    onUserJoined(((UserJoined_Gateway_User_Socket_Message) message));
                     break;
                 case Gateway_User_Socket_MessageType.TickSync:
                     onTickSyncMessage((TickSync_Gateway_User_Socket_Message) message);
@@ -69,12 +69,12 @@ namespace Pather.Client.GameFramework
             }
         }
 
-        private void userAction(UserAction_Gateway_User_Socket_Message userActionMessage)
+        private void onClientAction(ClientAction_Gateway_User_Socket_Message clientActionGatewayUserSocketMessage)
         {
-            clientGame.QueueUserAction(userActionMessage.Action);
+            clientGame.QueueClientAction(clientActionGatewayUserSocketMessage.Action);
         }
 
-        private void userJoined(UserJoined_Gateway_User_Socket_Message userJoinedMessage)
+        private void onUserJoined(UserJoined_Gateway_User_Socket_Message userJoinedMessage)
         {
             clientGame.Init(userJoinedMessage.Grid, userJoinedMessage.LockstepTickNumber, userJoinedMessage.ServerLatency);
 

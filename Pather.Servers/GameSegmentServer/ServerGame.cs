@@ -4,7 +4,14 @@ using Pather.Common;
 using Pather.Common.GameFramework;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Common;
-using Pather.Common.Models.Common.UserActions;
+using Pather.Common.Models.Common.Actions.ClientActions;
+using Pather.Common.Models.Common.Actions.GameSegmentAction;
+using Pather.Common.Models.Common.Actions.GameSegmentAction.Base;
+using Pather.Common.Models.Common.Actions.GameWorldAction;
+using Pather.Common.Models.Common.Actions.NeighborGameSegmentAction;
+using Pather.Common.Models.Common.Actions.NeighborGameSegmentAction.Base;
+using Pather.Common.Models.Common.Actions.TellGameSegmentAction;
+using Pather.Common.Models.Common.Actions.TellGameSegmentAction.Base;
 using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.Gateway.PubSub;
 using Pather.Common.Utils;
@@ -19,7 +26,6 @@ namespace Pather.Servers.GameSegmentServer
             : base(tickManager)
         {
             this.gameManager = gameManager;
-            StepManager = new StepManager(this);
             tickManager.OnProcessLockstep += LockstepTick;
         }
 
@@ -28,13 +34,6 @@ namespace Pather.Servers.GameSegmentServer
             BuildNeighbors();
             Global.SetInterval(BuildNeighbors, Constants.BuildNeighborsTimeout);
         }
-
-        public override void LockstepTick(long lockstepTickNumber)
-        {
-            base.LockstepTick(lockstepTickNumber);
-            StepManager.ProcessAction(lockstepTickNumber);
-        }
-
 
         public override GameUser CreateGameUser(string userId)
         {
@@ -46,33 +45,56 @@ namespace Pather.Servers.GameSegmentServer
          you need ot be able to respond to just a user, or a user and his neighbors
          you also need to send to the other gamesegments that it does and doesnt directly effect */
 
-        public void QueueUserAction(ServerGameUser user, UserAction action)
+        public void ServerProcessGameSegmentAction(ServerGameUser user, GameSegmentAction action)
         {
-            action.EntityId = user.EntityId;
-
-
             if (true /*todo action is valid*/)
             {
-                QueueUserAction(action);
-                switch (action.UserActionType)
+                switch (action.GameSegmentActionType)
                 {
-                    case UserActionType.Move:
-                        var moveAction = (MoveEntityAction) action;
-                        gameManager.SendAction(user, new MoveEntityAction()
-                        {
-                            X = moveAction.X,
-                            Y = moveAction.Y,
-                            EntityId = moveAction.EntityId,
-                            LockstepTick = moveAction.LockstepTick
-                        });
+                    case GameSegmentActionType.MoveEntity:
+                        var moveEntityAction = (MoveEntity_GameSegmentAction) action;
+                        user.RePathFind(moveEntityAction);
+                        gameManager.SendAction(user,
+                            new MoveEntity_ClientAction()
+                            {
+                                X = moveEntityAction.X,
+                                Y = moveEntityAction.Y,
+                                EntityId = user.EntityId,
+                                LockstepTick = moveEntityAction.LockstepTick
+                            },
+                            new MoveEntity_TellGameSegmentAction(),
+                            new MoveEntity_NeighborGameSegmentAction(),
+                            new MoveEntity_GameWorldAction()
+                            );
                         break;
-                    case UserActionType.UpdateNeighbors:
-                        throw new Exception("Should not get action from user");
-                    case UserActionType.MoveEntityOnPath:
-                        throw new Exception("Should not get action from user");
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
+            }
+        }
+
+
+        public void ServerProcessTellGameSegmentAction(TellGameSegmentAction action)
+        {
+            switch (action.TellGameSegmentActionType)
+            {
+                case TellGameSegmentActionType.MoveEntity:
+                    Global.Console.Log("Got tell move action from gamesegment");
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        public void ServerProcessNeighborGameSegmentAction(NeighborGameSegmentAction action)
+        {
+            switch (action.NeighborGameSegmentActionType)
+            {
+                case NeighborGameSegmentActionType.MoveEntity:
+                    Global.Console.Log("Got neighbor move action from gamesegment");
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -104,13 +126,13 @@ namespace Pather.Servers.GameSegmentServer
                 }
 
 
-                gameManager.SendToUser(serverGameUser, new UserActionCollection_GameSegment_Gateway_PubSub_Message()
+                gameManager.SendToUser(serverGameUser, new ClientActionCollection_GameSegment_Gateway_PubSub_Message()
                 {
                     Users = new List<string>()
                     {
                         serverGameUser.EntityId
                     },
-                    Action = new UpdateNeighborsAction()
+                    ClientAction = new UpdateNeighborsClientAction()
                     {
                         Removed = removed,
                         EntityId = serverGameUser.EntityId,
@@ -249,38 +271,47 @@ namespace Pather.Servers.GameSegmentServer
                 serverGameUser.OldNeighbors = null;
                 if (added.Count > 0 || removed.Count > 0)
                 {
+                    Global.Console.Log("Neighbors! ", added, removed);
                     var lockstepTickToRun = tickManager.LockstepTickNumber + 1;
+                    Global.Console.Log("lockstep ", lockstepTickToRun);
 
-                    gameManager.SendToUser(serverGameUser, new UserActionCollection_GameSegment_Gateway_PubSub_Message()
+                    gameManager.SendToUser(serverGameUser, new ClientActionCollection_GameSegment_Gateway_PubSub_Message()
                     {
                         Users = new List<string>()
                         {
                             serverGameUser.EntityId
                         },
-                        Action = new UpdateNeighborsAction()
+                        ClientAction = new UpdateNeighborsClientAction()
                         {
                             Removed = removed.Select(a => a.EntityId),
                             EntityId = serverGameUser.EntityId,
                             Added = added.Select(a =>
                             {
                                 var inProgressActions = a.InProgressActions.Where(action => action.EndingLockStepTicking > lockstepTickToRun);
-
+                                Global.Console.Log("In progress actions: ", inProgressActions, a.EntityId);
                                 Point point;
+
+
+                                Global.Console.Log("xy ", a.X, a.Y);
 
                                 //todo this doesnt feel right...
                                 if (inProgressActions.Count == 0)
                                 {
+                                    Global.Console.Log("count 0");
                                     point = a.GetPositionAtLockstep(lockstepTickToRun - 1);
+                                    Global.Console.Log("xy ", point.X, point.Y);
                                 }
                                 else
                                 {
+                                    Global.Console.Log("count ", inProgressActions.Count);
                                     point = a.GetPositionAtLockstep(lockstepTickToRun);
+                                    Global.Console.Log("xy ", point.X, point.Y);
                                 }
 
                                 return new UpdatedNeighbor()
                                 {
                                     UserId = a.EntityId,
-                                    InProgressActions = inProgressActions,
+                                    InProgressClientActions = inProgressActions,
                                     X = point.X,
                                     Y = point.Y
                                 };

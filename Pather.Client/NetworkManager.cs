@@ -3,7 +3,7 @@ using Pather.Client.Libraries;
 using Pather.Client.Utils;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models.Common.UserActions;
+using Pather.Common.Models.Common.Actions.GameSegmentAction.Base;
 using Pather.Common.Models.Gateway.Socket.Base;
 using Pather.Common.Utils;
 
@@ -45,11 +45,11 @@ namespace Pather.Client
             }
         }
 
-        public void SendAction(UserAction action)
+        public void SendClientAction(GameSegmentAction gameSegmentAction)
         {
-            clientCommunicator.SendMessage(new UserAction_User_Gateway_Socket_Message()
+            clientCommunicator.SendMessage(new GameSegmentAction_User_Gateway_Socket_Message()
             {
-                Action = action
+                GameSegmentAction = gameSegmentAction
             });
         }
 

@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using Pather.Common.GameFramework;
 using Pather.Common.Libraries.NodeJS;
-using Pather.Common.Models.Common.UserActions;
+using Pather.Common.Models.Common.Actions.ClientActions.Base;
+using Pather.Common.Models.Common.Actions.GameWorldAction.Base;
+using Pather.Common.Models.Common.Actions.NeighborGameSegmentAction.Base;
+using Pather.Common.Models.Common.Actions.TellGameSegmentAction.Base;
 using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameSegment.Base;
-using Pather.Common.Models.GameWorld.Base;
 using Pather.Common.Models.GameWorld.GameSegment;
 using Pather.Common.Models.GameWorld.Gateway;
 using Pather.Common.Models.Gateway.PubSub;
@@ -113,19 +115,19 @@ namespace Pather.Servers.GameSegmentServer
                     onMessageUserLeft((UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.NewGameSegment:
-                    OnMessageNewGameSegment((NewGameSegment_GameWorld_GameSegment_PubSub_Message) message);
+                    onMessageNewGameSegment((NewGameSegment_GameWorld_GameSegment_PubSub_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.Pong:
                     onMessagePong((Pong_Tick_GameSegment_PubSub_Message) message);
                     break;
-                case GameSegment_PubSub_MessageType.UserAction:
-                    OnMessageUserAction((UserAction_Gateway_GameSegment_PubSub_Message) message);
-                    break;
                 case GameSegment_PubSub_MessageType.GameSegmentAction:
-                    OnMessageUserAction((UserAction_GameSegment_GameSegment_PubSub_Message) message);
+                    onMessageGameSegmentAction((GameSegmentAction_Gateway_GameSegment_PubSub_Message) message);
+                    break;
+                case GameSegment_PubSub_MessageType.NeighborGameSegmentAction:
+                    onMessageNeighborGameSegmentAction((NeighborGameSegmentAction_GameSegment_GameSegment_PubSub_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.TellGameSegmentAction:
-                    OnMessageUserAction((TellUserAction_GameSegment_GameSegment_PubSub_Message) message);
+                    onMessageTellGameSegmentAction((TellGameSegmentAction_GameSegment_GameSegment_PubSub_Message) message);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -152,7 +154,7 @@ namespace Pather.Servers.GameSegmentServer
          send to world
          */
 
-        public void SendAction(ServerGameUser user, UserAction userAction)
+        public void SendAction(ServerGameUser user, ClientAction clientAction, TellGameSegmentAction tellGameSegmentAction, NeighborGameSegmentAction neighborGameSegmentAction, GameWorldAction gameWorldAction)
         {
             var otherGameSegments = new JsDictionary<string, GameSegment>();
             var gateways = user.Neighbors.List.GroupBy(a => ((ServerGameUser) a.Entity).GatewayId);
@@ -176,70 +178,72 @@ namespace Pather.Servers.GameSegmentServer
 
             foreach (var gateway in gateways)
             {
-                var userActionCollection = new UserActionCollection_GameSegment_Gateway_PubSub_Message()
+                var clientActionCollection = new ClientActionCollection_GameSegment_Gateway_PubSub_Message()
                 {
                     Users = gateway.Value.Select(a => a.Entity.EntityId),
-                    Action = userAction
+                    ClientAction = clientAction
                 };
-                GameSegmentPubSub.PublishToGateway(gateway.Key, userActionCollection);
+                GameSegmentPubSub.PublishToGateway(gateway.Key, clientActionCollection);
             }
-
-            var tellUserAction = new TellUserAction_GameSegment_GameSegment_PubSub_Message()
-            {
-                UserId = user.EntityId,
-                OriginatingGameSegmentId = GameSegmentId,
-                Action = userAction
-            };
 
 
             foreach (var neighborGameSegment in neighborGameSegments)
             {
-                GameSegmentPubSub.PublishToGameSegment(neighborGameSegment.Key.GameSegmentId, new UserAction_GameSegment_GameSegment_PubSub_Message()
+                GameSegmentPubSub.PublishToGameSegment(neighborGameSegment.Key.GameSegmentId, new NeighborGameSegmentAction_GameSegment_GameSegment_PubSub_Message()
                 {
                     UserId = user.EntityId,
                     OriginatingGameSegmentId = GameSegmentId,
-                    Action = userAction
+                    Action = neighborGameSegmentAction
                 });
             }
 
+            var tellGameSegmentActionMessage = new TellGameSegmentAction_GameSegment_GameSegment_PubSub_Message()
+            {
+                UserId = user.EntityId,
+                OriginatingGameSegmentId = GameSegmentId,
+                Action = tellGameSegmentAction
+            };
+
             foreach (var otherGameSegment in otherGameSegments)
             {
-                GameSegmentPubSub.PublishToGameSegment(otherGameSegment.Key, tellUserAction);
+                GameSegmentPubSub.PublishToGameSegment(otherGameSegment.Key, tellGameSegmentActionMessage);
             }
-             
+
+
+            SendToGameWorld(gameWorldAction);
         }
 
-        private void OnMessageUserAction(UserAction_Gateway_GameSegment_PubSub_Message message)
+        private void onMessageGameSegmentAction(GameSegmentAction_Gateway_GameSegment_PubSub_Message message)
         {
             if (!MyGameSegment.Users.Contains(message.UserId))
             {
                 throw new Exception("This aint my user! " + message.UserId);
             }
 
-            serverGame.QueueUserAction(MyGameSegment.Users[message.UserId], message.Action);
+            serverGame.ServerProcessGameSegmentAction(MyGameSegment.Users[message.UserId], message.Action);
         }
 
-        private void OnMessageUserAction(UserAction_GameSegment_GameSegment_PubSub_Message message)
+        private void onMessageNeighborGameSegmentAction(NeighborGameSegmentAction_GameSegment_GameSegment_PubSub_Message message)
         {
             if (!MyGameSegment.Users.Contains(message.UserId))
             {
                 throw new Exception("This aint my user! " + message.UserId);
             }
 
-            serverGame.QueueUserActionFromNeighbor(message.Action);
+            serverGame.ServerProcessNeighborGameSegmentAction(message.Action);
         }
 
-        private void OnMessageUserAction(TellUserAction_GameSegment_GameSegment_PubSub_Message message)
+        private void onMessageTellGameSegmentAction(TellGameSegmentAction_GameSegment_GameSegment_PubSub_Message message)
         {
             if (!MyGameSegment.Users.Contains(message.UserId))
             {
                 throw new Exception("This aint my user! " + message.UserId);
             }
 
-            serverGame.QueueTellUserAction(message.Action);
+            serverGame.ServerProcessTellGameSegmentAction(message.Action);
         }
 
-        public void OnMessageNewGameSegment(NewGameSegment_GameWorld_GameSegment_PubSub_Message message)
+        private void onMessageNewGameSegment(NewGameSegment_GameWorld_GameSegment_PubSub_Message message)
         {
             var newGameSegment = new GameSegment(message.GameSegmentId);
             AllGameSegments[newGameSegment.GameSegmentId] = newGameSegment;
@@ -305,12 +309,13 @@ namespace Pather.Servers.GameSegmentServer
         {
             GameSegmentPubSub.PublishToGateway(serverGameUser.GatewayId, gatewayPubSubMessage);
         }
-        public void SendToGameWorld(UserAction userAction)
+
+        public void SendToGameWorld(GameWorldAction gameWorldAction)
         {
-            GameSegmentPubSub.PublishToGameWorld(new TellUserAction_GameSegment_GameWorld_PubSub_Message()
+            GameSegmentPubSub.PublishToGameWorld(new GameWorldAction_GameSegment_GameWorld_PubSub_Message()
             {
                 OriginatingGameSegmentId = GameSegmentId,
-                Action = userAction
+                Action = gameWorldAction
             });
         }
     }

@@ -26,7 +26,7 @@ namespace Pather.Servers.GameSegmentServer
             GameSegmentId = gameSegmentId;
 
             //Global.SetInterval(() => { Global.Console.Log("keep alive " + new DateTime().ToString().Substring(17, 24)); }, 10 * 1000);
-            //var game = new ServerGame(socketManager, gameServerName);
+            //var game = new ServerGame(socketManager, gameSegmentName);
             //game.Init();
 
             Q.All(pubsub.Init(), pushPop.Init())

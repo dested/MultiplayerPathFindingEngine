@@ -12,8 +12,8 @@ namespace Pather.Common.Models.GameSegment.Base
         UserJoin,
         UserLeft,
         NewGameSegment,
-        UserAction,
         GameSegmentAction,
-        TellGameSegmentAction
+        TellGameSegmentAction,
+        NeighborGameSegmentAction
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.Common.Actions.GameWorldAction.Base;
 using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameWorld.Gateway;
 using Pather.Common.Models.GameWorld.ServerManager;
@@ -16,14 +17,14 @@ namespace Pather.Servers.GameWorldServer
     public class GameWorld
     {
         public GameWorldPubSub GameWorldPubSub;
-        public DictionaryList<string,GameWorldUser> Users;
+        public DictionaryList<string, GameWorldUser> Users;
         public DictionaryList<string, GameSegment> GameSegments;
 
         public GameWorld(GameWorldPubSub gameWorldPubSub)
         {
             GameWorldPubSub = gameWorldPubSub;
-            Users = new DictionaryList<string, GameWorldUser>(a=>a.UserId);
-            GameSegments = new DictionaryList<string, GameSegment>(a=>a.GameSegmentId);
+            Users = new DictionaryList<string, GameWorldUser>(a => a.UserId);
+            GameSegments = new DictionaryList<string, GameSegment>(a => a.GameSegmentId);
         }
 
         public Promise<GameWorldUser, UserJoinError> CreateUser(string gatewayChannel, DBUser dbUser)
@@ -237,6 +238,7 @@ namespace Pather.Servers.GameWorldServer
         {
             if (needToReorganize.Count > 0)
             {
+                Global.Console.Log(needToReorganize);
                 var reorg = Math.Min(needToReorganize.Count, Constants.NumberOfReorganizedPlayersPerSession);
                 for (var i = reorg - 1; i >= 0; i--)
                 {
@@ -249,9 +251,17 @@ namespace Pather.Servers.GameWorldServer
             }
         }
 
-        public void UserAction(TellUserAction_GameSegment_GameWorld_PubSub_Message tellUserAction)
+        public void GameWorldAction(GameWorldAction_GameSegment_GameWorld_PubSub_Message gameWorldActionGameSegment)
         {
-            var user = Users[tellUserAction.UserId];
+            var user = Users[gameWorldActionGameSegment.UserId];
+            switch (gameWorldActionGameSegment.Action.GameWorldActionType)
+            {
+                case GameWorldActionType.MoveEntity:
+                    Global.Console.Log("Got move action from gamesegment");
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
             /*todo var gwUser = Users.First(a => a.UserId == userId);
 
             if (gwUser == null)

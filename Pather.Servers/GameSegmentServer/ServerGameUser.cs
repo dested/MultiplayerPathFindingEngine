@@ -4,7 +4,8 @@ using Pather.Common.Definitions.AStar;
 using Pather.Common.GameFramework;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Common;
-using Pather.Common.Models.Common.UserActions;
+using Pather.Common.Models.Common.Actions.ClientActions;
+using Pather.Common.Models.Common.Actions.GameSegmentAction;
 using Pather.Common.Utils;
 
 namespace Pather.Servers.GameSegmentServer
@@ -13,14 +14,14 @@ namespace Pather.Servers.GameSegmentServer
     {
         public GameSegment GameSegment;
         public string GatewayId;
-        public List<InProgressAction> InProgressActions;
+        public List<InProgressClientAction> InProgressActions;
         private readonly List<Point> lockstepMovePoints;
 
         public ServerGameUser(ServerGame game, string userId)
             : base(game, userId)
         {
             lockstepMovePoints = new List<Point>();
-            InProgressActions = new List<InProgressAction>();
+            InProgressActions = new List<InProgressClientAction>();
         }
 
         public Point GetPositionAtLockstep(long lockstepTickNumber)
@@ -62,20 +63,26 @@ namespace Pather.Servers.GameSegmentServer
             }
         }
 
-        public override void RePathFind(MoveEntityAction destinationAction)
+
+        public void RePathFind(MoveEntity_GameSegmentAction destinationAction)
         {
-            base.RePathFind(destinationAction);
+            //todo user current x,y
+            var graph = game.Board.AStarGraph;
+            var start = graph.Grid[Utilities.ToSquare(X)][Utilities.ToSquare(Y)];
+            var end = graph.Grid[Utilities.ToSquare(destinationAction.X)][Utilities.ToSquare(destinationAction.Y)];
+            Path.Clear();
+            Path.AddRange(AStar.Search(graph, start, end).Select(a => new AStarLockstepPath(a.X, a.Y)));
 
 
-            var moveEntityOnPathAction = new MoveEntityOnPathAction()
+            var moveEntityOnPathAction = new MoveEntityOnPath_ClientAction()
             {
-                EntityId = destinationAction.EntityId,
+                EntityId = EntityId,
                 LockstepTick = destinationAction.LockstepTick,
                 Path = new List<AStarLockstepPath>(Path)
             };
             ProjectMovement();
             Global.Console.Log("Move entity on path:", moveEntityOnPathAction);
-            InProgressActions.Add(new InProgressAction(moveEntityOnPathAction, destinationAction.LockstepTick + lockstepMovePoints.Count));
+            InProgressActions.Add(new InProgressClientAction(moveEntityOnPathAction, destinationAction.LockstepTick + lockstepMovePoints.Count));
 
 
             //            Global.Console.Log("Path points:", InProgressActions);

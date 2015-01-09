@@ -1,9 +1,9 @@
 using System.Runtime.CompilerServices;
 
-namespace Pather.Common.Models.Common.UserActions
+namespace Pather.Common.Models.Common.Actions.ClientActions.Base
 {
     [NamedValues]
-    public enum UserActionType
+    public enum ClientActionType
     {
         Move,
         UpdateNeighbors,

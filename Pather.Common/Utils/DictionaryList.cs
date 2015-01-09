@@ -38,6 +38,7 @@ namespace Pather.Common.Utils
             Keys.Remove(key);
             Dictionary.Remove(key);
         }
+
         public void Remove(TKey tkey)
         {
             var t = Dictionary[tkey];
