@@ -2,13 +2,16 @@ using System;
 using System.Collections.Generic;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Models.Common.Actions.GameWorldAction;
 using Pather.Common.Models.Common.Actions.GameWorldAction.Base;
+using Pather.Common.Models.Common.Actions.TellGameSegmentAction;
 using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameWorld.Gateway;
 using Pather.Common.Models.GameWorld.ServerManager;
 using Pather.Common.Models.ServerManager.Base;
 using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
+using Pather.Servers.Common;
 using Pather.Servers.Database;
 using Pather.Servers.GameWorldServer.Models;
 
@@ -20,12 +23,14 @@ namespace Pather.Servers.GameWorldServer
         public DictionaryList<string, GameWorldUser> Users;
         public DictionaryList<string, GameSegment> GameSegments;
 
-        public GameWorld(GameWorldPubSub gameWorldPubSub)
+        public GameWorld(GameWorldPubSub gameWorldPubSub, BackEndTickManager backEndTickManager)
         {
             GameWorldPubSub = gameWorldPubSub;
             Users = new DictionaryList<string, GameWorldUser>(a => a.UserId);
             GameSegments = new DictionaryList<string, GameSegment>(a => a.GameSegmentId);
+            backEndTickManager.OnProcessLockstep+=OnProcessLockstep;
         }
+
 
         public Promise<GameWorldUser, UserJoinError> CreateUser(string gatewayChannel, DBUser dbUser)
         {
@@ -250,14 +255,23 @@ namespace Pather.Servers.GameWorldServer
                 }
             }
         }
+        private void OnProcessLockstep(long lockstepTickNumber)
+        {
+            foreach (var gameWorldUser in Users.List)
+            {
+                gameWorldUser.LockstepTick(lockstepTickNumber);
+            }
+        }
+
 
         public void GameWorldAction(GameWorldAction_GameSegment_GameWorld_PubSub_Message gameWorldActionGameSegment)
         {
-            var user = Users[gameWorldActionGameSegment.UserId];
             switch (gameWorldActionGameSegment.Action.GameWorldActionType)
             {
                 case GameWorldActionType.MoveEntity:
-                    Global.Console.Log("Got move action from gamesegment");
+                    var moveEntity = (MoveEntity_GameWorldAction)gameWorldActionGameSegment.Action;
+                    var user = Users[moveEntity.EntityId];
+                    user.SetLockstepMovePoints(moveEntity.LockstepMovePoints);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

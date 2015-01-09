@@ -15,10 +15,6 @@ namespace Pather.Common.GameFramework
         {
             base.Tick();
         }
-
-        public override void LockstepTick(long lockstepTickNumber)
-        {
-            base.LockstepTick(lockstepTickNumber);
-        }
+         
     }
 }

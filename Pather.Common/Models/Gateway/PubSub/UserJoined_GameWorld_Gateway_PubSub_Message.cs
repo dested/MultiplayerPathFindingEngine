@@ -13,8 +13,8 @@ namespace Pather.Common.Models.Gateway.PubSub
 
         public string GameSegmentId;
         public string UserId;
-        public int X;
-        public int Y;
+        public double X;
+        public double Y;
         public int[][] Grid;
     }
 }

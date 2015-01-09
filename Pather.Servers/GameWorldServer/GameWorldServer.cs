@@ -57,10 +57,10 @@ namespace Pather.Servers.GameWorldServer
             gameWorldPubSub.Init();
             gameWorldPubSub.Message += gameWorldMessage;
 
-            GameWorld = new GameWorld(gameWorldPubSub);
-
-
             BackEndTickManager = new BackEndTickManager();
+            GameWorld = new GameWorld(gameWorldPubSub, BackEndTickManager);
+
+
             BackEndTickManager.Init(sendPing, () =>
             {
                 Global.Console.Log("Connected To Tick Server");

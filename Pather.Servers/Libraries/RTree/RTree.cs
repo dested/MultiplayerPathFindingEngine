@@ -134,8 +134,8 @@ namespace Pather.Servers.Libraries.RTree
         private void init()
         {
             //initialize logs
-            log = LogManager.GetLogger(typeof (RTree<T>).FullName);
-            deleteLog = LogManager.GetLogger(typeof (RTree<T>).FullName + "-delete");
+            log = RTreeLogManager.GetLogger(typeof (RTree<T>).FullName);
+            deleteLog = RTreeLogManager.GetLogger(typeof (RTree<T>).FullName + "-delete");
 
             // Obviously a Node&lt;T&gt; with less than 2 entries cannot be split.
             // The Node&lt;T&gt; splitting algorithm will work with only 2 entries
@@ -342,7 +342,7 @@ namespace Pather.Servers.Libraries.RTree
         /// <param name="p">Point of origin</param>
         /// <param name="furthestDistance">maximum distance</param>
         /// <returns>List of items</returns>
-        public List<T> Nearest(RTreePoint p, float furthestDistance)
+        public List<T> Nearest(RTreePoint p, double furthestDistance)
         {
             var retval = new List<T>();
             nearest(p, delegate(int id)
@@ -353,7 +353,7 @@ namespace Pather.Servers.Libraries.RTree
         }
 
 
-        private void nearest(RTreePoint p, intproc v, float furthestDistance)
+        private void nearest(RTreePoint p, intproc v, double furthestDistance)
         {
             var rootNode = getNode(rootNodeId);
 
@@ -554,7 +554,7 @@ namespace Pather.Servers.Libraries.RTree
             // each to a group.
 
             // debug code
-            float initialArea = 0;
+            double initialArea = 0;
             if (log.IsDebugEnabled)
             {
                 var union = n.mbr.union(newRect);
@@ -641,7 +641,7 @@ namespace Pather.Servers.Libraries.RTree
             // Find extreme rectangles along all dimension. Along each dimension,
             // find the entry whose rectangle has the highest low side, and the one 
             // with the lowest high side. Record the separation.
-            float maxNormalizedSeparation = 0;
+            double maxNormalizedSeparation = 0;
             var highestLowIndex = 0;
             var lowestHighIndex = 0;
 
@@ -747,11 +747,11 @@ namespace Pather.Servers.Libraries.RTree
         /// <returns></returns>
         private int pickNext(Node<T> n, Node<T> newNode)
         {
-            var maxDifference = float.NegativeInfinity;
+            var maxDifference = double.NegativeInfinity;
             var next = 0;
             var nextGroup = 0;
 
-            maxDifference = float.NegativeInfinity;
+            maxDifference = double.NegativeInfinity;
 
             if (log.IsDebugEnabled)
             {
@@ -840,7 +840,7 @@ namespace Pather.Servers.Libraries.RTree
         /// <param name="n"></param>
         /// <param name="nearestDistance"></param>
         /// <returns></returns>
-        private float nearest(RTreePoint p, Node<T> n, float nearestDistance)
+        private double nearest(RTreePoint p, Node<T> n, double nearestDistance)
         {
             for (var i = 0; i < n.entryCount; i++)
             {

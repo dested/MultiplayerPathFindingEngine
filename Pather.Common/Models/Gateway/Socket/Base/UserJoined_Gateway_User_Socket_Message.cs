@@ -11,8 +11,8 @@ namespace Pather.Common.Models.Gateway.Socket.Base
         }
 
         public string UserId;
-        public int X;
-        public int Y;
+        public double X;
+        public double Y;
         public int[][] Grid;
         public long LockstepTickNumber;
         public int ServerLatency;

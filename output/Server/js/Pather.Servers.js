@@ -559,9 +559,9 @@ var $Pather_Servers_GameSegmentServer_ServerGameUser = function(game, userId) {
 	this.gameSegment = null;
 	this.gatewayId = null;
 	this.inProgressActions = null;
-	this.$lockstepMovePoints = null;
+	this.lockstepMovePoints = null;
 	Pather.Common.GameFramework.GameUser.call(this, game, userId);
-	this.$lockstepMovePoints = {};
+	this.lockstepMovePoints = {};
 	this.inProgressActions = [];
 };
 $Pather_Servers_GameSegmentServer_ServerGameUser.__typeName = 'Pather.Servers.GameSegmentServer.ServerGameUser';
@@ -2579,7 +2579,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentServer, $asm, {
 		}
 	}
 });
-ss.initInterface($Pather_Servers_GameSegmentServer_IServerGameEntity, $asm, {});
+ss.initInterface($Pather_Servers_GameSegmentServer_IServerGameEntity, $asm, { lockstepTick: null });
 ss.initClass($Pather_Servers_GameSegmentServer_ServerGame, $asm, {
 	init$1: function() {
 		this.buildNeighbors();
@@ -2593,14 +2593,27 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGame, $asm, {
 			switch (action.gameSegmentActionType) {
 				case 'moveEntity': {
 					var moveEntityAction = action;
-					user.rePathFind(moveEntityAction);
+					var completedLockStep = user.rePathFind(moveEntityAction);
 					var $t2 = this.$gameManager;
 					var $t1 = Pather.Common.Models.Common.Actions.ClientActions.MoveEntity_ClientAction.$ctor();
 					$t1.x = moveEntityAction.x;
 					$t1.y = moveEntityAction.y;
 					$t1.entityId = user.entityId;
 					$t1.lockstepTick = moveEntityAction.lockstepTick;
-					$t2.sendAction(user, $t1, Pather.Common.Models.Common.Actions.TellGameSegmentAction.MoveEntity_TellGameSegmentAction.$ctor(), Pather.Common.Models.Common.Actions.NeighborGameSegmentAction.MoveEntity_NeighborGameSegmentAction.$ctor(), Pather.Common.Models.Common.Actions.GameWorldAction.MoveEntity_GameWorldAction.$ctor());
+					var $t3 = Pather.Common.Models.Common.Actions.TellGameSegmentAction.MoveEntity_TellGameSegmentAction.$ctor();
+					$t3.entityId = user.entityId;
+					$t3.x = moveEntityAction.x;
+					$t3.y = moveEntityAction.y;
+					$t3.lockstepTick = completedLockStep;
+					var $t4 = Pather.Common.Models.Common.Actions.NeighborGameSegmentAction.MoveEntity_NeighborGameSegmentAction.$ctor();
+					$t4.entityId = user.entityId;
+					$t4.lockstepTick = moveEntityAction.lockstepTick;
+					$t4.lockstepMovePoints = user.lockstepMovePoints;
+					var $t5 = Pather.Common.Models.Common.Actions.GameWorldAction.MoveEntity_GameWorldAction.$ctor();
+					$t5.entityId = user.entityId;
+					$t5.lockstepTick = moveEntityAction.lockstepTick;
+					$t5.lockstepMovePoints = user.lockstepMovePoints;
+					$t2.sendAction(user, $t1, $t3, $t4, $t5);
 					break;
 				}
 				default: {
@@ -2612,6 +2625,8 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGame, $asm, {
 	serverProcessTellGameSegmentAction: function(action) {
 		switch (action.tellGameSegmentActionType) {
 			case 'moveEntity': {
+				var moveEntity = action;
+				ss.cast(this.activeEntities.get_item(action.entityId), $Pather_Servers_GameSegmentServer_ServerGameUser).setPointInTime(moveEntity.x, moveEntity.y, moveEntity.lockstepTick);
 				console.log('Got tell move action from gamesegment');
 				break;
 			}
@@ -2623,7 +2638,8 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGame, $asm, {
 	serverProcessNeighborGameSegmentAction: function(action) {
 		switch (action.neighborGameSegmentActionType) {
 			case 'moveEntity': {
-				console.log('Got neighbor move action from gamesegment');
+				var moveEntity = action;
+				ss.cast(this.activeEntities.get_item(action.entityId), $Pather_Servers_GameSegmentServer_ServerGameUser).setPath(moveEntity.lockstepMovePoints);
 				break;
 			}
 			default: {
@@ -2791,6 +2807,12 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGame, $asm, {
 				$t8.clientAction = $t10;
 				$t12.sendToUser(serverGameUser, $t8);
 			}
+		}
+	},
+	lockstepTick: function(lockstepTickNumber) {
+		for (var $t1 = 0; $t1 < this.activeEntities.list.length; $t1++) {
+			var entity = this.activeEntities.list[$t1];
+			entity.lockstepTick(lockstepTickNumber);
 		}
 	}
 }, Pather.Common.GameFramework.Game);
@@ -3027,16 +3049,15 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameManager, $asm, {
 });
 ss.initClass($Pather_Servers_GameSegmentServer_ServerGameUser, $asm, {
 	getPositionAtLockstep: function(lockstepTickNumber) {
-		return this.$lockstepMovePoints[lockstepTickNumber] || Pather.Common.Utils.Point.$ctor(this.x, this.y);
+		return this.lockstepMovePoints[lockstepTickNumber] || Pather.Common.Utils.Point.$ctor(this.x, this.y);
 	},
 	lockstepTick: function(lockstepTickNumber) {
-		Pather.Common.GameFramework.GameUser.prototype.lockstepTick.call(this, lockstepTickNumber);
-		if (ss.keyExists(this.$lockstepMovePoints, lockstepTickNumber)) {
-			var point = this.$lockstepMovePoints[lockstepTickNumber];
+		if (ss.keyExists(this.lockstepMovePoints, lockstepTickNumber)) {
+			var point = this.lockstepMovePoints[lockstepTickNumber];
 			this.x = point.x;
 			this.y = point.y;
-			delete this.$lockstepMovePoints[lockstepTickNumber];
-			console.log(this.entityId, this.x, this.y, ss.getKeyCount(this.$lockstepMovePoints), lockstepTickNumber);
+			delete this.lockstepMovePoints[lockstepTickNumber];
+			console.log(this.entityId, this.x, this.y, ss.getKeyCount(this.lockstepMovePoints), lockstepTickNumber);
 		}
 		for (var index = this.inProgressActions.length - 1; index >= 0; index--) {
 			var inProgressAction = this.inProgressActions[index];
@@ -3064,6 +3085,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameUser, $asm, {
 		var lockstepTickNumber = this.projectMovement(x, y, destinationAction.lockstepTick, path);
 		console.log('Move entity on path:', moveEntityOnPathAction);
 		this.inProgressActions.push(Pather.Common.Models.Common.InProgressClientAction.$ctor(moveEntityOnPathAction, lockstepTickNumber));
+		return lockstepTickNumber;
 		//            Global.Console.Log("Path points:", InProgressActions);
 	},
 	projectMovement: function(x, y, startingLockstepTickNumber, path) {
@@ -3113,12 +3135,18 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameUser, $asm, {
 			gameTick++;
 			if (gameTick % gameTicksPerLockstepTick === 0) {
 				startingLockstepTickNumber++;
-				this.$lockstepMovePoints[startingLockstepTickNumber] = Pather.Common.Utils.Point.$ctor(x, y);
+				this.lockstepMovePoints[startingLockstepTickNumber] = Pather.Common.Utils.Point.$ctor(x, y);
 			}
 		}
-		this.$lockstepMovePoints[startingLockstepTickNumber] = Pather.Common.Utils.Point.$ctor(x, y);
+		this.lockstepMovePoints[startingLockstepTickNumber] = Pather.Common.Utils.Point.$ctor(x, y);
 		//todo path should .count==0
 		return startingLockstepTickNumber;
+	},
+	setPath: function(lockstepMovePoints) {
+		this.lockstepMovePoints = lockstepMovePoints;
+	},
+	setPointInTime: function(x, y, lockstepTick) {
+		this.lockstepMovePoints[lockstepTick] = Pather.Common.Utils.Point.$ctor(x, y);
 	}
 }, Pather.Common.GameFramework.GameUser, [$Pather_Servers_GameSegmentServer_IServerGameEntity]);
 ss.initClass($Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessage, $asm, {});
@@ -3355,6 +3383,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 		var user = this.users.get_item(gameWorldActionGameSegment.userId);
 		switch (gameWorldActionGameSegment.action.gameWorldActionType) {
 			case 'moveEntity': {
+				var moveEntity = gameWorldActionGameSegment.action;
 				console.log('Got move action from gamesegment');
 				break;
 			}

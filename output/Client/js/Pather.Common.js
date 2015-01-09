@@ -408,6 +408,7 @@
 	};
 	$Pather_Common_Models_Common_Actions_GameWorldAction_MoveEntity_GameWorldAction.$ctor = function() {
 		var $this = $Pather_Common_Models_Common_Actions_GameWorldAction_Base_GameWorldAction.$ctor();
+		$this.lockstepMovePoints = null;
 		$this.gameWorldActionType = 'moveEntity';
 		return $this;
 	};
@@ -441,6 +442,7 @@
 	};
 	$Pather_Common_Models_Common_Actions_NeighborGameSegmentAction_MoveEntity_NeighborGameSegmentAction.$ctor = function() {
 		var $this = $Pather_Common_Models_Common_Actions_NeighborGameSegmentAction_Base_NeighborGameSegmentAction.$ctor();
+		$this.lockstepMovePoints = null;
 		$this.neighborGameSegmentActionType = 'moveEntity';
 		return $this;
 	};
@@ -474,6 +476,8 @@
 	};
 	$Pather_Common_Models_Common_Actions_TellGameSegmentAction_MoveEntity_TellGameSegmentAction.$ctor = function() {
 		var $this = $Pather_Common_Models_Common_Actions_TellGameSegmentAction_Base_TellGameSegmentAction.$ctor();
+		$this.x = 0;
+		$this.y = 0;
 		$this.tellGameSegmentActionType = 'moveEntity';
 		return $this;
 	};
@@ -2460,12 +2464,6 @@
 				var person = this.activeEntities.list[$t1];
 				person.tick();
 			}
-		},
-		lockstepTick: function(lockstepTickNumber) {
-			for (var $t1 = 0; $t1 < this.activeEntities.list.length; $t1++) {
-				var entity = this.activeEntities.list[$t1];
-				entity.lockstepTick(lockstepTickNumber);
-			}
 		}
 	});
 	ss.initClass($Pather_Common_GameFramework_GameBoard, $asm, {
@@ -2492,17 +2490,12 @@
 			this.$1$OldNeighborsField = value;
 		},
 		tick: function() {
-		},
-		lockstepTick: function(lockstepTickNumber) {
 		}
 	});
 	ss.initClass($Pather_Common_GameFramework_GameEntityNeighbor, $asm, {});
 	ss.initClass($Pather_Common_GameFramework_GameUser, $asm, {
 		tick: function() {
 			$Pather_Common_GameFramework_GameEntity.prototype.tick.call(this);
-		},
-		lockstepTick: function(lockstepTickNumber) {
-			$Pather_Common_GameFramework_GameEntity.prototype.lockstepTick.call(this, lockstepTickNumber);
 		}
 	}, $Pather_Common_GameFramework_GameEntity);
 	ss.initInterface($Pather_Common_Models_Common_IPubSub_Message, $asm, {});

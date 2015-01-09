@@ -52,8 +52,8 @@ namespace Pather.Servers.GameSegmentServer
                 switch (action.GameSegmentActionType)
                 {
                     case GameSegmentActionType.MoveEntity:
-                        var moveEntityAction = (MoveEntity_GameSegmentAction) action;
-                        user.RePathFind(moveEntityAction);
+                        var moveEntityAction = (MoveEntity_GameSegmentAction)action;
+                        var completedLockStep = user.RePathFind(moveEntityAction);
                         gameManager.SendAction(user,
                             new MoveEntity_ClientAction()
                             {
@@ -62,9 +62,9 @@ namespace Pather.Servers.GameSegmentServer
                                 EntityId = user.EntityId,
                                 LockstepTick = moveEntityAction.LockstepTick
                             },
-                            new MoveEntity_TellGameSegmentAction(),
-                            new MoveEntity_NeighborGameSegmentAction(),
-                            new MoveEntity_GameWorldAction()
+                            new MoveEntity_TellGameSegmentAction() { EntityId = user.EntityId, X = moveEntityAction.X, Y = moveEntityAction.Y, LockstepTick = completedLockStep },
+                            new MoveEntity_NeighborGameSegmentAction() { EntityId = user.EntityId, LockstepTick = moveEntityAction.LockstepTick, LockstepMovePoints = user.LockstepMovePoints },
+                            new MoveEntity_GameWorldAction() { EntityId = user.EntityId, LockstepTick = moveEntityAction.LockstepTick, LockstepMovePoints = user.LockstepMovePoints }
                             );
                         break;
                     default:
@@ -79,6 +79,8 @@ namespace Pather.Servers.GameSegmentServer
             switch (action.TellGameSegmentActionType)
             {
                 case TellGameSegmentActionType.MoveEntity:
+                    var moveEntity = (MoveEntity_TellGameSegmentAction) action;
+                    ((ServerGameUser)ActiveEntities[action.EntityId]).SetPointInTime(moveEntity.X, moveEntity.Y, moveEntity.LockstepTick);
                     Global.Console.Log("Got tell move action from gamesegment");
                     break;
                 default:
@@ -91,7 +93,8 @@ namespace Pather.Servers.GameSegmentServer
             switch (action.NeighborGameSegmentActionType)
             {
                 case NeighborGameSegmentActionType.MoveEntity:
-                    Global.Console.Log("Got neighbor move action from gamesegment");
+                    var moveEntity = (MoveEntity_NeighborGameSegmentAction) action;
+                    ((ServerGameUser) ActiveEntities[action.EntityId]).SetPath(moveEntity.LockstepMovePoints);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -101,7 +104,7 @@ namespace Pather.Servers.GameSegmentServer
 
         public void UserLeft(string userId)
         {
-            var user = (ServerGameUser) ActiveEntities[userId];
+            var user = (ServerGameUser)ActiveEntities[userId];
             var gameSegment = user.GameSegment;
             gameSegment.UserLeft(userId);
 
@@ -113,7 +116,7 @@ namespace Pather.Servers.GameSegmentServer
 
             foreach (var gameEntityNeighbor in user.Neighbors.List)
             {
-                var serverGameUser = ((ServerGameUser) gameEntityNeighbor.Entity);
+                var serverGameUser = ((ServerGameUser)gameEntityNeighbor.Entity);
 
                 var neighbors = serverGameUser.Neighbors;
                 foreach (var entityNeighbor in neighbors.List)
@@ -248,7 +251,7 @@ namespace Pather.Servers.GameSegmentServer
                     }
                     if (notIn)
                     {
-                        added.Add((ServerGameUser) gameEntityNeighbor.Entity);
+                        added.Add((ServerGameUser)gameEntityNeighbor.Entity);
                     }
                 }
                 foreach (var gameSegmentNeighbor in serverGameUser.OldNeighbors)
@@ -264,7 +267,7 @@ namespace Pather.Servers.GameSegmentServer
                     }
                     if (notIn)
                     {
-                        removed.Add((ServerGameUser) gameSegmentNeighbor.Entity);
+                        removed.Add((ServerGameUser)gameSegmentNeighbor.Entity);
                     }
                 }
 
@@ -324,8 +327,17 @@ namespace Pather.Servers.GameSegmentServer
             var x = (cx - mx);
             var y = (cy - my);
 
-            var dis = Math.Sqrt((x*x) + (y*y));
+            var dis = Math.Sqrt((x * x) + (y * y));
             return Utilities.ToSquare(dis);
         }
+        public virtual void LockstepTick(long lockstepTickNumber)
+        {
+            foreach (var gameEntity in ActiveEntities.List)
+            {
+                var serverGameEntity = (IServerGameEntity) gameEntity;
+                serverGameEntity.LockstepTick(lockstepTickNumber);
+            }
+        }
+
     }
 }

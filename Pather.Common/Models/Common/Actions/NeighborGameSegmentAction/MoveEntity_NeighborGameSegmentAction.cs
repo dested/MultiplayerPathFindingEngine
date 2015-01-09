@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Pather.Common.Models.Common.Actions.NeighborGameSegmentAction.Base;
+using Pather.Common.Utils;
 
 namespace Pather.Common.Models.Common.Actions.NeighborGameSegmentAction
 {
@@ -10,5 +12,7 @@ namespace Pather.Common.Models.Common.Actions.NeighborGameSegmentAction
         {
             NeighborGameSegmentActionType = NeighborGameSegmentActionType.MoveEntity;
         }
+
+        public JsDictionary<long, Point> LockstepMovePoints;
     }
 }

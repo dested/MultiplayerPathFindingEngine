@@ -97,7 +97,7 @@
     <Compile Include="Libraries\RTree\BoundingBox.cs" />
     <Compile Include="Libraries\RTree\ILog.cs" />
     <Compile Include="Libraries\RTree\Log.cs" />
-    <Compile Include="Libraries\RTree\LogManager.cs" />
+    <Compile Include="Libraries\RTree\RTreeLogManager.cs" />
     <Compile Include="Libraries\RTree\Node.cs" />
     <Compile Include="Libraries\RTree\RtreePoint.cs" />
     <Compile Include="Libraries\RTree\Rectangle.cs" />

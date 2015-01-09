@@ -25,7 +25,7 @@ namespace Pather.Client.GameFramework
             StepManager.QueueClientAction(action);
         }
 
-        public void MyUserJoined(string userId, int x, int y)
+        public void MyUserJoined(string userId, double x, double y)
         {
             var clientUser = CreateGameUser(userId);
             clientUser.X = x;

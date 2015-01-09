@@ -36,7 +36,7 @@ namespace Pather.Servers.Libraries.RTree
         /// <summary>
         ///     The (x, y) coordinates of the point.
         /// </summary>
-        internal float[] coordinates;
+        internal double[] coordinates;
 
 
         /// <summary>
@@ -45,9 +45,9 @@ namespace Pather.Servers.Libraries.RTree
         /// <param name="x">The x coordinate of the point</param>
         /// <param name="y">The y coordinate of the point</param>
         /// <param name="z">The z coordinate of the point</param>
-        public RTreePoint(float x, float y, float z = 1)
+        public RTreePoint(double x, double y, double z = 1)
         {
-            coordinates = new float[DIMENSIONS];
+            coordinates = new double[DIMENSIONS];
             coordinates[0] = x;
             coordinates[1] = y;
             coordinates[2] = z;

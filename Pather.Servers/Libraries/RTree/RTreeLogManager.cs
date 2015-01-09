@@ -1,6 +1,6 @@
 namespace Pather.Servers.Libraries.RTree
 {
-    internal class LogManager
+    internal class RTreeLogManager
     {
         public static ILog GetLogger(string fullName)
         {

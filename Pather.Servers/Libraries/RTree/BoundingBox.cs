@@ -19,8 +19,8 @@ namespace Pather.Servers.Libraries.RTree
             if (points == null)
                 throw new ArgumentNullException();
             var flag = true;
-            var min = new Vector2(float.MaxValue);
-            var max = new Vector2(float.MinValue);
+            var min = new Vector2(double.MaxValue);
+            var max = new Vector2(double.MinValue);
             foreach (var vector2 in points)
             {
                 min.X = (double) min.X < (double) vector2.X ? min.X : vector2.X;

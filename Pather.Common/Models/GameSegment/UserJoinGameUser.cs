@@ -6,8 +6,8 @@ namespace Pather.Common.Models.GameSegment
     public class UserJoinGameUser
     {
         public string UserId;
-        public int X;
-        public int Y;
+        public double X;
+        public double Y;
         public string GatewayId;
     }
 }

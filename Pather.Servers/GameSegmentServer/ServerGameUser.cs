@@ -15,32 +15,30 @@ namespace Pather.Servers.GameSegmentServer
         public GameSegment GameSegment;
         public string GatewayId;
         public List<InProgressClientAction> InProgressActions;
-        private readonly JsDictionary<long, Point> lockstepMovePoints;
+        public JsDictionary<long, Point> LockstepMovePoints;
 
         public ServerGameUser(ServerGame game, string userId)
             : base(game, userId)
         {
-            lockstepMovePoints = new JsDictionary<long, Point>();
+            LockstepMovePoints = new JsDictionary<long, Point>();
             InProgressActions = new List<InProgressClientAction>();
         }
 
         public Point GetPositionAtLockstep(long lockstepTickNumber)
         {
-            return lockstepMovePoints[lockstepTickNumber] ?? new Point(X, Y);
+            return LockstepMovePoints[lockstepTickNumber] ?? new Point(X, Y);
         }
 
-        public override void LockstepTick(long lockstepTickNumber)
+        public  void LockstepTick(long lockstepTickNumber)
         {
-            base.LockstepTick(lockstepTickNumber);
-
-            if (lockstepMovePoints.ContainsKey(lockstepTickNumber))
+            if (LockstepMovePoints.ContainsKey(lockstepTickNumber))
             {
-                var point = lockstepMovePoints[lockstepTickNumber];
+                var point = LockstepMovePoints[lockstepTickNumber];
                 X = point.X;
                 Y = point.Y;
 
-                lockstepMovePoints.Remove(lockstepTickNumber);
-                Global.Console.Log(EntityId, X, Y, lockstepMovePoints.Count, lockstepTickNumber);
+                LockstepMovePoints.Remove(lockstepTickNumber);
+                Global.Console.Log(EntityId, X, Y, LockstepMovePoints.Count, lockstepTickNumber);
             }
 
             for (var index = InProgressActions.Count - 1; index >= 0; index--)
@@ -53,7 +51,7 @@ namespace Pather.Servers.GameSegmentServer
             }
         }
 
-        public void RePathFind(MoveEntity_GameSegmentAction destinationAction)
+        public long RePathFind(MoveEntity_GameSegmentAction destinationAction)
         {
             //todo user current x,y
             var graph = game.Board.AStarGraph;
@@ -80,7 +78,7 @@ namespace Pather.Servers.GameSegmentServer
             Global.Console.Log("Move entity on path:", moveEntityOnPathAction);
             InProgressActions.Add(new InProgressClientAction(moveEntityOnPathAction, lockstepTickNumber));
 
-
+            return lockstepTickNumber;
             //            Global.Console.Log("Path points:", InProgressActions);
         }
 
@@ -147,16 +145,26 @@ namespace Pather.Servers.GameSegmentServer
                 if (gameTick%gameTicksPerLockstepTick == 0)
                 {
                     startingLockstepTickNumber++;
-                    lockstepMovePoints[startingLockstepTickNumber] = new Point(x, y);
+                    LockstepMovePoints[startingLockstepTickNumber] = new Point(x, y);
                 }
             }
 
 
-            lockstepMovePoints[startingLockstepTickNumber] = new Point(x, y);
+            LockstepMovePoints[startingLockstepTickNumber] = new Point(x, y);
 
             //todo path should .count==0
 
             return startingLockstepTickNumber;
+        }
+
+        public void SetPath(JsDictionary<long, Point> lockstepMovePoints)
+        {
+            LockstepMovePoints = lockstepMovePoints;
+        }
+
+        public void SetPointInTime(double x, double y, long lockstepTick)
+        {
+            LockstepMovePoints[lockstepTick] = new Point(x, y);
         }
     }
 }

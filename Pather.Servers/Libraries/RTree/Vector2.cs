@@ -2,16 +2,16 @@ namespace Pather.Servers.Libraries.RTree
 {
     public class Vector2
     {
-        public float X;
-        public float Y;
+        public double X;
+        public double Y;
 
-        public Vector2(float x, float y)
+        public Vector2(double x, double y)
         {
             X = x;
             Y = y;
         }
 
-        public Vector2(float value)
+        public Vector2(double value)
         {
             X = value;
             Y = value;
