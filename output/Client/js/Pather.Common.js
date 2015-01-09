@@ -91,7 +91,7 @@
 	$Pather_Common_Definitions_AStar_AStarLockstepPath.__typeName = 'Pather.Common.Definitions.AStar.AStarLockstepPath';
 	$Pather_Common_Definitions_AStar_AStarLockstepPath.$ctor = function(x, y) {
 		var $this = {};
-		$this.removedAtLockstep = 0;
+		$this.removeAfterLockstep = 0;
 		$this.x = 0;
 		$this.y = 0;
 		$this.x = x;
@@ -150,10 +150,8 @@
 	// Pather.Common.GameFramework.GameUser
 	var $Pather_Common_GameFramework_GameUser = function(game, userId) {
 		this.speed = 0;
-		this.path = null;
 		$Pather_Common_GameFramework_GameEntity.call(this, game);
 		this.entityId = userId;
-		this.path = [];
 		this.speed = 20;
 	};
 	$Pather_Common_GameFramework_GameUser.__typeName = 'Pather.Common.GameFramework.GameUser';
@@ -1943,14 +1941,6 @@
 			return ss.compare(clause(a), clause(b));
 		});
 		return j;
-	};
-	$Pather_Common_Utils_EnumerableExtensions.select$1 = function(items, clause) {
-		var items2 = [];
-		for (var $t1 = 0; $t1 < items.length; $t1++) {
-			var item = items[$t1];
-			items2.push(clause(item));
-		}
-		return items2;
 	};
 	$Pather_Common_Utils_EnumerableExtensions.last = function(items) {
 		return items[items.length - 1];

@@ -5,7 +5,7 @@ namespace Pather.Common.Definitions.AStar
     [Serializable]
     public class AStarLockstepPath
     {
-        public long RemovedAtLockstep;
+        public long RemoveAfterLockstep;
         public int X;
         public int Y;
 

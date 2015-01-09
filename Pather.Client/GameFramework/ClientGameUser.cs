@@ -15,9 +15,12 @@ namespace Pather.Client.GameFramework
         public ClientGameUser(ClientGame game, string userId) : base(game, userId)
         {
             Animations = new List<AnimationStep>();
+            Path = new List<AStarLockstepPath>();
         }
 
         public List<AnimationStep> Animations;
+
+        public List<AStarLockstepPath> Path;
 
         public override void Tick()
         {

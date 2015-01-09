@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using Pather.Common.Definitions.AStar;
-
 namespace Pather.Common.GameFramework
 {
     public class GameUser : GameEntity
@@ -9,12 +6,10 @@ namespace Pather.Common.GameFramework
             : base(game)
         {
             EntityId = userId;
-            Path = new List<AStarLockstepPath>();
             Speed = 20;
         }
 
         public double Speed;
-        public List<AStarLockstepPath> Path;
 
         public override void Tick()
         {

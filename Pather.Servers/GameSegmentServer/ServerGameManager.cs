@@ -225,21 +225,11 @@ namespace Pather.Servers.GameSegmentServer
 
         private void onMessageNeighborGameSegmentAction(NeighborGameSegmentAction_GameSegment_GameSegment_PubSub_Message message)
         {
-            if (!MyGameSegment.Users.Contains(message.UserId))
-            {
-                throw new Exception("This aint my user! " + message.UserId);
-            }
-
             serverGame.ServerProcessNeighborGameSegmentAction(message.Action);
         }
 
         private void onMessageTellGameSegmentAction(TellGameSegmentAction_GameSegment_GameSegment_PubSub_Message message)
         {
-            if (!MyGameSegment.Users.Contains(message.UserId))
-            {
-                throw new Exception("This aint my user! " + message.UserId);
-            }
-
             serverGame.ServerProcessTellGameSegmentAction(message.Action);
         }
 

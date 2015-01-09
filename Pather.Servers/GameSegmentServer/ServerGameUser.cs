@@ -15,44 +15,34 @@ namespace Pather.Servers.GameSegmentServer
         public GameSegment GameSegment;
         public string GatewayId;
         public List<InProgressClientAction> InProgressActions;
-        private readonly List<Point> lockstepMovePoints;
+        private readonly JsDictionary<long, Point> lockstepMovePoints;
 
         public ServerGameUser(ServerGame game, string userId)
             : base(game, userId)
         {
-            lockstepMovePoints = new List<Point>();
+            lockstepMovePoints = new JsDictionary<long, Point>();
             InProgressActions = new List<InProgressClientAction>();
         }
 
         public Point GetPositionAtLockstep(long lockstepTickNumber)
         {
-            if (lockstepTickNumber < lockstepMovePoints.Count + game.tickManager.LockstepTickNumber)
-            {
-                return lockstepMovePoints[(int) (lockstepTickNumber - game.tickManager.LockstepTickNumber)];
-            }
-
-            return new Point(X, Y);
+            return lockstepMovePoints[lockstepTickNumber] ?? new Point(X, Y);
         }
 
         public override void LockstepTick(long lockstepTickNumber)
         {
             base.LockstepTick(lockstepTickNumber);
 
-            if (lockstepMovePoints.Count > 0)
+            if (lockstepMovePoints.ContainsKey(lockstepTickNumber))
             {
-                var point = lockstepMovePoints[0];
+                var point = lockstepMovePoints[lockstepTickNumber];
                 X = point.X;
                 Y = point.Y;
 
-                lockstepMovePoints.RemoveAt(0);
+                lockstepMovePoints.Remove(lockstepTickNumber);
                 Global.Console.Log(EntityId, X, Y, lockstepMovePoints.Count, lockstepTickNumber);
             }
 
-            emptyInProgressActions(lockstepTickNumber);
-        }
-
-        private void emptyInProgressActions(long lockstepTickNumber)
-        {
             for (var index = InProgressActions.Count - 1; index >= 0; index--)
             {
                 var inProgressAction = InProgressActions[index];
@@ -63,43 +53,45 @@ namespace Pather.Servers.GameSegmentServer
             }
         }
 
-
         public void RePathFind(MoveEntity_GameSegmentAction destinationAction)
         {
             //todo user current x,y
             var graph = game.Board.AStarGraph;
-            var start = graph.Grid[Utilities.ToSquare(X)][Utilities.ToSquare(Y)];
+
+            var p = GetPositionAtLockstep(destinationAction.LockstepTick);
+
+            var x = p.X;
+            var y = p.Y;
+
+
+            var start = graph.Grid[Utilities.ToSquare(x)][Utilities.ToSquare(y)];
             var end = graph.Grid[Utilities.ToSquare(destinationAction.X)][Utilities.ToSquare(destinationAction.Y)];
-            Path.Clear();
-            Path.AddRange(AStar.Search(graph, start, end).Select(a => new AStarLockstepPath(a.X, a.Y)));
+            var path = AStar.Search(graph, start, end).Select(a => new AStarLockstepPath(a.X, a.Y));
 
 
             var moveEntityOnPathAction = new MoveEntityOnPath_ClientAction()
             {
                 EntityId = EntityId,
                 LockstepTick = destinationAction.LockstepTick,
-                Path = new List<AStarLockstepPath>(Path)
+                Path = path
             };
-            ProjectMovement();
+
+            var lockstepTickNumber = ProjectMovement(x, y, destinationAction.LockstepTick, path);
             Global.Console.Log("Move entity on path:", moveEntityOnPathAction);
-            InProgressActions.Add(new InProgressClientAction(moveEntityOnPathAction, destinationAction.LockstepTick + lockstepMovePoints.Count));
+            InProgressActions.Add(new InProgressClientAction(moveEntityOnPathAction, lockstepTickNumber));
 
 
             //            Global.Console.Log("Path points:", InProgressActions);
         }
 
-        public void ProjectMovement()
+        public long ProjectMovement(double x, double y, long startingLockstepTickNumber, List<AStarLockstepPath> path)
         {
-            var x = X;
-            var y = Y;
+            var pathIndex = 0;
+
             //            Global.Console.Log(EntityId,"Projecting movement");
 
-            var pathCopy = new List<AStarLockstepPath>(Path);
-            var startingLockstepTickNumber = game.tickManager.LockstepTickNumber;
-
-            var nextPathPoint = pathCopy[0];
-            lockstepMovePoints.Clear();
-            if (nextPathPoint == null) return;
+            var nextPathPoint = path[pathIndex];
+            if (nextPathPoint == null) return startingLockstepTickNumber;
             var gameTicksPerLockstepTick = Constants.GameFps/Constants.LockstepFps;
             var gameTick = 0;
 
@@ -122,9 +114,9 @@ namespace Pather.Servers.GameSegmentServer
 
                     if (squareX == nextPathPoint.X && squareY == nextPathPoint.Y)
                     {
-                        nextPathPoint.RemovedAtLockstep = startingLockstepTickNumber + lockstepMovePoints.Count;
-                        pathCopy.RemoveAt(0);
-                        nextPathPoint = pathCopy[0];
+                        nextPathPoint.RemoveAfterLockstep = startingLockstepTickNumber;
+                        pathIndex++;
+                        nextPathPoint = path[pathIndex];
                         //                        Global.Console.Log(EntityId, "next path");
 
                         if (nextPathPoint == null)
@@ -154,20 +146,17 @@ namespace Pather.Servers.GameSegmentServer
                 gameTick++;
                 if (gameTick%gameTicksPerLockstepTick == 0)
                 {
-                    lockstepMovePoints.Add(new Point(x, y));
+                    startingLockstepTickNumber++;
+                    lockstepMovePoints[startingLockstepTickNumber] = new Point(x, y);
                 }
             }
 
 
-            var lastLockstepMovePoint = lockstepMovePoints.Last();
-            if (lastLockstepMovePoint != null)
-            {
-                lastLockstepMovePoint.X = x;
-                lastLockstepMovePoint.Y = y;
-            }
+            lockstepMovePoints[startingLockstepTickNumber] = new Point(x, y);
 
             //todo path should .count==0
-            Path.Clear();
+
+            return startingLockstepTickNumber;
         }
     }
 }

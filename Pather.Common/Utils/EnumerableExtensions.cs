@@ -223,18 +223,6 @@ namespace Pather.Common.Utils
 
 
         [IncludeGenericArguments(false)]
-        public static List<T2> Select<T, T2>(this T[] items, Func<T, T2> clause)
-        {
-            var items2 = new List<T2>();
-
-            foreach (var item in items)
-            {
-                items2.Add(clause(item));
-            }
-            return items2;
-        }
-
-        [IncludeGenericArguments(false)]
         public static T Last<T>(this List<T> items)
         {
             return items[items.Count - 1];

@@ -69,8 +69,9 @@ namespace Pather.Client.GameFramework
                     for (; removeStart < moveEntityOnPath.Path.Count; removeStart++)
                     {
                         var aStarLockstepPath = moveEntityOnPath.Path[removeStart];
-                        if (aStarLockstepPath.RemovedAtLockstep >= tickManager.LockstepTickNumber)
+                        if (aStarLockstepPath.RemoveAfterLockstep > tickManager.LockstepTickNumber)
                         {
+                            removeStart--;
                             break;
                         }
                     }

@@ -294,19 +294,9 @@ namespace Pather.Servers.GameSegmentServer
 
                                 Global.Console.Log("xy ", a.X, a.Y);
 
-                                //todo this doesnt feel right...
-                                if (inProgressActions.Count == 0)
-                                {
-                                    Global.Console.Log("count 0");
-                                    point = a.GetPositionAtLockstep(lockstepTickToRun - 1);
-                                    Global.Console.Log("xy ", point.X, point.Y);
-                                }
-                                else
-                                {
-                                    Global.Console.Log("count ", inProgressActions.Count);
-                                    point = a.GetPositionAtLockstep(lockstepTickToRun);
-                                    Global.Console.Log("xy ", point.X, point.Y);
-                                }
+                                Global.Console.Log("count ", inProgressActions.Count);
+                                point = a.GetPositionAtLockstep(lockstepTickToRun);
+                                Global.Console.Log("xy ", point.X, point.Y);
 
                                 return new UpdatedNeighbor()
                                 {
@@ -316,7 +306,7 @@ namespace Pather.Servers.GameSegmentServer
                                     Y = point.Y
                                 };
                             }),
-                            LockstepTick = lockstepTickToRun + 1 //todo this sholnt be plus 1, i think theres somethign wrong with getpositionatlockstep
+                            LockstepTick = lockstepTickToRun
                         }
                     });
                 }

@@ -110,8 +110,10 @@
 	// Pather.Client.GameFramework.ClientGameUser
 	var $Pather_Client_GameFramework_ClientGameUser = function(game, userId) {
 		this.animations = null;
+		this.path = null;
 		Pather.Common.GameFramework.GameUser.call(this, game, userId);
 		this.animations = [];
+		this.path = [];
 	};
 	$Pather_Client_GameFramework_ClientGameUser.__typeName = 'Pather.Client.GameFramework.ClientGameUser';
 	global.Pather.Client.GameFramework.ClientGameUser = $Pather_Client_GameFramework_ClientGameUser;
@@ -278,7 +280,8 @@
 					var removeStart = 0;
 					for (; removeStart < moveEntityOnPath.path.length; removeStart++) {
 						var aStarLockstepPath = moveEntityOnPath.path[removeStart];
-						if (aStarLockstepPath.removedAtLockstep >= this.tickManager.lockstepTickNumber) {
+						if (aStarLockstepPath.removeAfterLockstep > this.tickManager.lockstepTickNumber) {
+							removeStart--;
 							break;
 						}
 					}
@@ -463,7 +466,7 @@
 			var start = graph.grid[Pather.Common.Utils.Utilities.toSquare(this.x)][Pather.Common.Utils.Utilities.toSquare(this.y)];
 			var end = graph.grid[Pather.Common.Utils.Utilities.toSquare(destinationAction.x)][Pather.Common.Utils.Utilities.toSquare(destinationAction.y)];
 			ss.clear(this.path);
-			ss.arrayAddRange(this.path, Pather.Common.Utils.EnumerableExtensions.select$1(astar.search(graph, start, end), function(a) {
+			ss.arrayAddRange(this.path, Pather.Common.Utils.EnumerableExtensions.select(astar.search(graph, start, end), function(a) {
 				return Pather.Common.Definitions.AStar.AStarLockstepPath.$ctor(a.x, a.y);
 			}));
 			console.log('Path', JSON.stringify(this.path));

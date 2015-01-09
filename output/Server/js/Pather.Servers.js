@@ -561,7 +561,7 @@ var $Pather_Servers_GameSegmentServer_ServerGameUser = function(game, userId) {
 	this.inProgressActions = null;
 	this.$lockstepMovePoints = null;
 	Pather.Common.GameFramework.GameUser.call(this, game, userId);
-	this.$lockstepMovePoints = [];
+	this.$lockstepMovePoints = {};
 	this.inProgressActions = [];
 };
 $Pather_Servers_GameSegmentServer_ServerGameUser.__typeName = 'Pather.Servers.GameSegmentServer.ServerGameUser';
@@ -2777,17 +2777,9 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGame, $asm, {
 					console.log('In progress actions: ', inProgressActions, a1.entityId);
 					var point;
 					console.log('xy ', a1.x, a1.y);
-					//todo this doesnt feel right...
-					if (inProgressActions.length === 0) {
-						console.log('count 0');
-						point = a1.getPositionAtLockstep(this.lockstepTickToRun.$ - 1);
-						console.log('xy ', point.x, point.y);
-					}
-					else {
-						console.log('count ', inProgressActions.length);
-						point = a1.getPositionAtLockstep(this.lockstepTickToRun.$);
-						console.log('xy ', point.x, point.y);
-					}
+					console.log('count ', inProgressActions.length);
+					point = a1.getPositionAtLockstep(this.lockstepTickToRun.$);
+					console.log('xy ', point.x, point.y);
 					var $t11 = Pather.Common.Models.Common.UpdatedNeighbor.$ctor();
 					$t11.userId = a1.entityId;
 					$t11.inProgressClientActions = inProgressActions;
@@ -2795,7 +2787,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGame, $asm, {
 					$t11.y = point.y;
 					return $t11;
 				}));
-				$t10.lockstepTick = lockstepTickToRun.$ + 1;
+				$t10.lockstepTick = lockstepTickToRun.$;
 				$t8.clientAction = $t10;
 				$t12.sendToUser(serverGameUser, $t8);
 			}
@@ -2973,15 +2965,9 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameManager, $asm, {
 		this.$serverGame.serverProcessGameSegmentAction(this.myGameSegment.users.get_item(message.userId), message.action);
 	},
 	$onMessageNeighborGameSegmentAction: function(message) {
-		if (!this.myGameSegment.users.contains$1(message.userId)) {
-			throw new ss.Exception('This aint my user! ' + message.userId);
-		}
 		this.$serverGame.serverProcessNeighborGameSegmentAction(message.action);
 	},
 	$onMessageTellGameSegmentAction: function(message) {
-		if (!this.myGameSegment.users.contains$1(message.userId)) {
-			throw new ss.Exception('This aint my user! ' + message.userId);
-		}
 		this.$serverGame.serverProcessTellGameSegmentAction(message.action);
 	},
 	$onMessageNewGameSegment: function(message) {
@@ -3041,23 +3027,17 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameManager, $asm, {
 });
 ss.initClass($Pather_Servers_GameSegmentServer_ServerGameUser, $asm, {
 	getPositionAtLockstep: function(lockstepTickNumber) {
-		if (lockstepTickNumber < this.$lockstepMovePoints.length + this.game.tickManager.lockstepTickNumber) {
-			return this.$lockstepMovePoints[lockstepTickNumber - this.game.tickManager.lockstepTickNumber];
-		}
-		return Pather.Common.Utils.Point.$ctor(this.x, this.y);
+		return this.$lockstepMovePoints[lockstepTickNumber] || Pather.Common.Utils.Point.$ctor(this.x, this.y);
 	},
 	lockstepTick: function(lockstepTickNumber) {
 		Pather.Common.GameFramework.GameUser.prototype.lockstepTick.call(this, lockstepTickNumber);
-		if (this.$lockstepMovePoints.length > 0) {
-			var point = this.$lockstepMovePoints[0];
+		if (ss.keyExists(this.$lockstepMovePoints, lockstepTickNumber)) {
+			var point = this.$lockstepMovePoints[lockstepTickNumber];
 			this.x = point.x;
 			this.y = point.y;
-			ss.removeAt(this.$lockstepMovePoints, 0);
-			console.log(this.entityId, this.x, this.y, this.$lockstepMovePoints.length, lockstepTickNumber);
+			delete this.$lockstepMovePoints[lockstepTickNumber];
+			console.log(this.entityId, this.x, this.y, ss.getKeyCount(this.$lockstepMovePoints), lockstepTickNumber);
 		}
-		this.$emptyInProgressActions(lockstepTickNumber);
-	},
-	$emptyInProgressActions: function(lockstepTickNumber) {
 		for (var index = this.inProgressActions.length - 1; index >= 0; index--) {
 			var inProgressAction = this.inProgressActions[index];
 			if (inProgressAction.endingLockStepTicking <= lockstepTickNumber) {
@@ -3068,32 +3048,30 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameUser, $asm, {
 	rePathFind: function(destinationAction) {
 		//todo user current x,y
 		var graph = this.game.board.aStarGraph;
-		var start = graph.grid[Pather.Common.Utils.Utilities.toSquare(this.x)][Pather.Common.Utils.Utilities.toSquare(this.y)];
+		var p = this.getPositionAtLockstep(destinationAction.lockstepTick);
+		var x = p.x;
+		var y = p.y;
+		var start = graph.grid[Pather.Common.Utils.Utilities.toSquare(x)][Pather.Common.Utils.Utilities.toSquare(y)];
 		var end = graph.grid[Pather.Common.Utils.Utilities.toSquare(destinationAction.x)][Pather.Common.Utils.Utilities.toSquare(destinationAction.y)];
-		ss.clear(this.path);
-		ss.arrayAddRange(this.path, Pather.Common.Utils.EnumerableExtensions.select$1(astar.search(graph, start, end), function(a) {
+		var path = Pather.Common.Utils.EnumerableExtensions.select(astar.search(graph, start, end), function(a) {
 			return Pather.Common.Definitions.AStar.AStarLockstepPath.$ctor(a.x, a.y);
-		}));
+		});
 		var $t1 = Pather.Common.Models.Common.Actions.ClientActions.MoveEntityOnPath_ClientAction.$ctor();
 		$t1.entityId = this.entityId;
 		$t1.lockstepTick = destinationAction.lockstepTick;
-		$t1.path = ss.arrayClone(this.path);
+		$t1.path = path;
 		var moveEntityOnPathAction = $t1;
-		this.projectMovement();
+		var lockstepTickNumber = this.projectMovement(x, y, destinationAction.lockstepTick, path);
 		console.log('Move entity on path:', moveEntityOnPathAction);
-		this.inProgressActions.push(Pather.Common.Models.Common.InProgressClientAction.$ctor(moveEntityOnPathAction, destinationAction.lockstepTick + this.$lockstepMovePoints.length));
+		this.inProgressActions.push(Pather.Common.Models.Common.InProgressClientAction.$ctor(moveEntityOnPathAction, lockstepTickNumber));
 		//            Global.Console.Log("Path points:", InProgressActions);
 	},
-	projectMovement: function() {
-		var x = this.x;
-		var y = this.y;
+	projectMovement: function(x, y, startingLockstepTickNumber, path) {
+		var pathIndex = 0;
 		//            Global.Console.Log(EntityId,"Projecting movement");
-		var pathCopy = ss.arrayClone(this.path);
-		var startingLockstepTickNumber = this.game.tickManager.lockstepTickNumber;
-		var nextPathPoint = pathCopy[0];
-		ss.clear(this.$lockstepMovePoints);
+		var nextPathPoint = path[pathIndex];
 		if (ss.isNullOrUndefined(nextPathPoint)) {
-			return;
+			return startingLockstepTickNumber;
 		}
 		var gameTicksPerLockstepTick = ss.Int32.div(Pather.Common.Constants.gameFps, Pather.Common.Constants.lockstepFps);
 		var gameTick = 0;
@@ -3108,9 +3086,9 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameUser, $asm, {
 				var squareX = Pather.Common.Utils.Utilities.toSquare(x);
 				var squareY = Pather.Common.Utils.Utilities.toSquare(y);
 				if (squareX === nextPathPoint.x && squareY === nextPathPoint.y) {
-					nextPathPoint.removedAtLockstep = startingLockstepTickNumber + this.$lockstepMovePoints.length;
-					ss.removeAt(pathCopy, 0);
-					nextPathPoint = pathCopy[0];
+					nextPathPoint.removeAfterLockstep = startingLockstepTickNumber;
+					pathIndex++;
+					nextPathPoint = path[pathIndex];
 					//                        Global.Console.Log(EntityId, "next path");
 					if (ss.isNullOrUndefined(nextPathPoint)) {
 						//                            Global.Console.Log(EntityId, "done");
@@ -3134,16 +3112,13 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameUser, $asm, {
 			//                Global.Console.Log(EntityId, x, y);
 			gameTick++;
 			if (gameTick % gameTicksPerLockstepTick === 0) {
-				this.$lockstepMovePoints.push(Pather.Common.Utils.Point.$ctor(x, y));
+				startingLockstepTickNumber++;
+				this.$lockstepMovePoints[startingLockstepTickNumber] = Pather.Common.Utils.Point.$ctor(x, y);
 			}
 		}
-		var lastLockstepMovePoint = Pather.Common.Utils.EnumerableExtensions.last(this.$lockstepMovePoints);
-		if (ss.isValue(lastLockstepMovePoint)) {
-			lastLockstepMovePoint.x = x;
-			lastLockstepMovePoint.y = y;
-		}
+		this.$lockstepMovePoints[startingLockstepTickNumber] = Pather.Common.Utils.Point.$ctor(x, y);
 		//todo path should .count==0
-		ss.clear(this.path);
+		return startingLockstepTickNumber;
 	}
 }, Pather.Common.GameFramework.GameUser, [$Pather_Servers_GameSegmentServer_IServerGameEntity]);
 ss.initClass($Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessage, $asm, {});

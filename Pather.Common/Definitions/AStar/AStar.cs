@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Pather.Common.Definitions.AStar
 {
@@ -7,7 +8,7 @@ namespace Pather.Common.Definitions.AStar
     [IgnoreNamespace]
     public static class AStar
     {
-        public static AStarPath[] Search(AStarGraph graph, AStarGridPoint start, AStarGridPoint end)
+        public static List<AStarPath> Search(AStarGraph graph, AStarGridPoint start, AStarGridPoint end)
         {
             return null;
         }
