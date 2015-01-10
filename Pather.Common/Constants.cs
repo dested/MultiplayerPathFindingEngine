@@ -40,6 +40,7 @@ namespace Pather.Common
             ReorganizeGameWorldInterval = 1000;
 
             NumberOfReorganizedPlayersPerSession = 10;
+            GameSegmentReorgSwitchOffset = 5;
         }
 
         public static int NumberOfAnimationSteps;
@@ -62,12 +63,14 @@ namespace Pather.Common
         public static int MaxGameSegmentsPerCluster;
         public static int BuildNeighborsTimeout;
         public static int ReorganizeGameWorldInterval;
+        public static int GameSegmentReorgSwitchOffset;
 
 
         public static bool TestServer
         {
             get { return ((dynamic) Window.Instance).TestServer; }
         }
+
 
         public static int NumberOfReorganizedPlayersPerSession;
 

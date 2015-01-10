@@ -6,8 +6,10 @@ using Pather.Common.Models.Common.Actions.GameWorldAction;
 using Pather.Common.Models.Common.Actions.GameWorldAction.Base;
 using Pather.Common.Models.Common.Actions.TellGameSegmentAction;
 using Pather.Common.Models.GameSegment;
+using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.GameWorld.Gateway;
 using Pather.Common.Models.GameWorld.ServerManager;
+using Pather.Common.Models.Gateway.PubSub;
 using Pather.Common.Models.ServerManager.Base;
 using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
@@ -20,12 +22,14 @@ namespace Pather.Servers.GameWorldServer
     public class GameWorld
     {
         public GameWorldPubSub GameWorldPubSub;
+        private readonly BackEndTickManager backEndTickManager;
         public DictionaryList<string, GameWorldUser> Users;
         public DictionaryList<string, GameSegment> GameSegments;
 
         public GameWorld(GameWorldPubSub gameWorldPubSub, BackEndTickManager backEndTickManager)
         {
             GameWorldPubSub = gameWorldPubSub;
+            this.backEndTickManager = backEndTickManager;
             Users = new DictionaryList<string, GameWorldUser>(a => a.UserId);
             GameSegments = new DictionaryList<string, GameSegment>(a => a.GameSegmentId);
             backEndTickManager.OnProcessLockstep+=OnProcessLockstep;
@@ -247,11 +251,22 @@ namespace Pather.Servers.GameWorldServer
                 var reorg = Math.Min(needToReorganize.Count, Constants.NumberOfReorganizedPlayersPerSession);
                 for (var i = reorg - 1; i >= 0; i--)
                 {
+                    var gameWorldUser = needToReorganize[reorg].GameWorldUser;
+                    var oldGameSegment = gameWorldUser.GameSegment;
                     var newGameSegment = needToReorganize[reorg].BestGameSegment;
-                    var oldGameSegment = needToReorganize[reorg].GameWorldUser;
 
-
-//               todo idk     GameWorldPubSub.PublishToGameSegmentWithCallback<>()
+                    GameWorldPubSub.PublishToGameSegment(oldGameSegment.GameSegmentId, new ReorganizeUser_GameWorld_GameSegment_PubSub_Message()
+                    {
+                        NewGameSegmentId = newGameSegment.GameSegmentId,
+                        UserId = gameWorldUser.UserId,
+                        SwitchAtLockstepNumber = backEndTickManager.LockstepTickNumber + Constants.GameSegmentReorgSwitchOffset
+                    });
+                    GameWorldPubSub.PublishToGatewayServer(gameWorldUser.GatewayId, new ReorganizeUser_GameWorld_Gateway_PubSub_Message()
+                    {
+                        NewGameSegmentId = newGameSegment.GameSegmentId,
+                        UserId = gameWorldUser.UserId,
+                        SwitchAtLockstepNumber = backEndTickManager.LockstepTickNumber + Constants.GameSegmentReorgSwitchOffset
+                    });
                 }
             }
         }

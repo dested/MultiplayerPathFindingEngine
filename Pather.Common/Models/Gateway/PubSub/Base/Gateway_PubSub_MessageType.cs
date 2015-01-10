@@ -7,6 +7,7 @@ namespace Pather.Common.Models.Gateway.PubSub.Base
     {
         UserJoined,
         Pong,
-        ClientActionCollection
+        ClientActionCollection,
+        ReorganizeUser
     }
 }

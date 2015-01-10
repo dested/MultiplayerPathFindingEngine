@@ -98,42 +98,6 @@ namespace Pather.Servers.GameSegmentServer
         }
 
 
-        private void onMessage(GameSegment_PubSub_Message message)
-        {
-            switch (message.Type)
-            {
-                case GameSegment_PubSub_MessageType.UserJoin:
-                    onMessageUserJoin((UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message) message);
-                    break;
-                case GameSegment_PubSub_MessageType.TellUserJoin:
-                    onMessageTellUserJoin((TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message) message);
-                    break;
-                case GameSegment_PubSub_MessageType.TellUserLeft:
-                    onMessageTellUserLeft((TellUserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message) message);
-                    break;
-                case GameSegment_PubSub_MessageType.UserLeft:
-                    onMessageUserLeft((UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message) message);
-                    break;
-                case GameSegment_PubSub_MessageType.NewGameSegment:
-                    onMessageNewGameSegment((NewGameSegment_GameWorld_GameSegment_PubSub_Message) message);
-                    break;
-                case GameSegment_PubSub_MessageType.Pong:
-                    onMessagePong((Pong_Tick_GameSegment_PubSub_Message) message);
-                    break;
-                case GameSegment_PubSub_MessageType.GameSegmentAction:
-                    onMessageGameSegmentAction((GameSegmentAction_Gateway_GameSegment_PubSub_Message) message);
-                    break;
-                case GameSegment_PubSub_MessageType.NeighborGameSegmentAction:
-                    onMessageNeighborGameSegmentAction((NeighborGameSegmentAction_GameSegment_GameSegment_PubSub_Message) message);
-                    break;
-                case GameSegment_PubSub_MessageType.TellGameSegmentAction:
-                    onMessageTellGameSegmentAction((TellGameSegmentAction_GameSegment_GameSegment_PubSub_Message) message);
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
         private void sendPing()
         {
             GameSegmentPubSub.PublishToTickServer(new Ping_Tick_PubSub_Message()
@@ -211,6 +175,55 @@ namespace Pather.Servers.GameSegmentServer
 
 
             SendToGameWorld(gameWorldAction);
+        }
+
+
+
+
+        private void onMessage(GameSegment_PubSub_Message message)
+        {
+            switch (message.Type)
+            {
+                case GameSegment_PubSub_MessageType.UserJoin:
+                    onMessageUserJoin((UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message)message);
+                    break;
+                case GameSegment_PubSub_MessageType.TellUserJoin:
+                    onMessageTellUserJoin((TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message)message);
+                    break;
+                case GameSegment_PubSub_MessageType.TellUserLeft:
+                    onMessageTellUserLeft((TellUserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message)message);
+                    break;
+                case GameSegment_PubSub_MessageType.UserLeft:
+                    onMessageUserLeft((UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message)message);
+                    break;
+                case GameSegment_PubSub_MessageType.NewGameSegment:
+                    onMessageNewGameSegment((NewGameSegment_GameWorld_GameSegment_PubSub_Message)message);
+                    break;
+                case GameSegment_PubSub_MessageType.Pong:
+                    onMessagePong((Pong_Tick_GameSegment_PubSub_Message)message);
+                    break;
+                case GameSegment_PubSub_MessageType.GameSegmentAction:
+                    onMessageGameSegmentAction((GameSegmentAction_Gateway_GameSegment_PubSub_Message)message);
+                    break;
+                case GameSegment_PubSub_MessageType.NeighborGameSegmentAction:
+                    onMessageNeighborGameSegmentAction((NeighborGameSegmentAction_GameSegment_GameSegment_PubSub_Message)message);
+                    break;
+                case GameSegment_PubSub_MessageType.TellGameSegmentAction:
+                    onMessageTellGameSegmentAction((TellGameSegmentAction_GameSegment_GameSegment_PubSub_Message)message);
+                    break;
+                case GameSegment_PubSub_MessageType.ReorganizeGameSegment:
+                    onMessageReorganizeGameSegment((ReorganizeUser_GameWorld_GameSegment_PubSub_Message)message);
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private void onMessageReorganizeGameSegment(ReorganizeUser_GameWorld_GameSegment_PubSub_Message message)
+        {
+            //send new gamesegment the pending actions
+            //then at the specified tick, remove him from our directory?
+            //wont be this easy...
         }
 
         private void onMessageGameSegmentAction(GameSegmentAction_Gateway_GameSegment_PubSub_Message message)

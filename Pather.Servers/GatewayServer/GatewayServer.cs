@@ -56,9 +56,32 @@ namespace Pather.Servers.GatewayServer
                     registerGatewayWithCluster();
                     pubsubReady();
                 });
+                BackEndTickManager.OnProcessLockstep += processLockStep;
                 BackEndTickManager.StartPing();
             });
         }
+
+        private void processLockStep(long lockstepTickNumber)
+        {
+            if (reorgUserAtLockstep.ContainsKey(lockstepTickNumber))
+            {
+                var reorgsThisTick = reorgUserAtLockstep[lockstepTickNumber];
+
+                foreach (var reorganizeUserMessage in reorgsThisTick)
+                {
+                    var gatewayUser = Users[reorganizeUserMessage.UserId];
+                    if (gatewayUser == null)
+                    {
+                        Global.Console.Log("Tried to reorganize user who already left", reorganizeUserMessage.UserId);
+                        continue;
+                    }
+                    gatewayUser.GameSegmentId = reorganizeUserMessage.NewGameSegmentId;
+                }
+            }
+        }
+
+        private JsDictionary<long, List<ReorganizeUser_GameWorld_Gateway_PubSub_Message>> reorgUserAtLockstep =
+            new JsDictionary<long, List<ReorganizeUser_GameWorld_Gateway_PubSub_Message>>();
 
 
         private void registerGatewayWithCluster()
@@ -66,7 +89,6 @@ namespace Pather.Servers.GatewayServer
             //register game segment
             PushPop.Push(GatewayId, 1);
         }
-
 
         private void SendPing()
         {
@@ -158,8 +180,16 @@ namespace Pather.Servers.GatewayServer
 
                     break;
                 case Gateway_PubSub_MessageType.ClientActionCollection:
-                    var clientActionCollectionMessage = (ClientActionCollection_GameSegment_Gateway_PubSub_Message) message;
+                    var clientActionCollectionMessage = (ClientActionCollection_GameSegment_Gateway_PubSub_Message)message;
                     processClientAction(clientActionCollectionMessage);
+                    break;
+                case Gateway_PubSub_MessageType.ReorganizeUser:
+                    var reorgUserMessage = (ReorganizeUser_GameWorld_Gateway_PubSub_Message)message;
+                    if (!reorgUserAtLockstep.ContainsKey(reorgUserMessage.SwitchAtLockstepNumber))
+                    {
+                        reorgUserAtLockstep[reorgUserMessage.SwitchAtLockstepNumber]=new List<ReorganizeUser_GameWorld_Gateway_PubSub_Message>();
+                    }
+                    reorgUserAtLockstep[reorgUserMessage.SwitchAtLockstepNumber].Add(reorgUserMessage);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
