@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using Pather.Common;
+using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Utils;
+using Pather.Servers.GameSegmentServer.Logger;
 using Pather.Servers.GameWorldServer.Models;
 using Pather.Servers.Libraries.RTree;
 
@@ -11,8 +15,6 @@ namespace Pather.Servers.GameWorldServer
         private readonly List<GameWorldUser> gameWorldUsers;
         private readonly List<GameSegment> segments;
         private RTree<GameWorldUser> tree;
-        private static int MaxClusterSize = 200;
-        private int viewRadius = 60;
 
         private ReorganizeManager(List<GameWorldUser> gameWorldUsers, List<GameSegment> segments)
         {
@@ -22,15 +24,28 @@ namespace Pather.Servers.GameWorldServer
 
         private List<PlayerCluster> Reorganize()
         {
+            Global.Console.Log("Start Reorganize");
             tree = new RTree<GameWorldUser>();
 
             foreach (var gameWorldUser in gameWorldUsers)
             {
+                Global.Console.Log("user:", gameWorldUser.UserId, gameWorldUser.X, gameWorldUser.Y);
                 tree.Add(new Rectangle(gameWorldUser.X, gameWorldUser.Y), gameWorldUser);
             }
+            Global.Console.Log("Building Neighbors");
 
-            var playerClusters = buildClusters(gameWorldUsers, viewRadius);
-            GroupToSegments(playerClusters);
+            Debug.Break();
+
+            var userAndNeighbors = determineUserNeighbors(gameWorldUsers);
+            
+            Global.Console.Log("Building Player Clusters");
+
+            var playerClusters = buildPlayerClusters(userAndNeighbors);
+
+            Global.Console.Log("Determining best gamesegment for each player cluster");
+
+            determineBestGameSegment(playerClusters);
+
             return playerClusters;
         }
 
@@ -42,14 +57,15 @@ namespace Pather.Servers.GameWorldServer
 
         /* Absalom P. Sanguinet's Vibrella.*/
 
-        private void GroupToSegments(List<PlayerCluster> clusters)
+        private void determineBestGameSegment(List<PlayerCluster> clusters)
         {
-            var numberOfUsersInCluster = new JsDictionary<string, int>();
-
-            foreach (var playerCluster in clusters)
+            var numberOfUsersInGameSegment = new JsDictionary<string, int>();
+            for (int index = 0; index < clusters.Count; index++)
             {
+                var playerCluster = clusters[index];
                 var founds = new List<Tuple<int, GameSegment>>();
 
+                //testing each current game segment to see how many of our player cluster users it contains
                 foreach (var gameSegment in segments)
                 {
                     var found = 0;
@@ -63,214 +79,146 @@ namespace Pather.Servers.GameWorldServer
 
                     founds.Add(new Tuple<int, GameSegment>(found, gameSegment));
                 }
+                //sorting to see which one contains the most of our users
+                founds.Sort((a, b) => b.Item1 - a.Item1);
 
-                founds.Sort((a, b) => a.Item1 - b.Item1);
-
-                var bestIndex = 0;
-
-                while (bestIndex < founds.Count)
+                Global.Console.Log("Cluster gs",index,founds.Select(a=>new{a.Item1,a.Item2.GameSegmentId}));
+                //try all the gamesegments
+                foreach (var gameSegment in founds)
                 {
-                    var bestGameSegment = founds[bestIndex].Item2;
-                    if (!numberOfUsersInCluster.ContainsKey(bestGameSegment.GameSegmentId))
+                    var bestGameSegment = gameSegment.Item2;
+                    if (!numberOfUsersInGameSegment.ContainsKey(bestGameSegment.GameSegmentId))
                     {
-                        numberOfUsersInCluster[bestGameSegment.GameSegmentId] = 0;
+                        numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] = 0;
                     }
 
-                    if (numberOfUsersInCluster[bestGameSegment.GameSegmentId] + playerCluster.Players.Count < MaxClusterSize)
+                    //if this gamesegment can squeeze my clusters worth of players in it
+                    Global.Console.Log("trying",index,bestGameSegment.GameSegmentId, numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] + playerCluster.Players.Count);
+                    if (numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] + playerCluster.Players.Count < Constants.UsersPerGameSegment)
                     {
-                        numberOfUsersInCluster[bestGameSegment.GameSegmentId] += MaxClusterSize;
+                        Global.Console.Log("setting best", index, bestGameSegment.GameSegmentId);
+                        numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] += playerCluster.Players.Count;
+                        //this gamesegment is best for my cluster
                         playerCluster.BestGameSegment = bestGameSegment;
-                    }
-                    else
-                    {
-                        bestIndex++;
+                        break;
                     }
                 }
+                //if we never found a best game segment because the other ones are full, create a new one!
                 if (playerCluster.BestGameSegment == null)
                 {
-                    //TODO CREATE NEW CLUSTER FOOL!
+                    Global.Console.Log("Create new game cluster buster!",index);
                 }
             }
         }
 
-
-/*
-        private List<PlayerClusterGroup> GroupClusters(List<PlayerCluster> clusters)
+        private DictionaryList<string, UserAndNeighbors> determineUserNeighbors(List<GameWorldUser> players)
         {
-            List<PlayerClusterGroup> playerClusterGroups = new List<PlayerClusterGroup>();
-            List<PlayerCluster> clonePlayerClusters = new List<PlayerCluster>(clusters.OrderBy(a => -a.Players.Count));
-
-
-            while (clonePlayerClusters.Count > 0)
-            {
-
-                PlayerClusterGroup currentPlayerCluster = new PlayerClusterGroup();
-
-                for (int index = clonePlayerClusters.Count - 1; index >= 0; index--)
-                {
-                    var clonePlayerCluster = clonePlayerClusters[index];
-                    if (currentPlayerCluster.NumberOfPlayers + clonePlayerCluster.Players.Count <= MaxClusterSize)
-                    {
-                        currentPlayerCluster.PlayerClusters.Add(clonePlayerCluster);
-                        currentPlayerCluster.NumberOfPlayers += clonePlayerCluster.Players.Count;
-                        clonePlayerClusters.RemoveAt(index);
-
-
-                        if (currentPlayerCluster.NumberOfPlayers == MaxClusterSize)
-                        {
-                            break;
-                        }
-                    }
-                }
-                playerClusterGroups.Add(currentPlayerCluster);
-            }
-
-            return playerClusterGroups;
-            /*       foreach (var playerClusterGroup in playerClusterGroups)
-                   {
-
-                       var color = playerClusterGroup.PlayerClusters[0].Color;
-
-                       foreach (var playerCluster in playerClusterGroup.PlayerClusters)
-                           playerCluster.Color = color;
-
-                       Console.WriteLine(string.Format("Number Of Clusters: {0}, Number Of Players: {1}", playerClusterGroup.PlayerClusters.Count, playerClusterGroup.NumberOfPlayers));
-                   }
-
-                   Console.WriteLine(string.Format("Number Of Cluster Groups: {0}", playerClusterGroups.Count));#1#
-        }
-*/
-
-
-        private List<PlayerCluster> buildClusters(List<GameWorldUser> players, int viewRadius)
-        {
-            var clusters = ClusterTree(tree, players, viewRadius);
-
-            /*
-
-                        Console.WriteLine(string.Format("Clusters {0}", clusters.Count));
-                        for (int i = 1; i <= MaxClusterSize; i++)
-                        {
-                            Console.WriteLine(string.Format("Clusters with {1} {0}", clusters.Count(a => a.Players.Count == i), i));
-                        }
-
-                        clusters.Sort((a, b) =>
-                        {
-                            return b.Players.Count - a.Players.Count;
-                        });
-
-                        for (int i = 0; i < clusters.Count; i++)
-                        {
-                            if (clusters[i].Players.Count <= MaxClusterSize) continue;
-                            Console.WriteLine(string.Format("Cluster[{0}] Size {1}", i + 1, clusters[i].Players.Count));
-                        }
-            */
-
-
-            return clusters;
-        }
-
-        private List<PlayerCluster> ClusterTree(RTree<GameWorldUser> tree, List<GameWorldUser> players, int viewRadius)
-        {
-            var playerClusterInformations = buildPlayerClusterInformations(tree, players, viewRadius);
-
-            var playerClusters = buildPlayerClusters(players, playerClusterInformations);
-            return playerClusters;
-        }
-
-        private Dictionary<GameWorldUser, PlayerClusterInfo> buildPlayerClusterInformations(RTree<GameWorldUser> tree, List<GameWorldUser> players, int viewRadius)
-        {
-            var playerClusterInformations = new Dictionary<GameWorldUser, PlayerClusterInfo>();
+            var userAndNeighbors = new DictionaryList<string, UserAndNeighbors>(a => a.Player.UserId);
 
             for (var index = 0; index < players.Count; index++)
             {
                 var currentPlayer = players[index];
-                var nearest = tree.Nearest(new RTreePoint(currentPlayer.X, currentPlayer.Y), viewRadius);
 
-                var playerClusterInfo = new PlayerClusterInfo(currentPlayer);
+                //determining nearest users
+                var nearest = tree.Nearest(new RTreePoint(currentPlayer.X, currentPlayer.Y), Constants.ClusterGroupViewRadius);
+
+                var playerClusterInfo = new UserAndNeighbors(currentPlayer);
 
                 for (var i = 0; i < nearest.Count; i++)
                 {
                     var nearPlayer = nearest[i];
+                    //if nearplayer isnt me
                     if (nearPlayer == currentPlayer) continue;
-                    playerClusterInfo.Neighbors.Add(new Tuple<double, GameWorldUser>(pointDistance(nearPlayer, currentPlayer), nearPlayer));
+                    
+                    //he is a neighbor of mine
+                    playerClusterInfo.Neighbors.Add(new GameWorldNeighbor(nearPlayer, pointDistance(nearPlayer, currentPlayer)));
                 }
+                Global.Console.Log("Player Cluster: ", playerClusterInfo.Player.UserId, "Neighbors:", playerClusterInfo.Neighbors.Select(a => new { a.Distance, a.User.UserId }));
 
-                playerClusterInformations.Add(currentPlayer, playerClusterInfo);
+                userAndNeighbors.Add(playerClusterInfo);
             }
-            return playerClusterInformations;
+            return userAndNeighbors;
         }
 
-        private List<PlayerCluster> buildPlayerClusters(List<GameWorldUser> players, Dictionary<GameWorldUser, PlayerClusterInfo> playerClusterInformations)
+        private List<PlayerCluster> buildPlayerClusters(DictionaryList<string, UserAndNeighbors> userNeighbors)
         {
-            var hitPlayers = players.ToDictionary(a => a.UserId);
+            var unClusteredPlayers = new DictionaryList<string, UserAndNeighbors>(userNeighbors);
             var playerClusters = new List<PlayerCluster>();
-            var hitPlayerCount = players.Count;
 
-
-            var playerClusterInfoHits = new JsDictionary<string, PlayerClusterInfo>();
-            var playerClusterInfoHitsArray = new List<PlayerClusterInfo>();
-
-            while (hitPlayerCount > 0)
+            //looping through all players
+            while (unClusteredPlayers.Count > 0)
             {
-                playerClusterInfoHits.Clear();
-                playerClusterInfoHitsArray.Clear();
-
-                GetPlayerCluster(playerClusterInfoHits, playerClusterInfoHitsArray, playerClusterInformations, playerClusterInformations[hitPlayers[hitPlayers.Keys.First()]], hitPlayers);
+                //determining their nearest neighbors
+                var playerClusterInfoHits = GetPlayerCluster(unClusteredPlayers.List.First(), unClusteredPlayers);
                 var cluster = new PlayerCluster();
-                for (var index = 0; index < playerClusterInfoHitsArray.Count; index++)
+                //merging them into a player cluster
+                for (var index = 0; index < playerClusterInfoHits.Count; index++)
                 {
-                    var playerClusterInfoHit = playerClusterInfoHitsArray[index];
-                    cluster.Players.Add(playerClusterInfoHit.Player);
-                    hitPlayers.Remove(playerClusterInfoHit.Player.UserId);
-                    hitPlayerCount--;
+                    var playerClusterInfoHit = playerClusterInfoHits[index];
+                    cluster.Players.Add(playerClusterInfoHit);
+                    unClusteredPlayers.Remove(playerClusterInfoHit.UserId);
                 }
 
                 playerClusters.Add(cluster);
 
-                //                Console.WriteLine(string.Format("Players Left: {0}, Clusters Total: {1} ", hitPlayerCount, playerClusters.Count));
+                //Console.WriteLine(string.Format("Players Left: {0}, Clusters Total: {1} ", hitPlayerCount, playerClusters.Count));
             }
+            Global.Console.Log(playerClusters.Select(a => a.Players.Select(b => new { b.UserId ,b.X,b.Y})));
             return playerClusters;
         }
 
-        private void GetPlayerCluster(JsDictionary<string, PlayerClusterInfo> playerClusterInfoHits, List<PlayerClusterInfo> playerClusterInfoHitsArray, Dictionary<GameWorldUser, PlayerClusterInfo> allPlayerClusterInformations, PlayerClusterInfo currentPlayerClusterInfo,
-            JsDictionary<string, GameWorldUser> hitPlayers)
+        private List<GameWorldUser> GetPlayerCluster(UserAndNeighbors currentUser, DictionaryList<string, UserAndNeighbors> unClusteredPlayers)
         {
-            var neighbors = new List<Tuple<double, PlayerClusterInfo>>();
-            neighbors.Add(new Tuple<double, PlayerClusterInfo>(0, currentPlayerClusterInfo));
+            var clusteredPlayers = new DictionaryList<string, GameWorldUser>(a => a.UserId);
+            var neighbors = new List<GameWorldNeighbor>();
+
+            //eligible users
+            neighbors.Add(new GameWorldNeighbor(currentUser.Player, 0));
             var totalPlayers = 0;
             while (neighbors.Count > 0)
             {
-                var activePlayerClusterInfo = neighbors[0];
+                var currentUserNeighbor = neighbors[0];
+                Global.Console.Log(currentUserNeighbor.User.UserId);
 
-
-                if (!hitPlayers.ContainsKey(activePlayerClusterInfo.Item2.Player.UserId) || playerClusterInfoHits.ContainsKey(activePlayerClusterInfo.Item2.Player.UserId))
+                //if hes already allocated, or hes already part of our cluster
+                if (!unClusteredPlayers.Contains(currentUserNeighbor.User.UserId) ||
+                    clusteredPlayers.Contains(currentUserNeighbor.User.UserId))
                 {
-                    neighbors.Remove(activePlayerClusterInfo);
+                    //remove him from eligibility
+                    neighbors.Remove(currentUserNeighbor);
                     continue;
                 }
-                playerClusterInfoHits[activePlayerClusterInfo.Item2.Player.UserId] = activePlayerClusterInfo.Item2;
-                playerClusterInfoHitsArray.Add(activePlayerClusterInfo.Item2);
+                //add him to our cluster
+                clusteredPlayers.Add(currentUserNeighbor.User);
                 totalPlayers++;
-                if (totalPlayers == MaxClusterSize) return;
-                foreach (var playerNeighbor in activePlayerClusterInfo.Item2.Neighbors)
+                //if we've hit our users per segment limit, we're done
+                if (totalPlayers == Constants.UsersPerGameSegment) break;
+                //add neighbors as eligible neighbors
+                foreach (var playerNeighbor in currentUserNeighbor.User.Neighbors)
                 {
-                    neighbors.Add(new Tuple<double, PlayerClusterInfo>(playerNeighbor.Item1, allPlayerClusterInformations[playerNeighbor.Item2]));
+                    neighbors.Add(playerNeighbor);
                 }
-                neighbors.Remove(activePlayerClusterInfo);
+                //remove the current user
+                neighbors.Remove(currentUserNeighbor);
 
-                neighbors.Sort((a, b) => (int) (a.Item1 - b.Item1));
+                //order them by closest
+                neighbors.Sort((a, b) => (int)(a.Distance - b.Distance));
+                Global.Console.Log(neighbors.Select(a=>new {a.Distance,a.User.UserId}));
+                //purge for performance gains
                 if (neighbors.Count > 100)
                 {
                     neighbors.RemoveRange(100, neighbors.Count - 100);
                 }
+
+                //try the next closest neighbor
             }
+            return clusteredPlayers.List;
         }
 
 
         private static double pointDistance(GameWorldUser nearPlayer, GameWorldUser currentPlayer)
         {
-            return (Math.Pow(currentPlayer.X - nearPlayer.X, 2) + Math.Pow(currentPlayer.Y - nearPlayer.Y, 2));
+            return Math.Sqrt((Math.Pow(currentPlayer.X - nearPlayer.X, 2) + Math.Pow(currentPlayer.Y - nearPlayer.Y, 2)));
         }
     }
 }

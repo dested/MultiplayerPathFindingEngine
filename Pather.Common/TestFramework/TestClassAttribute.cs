@@ -4,7 +4,7 @@ namespace Pather.Common.TestFramework
 {
     public class TestClassAttribute : Attribute
     {
-        public bool Disable { get; set; }
+        public bool Disable;
 
 
         public TestClassAttribute(bool disable = false)

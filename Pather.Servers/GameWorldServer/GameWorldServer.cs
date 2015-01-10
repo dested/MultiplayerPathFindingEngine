@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameSegment;
@@ -35,7 +36,7 @@ namespace Pather.Servers.GameWorldServer
             pubSub.Init().Then(pubsubReady);
             //            new TickWatcher();
             ConstructGrid();
-            Global.SetInterval(reorganize, 60*1000);
+            Global.SetInterval(reorganize, Constants.TestReorganizeGameWorldInterval);
         }
 
         private void reorganize()
@@ -227,7 +228,7 @@ namespace Pather.Servers.GameWorldServer
                 Grid[x] = new int[Constants.NumberOfSquares];
                 for (var y = 0; y < Constants.NumberOfSquares; y++)
                 {
-                    Grid[x][y] = (Math.Random()*100 < 15) ? 0 : 1;
+                    Grid[x][y] = 1; //(Math.Random()*100 < 15) ? 0 : 1;
                 }
             }
         }
@@ -272,7 +273,6 @@ namespace Pather.Servers.GameWorldServer
             else
             {
                 stalledJoins.Add(Tuple.Create(message, deferred));
-                Global.Console.Log(GameWorld.Users.Count, "Users total");
             }
 
             return deferred.Promise;

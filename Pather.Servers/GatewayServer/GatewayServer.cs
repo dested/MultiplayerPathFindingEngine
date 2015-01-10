@@ -76,6 +76,15 @@ namespace Pather.Servers.GatewayServer
                         continue;
                     }
                     gatewayUser.GameSegmentId = reorganizeUserMessage.NewGameSegmentId;
+                    gatewayUser.BetweenReorgs = false;
+                    foreach (var gameSegmentAction in gatewayUser.QueuedMessagesBetweenReorg)
+                    {
+                        GatewayPubSub.PublishToGameSegment(gatewayUser.GameSegmentId, new GameSegmentAction_Gateway_GameSegment_PubSub_Message()
+                        {
+                            UserId = gatewayUser.UserId,
+                            Action = gameSegmentAction
+                        });
+                    }
                 }
             }
         }
@@ -185,6 +194,10 @@ namespace Pather.Servers.GatewayServer
                     break;
                 case Gateway_PubSub_MessageType.ReorganizeUser:
                     var reorgUserMessage = (ReorganizeUser_GameWorld_Gateway_PubSub_Message)message;
+                    var user = Users[reorgUserMessage.UserId];
+                    user.BetweenReorgs = true;
+                    user.ReorgAtLockstep = reorgUserMessage.SwitchAtLockstepNumber;
+
                     if (!reorgUserAtLockstep.ContainsKey(reorgUserMessage.SwitchAtLockstepNumber))
                     {
                         reorgUserAtLockstep[reorgUserMessage.SwitchAtLockstepNumber]=new List<ReorganizeUser_GameWorld_Gateway_PubSub_Message>();
@@ -288,11 +301,19 @@ namespace Pather.Servers.GatewayServer
                 case User_Gateway_Socket_MessageType.GameSegmentAction:
                     var gameSegmentActionMessage = ((GameSegmentAction_User_Gateway_Socket_Message) message);
 
-                    GatewayPubSub.PublishToGameSegment(user.GameSegmentId, new GameSegmentAction_Gateway_GameSegment_PubSub_Message()
+                    if (user.BetweenReorgs)
                     {
-                        UserId = user.UserId,
-                        Action = gameSegmentActionMessage.GameSegmentAction
-                    });
+                        gameSegmentActionMessage.GameSegmentAction.LockstepTick = user.ReorgAtLockstep+1;
+                        user.QueuedMessagesBetweenReorg.Add(gameSegmentActionMessage.GameSegmentAction);
+                    }
+                    else
+                    {
+                        GatewayPubSub.PublishToGameSegment(user.GameSegmentId, new GameSegmentAction_Gateway_GameSegment_PubSub_Message()
+                        {
+                            UserId = user.UserId,
+                            Action = gameSegmentActionMessage.GameSegmentAction
+                        });
+                    }
 
                     break;
                 case User_Gateway_Socket_MessageType.Join:

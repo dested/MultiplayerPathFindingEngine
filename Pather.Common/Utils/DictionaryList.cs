@@ -15,6 +15,13 @@ namespace Pather.Common.Utils
         {
             this.setKeyCallback = setKeyCallback;
         }
+        public DictionaryList(DictionaryList<TKey, T> dl): this(dl.setKeyCallback)
+        {
+            foreach (var t in dl.List)
+            {
+                Add(t);
+            }
+        }
 
         public int Count
         {

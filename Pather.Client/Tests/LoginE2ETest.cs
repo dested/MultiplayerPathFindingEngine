@@ -1,10 +1,53 @@
-﻿using Pather.Common.TestFramework;
+﻿using System.Collections.Generic;
+using System.Html;
+using Pather.Common;
+using Pather.Common.Libraries.NodeJS;
+using Pather.Common.TestFramework;
+using Pather.Common.Utils;
+using Pather.Common.Utils.Promises;
 
 namespace Pather.Client.Tests
 {
     [TestClass()]
     public class LoginE2ETest
     {
+        [TestMethod()]
+        public void Connect4(Deferred deferred)
+        {
+            ((dynamic)Window.Instance).NoDraw = true;
+
+            List<ClientGameView> clients = new List<ClientGameView>();
+
+            List<Point> points = new List<Point>()
+            {
+                new Point(600,600),
+                new Point(100,100),
+                new Point(650,650),
+                new Point(50,50),
+            };
+
+            for (int i = 0; i < 4; i++)
+            {
+                var gameClient = new ClientGameView();
+                var point = points[i];
+                gameClient.ClientGameManager.OnReady += () =>
+                {
+                    
+                    Global.SetTimeout(() =>
+                    {
+                        gameClient.ClientGameManager.MoveToLocation(point.X, point.Y);
+                    }, 1000);
+                };
+
+                clients.Add(gameClient);
+            }
+
+
+
+
+        }
+
+
         /*   [TestMethod()]
         public void SlamWWithUsers(Deferred deferred)
         {

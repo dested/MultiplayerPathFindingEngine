@@ -103,7 +103,6 @@ namespace Pather.Servers.Common.PubSub
             {
                 if (!dontLog)
                 {
-                    //                if (channel != PubSubChannels.Tick() && !message.Contains("pong") && !message.Contains("tickSync") /*todo this pong stuff aint gonna fly when you remove namedvalues*/)
                     ServerLogger.LogTransport("Pubsub Message Received", channel, message);
                 }
                 var channelCallback = subbed[channel];

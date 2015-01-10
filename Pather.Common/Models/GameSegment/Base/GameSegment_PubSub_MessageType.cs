@@ -15,6 +15,8 @@ namespace Pather.Common.Models.GameSegment.Base
         ReorganizeGameSegment,
         GameSegmentAction,
         TellGameSegmentAction,
-        NeighborGameSegmentAction
+        NeighborGameSegmentAction,
+        TransferGameUser,
+        TellTransferUser
     }
 }

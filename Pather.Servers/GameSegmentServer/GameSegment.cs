@@ -24,6 +24,7 @@ namespace Pather.Servers.GameSegmentServer
             }
 
             Users.Remove(userId);
+            user.GameSegment = null;
 
             Global.Console.Log(GameSegmentId, "User Left Game Segment");
             ServerLogger.LogInformation("User Left Game Segment", "User count now: ", Users.Count);
@@ -33,6 +34,7 @@ namespace Pather.Servers.GameSegmentServer
 
         public void UserJoin(ServerGameUser serverGameUser)
         {
+            serverGameUser.GameSegment = this;
             Users.Add(serverGameUser);
             ServerLogger.LogInformation("User Joined A Game Segment");
             //            Global.Console.Log(GameSegmentId, "User Joined A Game Segment", serverGameUser.UserId, serverGameUser.GatewayId);

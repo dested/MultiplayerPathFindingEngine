@@ -274,9 +274,9 @@ namespace Pather.Servers.GameSegmentServer
                 serverGameUser.OldNeighbors = null;
                 if (added.Count > 0 || removed.Count > 0)
                 {
-                    Global.Console.Log("Neighbors! ", added, removed);
+//                    Global.Console.Log("Neighbors! ", added, removed);
                     var lockstepTickToRun = tickManager.LockstepTickNumber + 1;
-                    Global.Console.Log("lockstep ", lockstepTickToRun);
+//                    Global.Console.Log("lockstep ", lockstepTickToRun);
 
                     gameManager.SendToUser(serverGameUser, new ClientActionCollection_GameSegment_Gateway_PubSub_Message()
                     {
@@ -291,15 +291,15 @@ namespace Pather.Servers.GameSegmentServer
                             Added = added.Select(a =>
                             {
                                 var inProgressActions = a.InProgressActions.Where(action => action.EndingLockStepTicking > lockstepTickToRun);
-                                Global.Console.Log("In progress actions: ", inProgressActions, a.EntityId);
+//                                Global.Console.Log("In progress actions: ", inProgressActions, a.EntityId);
                                 Point point;
 
 
-                                Global.Console.Log("xy ", a.X, a.Y);
+//                                Global.Console.Log("xy ", a.X, a.Y);
 
-                                Global.Console.Log("count ", inProgressActions.Count);
+//                                Global.Console.Log("count ", inProgressActions.Count);
                                 point = a.GetPositionAtLockstep(lockstepTickToRun);
-                                Global.Console.Log("xy ", point.X, point.Y);
+//                                Global.Console.Log("xy ", point.X, point.Y);
 
                                 return new UpdatedNeighbor()
                                 {

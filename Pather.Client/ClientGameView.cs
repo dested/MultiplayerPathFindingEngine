@@ -13,12 +13,12 @@ namespace Pather.Client
         private readonly Dictionary<string, CanvasRenderingContext2D> contextCollection =
             new Dictionary<string, CanvasRenderingContext2D>();
 
-        private readonly ClientGameManager clientGameManager;
+        public readonly ClientGameManager ClientGameManager;
 
         public ClientGameView()
         {
-            clientGameManager = new ClientGameManager();
-            clientGameManager.OnReady += ReadyToPlay;
+            ClientGameManager = new ClientGameManager();
+            ClientGameManager.OnReady += ReadyToPlay;
 
 
             NextGameTime = new DateTime().GetTime();
@@ -31,7 +31,7 @@ namespace Pather.Client
 
         private void ReadyToPlay()
         {
-            if (!Constants.TestServer)
+            if (!Constants.NoDraw)
             {
                 var backCanvas = (CanvasElement) Document.GetElementById("backCanvas");
                 var backContext = (CanvasRenderingContext2D) backCanvas.GetContext(CanvasContextId.Render2D);
@@ -43,7 +43,7 @@ namespace Pather.Client
                 {
                     var @event = (dynamic) ev;
 
-                    clientGameManager.MoveToLocation(@event.offsetX, @event.offsetY);
+                    ClientGameManager.MoveToLocation(@event.offsetX, @event.offsetY);
                 };
 
 
@@ -58,7 +58,7 @@ namespace Pather.Client
 
             var interpolatedTime = (((new DateTime()).GetTime() - NextGameTime)/(double) Constants.GameTicks);
 
-            clientGameManager.Draw(contextCollection, interpolatedTime);
+            ClientGameManager.Draw(contextCollection, interpolatedTime);
         }
 
         public long CurTickTime;
@@ -76,7 +76,7 @@ namespace Pather.Client
             get
             {
                 var vc = new DateTime().GetTime();
-                var l = (vc - clientGameManager.FrontEndTickManager.CurrentLockstepTime);
+                var l = (vc - ClientGameManager.FrontEndTickManager.CurrentLockstepTime);
 
                 return l/(double) Constants.LockstepTicks;
             }
@@ -97,7 +97,7 @@ namespace Pather.Client
                 TrackTickNumber++;
                 TickNumber++;
 
-                clientGameManager.Tick(TickNumber);
+                ClientGameManager.Tick(TickNumber);
                 //todo probably should only happen once? and not in the loop
                 var v = new DateTime().GetTime();
                 NextGameTime += v - CurGameTime;

@@ -26,7 +26,7 @@ namespace Pather.Servers.GameSegmentServer
         private readonly BackEndTickManager backEndTickManager;
         private readonly ServerGame serverGame;
         public string GameSegmentId;
-        public JsDictionary<string, GameSegment> AllGameSegments;
+        public DictionaryList<string, GameSegment> AllGameSegments;
 
         public Action OnReady;
         public Action RegisterGameSegmentWithCluster;
@@ -35,7 +35,7 @@ namespace Pather.Servers.GameSegmentServer
         {
             GameSegmentId = gameSegmentId;
             GameSegmentPubSub = gameSegmentPubSub;
-            AllGameSegments = new JsDictionary<string, GameSegment>();
+            AllGameSegments = new DictionaryList<string, GameSegment>(a=>a.GameSegmentId);
             backEndTickManager = new BackEndTickManager();
 
             serverGame = new ServerGame(this, backEndTickManager);
@@ -70,11 +70,11 @@ namespace Pather.Servers.GameSegmentServer
             serverGame.Init(message.Grid, message.LockstepTickNumber, message.ServerLatency);
 
             MyGameSegment = new GameSegment(GameSegmentId);
-            AllGameSegments[MyGameSegment.GameSegmentId] = MyGameSegment;
+            AllGameSegments.Add(MyGameSegment);
 
             foreach (var gameSegmentId in message.GameSegmentIds)
             {
-                AllGameSegments[gameSegmentId] = new GameSegment(gameSegmentId);
+                AllGameSegments.Add(new GameSegment(gameSegmentId));
             }
 
             foreach (var initialGameUser in message.AllUsers)
@@ -132,11 +132,11 @@ namespace Pather.Servers.GameSegmentServer
             var neighborGameSegments = user.Neighbors.List.GroupBy(a => ((ServerGameUser) a.Entity).GameSegment);
 
             neighborGameSegments.Remove(MyGameSegment);
-            foreach (var otherGameSegment in AllGameSegments)
+            foreach (var otherGameSegment in AllGameSegments.List)
             {
-                if (!neighborGameSegments.ContainsKey(otherGameSegment.Value) && otherGameSegment.Key != GameSegmentId)
+                if (!neighborGameSegments.ContainsKey(otherGameSegment) && otherGameSegment.GameSegmentId != GameSegmentId)
                 {
-                    otherGameSegments[otherGameSegment.Key] = otherGameSegment.Value;
+                    otherGameSegments[otherGameSegment.GameSegmentId] = otherGameSegment;
                 }
             }
 
@@ -214,16 +214,59 @@ namespace Pather.Servers.GameSegmentServer
                 case GameSegment_PubSub_MessageType.ReorganizeGameSegment:
                     onMessageReorganizeGameSegment((ReorganizeUser_GameWorld_GameSegment_PubSub_Message)message);
                     break;
+                case GameSegment_PubSub_MessageType.TransferGameUser:
+                    onMessageTransferGameUser((TransferUser_GameSegment_GameSegment_PubSub_Message)message);
+                    break;
+                case GameSegment_PubSub_MessageType.TellTransferUser:
+                    onMessageTellTransferUser((TellTransferUser_GameSegment_GameSegment_PubSub_Message)message);
+                    break;
                 default:
-                    throw new ArgumentOutOfRangeException();
+                    throw new ArgumentOutOfRangeException(); 
             }
+        }
+
+        private void onMessageTransferGameUser(TransferUser_GameSegment_GameSegment_PubSub_Message message)
+        {
+            var user = ((ServerGameUser) serverGame.ActiveEntities[message.UserId]);
+            user.GameSegment.UserLeft(user.EntityId);
+            MyGameSegment.UserJoin(user);
+        }
+
+        private void onMessageTellTransferUser(TellTransferUser_GameSegment_GameSegment_PubSub_Message message)
+        {
+            ((ServerGameUser) serverGame.ActiveEntities[message.UserId]).GameSegment = AllGameSegments[message.NewGameSegmentId];
         }
 
         private void onMessageReorganizeGameSegment(ReorganizeUser_GameWorld_GameSegment_PubSub_Message message)
         {
-            //send new gamesegment the pending actions
-            //then at the specified tick, remove him from our directory?
-            //wont be this easy...
+            foreach (var gameSegment in AllGameSegments.List)
+            {
+                if (gameSegment.GameSegmentId != MyGameSegment.GameSegmentId && gameSegment.GameSegmentId != message.NewGameSegmentId)
+                {
+                    GameSegmentPubSub.PublishToGameSegment(gameSegment.GameSegmentId, new TellTransferUser_GameSegment_GameSegment_PubSub_Message()
+                    {
+                        NewGameSegmentId=message.NewGameSegmentId,
+                        UserId = message.UserId
+                    });
+                }
+            }
+            
+            var user = (ServerGameUser)serverGame.ActiveEntities[message.UserId];
+
+
+            GameSegmentPubSub.PublishToGameSegment(message.NewGameSegmentId, new TransferUser_GameSegment_GameSegment_PubSub_Message()
+            {
+                InProgressActions=user.InProgressActions,
+                LockstepMovePoints = user.LockstepMovePoints,
+                SwitchAtLockstepNumber = message.SwitchAtLockstepNumber
+            });
+
+            var newGameSegment = AllGameSegments[message.NewGameSegmentId];
+            
+            user.GameSegment = newGameSegment;
+            MyGameSegment.UserLeft(message.UserId);
+            newGameSegment.UserJoin(user);
+            
         }
 
         private void onMessageGameSegmentAction(GameSegmentAction_Gateway_GameSegment_PubSub_Message message)
@@ -249,7 +292,7 @@ namespace Pather.Servers.GameSegmentServer
         private void onMessageNewGameSegment(NewGameSegment_GameWorld_GameSegment_PubSub_Message message)
         {
             var newGameSegment = new GameSegment(message.GameSegmentId);
-            AllGameSegments[newGameSegment.GameSegmentId] = newGameSegment;
+            AllGameSegments.Add(newGameSegment);
             Global.Console.Log(GameSegmentId, " Added new Game Segment ", message.GameSegmentId);
         }
 

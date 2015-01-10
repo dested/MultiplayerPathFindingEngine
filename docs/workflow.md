@@ -7,11 +7,11 @@ user hits gateway with player token
 
 '/gateway publishes user join to gameworld
 	'/gameworld publishes user join to users game server
-		gameserver adds user to his active watch list
-		gameserver runs update neighbors	
-	gameworld publishes user join knowledge to all other game servers
+		'/ gameserver adds user to his active watch list
+		'/ gameserver runs update neighbors	
+	'/ gameworld publishes user join knowledge to all other game servers
 		gameserver adds user to his inactive watch list
-		gameserver runs update neighbors
+		'/ gameserver runs update neighbors
 
 
 
@@ -22,35 +22,35 @@ user hits gateway with player token
 
 
 
-user moves towards xy
-user sends message to gateway
+'/ user moves towards xy
+'/ user sends message to gateway
 
-gateway sends message to game server
+'/ gateway sends message to game server
 game server verifies move
-game server sends move action to player neighboring game servers 
-game server sends move result to gameworld
-game server sends move result to all other game servers
-	move result has x,y,tick 
-		tick is the lockstep tick that the user will be at that xy
+'/ game server sends move action to player neighboring game servers 
+'/ game server sends move result to gameworld
+'/ game server sends move result to all other game servers
+	'/ move result has x,y,tick 
+		'/ tick is the lockstep tick that the user will be at that xy
 
-game server sends all neighbor players the moveaction
-
-
+'/ game server sends all neighbor players the moveaction
 
 
-game server triggers update neighbors occurs every 10 seconds
-game server notifies client of his new neighbors
+
+
+'/ game server triggers update neighbors occurs every X seconds
+'/ game server notifies client of his new neighbors
 
 
 
 
 '/tick server
-	keeps all '/gt's '/gs's, the '/gw, and clients in sync
+	keeps all '/gt's '/gs's, the '/gw, and '/clients in sync
 	'/does nothing but ticktock
 
 	'/ts plays pingpong with each gs, each gateway, and the gw
 	'/	each gs/gateway determines latency 
-	player determines latecny with gateway, adds it to its ticktock latency
+	'/ player determines latecny with gateway, adds it to its ticktock latency
 
 
 
@@ -69,13 +69,13 @@ every
 	or
 
 	60 seconds gameworld reorganizes game server or when there are more than X cross server calls per tick
-	reorg occurs
-	gw determines all players who have moved gs
+	'/ reorg occurs
+	'/ gw determines all players who have moved gs
 		groups them by reorg gs
-		moves Y at a time to new gs
-			gw tells player gs to send in progress actions to reorg gs
-			reorg gs executes actions appropriately
-			all new actions from player goto reorg gs
+		'/ moves Y at a time to new gs
+			'/ gw tells player gs to send in progress actions to reorg gs
+			'/ reorg gs executes actions appropriately
+			'/ all new actions from player goto reorg gs
 
 
 
@@ -98,28 +98,3 @@ server manager keeps tabs on all the clusters (game gateway and chat)
 when a new request comes in to spin up a new server it pings the clusters to see if theyre able to create a new one
 	if so it tells the cluster to spin up a new server
 	if not it calls the API to provision a new box 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	

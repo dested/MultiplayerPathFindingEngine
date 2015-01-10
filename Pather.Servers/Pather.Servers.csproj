@@ -80,7 +80,7 @@
     <Compile Include="Common\TickWatcher.cs" />
     <Compile Include="GameWorldServer\PlayerCluster.cs" />
     <Compile Include="GameWorldServer\PlayerClusterGroup.cs" />
-    <Compile Include="GameWorldServer\PlayerClusterInfo.cs" />
+    <Compile Include="GameWorldServer\UserAndNeighbors.cs" />
     <Compile Include="GameWorldServer\ReoragGameWorldModel.cs" />
     <Compile Include="GameWorldServer\ReorganizeManager.cs" />
     <Compile Include="GatewayServer\GatewayPubSub.cs" />

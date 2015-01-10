@@ -7,7 +7,7 @@ namespace Pather.Common.GameFramework
     {
         protected Game game;
         public DictionaryList<string, GameEntityNeighbor> Neighbors;
-        public List<GameEntityNeighbor> OldNeighbors { get; set; }
+        public List<GameEntityNeighbor> OldNeighbors;
 
         public GameEntity(Game game)
         {

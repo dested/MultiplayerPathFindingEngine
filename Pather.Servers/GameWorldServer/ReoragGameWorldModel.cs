@@ -4,8 +4,8 @@ namespace Pather.Servers.GameWorldServer
 {
     public class ReoragGameWorldModel
     {
-        public GameWorldUser GameWorldUser { get; set; }
-        public GameSegment BestGameSegment { get; set; }
+        public GameWorldUser GameWorldUser;
+        public GameSegment BestGameSegment;
 
         public ReoragGameWorldModel(GameWorldUser gameWorldUser, GameSegment bestGameSegment)
         {

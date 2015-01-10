@@ -34,7 +34,7 @@ namespace Pather.Client.GameFramework
             NetworkManager.SendPing();
         }
 
-        public void MoveToLocation(int x, int y)
+        public void MoveToLocation(double x, double y)
         {
             NetworkManager.SendClientAction(new MoveEntity_GameSegmentAction()
             {

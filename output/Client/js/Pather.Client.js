@@ -25,7 +25,7 @@
 	// Pather.Client.ClientGameView
 	var $Pather_Client_ClientGameView = function() {
 		this.$contextCollection = new (ss.makeGenericType(ss.Dictionary$2, [String, CanvasRenderingContext2D]))();
-		this.$clientGameManager = null;
+		this.clientGameManager = null;
 		this.curTickTime = 0;
 		this.tickNumber = 0;
 		this.curGameTime = 0;
@@ -33,8 +33,8 @@
 		this.serverLatency = 0;
 		this.trackTickNumber = 0;
 		this.trackLockstepTickNumber = 0;
-		this.$clientGameManager = new $Pather_Client_GameFramework_ClientGameManager();
-		this.$clientGameManager.onReady = ss.delegateCombine(this.$clientGameManager.onReady, ss.mkdel(this, this.$readyToPlay));
+		this.clientGameManager = new $Pather_Client_GameFramework_ClientGameManager();
+		this.clientGameManager.onReady = ss.delegateCombine(this.clientGameManager.onReady, ss.mkdel(this, this.$readyToPlay));
 		this.nextGameTime = (new Date()).getTime();
 		this.curGameTime = (new Date()).getTime();
 		this.curTickTime = (new Date()).getTime();
@@ -178,7 +178,7 @@
 	ss.initClass($Pather_Client_$Program, $asm, {});
 	ss.initClass($Pather_Client_ClientGameView, $asm, {
 		$readyToPlay: function() {
-			if (!Pather.Common.Constants.get_testServer()) {
+			if (!Pather.Common.Constants.get_noDraw()) {
 				var $t1 = document.getElementById('backCanvas');
 				var backCanvas = ss.cast($t1, ss.isValue($t1) && (ss.isInstanceOfType($t1, Element) && $t1.tagName === 'CANVAS'));
 				var backContext = ss.cast(backCanvas.getContext('2d'), CanvasRenderingContext2D);
@@ -189,7 +189,7 @@
 				this.$contextCollection.add('Foreground', context);
 				canvas.onmousedown = ss.mkdel(this, function(ev) {
 					var event = ev;
-					this.$clientGameManager.moveToLocation(ss.unbox(ss.cast(event.offsetX, ss.Int32)), ss.unbox(ss.cast(event.offsetY, ss.Int32)));
+					this.clientGameManager.moveToLocation(ss.unbox(ss.cast(event.offsetX, Number)), ss.unbox(ss.cast(event.offsetY, Number)));
 				});
 				window.requestAnimationFrame(ss.mkdel(this, function(a) {
 					this.$draw();
@@ -201,11 +201,11 @@
 				this.$draw();
 			}));
 			var interpolatedTime = ((new Date()).getTime() - this.nextGameTime) / Pather.Common.Constants.gameTicks;
-			this.$clientGameManager.draw(this.$contextCollection, interpolatedTime);
+			this.clientGameManager.draw(this.$contextCollection, interpolatedTime);
 		},
 		get_percentCompletedWithLockStep: function() {
 			var vc = (new Date()).getTime();
-			var l = vc - this.$clientGameManager.frontEndTickManager.currentLockstepTime;
+			var l = vc - this.clientGameManager.frontEndTickManager.currentLockstepTime;
 			return l / Pather.Common.Constants.lockstepTicks;
 		},
 		tick: function() {
@@ -216,7 +216,7 @@
 			while (nextTickTime > this.trackTickNumber) {
 				this.trackTickNumber++;
 				this.tickNumber++;
-				this.$clientGameManager.tick(this.tickNumber);
+				this.clientGameManager.tick(this.tickNumber);
 				//todo probably should only happen once? and not in the loop
 				var v = (new Date()).getTime();
 				this.nextGameTime += v - this.curGameTime;
@@ -558,7 +558,28 @@
 			this.stepActionsTicks.remove(lockstepTickNumber);
 		}
 	});
-	ss.initClass($Pather_Client_Tests_LoginE2ETest, $asm, {});
+	ss.initClass($Pather_Client_Tests_LoginE2ETest, $asm, {
+		connect4: function(deferred) {
+			window.window.NoDraw = true;
+			var clients = [];
+			var $t1 = [];
+			$t1.push(Pather.Common.Utils.Point.$ctor(600, 600));
+			$t1.push(Pather.Common.Utils.Point.$ctor(100, 100));
+			$t1.push(Pather.Common.Utils.Point.$ctor(650, 650));
+			$t1.push(Pather.Common.Utils.Point.$ctor(50, 50));
+			var points = $t1;
+			for (var i = 0; i < 4; i++) {
+				var gameClient = { $: new $Pather_Client_ClientGameView() };
+				var point = { $: points[i] };
+				gameClient.$.clientGameManager.onReady = ss.delegateCombine(gameClient.$.clientGameManager.onReady, ss.mkdel({ gameClient: gameClient, point: point }, function() {
+					setTimeout(ss.mkdel({ gameClient: this.gameClient, point: this.point }, function() {
+						this.gameClient.$.clientGameManager.moveToLocation(this.point.$.x, this.point.$.y);
+					}), 1000);
+				}));
+				clients.push(gameClient.$);
+			}
+		}
+	});
 	ss.initClass($Pather_Client_Utils_ClientCommunicator, $asm, {
 		listenForGatewayMessage: function(callback) {
 			this.socket.on('Gateway.Message', function(obj) {
@@ -572,6 +593,6 @@
 			this.socket.disconnect();
 		}
 	});
-	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)] });
+	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'Connect4', type: 8, sname: 'connect4', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
 	$Pather_Client_$Program.$main();
 })();

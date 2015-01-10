@@ -6,17 +6,12 @@ figure out auth
 data base
 verify move
 
-change all excpetions to something logical 
-
 '/logout of gameworld server
     spin down game segment
 
-
-send move lockstep paths on move, and on neighbor update!
-
-figure out action priming (player is halfway between X and Y, deterministically determine where he is and continue moving there)
-    send out primed actions to new players
-        you dont finish moving twoards point when a new person joins
+'/figure out action priming (player is halfway between X and Y,deterministically determine where he is and continue moving there)
+    '/send out primed actions to new players
+        '/you dont finish moving twoards point when a new person joins
 
 todo test if its faster for redis to have one "tick" subscription for all relevent clients or not
 

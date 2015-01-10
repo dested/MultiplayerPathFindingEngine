@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Common.Actions.GameWorldAction;
@@ -52,7 +53,7 @@ namespace Pather.Servers.GameWorldServer
                 gameSegment.PreAddUserToSegment(gwUser);
                 defer.Resolve(gwUser);
             });
-            Global.SetTimeout(Reorganize, Constants.ReorganizeGameWorldInterval);
+            Global.SetInterval(Reorganize, Constants.ReorganizeGameWorldInterval);
             return defer.Promise;
         }
 
@@ -105,7 +106,7 @@ namespace Pather.Servers.GameWorldServer
         {
             var deferred = Q.Defer<GameSegment, UndefinedPromiseError>();
             var neighbors = buildNeighborCollection(gwUser);
-
+            Global.Console.Log("Trying to determine new game segment");
             var noneFound = true;
             for (var i = 0; i < neighbors.Count; i++)
             {
@@ -115,6 +116,7 @@ namespace Pather.Servers.GameWorldServer
                 var neighborGameSegment = neighbor.User.GameSegment;
                 if (neighborGameSegment.CanAcceptNewUsers())
                 {
+                    Global.Console.Log("Found", neighborGameSegment.GameSegmentId);
                     deferred.Resolve(neighborGameSegment);
                     noneFound = false;
                     break;
@@ -127,6 +129,7 @@ namespace Pather.Servers.GameWorldServer
                 {
                     if (gameSegment.CanAcceptNewUsers())
                     {
+                        Global.Console.Log("Found2", gameSegment.GameSegmentId);
                         deferred.Resolve(gameSegment);
                         noneFound = false;
                         break;
@@ -136,6 +139,7 @@ namespace Pather.Servers.GameWorldServer
 
             if (noneFound)
             {
+                Global.Console.Log("Creating new ");
                 return CreateGameSegment();
             }
 
@@ -247,13 +251,14 @@ namespace Pather.Servers.GameWorldServer
         {
             if (needToReorganize.Count > 0)
             {
+                Debug.Break();
                 Global.Console.Log(needToReorganize);
                 var reorg = Math.Min(needToReorganize.Count, Constants.NumberOfReorganizedPlayersPerSession);
                 for (var i = reorg - 1; i >= 0; i--)
                 {
-                    var gameWorldUser = needToReorganize[reorg].GameWorldUser;
+                    var gameWorldUser = needToReorganize[i].GameWorldUser;
                     var oldGameSegment = gameWorldUser.GameSegment;
-                    var newGameSegment = needToReorganize[reorg].BestGameSegment;
+                    var newGameSegment = needToReorganize[i].BestGameSegment;
 
                     GameWorldPubSub.PublishToGameSegment(oldGameSegment.GameSegmentId, new ReorganizeUser_GameWorld_GameSegment_PubSub_Message()
                     {
@@ -285,22 +290,13 @@ namespace Pather.Servers.GameWorldServer
             {
                 case GameWorldActionType.MoveEntity:
                     var moveEntity = (MoveEntity_GameWorldAction)gameWorldActionGameSegment.Action;
+                    Global.Console.Log("Move entity:",moveEntity);
                     var user = Users[moveEntity.EntityId];
                     user.SetLockstepMovePoints(moveEntity.LockstepMovePoints);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            /*todo var gwUser = Users.First(a => a.UserId == userId);
-
-            if (gwUser == null)
-            {
-                throw new Exception("User not found: " + userId);
-            }
-
-            gwUser.X = x;
-            gwUser.Y = y;
-            //todo interpolate path find using setTimeout??*/
         }
     }
 }
