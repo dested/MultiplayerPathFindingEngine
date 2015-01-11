@@ -1,7 +1,7 @@
 user authorizes using regular auth means
 user hits gateway with player token 
 '/gateway registers user to gameworld 
-'/gameworld determines which player is closest to our new user, adds him to that game server, so as not to reorg on every new join
+'/gameworld determines which player is closest to our new user, adds him to that game server
 
 '/gameworld tells gateway which game server to send user to 
 
@@ -10,7 +10,7 @@ user hits gateway with player token
 		'/ gameserver adds user to his active watch list
 		'/ gameserver runs update neighbors	
 	'/ gameworld publishes user join knowledge to all other game servers
-		gameserver adds user to his inactive watch list
+		'/ gameserver adds user to his inactive watch list
 		'/ gameserver runs update neighbors
 
 
@@ -26,7 +26,7 @@ user hits gateway with player token
 '/ user sends message to gateway
 
 '/ gateway sends message to game server
-game server verifies move
+'/ game server verifies move
 '/ game server sends move action to player neighboring game servers 
 '/ game server sends move result to gameworld
 '/ game server sends move result to all other game servers
@@ -45,7 +45,7 @@ game server verifies move
 
 
 '/tick server
-	keeps all '/gt's '/gs's, the '/gw, and '/clients in sync
+	'/ keeps all '/gt's '/gs's, the '/gw, and '/clients in sync
 	'/does nothing but ticktock
 
 	'/ts plays pingpong with each gs, each gateway, and the gw
@@ -54,24 +54,13 @@ game server verifies move
 
 
 
-==reorg==
+'/ ==reorg==
 every 
-    25 minutes  gameworld reorganizes game server (when the ads are running)
-	reorg occurs
-	gw determines all actions that have not yet been completed
-	gw tells each game server their new list of active 	
-	gs runs neighbor determination
-	gw sends all gs the yet completed actions
-	gs determines which actions need to be ran
-	gs primes actions to get to their appropriate tick
-	users continue running as nermal
-
-	or
-
-	60 seconds gameworld reorganizes game server or when there are more than X cross server calls per tick
+	'/60 seconds gameworld reorganizes game server 
+		or when there are more than X cross server calls per tick
 	'/ reorg occurs
 	'/ gw determines all players who have moved gs
-		groups them by reorg gs
+		'/ groups them by reorg gs
 		'/ moves Y at a time to new gs
 			'/ gw tells player gs to send in progress actions to reorg gs
 			'/ reorg gs executes actions appropriately
@@ -87,14 +76,14 @@ every
  
 
 
-home server is connected to gateways
-home server pings gateways to see how many users are currently connected
-home server commissions server manager to spin up new gateways if theyre slacking
-home server is an api endpoint that simply servers gateway IP addresses
+'/ home server is connected to gateways
+'/ home server pings gateways to see how many users are currently connected
+'/ home server commissions server manager to spin up new gateways if theyre slacking
+'/ home server is an api endpoint that simply servers gateway IP addresses
 
 
 
 server manager keeps tabs on all the clusters (game gateway and chat)
-when a new request comes in to spin up a new server it pings the clusters to see if theyre able to create a new one
-	if so it tells the cluster to spin up a new server
+'/ when a new request comes in to spin up a new server it pings the clusters to see if theyre able to create a new one
+	'/ if so it tells the cluster to spin up a new server
 	if not it calls the API to provision a new box 

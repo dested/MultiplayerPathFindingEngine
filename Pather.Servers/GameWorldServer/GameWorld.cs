@@ -95,7 +95,6 @@ namespace Pather.Servers.GameWorldServer
             var noneFound = true;
             foreach (var neighbor in findClosestNeighbors(gwUser))
             {
-                //todo REORG GAME SEGMENTS????
                 var neighborGameSegment = neighbor.GameSegment;
                 if (neighborGameSegment.CanAcceptNewUsers())
                 {

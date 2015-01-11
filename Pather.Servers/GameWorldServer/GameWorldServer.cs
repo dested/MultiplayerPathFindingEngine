@@ -137,14 +137,6 @@ namespace Pather.Servers.GameWorldServer
             });
         }
 
-        /*todo  when a user gets Action succesful join, he should get his xy, and can send an updated xy to the Game server
-            send the data to neighbors
-                update neighbors preiodically
-            then handle the path finding aspect
-
-        then maybe reorg?
-*/
-
         private void gameWorldMessage(GameWorld_PubSub_Message message)
         {
             switch (message.Type)
@@ -233,7 +225,7 @@ namespace Pather.Servers.GameWorldServer
                 Grid[x] = new int[Constants.NumberOfSquares];
                 for (var y = 0; y < Constants.NumberOfSquares; y++)
                 {
-                    Grid[x][y] = 1; //(Math.Random()*100 < 15) ? 0 : 1;
+                    Grid[x][y] =(Math.Random()*100 < 15) ? 0 : 1;
                 }
             }
         }

@@ -4,7 +4,7 @@ figure out auth
     also any client can send a command for any playerid
 '/figure out fast neighbor
 data base
-verify move
+'/ verify move
 
 '/logout of gameworld server
     spin down game segment

@@ -53,7 +53,6 @@ namespace Pather.Servers.GameSegmentServer
 
         public long RePathFind(MoveEntity_GameSegmentAction destinationAction)
         {
-            //todo user current x,y
             var graph = game.Board.AStarGraph;
 
             var p = GetPositionAtLockstep(destinationAction.LockstepTick);
@@ -65,7 +64,11 @@ namespace Pather.Servers.GameSegmentServer
             var start = graph.Grid[Utilities.ToSquare(x)][Utilities.ToSquare(y)];
             var end = graph.Grid[Utilities.ToSquare(destinationAction.X)][Utilities.ToSquare(destinationAction.Y)];
             var path = AStar.Search(graph, start, end).Select(a => new AStarLockstepPath(a.X, a.Y));
-
+            if (path.Count == 0)
+            {
+                //bad result
+                return 0;
+            }
 
             var moveEntityOnPathAction = new MoveEntityOnPath_ClientAction()
             {
@@ -151,8 +154,6 @@ namespace Pather.Servers.GameSegmentServer
 
 
             LockstepMovePoints[startingLockstepTickNumber] = new Point(x, y);
-
-            //todo path should .count==0
 
             return startingLockstepTickNumber;
         }

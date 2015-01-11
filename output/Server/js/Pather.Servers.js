@@ -249,8 +249,7 @@ var $Pather_Servers_Common_PubSub_PubSub = function() {
 	this.$subClient = null;
 	this.$subbed = null;
 	this.$dontLog = false;
-	this.$channelCacheDict = {};
-	this.$channelCache = [];
+	this.$channelCache = {};
 };
 $Pather_Servers_Common_PubSub_PubSub.__typeName = 'Pather.Servers.Common.PubSub.PubSub';
 global.Pather.Servers.Common.PubSub.PubSub = $Pather_Servers_Common_PubSub_PubSub;
@@ -2276,23 +2275,33 @@ ss.initClass($Pather_Servers_Common_PubSub_PubSub, $asm, {
 		return deferred.promise;
 	},
 	$flush: function() {
-		if (this.$channelCache.length === 0) {
+		if (ss.getKeyCount(this.$channelCache) === 0) {
 			return;
 		}
 		var count = 0;
-		for (var $t1 = 0; $t1 < this.$channelCache.length; $t1++) {
-			var channel = this.$channelCache[$t1];
-			var $t2 = Pather.Common.Models.Common.PubSub_Message_Collection.$ctor();
-			$t2.collection = channel.item2;
-			var pubSubMessageCollection = $t2;
-			this.$pubClient.publish(channel.item1, JSON.stringify(pubSubMessageCollection));
-			count += channel.item2.length;
+		var $t1 = new ss.ObjectEnumerator(this.$channelCache);
+		try {
+			while ($t1.moveNext()) {
+				var channel = $t1.current();
+				if (channel.value.length === 1) {
+					this.$pubClient.publish(channel.key, JSON.stringify(channel.value[0]));
+				}
+				else {
+					var $t2 = Pather.Common.Models.Common.PubSub_Message_Collection.$ctor();
+					$t2.messageCollection = channel.value;
+					var pubSubMessageCollection = $t2;
+					this.$pubClient.publish(channel.key, JSON.stringify(pubSubMessageCollection));
+				}
+				count += channel.value.length;
+			}
+		}
+		finally {
+			$t1.dispose();
 		}
 		if (count > 70) {
 			console.log('Flushing', count);
 		}
-		ss.clearKeys(this.$channelCacheDict);
-		ss.clear(this.$channelCache);
+		ss.clearKeys(this.$channelCache);
 	},
 	receivedMessage: function(channel, message) {
 		try {
@@ -2302,11 +2311,11 @@ ss.initClass($Pather_Servers_Common_PubSub_PubSub, $asm, {
 			var channelCallback = this.$subbed[channel];
 			if (!ss.staticEquals(channelCallback, null)) {
 				if (Pather.Common.Utils.Utilities.hasField(Pather.Common.Models.Common.PubSub_Message_Collection).call(null, message, function(a) {
-					return a.collection;
+					return a.messageCollection;
 				})) {
 					var messages = message;
-					for (var $t1 = 0; $t1 < messages.collection.length; $t1++) {
-						var m = messages.collection[$t1];
+					for (var $t1 = 0; $t1 < messages.messageCollection.length; $t1++) {
+						var m = messages.messageCollection[$t1];
 						channelCallback(m);
 					}
 				}
@@ -2342,11 +2351,10 @@ ss.initClass($Pather_Servers_Common_PubSub_PubSub, $asm, {
 		this.$pubClient.publish(channel, JSON.stringify(message));
 	},
 	$addToCache: function(channel, message) {
-		if (!ss.keyExists(this.$channelCacheDict, channel)) {
-			this.$channelCacheDict[channel] = [];
-			this.$channelCache.push({ item1: channel, item2: this.$channelCacheDict[channel] });
+		if (!ss.keyExists(this.$channelCache, channel)) {
+			this.$channelCache[channel] = [];
 		}
-		this.$channelCacheDict[channel].push(message);
+		this.$channelCache[channel].push(message);
 	},
 	subscribe: function(channel, callback) {
 		if (!this.$dontLog) {
@@ -2594,36 +2602,38 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGame, $asm, {
 		return new $Pather_Servers_GameSegmentServer_ServerGameUser(this, userId);
 	},
 	serverProcessGameSegmentAction: function(user, action) {
-		if (true) {
-			switch (action.gameSegmentActionType) {
-				case 'moveEntity': {
-					var moveEntityAction = action;
-					var completedLockStep = user.rePathFind(moveEntityAction);
-					var $t2 = this.$gameManager;
-					var $t1 = Pather.Common.Models.Common.Actions.ClientActions.MoveEntity_ClientAction.$ctor();
-					$t1.x = moveEntityAction.x;
-					$t1.y = moveEntityAction.y;
-					$t1.entityId = user.entityId;
-					$t1.lockstepTick = moveEntityAction.lockstepTick;
-					var $t3 = Pather.Common.Models.Common.Actions.TellGameSegmentAction.MoveEntity_TellGameSegmentAction.$ctor();
-					$t3.entityId = user.entityId;
-					$t3.x = moveEntityAction.x;
-					$t3.y = moveEntityAction.y;
-					$t3.lockstepTick = completedLockStep;
-					var $t4 = Pather.Common.Models.Common.Actions.NeighborGameSegmentAction.MoveEntity_NeighborGameSegmentAction.$ctor();
-					$t4.entityId = user.entityId;
-					$t4.lockstepTick = moveEntityAction.lockstepTick;
-					$t4.lockstepMovePoints = user.lockstepMovePoints;
-					var $t5 = Pather.Common.Models.Common.Actions.GameWorldAction.MoveEntity_GameWorldAction.$ctor();
-					$t5.entityId = user.entityId;
-					$t5.lockstepTick = moveEntityAction.lockstepTick;
-					$t5.lockstepMovePoints = user.lockstepMovePoints;
-					$t2.sendAction(user, $t1, $t3, $t4, $t5);
-					break;
+		switch (action.gameSegmentActionType) {
+			case 'moveEntity': {
+				var moveEntityAction = action;
+				var completedLockStep = user.rePathFind(moveEntityAction);
+				if (completedLockStep === 0) {
+					//bad movement
+					return;
 				}
-				default: {
-					throw new ss.ArgumentOutOfRangeException();
-				}
+				var $t2 = this.$gameManager;
+				var $t1 = Pather.Common.Models.Common.Actions.ClientActions.MoveEntity_ClientAction.$ctor();
+				$t1.x = moveEntityAction.x;
+				$t1.y = moveEntityAction.y;
+				$t1.entityId = user.entityId;
+				$t1.lockstepTick = moveEntityAction.lockstepTick;
+				var $t3 = Pather.Common.Models.Common.Actions.TellGameSegmentAction.MoveEntity_TellGameSegmentAction.$ctor();
+				$t3.entityId = user.entityId;
+				$t3.x = moveEntityAction.x;
+				$t3.y = moveEntityAction.y;
+				$t3.lockstepTick = completedLockStep;
+				var $t4 = Pather.Common.Models.Common.Actions.NeighborGameSegmentAction.MoveEntity_NeighborGameSegmentAction.$ctor();
+				$t4.entityId = user.entityId;
+				$t4.lockstepTick = moveEntityAction.lockstepTick;
+				$t4.lockstepMovePoints = user.lockstepMovePoints;
+				var $t5 = Pather.Common.Models.Common.Actions.GameWorldAction.MoveEntity_GameWorldAction.$ctor();
+				$t5.entityId = user.entityId;
+				$t5.lockstepTick = moveEntityAction.lockstepTick;
+				$t5.lockstepMovePoints = user.lockstepMovePoints;
+				$t2.sendAction(user, $t1, $t3, $t4, $t5);
+				break;
+			}
+			default: {
+				throw new ss.ArgumentOutOfRangeException();
 			}
 		}
 	},
@@ -2863,7 +2873,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameManager, $asm, {
 		var $t2 = this.$gameSegmentPubSub;
 		var $t1 = Pather.Common.Models.Tick.Ping_Tick_PubSub_Message.$ctor();
 		$t1.origin = $Pather_Servers_Common_PubSub_PubSubChannels.gameSegment$1(this.gameSegmentId);
-		$t1.originType = 0;
+		$t1.originType = 'gameSegment';
 		$t2.publishToTickServer($t1);
 	},
 	sendAction: function(user, clientAction, tellGameSegmentAction, neighborGameSegmentAction, gameWorldAction) {
@@ -3112,7 +3122,6 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameUser, $asm, {
 		}
 	},
 	rePathFind: function(destinationAction) {
-		//todo user current x,y
 		var graph = this.game.board.aStarGraph;
 		var p = this.getPositionAtLockstep(destinationAction.lockstepTick);
 		var x = p.x;
@@ -3122,6 +3131,10 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameUser, $asm, {
 		var path = Pather.Common.Utils.EnumerableExtensions.select(astar.search(graph, start, end), function(a) {
 			return Pather.Common.Definitions.AStar.AStarLockstepPath.$ctor(a.x, a.y);
 		});
+		if (path.length === 0) {
+			//bad result
+			return 0;
+		}
 		var $t1 = Pather.Common.Models.Common.Actions.ClientActions.MoveEntityOnPath_ClientAction.$ctor();
 		$t1.entityId = this.entityId;
 		$t1.lockstepTick = destinationAction.lockstepTick;
@@ -3184,7 +3197,6 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameUser, $asm, {
 			}
 		}
 		this.lockstepMovePoints[startingLockstepTickNumber] = Pather.Common.Utils.Point.$ctor(x, y);
-		//todo path should .count==0
 		return startingLockstepTickNumber;
 	},
 	setPath: function(lockstepMovePoints) {
@@ -3322,7 +3334,6 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 		try {
 			while ($t1.moveNext()) {
 				var neighbor = $t1.current();
-				//todo REORG GAME SEGMENTS????
 				var neighborGameSegment = neighbor.gameSegment;
 				if (neighborGameSegment.canAcceptNewUsers()) {
 					console.log('Found', neighborGameSegment.gameSegmentId);
@@ -3589,7 +3600,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 		var $t2 = this.$gameWorldPubSub;
 		var $t1 = Pather.Common.Models.Tick.Ping_Tick_PubSub_Message.$ctor();
 		$t1.origin = $Pather_Servers_Common_PubSub_PubSubChannels.gameWorld();
-		$t1.originType = 1;
+		$t1.originType = 'gameWorld';
 		$t2.publishToTickServer($t1);
 	},
 	$gameWorldMessage: function(message) {
@@ -3684,8 +3695,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 		for (var x = 0; x < Pather.Common.Constants.numberOfSquares; x++) {
 			this.grid[x] = new Array(Pather.Common.Constants.numberOfSquares);
 			for (var y = 0; y < Pather.Common.Constants.numberOfSquares; y++) {
-				this.grid[x][y] = 1;
-				//(Math.Random()*100 < 15) ? 0 : 1;
+				this.grid[x][y] = ((Math.random() * 100 < 15) ? 0 : 1);
 			}
 		}
 	},
@@ -4051,7 +4061,7 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 		var $t2 = this.gatewayPubSub;
 		var $t1 = Pather.Common.Models.Tick.Ping_Tick_PubSub_Message.$ctor();
 		$t1.origin = $Pather_Servers_Common_PubSub_PubSubChannels.gateway$1(this.gatewayId);
-		$t1.originType = 1;
+		$t1.originType = 'gameWorld';
 		$t2.publishToTickServer($t1);
 	},
 	$onAllMessage: function(message) {
@@ -4161,6 +4171,7 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 			gatewayUser = this.$users.get_item(userToSendTo);
 			if (ss.isNullOrUndefined(gatewayUser)) {
 				//todo find out why user does not exist yet
+				console.log('User does not exist yet, storing actions', userToSendTo);
 				if (!ss.keyExists(this.$cachedUserActions, userToSendTo)) {
 					this.$cachedUserActions[userToSendTo] = [];
 				}
@@ -4864,15 +4875,15 @@ ss.initClass($Pather_Servers_TickServer_TickServer, $asm, {
 				}
 				var returnMessage;
 				switch (pingMessage.originType) {
-					case 0: {
+					case 'gameSegment': {
 						returnMessage = Pather.Common.Models.GameSegment.Pong_Tick_GameSegment_PubSub_Message.$ctor();
 						break;
 					}
-					case 1: {
+					case 'gameWorld': {
 						returnMessage = Pather.Common.Models.GameWorld.Tick.Pong_Tick_GameWorld_PubSub_Message.$ctor();
 						break;
 					}
-					case 2: {
+					case 'gateway': {
 						returnMessage = Pather.Common.Models.Gateway.PubSub.Pong_Tick_Gateway_PubSub_Message.$ctor();
 						break;
 					}

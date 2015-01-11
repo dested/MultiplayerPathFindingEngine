@@ -41,35 +41,34 @@ namespace Pather.Servers.GameSegmentServer
         }
 
 
-        /*todo: instead of move, you need a process action. that action gets sent directly to the game logic manager,
-         you need ot be able to respond to just a user, or a user and his neighbors
-         you also need to send to the other gamesegments that it does and doesnt directly effect */
-
         public void ServerProcessGameSegmentAction(ServerGameUser user, GameSegmentAction action)
         {
-            if (true /*todo action is valid*/)
+
+            switch (action.GameSegmentActionType)
             {
-                switch (action.GameSegmentActionType)
-                {
-                    case GameSegmentActionType.MoveEntity:
-                        var moveEntityAction = (MoveEntity_GameSegmentAction)action;
-                        var completedLockStep = user.RePathFind(moveEntityAction);
-                        gameManager.SendAction(user,
-                            new MoveEntity_ClientAction()
-                            {
-                                X = moveEntityAction.X,
-                                Y = moveEntityAction.Y,
-                                EntityId = user.EntityId,
-                                LockstepTick = moveEntityAction.LockstepTick
-                            },
-                            new MoveEntity_TellGameSegmentAction() { EntityId = user.EntityId, X = moveEntityAction.X, Y = moveEntityAction.Y, LockstepTick = completedLockStep },
-                            new MoveEntity_NeighborGameSegmentAction() { EntityId = user.EntityId, LockstepTick = moveEntityAction.LockstepTick, LockstepMovePoints = user.LockstepMovePoints },
-                            new MoveEntity_GameWorldAction() { EntityId = user.EntityId, LockstepTick = moveEntityAction.LockstepTick, LockstepMovePoints = user.LockstepMovePoints }
-                            );
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                case GameSegmentActionType.MoveEntity:
+                    var moveEntityAction = (MoveEntity_GameSegmentAction)action;
+                    var completedLockStep = user.RePathFind(moveEntityAction);
+                    if (completedLockStep == 0)
+                    {
+                        //bad movement
+                        return;
+                    }
+                    gameManager.SendAction(user,
+                        new MoveEntity_ClientAction()
+                        {
+                            X = moveEntityAction.X,
+                            Y = moveEntityAction.Y,
+                            EntityId = user.EntityId,
+                            LockstepTick = moveEntityAction.LockstepTick
+                        },
+                        new MoveEntity_TellGameSegmentAction() { EntityId = user.EntityId, X = moveEntityAction.X, Y = moveEntityAction.Y, LockstepTick = completedLockStep },
+                        new MoveEntity_NeighborGameSegmentAction() { EntityId = user.EntityId, LockstepTick = moveEntityAction.LockstepTick, LockstepMovePoints = user.LockstepMovePoints },
+                        new MoveEntity_GameWorldAction() { EntityId = user.EntityId, LockstepTick = moveEntityAction.LockstepTick, LockstepMovePoints = user.LockstepMovePoints }
+                        );
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -79,7 +78,7 @@ namespace Pather.Servers.GameSegmentServer
             switch (action.TellGameSegmentActionType)
             {
                 case TellGameSegmentActionType.MoveEntity:
-                    var moveEntity = (MoveEntity_TellGameSegmentAction) action;
+                    var moveEntity = (MoveEntity_TellGameSegmentAction)action;
                     ((ServerGameUser)ActiveEntities[action.EntityId]).SetPointInTime(moveEntity.X, moveEntity.Y, moveEntity.LockstepTick);
                     Global.Console.Log("Got tell move action from gamesegment");
                     break;
@@ -93,8 +92,8 @@ namespace Pather.Servers.GameSegmentServer
             switch (action.NeighborGameSegmentActionType)
             {
                 case NeighborGameSegmentActionType.MoveEntity:
-                    var moveEntity = (MoveEntity_NeighborGameSegmentAction) action;
-                    ((ServerGameUser) ActiveEntities[action.EntityId]).SetPath(moveEntity.LockstepMovePoints);
+                    var moveEntity = (MoveEntity_NeighborGameSegmentAction)action;
+                    ((ServerGameUser)ActiveEntities[action.EntityId]).SetPath(moveEntity.LockstepMovePoints);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -274,9 +273,9 @@ namespace Pather.Servers.GameSegmentServer
                 serverGameUser.OldNeighbors = null;
                 if (added.Count > 0 || removed.Count > 0)
                 {
-//                    Global.Console.Log("Neighbors! ", added, removed);
+                    //                    Global.Console.Log("Neighbors! ", added, removed);
                     var lockstepTickToRun = tickManager.LockstepTickNumber + 1;
-//                    Global.Console.Log("lockstep ", lockstepTickToRun);
+                    //                    Global.Console.Log("lockstep ", lockstepTickToRun);
 
                     gameManager.SendToUser(serverGameUser, new ClientActionCollection_GameSegment_Gateway_PubSub_Message()
                     {
@@ -291,15 +290,15 @@ namespace Pather.Servers.GameSegmentServer
                             Added = added.Select(a =>
                             {
                                 var inProgressActions = a.InProgressActions.Where(action => action.EndingLockStepTicking > lockstepTickToRun);
-//                                Global.Console.Log("In progress actions: ", inProgressActions, a.EntityId);
+                                //                                Global.Console.Log("In progress actions: ", inProgressActions, a.EntityId);
                                 Point point;
 
 
-//                                Global.Console.Log("xy ", a.X, a.Y);
+                                //                                Global.Console.Log("xy ", a.X, a.Y);
 
-//                                Global.Console.Log("count ", inProgressActions.Count);
+                                //                                Global.Console.Log("count ", inProgressActions.Count);
                                 point = a.GetPositionAtLockstep(lockstepTickToRun);
-//                                Global.Console.Log("xy ", point.X, point.Y);
+                                //                                Global.Console.Log("xy ", point.X, point.Y);
 
                                 return new UpdatedNeighbor()
                                 {
@@ -334,7 +333,7 @@ namespace Pather.Servers.GameSegmentServer
         {
             foreach (var gameEntity in ActiveEntities.List)
             {
-                var serverGameEntity = (IServerGameEntity) gameEntity;
+                var serverGameEntity = (IServerGameEntity)gameEntity;
                 serverGameEntity.LockstepTick(lockstepTickNumber);
             }
         }

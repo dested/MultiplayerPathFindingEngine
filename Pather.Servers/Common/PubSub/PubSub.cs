@@ -70,8 +70,7 @@ namespace Pather.Servers.Common.PubSub
         }
 
 
-        private readonly JsDictionary<string, List<IPubSub_Message>> channelCacheDict = new JsDictionary<string, List<IPubSub_Message>>();
-        private readonly List<Tuple<string, List<IPubSub_Message>>> channelCache = new List<Tuple<string, List<IPubSub_Message>>>();
+        private readonly JsDictionary<string, List<IPubSub_Message>> channelCache= new JsDictionary<string, List<IPubSub_Message>>();
 
 
         private void flush()
@@ -81,19 +80,26 @@ namespace Pather.Servers.Common.PubSub
             var count = 0;
             foreach (var channel in channelCache)
             {
-                var pubSubMessageCollection = new PubSub_Message_Collection()
+                if (channel.Value.Count == 1 )
                 {
-                    Collection = channel.Item2
-                };
+                    pubClient.Publish(channel.Key, Json.Stringify(channel.Value[0]));
+                }
+                else
+                {
+                    var pubSubMessageCollection = new PubSub_Message_Collection()
+                    {
+                        MessageCollection = channel.Value
+                    };
 
-                pubClient.Publish(channel.Item1, Json.Stringify(pubSubMessageCollection));
-                count += channel.Item2.Count;
+                    pubClient.Publish(channel.Key, Json.Stringify(pubSubMessageCollection));
+                }
+
+                count += channel.Value.Count;
             }
             if (count > 70)
             {
                 Global.Console.Log("Flushing", count);
             }
-            channelCacheDict.Clear();
             channelCache.Clear();
         }
 
@@ -108,11 +114,11 @@ namespace Pather.Servers.Common.PubSub
                 var channelCallback = subbed[channel];
                 if (channelCallback != null)
                 {
-                    if (Utilities.HasField<PubSub_Message_Collection>(message, a => a.Collection))
+                    if (Utilities.HasField<PubSub_Message_Collection>(message, a => a.MessageCollection))
                     {
                         var messages = (PubSub_Message_Collection) message;
 
-                        foreach (var m in messages.Collection)
+                        foreach (var m in messages.MessageCollection)
                         {
                             channelCallback(m);
                         }
@@ -159,12 +165,11 @@ namespace Pather.Servers.Common.PubSub
 
         private void addToCache(string channel, IPubSub_Message message)
         {
-            if (!channelCacheDict.ContainsKey(channel))
+            if (!channelCache.ContainsKey(channel))
             {
-                channelCacheDict[channel] = new List<IPubSub_Message>();
-                channelCache.Add(new Tuple<string, List<IPubSub_Message>>(channel, channelCacheDict[channel]));
+                channelCache[channel] = new List<IPubSub_Message>();
             }
-            channelCacheDict[channel].Add(message);
+            channelCache[channel].Add(message);
         }
 
 

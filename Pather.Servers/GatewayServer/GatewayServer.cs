@@ -230,7 +230,7 @@ namespace Pather.Servers.GatewayServer
                 if (gatewayUser == null)
                 {
                     //todo find out why user does not exist yet
-
+                    Global.Console.Log("User does not exist yet, storing actions", userToSendTo);
                     if (!cachedUserActions.ContainsKey(userToSendTo))
                     {
                         cachedUserActions[userToSendTo] = new List<ClientActionCacheModel>();

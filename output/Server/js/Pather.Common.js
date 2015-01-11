@@ -274,7 +274,7 @@
 	};
 	$Pather_Common_Models_Common_PubSub_Message_Collection.$ctor = function() {
 		var $this = {};
-		$this.collection = null;
+		$this.messageCollection = null;
 		return $this;
 	};
 	global.Pather.Common.Models.Common.PubSub_Message_Collection = $Pather_Common_Models_Common_PubSub_Message_Collection;
@@ -1491,7 +1491,7 @@
 	$Pather_Common_Models_Tick_Ping_Tick_PubSub_Message.$ctor = function() {
 		var $this = $Pather_Common_Models_Tick_Base_Tick_PubSub_Message.$ctor();
 		$this.origin = null;
-		$this.originType = 0;
+		$this.originType = null;
 		$this.type = 'ping';
 		return $this;
 	};
@@ -2556,16 +2556,6 @@
 		}
 	});
 	ss.initClass($Pather_Common_GameFramework_GameBoard, $asm, {
-		constructGrid: function() {
-			this.grid = new Array($Pather_Common_Constants.numberOfSquares);
-			for (var x = 0; x < $Pather_Common_Constants.numberOfSquares; x++) {
-				this.grid[x] = new Array($Pather_Common_Constants.numberOfSquares);
-				for (var y = 0; y < $Pather_Common_Constants.numberOfSquares; y++) {
-					this.grid[x][y] = ((Math.random() * 100 < 15) ? 0 : 1);
-				}
-			}
-			this.aStarGraph = new Graph(this.grid);
-		},
 		init: function(grid) {
 			this.grid = grid;
 			this.aStarGraph = new Graph(this.grid);
@@ -2683,7 +2673,7 @@
 	ss.initEnum($Pather_Common_Models_ServerManager_Base_ServerManager_PubSub_MessageType, $asm, { createGameSegment: 'createGameSegment', createGateway: 'createGateway' }, true);
 	ss.initClass($Pather_Common_Models_Tick_Base_Tick_PubSub_Message, $asm, {}, null, [$Pather_Common_Models_Common_IPubSub_Message]);
 	ss.initClass($Pather_Common_Models_Tick_Ping_Tick_PubSub_Message, $asm, {}, $Pather_Common_Models_Tick_Base_Tick_PubSub_Message, [$Pather_Common_Models_Common_IPubSub_Message]);
-	ss.initEnum($Pather_Common_Models_Tick_Ping_Tick_PubSub_Message_OriginType, $asm, { gameSegment: 0, gameWorld: 1, gateway: 2 });
+	ss.initEnum($Pather_Common_Models_Tick_Ping_Tick_PubSub_Message_OriginType, $asm, { gameSegment: 'gameSegment', gameWorld: 'gameWorld', gateway: 'gateway' }, true);
 	ss.initEnum($Pather_Common_Models_Tick_Base_Tick_PubSub_MessageType, $asm, { ping: 'ping' }, true);
 	ss.initClass($Pather_Common_TestFramework_Assert, $asm, {});
 	ss.initClass($Pather_Common_TestFramework_AssertException, $asm, {
@@ -2788,7 +2778,7 @@
 			this.promise.reject();
 		},
 		resolveInATick: function() {
-			//todo basically a testmethod
+			//todo this is basically a testmethod
 			setTimeout(ss.mkdel(this, function() {
 				this.promise.resolve();
 			}), 0);

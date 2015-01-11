@@ -44,7 +44,7 @@ namespace Pather.Common.Utils.Promises
 
         public void ResolveInATick()
         {
-            //todo basically a testmethod
+            //todo this is basically a testmethod
             Global.SetTimeout(() => Promise.Resolve(), 0);
         }
     }
