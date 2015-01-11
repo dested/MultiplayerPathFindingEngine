@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Html;
+using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.TestFramework;
 using Pather.Common.Utils;
@@ -14,7 +15,7 @@ namespace Pather.Client.Tests
         [TestMethod(disable: true)]
         public void Connect4(Deferred deferred)
         {
-            ((dynamic) Window.Instance).NoDraw = true;
+            ((dynamic)Window.Instance).NoDraw = true;
 
             List<ClientGameView> clients = new List<ClientGameView>();
 
@@ -46,10 +47,10 @@ namespace Pather.Client.Tests
             }
         }
 
-        [TestMethod()]
+        [TestMethod(disable: true)]
         public void Connect5(Deferred deferred)
         {
-            ((dynamic) Window.Instance).NoDraw = true;
+            ((dynamic)Window.Instance).NoDraw = true;
 
             List<ClientGameView> clients = new List<ClientGameView>();
 
@@ -71,7 +72,7 @@ namespace Pather.Client.Tests
                     Global.SetTimeout(() =>
                     {
                         gameClient.ClientGameManager.MoveToLocation(point.X, point.Y);
-                    }, 1000 + (int) (Math.Random()*500));
+                    }, 1000 + (int)(Math.Random() * 500));
                     Global.SetInterval(() =>
                     {
                         gameClient.ClientGameManager.MoveToLocation(point.X, point.Y);
@@ -80,6 +81,49 @@ namespace Pather.Client.Tests
 
                 clients.Add(gameClient);
             }
+        }
+
+
+
+        [TestMethod()]
+        public void Slam(Deferred deferred)
+        {
+            ((dynamic)Window.Instance).NoDraw = true;
+
+            var totalHits = 20;
+
+            for (var i = 0; i < totalHits; i++)
+            {
+                Global.SetTimeout(() =>
+                {
+                    var receivedCount = 0;
+
+                    var gameClient = new ClientGameView();
+                    gameClient.ClientGameManager.OnReady += () =>
+                    {
+                        var cl = 0;
+                        cl = Global.SetInterval(() =>
+                        {
+                            if (++receivedCount < 200)
+                            {
+                                Global.Console.Log("Moving User again " + receivedCount);
+                                gameClient.ClientGameManager.MoveToLocation(Math.Random() * (Constants.NumberOfSquares - 5) * Constants.SquareSize, Math.Random() * (Constants.NumberOfSquares - 5) * Constants.SquareSize);
+                            }
+                            else
+                            {
+                                Global.ClearTimeout(cl);
+                                Global.Console.Log("Done " + receivedCount);
+                            }
+
+                        }, 4000 + (int)(Math.Random() * 10000));
+                    };
+
+                }, (int)(Math.Random() * 15000));
+            }
+
+
+
+
         }
 
 

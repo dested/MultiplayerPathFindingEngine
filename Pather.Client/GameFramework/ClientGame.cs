@@ -5,6 +5,7 @@ using Pather.Common.GameFramework;
 using Pather.Common.Models.Common;
 using Pather.Common.Models.Common.Actions.ClientActions;
 using Pather.Common.Models.Common.Actions.ClientActions.Base;
+using Pather.Common.Models.GameSegment;
 using Pather.Common.Utils;
 
 namespace Pather.Client.GameFramework
@@ -27,7 +28,8 @@ namespace Pather.Client.GameFramework
 
         public void MyUserJoined(string userId, double x, double y)
         {
-            var clientUser = CreateGameUser(userId);
+            var clientUser = (ClientGameUser)CreateGameUser(userId);
+            clientUser.Controlled = true;
             clientUser.X = x;
             clientUser.Y = y;
             ActiveEntities.Add(clientUser);

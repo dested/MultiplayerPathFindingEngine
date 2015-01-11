@@ -3454,14 +3454,14 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 				var $t1 = Pather.Common.Models.GameSegment.ReorganizeUser_GameWorld_GameSegment_PubSub_Message.$ctor();
 				$t1.newGameSegmentId = newGameSegment.gameSegmentId;
 				$t1.userId = gameWorldUser.userId;
-				$t1.switchAtLockstepNumber = this.$backEndTickManager.lockstepTickNumber + Pather.Common.Constants.gameSegmentReorgSwitchOffset;
+				$t1.switchAtLockstepNumber = this.$backEndTickManager.lockstepTickNumber + Pather.Common.Constants.gameSegmentReorgSwitchLockstepOffset;
 				$t2.publishToGameSegment($t3, $t1);
 				var $t5 = this.gameWorldPubSub;
 				var $t6 = gameWorldUser.gatewayId;
 				var $t4 = Pather.Common.Models.Gateway.PubSub.ReorganizeUser_GameWorld_Gateway_PubSub_Message.$ctor();
 				$t4.newGameSegmentId = newGameSegment.gameSegmentId;
 				$t4.userId = gameWorldUser.userId;
-				$t4.switchAtLockstepNumber = this.$backEndTickManager.lockstepTickNumber + Pather.Common.Constants.gameSegmentReorgSwitchOffset;
+				$t4.switchAtLockstepNumber = this.$backEndTickManager.lockstepTickNumber + Pather.Common.Constants.gameSegmentReorgSwitchLockstepOffset;
 				$t5.publishToGatewayServer($t6, $t4);
 				ss.removeAt(this.$needToReorganize, i);
 			}

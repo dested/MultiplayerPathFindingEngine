@@ -2868,7 +2868,7 @@
 		$Pather_Common_Constants.maxGameSegmentsPerCluster = 0;
 		$Pather_Common_Constants.buildNeighborsTimeout = 0;
 		$Pather_Common_Constants.reorganizeGameWorldInterval = 0;
-		$Pather_Common_Constants.gameSegmentReorgSwitchOffset = 0;
+		$Pather_Common_Constants.gameSegmentReorgSwitchLockstepOffset = 0;
 		$Pather_Common_Constants.clusterGroupViewRadius = 0;
 		$Pather_Common_Constants.testReorganizeGameWorldInterval = 0;
 		$Pather_Common_Constants.numberOfReorganizedPlayersPerSession = 0;
@@ -2876,7 +2876,7 @@
 		$Pather_Common_Constants.pingGatewayFromHeadTimeout = 0;
 		//CLIENT
 		$Pather_Common_Constants.squareSize = 16;
-		$Pather_Common_Constants.numberOfSquares = 150;
+		$Pather_Common_Constants.numberOfSquares = 100;
 		$Pather_Common_Constants.drawFps = 60;
 		$Pather_Common_Constants.drawTicks = ss.Int32.div(1000, $Pather_Common_Constants.drawFps);
 		$Pather_Common_Constants.numberOfAnimationSteps = 5;
@@ -2885,8 +2885,8 @@
 		$Pather_Common_Constants.lockstepFps = 2;
 		$Pather_Common_Constants.lockstepTicks = ss.Int32.div(1000, $Pather_Common_Constants.lockstepFps);
 		$Pather_Common_Constants.latencyPingInterval = 6000;
-		$Pather_Common_Constants.neighborDistance = 20;
-		$Pather_Common_Constants.usersPerGameSegment = 2;
+		$Pather_Common_Constants.neighborDistance = 40;
+		$Pather_Common_Constants.usersPerGameSegment = 100;
 		$Pather_Common_Constants.gameSegmentCreationWait = 60;
 		$Pather_Common_Constants.gatewayCreationWait = 60;
 		$Pather_Common_Constants.maxConnectionsPerGateway = 100;
@@ -2895,12 +2895,12 @@
 		$Pather_Common_Constants.maxGameSegmentsPerCluster = 10;
 		$Pather_Common_Constants.pingGatewayFromHeadTimeout = 1000;
 		$Pather_Common_Constants.spinUpNewGatewayCheck = 4000;
-		$Pather_Common_Constants.buildNeighborsTimeout = 200;
-		$Pather_Common_Constants.reorganizeGameWorldInterval = 1000;
-		$Pather_Common_Constants.testReorganizeGameWorldInterval = 60000;
+		$Pather_Common_Constants.buildNeighborsTimeout = 2000;
+		$Pather_Common_Constants.reorganizeGameWorldInterval = 2000;
+		$Pather_Common_Constants.testReorganizeGameWorldInterval = 120000;
 		$Pather_Common_Constants.numberOfReorganizedPlayersPerSession = 10;
-		$Pather_Common_Constants.gameSegmentReorgSwitchOffset = 2;
-		$Pather_Common_Constants.clusterGroupViewRadius = $Pather_Common_Constants.neighborDistance * 10;
+		$Pather_Common_Constants.gameSegmentReorgSwitchLockstepOffset = 2;
+		$Pather_Common_Constants.clusterGroupViewRadius = $Pather_Common_Constants.neighborDistance * 5;
 	})();
 	(function() {
 		eval('\r\nglobal.$overwiteMethodCallForMocker$=function ($call$,$overwrite$) {\r\n    var $targets$=$call$._targets[0];\r\n    for(var m in $targets$) {\r\n        if($targets$[m]==$call$._targets[1]) {\r\n            $targets$[m]=$overwrite$;\r\n        }\r\n    }\r\n}');

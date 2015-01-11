@@ -8,7 +8,7 @@ namespace Pather.Common
         {
             //CLIENT
             SquareSize = 16;
-            NumberOfSquares = 150;
+            NumberOfSquares = 100;
 
             DrawFps = 60;
             DrawTicks = 1000/DrawFps;
@@ -20,8 +20,8 @@ namespace Pather.Common
             LockstepTicks = 1000/LockstepFps;
 
             LatencyPingInterval = 6*1000;
-            NeighborDistance = 20;
-            UsersPerGameSegment = 2;
+            NeighborDistance = 40;
+            UsersPerGameSegment = 100;
             GameSegmentCreationWait = 60;
             GatewayCreationWait = 60;
 
@@ -35,15 +35,15 @@ namespace Pather.Common
             PingGatewayFromHeadTimeout = 1000;
             SpinUpNewGatewayCheck = 4000;
 
-            BuildNeighborsTimeout = 200;
+            BuildNeighborsTimeout = 2*1000;
 
-            ReorganizeGameWorldInterval = 1000;
-            TestReorganizeGameWorldInterval = 60*1000;
+            ReorganizeGameWorldInterval = 2000;
+            TestReorganizeGameWorldInterval = 120*1000;
 
             NumberOfReorganizedPlayersPerSession = 10;
-            GameSegmentReorgSwitchOffset = 2;
+            GameSegmentReorgSwitchLockstepOffset = 2;
 
-            ClusterGroupViewRadius = NeighborDistance*10;
+            ClusterGroupViewRadius = NeighborDistance*5;
         }
 
         public static int NumberOfAnimationSteps;
@@ -66,7 +66,7 @@ namespace Pather.Common
         public static int MaxGameSegmentsPerCluster;
         public static int BuildNeighborsTimeout;
         public static int ReorganizeGameWorldInterval;
-        public static int GameSegmentReorgSwitchOffset;
+        public static int GameSegmentReorgSwitchLockstepOffset;
 
 
         public static bool TestServer

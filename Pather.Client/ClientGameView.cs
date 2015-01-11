@@ -34,9 +34,13 @@ namespace Pather.Client
             if (!Constants.NoDraw)
             {
                 var backCanvas = (CanvasElement) Document.GetElementById("backCanvas");
+                backCanvas.Width = Constants.NumberOfSquares * Constants.SquareSize;
+                backCanvas.Height = Constants.NumberOfSquares * Constants.SquareSize;
                 var backContext = (CanvasRenderingContext2D) backCanvas.GetContext(CanvasContextId.Render2D);
                 var canvas = (CanvasElement) Document.GetElementById("canvas");
-                var context = (CanvasRenderingContext2D) canvas.GetContext(CanvasContextId.Render2D);
+                canvas.Width = Constants.NumberOfSquares * Constants.SquareSize;
+                canvas.Height = Constants.NumberOfSquares * Constants.SquareSize;
+                var context = (CanvasRenderingContext2D)canvas.GetContext(CanvasContextId.Render2D);
                 contextCollection.Add("Background", backContext);
                 contextCollection.Add("Foreground", context);
                 canvas.OnMousedown = (ev) =>

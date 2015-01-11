@@ -91,17 +91,17 @@ namespace Pather.Client.GameFramework
 
         public void Draw(Dictionary<string, CanvasRenderingContext2D> contextCollection, double interpolatedTime)
         {
-            contextCollection["Foreground"].ClearRect(0, 0, 1200, 1200);
+            contextCollection["Foreground"].ClearRect(0, 0, Constants.NumberOfSquares * Constants.SquareSize, Constants.NumberOfSquares * Constants.SquareSize);
             DrawBackground(contextCollection["Background"]);
             clientGame.DrawEntities(contextCollection["Foreground"], interpolatedTime);
         }
 
         private void DrawBackground(CanvasRenderingContext2D context)
         {
-            context.ClearRect(0, 0, 1200, 1200);
+            context.ClearRect(0, 0, Constants.NumberOfSquares * Constants.SquareSize, Constants.NumberOfSquares * Constants.SquareSize);
             context.Save();
             context.FillStyle = "black";
-            context.FillRect(0, 0, 1200, 1200);
+            context.FillRect(0, 0, Constants.NumberOfSquares * Constants.SquareSize, Constants.NumberOfSquares * Constants.SquareSize);
 
             context.FillStyle = "blue";
             for (var y = 0; y < Constants.NumberOfSquares; y++)

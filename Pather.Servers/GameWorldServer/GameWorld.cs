@@ -192,13 +192,13 @@ namespace Pather.Servers.GameWorldServer
                     {
                         NewGameSegmentId = newGameSegment.GameSegmentId,
                         UserId = gameWorldUser.UserId,
-                        SwitchAtLockstepNumber = backEndTickManager.LockstepTickNumber + Constants.GameSegmentReorgSwitchOffset
+                        SwitchAtLockstepNumber = backEndTickManager.LockstepTickNumber + Constants.GameSegmentReorgSwitchLockstepOffset
                     });
                     GameWorldPubSub.PublishToGatewayServer(gameWorldUser.GatewayId, new ReorganizeUser_GameWorld_Gateway_PubSub_Message()
                     {
                         NewGameSegmentId = newGameSegment.GameSegmentId,
                         UserId = gameWorldUser.UserId,
-                        SwitchAtLockstepNumber = backEndTickManager.LockstepTickNumber + Constants.GameSegmentReorgSwitchOffset
+                        SwitchAtLockstepNumber = backEndTickManager.LockstepTickNumber + Constants.GameSegmentReorgSwitchLockstepOffset
                     });
                     needToReorganize.RemoveAt(i);
                 }

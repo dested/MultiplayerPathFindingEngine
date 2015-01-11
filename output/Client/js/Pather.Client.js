@@ -109,6 +109,7 @@
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Client.GameFramework.ClientGameUser
 	var $Pather_Client_GameFramework_ClientGameUser = function(game, userId) {
+		this.controlled = false;
 		this.animations = null;
 		this.path = null;
 		Pather.Common.GameFramework.GameUser.call(this, game, userId);
@@ -181,9 +182,13 @@
 			if (!Pather.Common.Constants.get_noDraw()) {
 				var $t1 = document.getElementById('backCanvas');
 				var backCanvas = ss.cast($t1, ss.isValue($t1) && (ss.isInstanceOfType($t1, Element) && $t1.tagName === 'CANVAS'));
+				backCanvas.width = Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize;
+				backCanvas.height = Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize;
 				var backContext = ss.cast(backCanvas.getContext('2d'), CanvasRenderingContext2D);
 				var $t2 = document.getElementById('canvas');
 				var canvas = ss.cast($t2, ss.isValue($t2) && (ss.isInstanceOfType($t2, Element) && $t2.tagName === 'CANVAS'));
+				canvas.width = Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize;
+				canvas.height = Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize;
 				var context = ss.cast(canvas.getContext('2d'), CanvasRenderingContext2D);
 				this.$contextCollection.add('Background', backContext);
 				this.$contextCollection.add('Foreground', context);
@@ -248,7 +253,8 @@
 			this.stepManager.queueClientAction(action);
 		},
 		myUserJoined: function(userId, x, y) {
-			var clientUser = this.createGameUser(userId);
+			var clientUser = ss.cast(this.createGameUser(userId), $Pather_Client_GameFramework_ClientGameUser);
+			clientUser.controlled = true;
 			clientUser.x = x;
 			clientUser.y = y;
 			this.activeEntities.add(clientUser);
@@ -367,15 +373,15 @@
 			this.frontEndTickManager.setLockStepTick(message.lockstepTickNumber);
 		},
 		draw: function(contextCollection, interpolatedTime) {
-			contextCollection.get_item('Foreground').clearRect(0, 0, 1200, 1200);
+			contextCollection.get_item('Foreground').clearRect(0, 0, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize);
 			this.$drawBackground(contextCollection.get_item('Background'));
 			this.clientGame.drawEntities(contextCollection.get_item('Foreground'), interpolatedTime);
 		},
 		$drawBackground: function(context) {
-			context.clearRect(0, 0, 1200, 1200);
+			context.clearRect(0, 0, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize);
 			context.save();
 			context.fillStyle = 'black';
-			context.fillRect(0, 0, 1200, 1200);
+			context.fillRect(0, 0, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize);
 			context.fillStyle = 'blue';
 			for (var y = 0; y < Pather.Common.Constants.numberOfSquares; y++) {
 				for (var x = 0; x < Pather.Common.Constants.numberOfSquares; x++) {
@@ -445,17 +451,13 @@
 					_y = ss.Int32.trunc(animation.fromY + (animation.y - animation.fromY) * interpolateStep);
 				}
 			}
-			var result = this.path[0];
-			if (ss.isValue(result)) {
-				context.lineWidth = 5;
-				context.strokeStyle = 'yellow';
-				//                context.StrokeRect(result.X * Constants.SquareSize, result.Y * Constants.SquareSize, Constants.SquareSize, Constants.SquareSize);
-			}
-			context.strokeStyle = 'green';
-			//            context.StrokeRect(SquareX * Constants.SquareSize, SquareY * Constants.SquareSize, Constants.SquareSize, Constants.SquareSize);
-			//            Console.WriteLine(_x + " " + _y);
 			context.lineWidth = 5;
-			context.strokeStyle = 'yellow';
+			if (this.controlled) {
+				context.strokeStyle = 'green';
+			}
+			else {
+				context.strokeStyle = 'yellow';
+			}
 			context.fillStyle = 'red';
 			context.fillRect(_x - ss.Int32.div(Pather.Common.Constants.squareSize, 2), _y - ss.Int32.div(Pather.Common.Constants.squareSize, 2), Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
 			context.strokeRect(_x - ss.Int32.div(Pather.Common.Constants.squareSize, 2), _y - ss.Int32.div(Pather.Common.Constants.squareSize, 2), Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
@@ -605,6 +607,29 @@
 				}));
 				clients.push(gameClient.$);
 			}
+		},
+		slam: function(deferred) {
+			window.window.NoDraw = true;
+			var totalHits = 20;
+			for (var i = 0; i < totalHits; i++) {
+				setTimeout(function() {
+					var receivedCount = 0;
+					var gameClient = new $Pather_Client_ClientGameView();
+					gameClient.clientGameManager.onReady = ss.delegateCombine(gameClient.clientGameManager.onReady, function() {
+						var cl = 0;
+						cl = setInterval(function() {
+							if (++receivedCount < 200) {
+								console.log('Moving User again ' + receivedCount);
+								gameClient.clientGameManager.moveToLocation(Math.random() * (Pather.Common.Constants.numberOfSquares - 5) * Pather.Common.Constants.squareSize, Math.random() * (Pather.Common.Constants.numberOfSquares - 5) * Pather.Common.Constants.squareSize);
+							}
+							else {
+								clearTimeout(cl);
+								console.log('Done ' + receivedCount);
+							}
+						}, 4000 + ss.Int32.trunc(Math.random() * 10000));
+					});
+				}, ss.Int32.trunc(Math.random() * 15000));
+			}
 		}
 	});
 	ss.initClass($Pather_Client_Utils_ClientCommunicator, $asm, {
@@ -620,6 +645,6 @@
 			this.socket.disconnect();
 		}
 	});
-	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'Connect4', type: 8, sname: 'connect4', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'Connect5', type: 8, sname: 'connect5', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
+	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'Connect4', type: 8, sname: 'connect4', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'Connect5', type: 8, sname: 'connect5', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'Slam', type: 8, sname: 'slam', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
 	$Pather_Client_$Program.$main();
 })();
