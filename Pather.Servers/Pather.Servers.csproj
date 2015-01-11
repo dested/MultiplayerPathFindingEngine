@@ -99,7 +99,6 @@
     <Compile Include="Libraries\RTree\Log.cs" />
     <Compile Include="Libraries\RTree\RTreeLogManager.cs" />
     <Compile Include="Libraries\RTree\Node.cs" />
-    <Compile Include="Libraries\RTree\RtreePoint.cs" />
     <Compile Include="Libraries\RTree\Rectangle.cs" />
     <Compile Include="Libraries\RTree\RTree.cs" />
     <Compile Include="Libraries\RTree\Vector2.cs" />

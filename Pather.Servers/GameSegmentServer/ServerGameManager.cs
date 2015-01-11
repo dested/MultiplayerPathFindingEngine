@@ -238,6 +238,8 @@ namespace Pather.Servers.GameSegmentServer
 
         private void onMessageReorganizeGameSegment(ReorganizeUser_GameWorld_GameSegment_PubSub_Message message)
         {
+            Global.Console.Log("Reorganizing user:", message.UserId, message.SwitchAtLockstepNumber);
+
             foreach (var gameSegment in AllGameSegments.List)
             {
                 if (gameSegment.GameSegmentId != MyGameSegment.GameSegmentId && gameSegment.GameSegmentId != message.NewGameSegmentId)

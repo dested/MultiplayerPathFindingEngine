@@ -951,6 +951,7 @@ $Pather_Servers_Libraries_RTree_$ILog.__typeName = 'Pather.Servers.Libraries.RTr
 // Pather.Servers.Libraries.RTree.Log
 var $Pather_Servers_Libraries_RTree_$Log = function() {
 	this.$1$IsDebugEnabledField = false;
+	this.set_$isDebugEnabled(false);
 };
 $Pather_Servers_Libraries_RTree_$Log.__typeName = 'Pather.Servers.Libraries.RTree.$Log';
 ////////////////////////////////////////////////////////////////////////////////
@@ -1039,7 +1040,7 @@ var $Pather_Servers_Libraries_RTree_Node$1 = function(T) {
 		},
 		$findEntry: function(r, id) {
 			for (var i = 0; i < this.$entryCount; i++) {
-				if (id === this.$ids[i] && ss.referenceEquals(r, this.$entries[i])) {
+				if (id === this.$ids[i] && r.equals(this.$entries[i])) {
 					return i;
 				}
 			}
@@ -1160,6 +1161,7 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 		this.$parentsEntry = new Array();
 		this.$treeHeight = 1;
 		this.$rootNodeId = 0;
+		this.$msize = 0;
 		this.$highestUsedNodeId = 0;
 		this.$deletedNodeIds = new Array();
 		this.$nearestIds = [];
@@ -1167,8 +1169,6 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 		this.$itemsToIds = {};
 		this.$idcounter = -2147483648;
 		this.$oldRectangle = new $Pather_Servers_Libraries_RTree_Rectangle.$ctor2(0, 0, 0, 0, 0, 0);
-		this.$1$CountField = 0;
-		this.set_count(0);
 		this.$init();
 	};
 	$type.$ctor1 = function(MaxNodeEntries, MinNodeEntries) {
@@ -1183,6 +1183,7 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 		this.$parentsEntry = new Array();
 		this.$treeHeight = 1;
 		this.$rootNodeId = 0;
+		this.$msize = 0;
 		this.$highestUsedNodeId = 0;
 		this.$deletedNodeIds = new Array();
 		this.$nearestIds = [];
@@ -1190,8 +1191,6 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 		this.$itemsToIds = {};
 		this.$idcounter = -2147483648;
 		this.$oldRectangle = new $Pather_Servers_Libraries_RTree_Rectangle.$ctor2(0, 0, 0, 0, 0, 0);
-		this.$1$CountField = 0;
-		this.set_count(0);
 		this.$minNodeEntries = MinNodeEntries;
 		this.$maxNodeEntries = MaxNodeEntries;
 		this.$init();
@@ -1234,7 +1233,7 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 				this.$log.$debug('Adding rectangle ' + r + ', id ' + id);
 			}
 			this.$add$1(r.$copy(), id, 1);
-			this.set_count(this.get_count() + 1);
+			this.$msize++;
 		},
 		$add$1: function(r, id, level) {
 			// I1 [Find position for new record] Invoke ChooseLeaf to select a 
@@ -1264,6 +1263,9 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 				root.$addEntry(newNode.$mbr, newNode.$nodeId);
 				root.$addEntry(oldRoot.$mbr, oldRoot.$nodeId);
 				this.nodeMap[this.$rootNodeId] = root;
+			}
+			if ($type.$internaL_CONSISTENCY_CHECKING) {
+				this.$checkConsistency(this.$rootNodeId, this.$treeHeight, null);
 			}
 		},
 		delete$1: function(r, item) {
@@ -1325,7 +1327,7 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 			if (foundIndex !== -1) {
 				n.$deleteEntry(foundIndex, this.$minNodeEntries);
 				this.$condenseTree(n);
-				this.set_count(this.get_count() - 1);
+				this.$msize--;
 			}
 			// shrink the tree if possible (i.e. if root Node&lt;T%gt; has exactly one entry,and that 
 			// entry is not a leaf node, delete the root (it's entry becomes the new root)
@@ -1500,6 +1502,15 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 				this.$pickNext(n, newNode);
 			}
 			n.$reorganize(this);
+			// check that the MBR stored for each Node&lt;T&gt; is correct.
+			if ($type.$internaL_CONSISTENCY_CHECKING) {
+				if (!n.$mbr.equals(this.$calculateMBR(n))) {
+					this.$log.$error('Error: splitNode old Node<T> MBR wrong');
+				}
+				if (!newNode.$mbr.equals(this.$calculateMBR(newNode))) {
+					this.$log.$error('Error: splitNode new Node<T> MBR wrong');
+				}
+			}
 			// debug code
 			if (this.$log.get_$isDebugEnabled()) {
 				var newArea = n.$mbr.$area() + newNode.$mbr.$area();
@@ -1834,10 +1845,7 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 			return mbr;
 		},
 		get_count: function() {
-			return this.$1$CountField;
-		},
-		set_count: function(value) {
-			this.$1$CountField = value;
+			return this.$msize;
 		}
 	}, function() {
 		return null;
@@ -1847,6 +1855,7 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 	$type.$ctor1.prototype = $type.prototype;
 	$type.$version = '1.0b2p1';
 	$type.$defaulT_MAX_NODE_ENTRIES = 10;
+	$type.$internaL_CONSISTENCY_CHECKING = false;
 	$type.$entrY_STATUS_ASSIGNED = 0;
 	$type.$entrY_STATUS_UNASSIGNED = 1;
 	return $type;
@@ -3018,6 +3027,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameManager, $asm, {
 		ss.cast(this.$serverGame.activeEntities.get_item(message.userId), $Pather_Servers_GameSegmentServer_ServerGameUser).gameSegment = this.allGameSegments.get_item(message.newGameSegmentId);
 	},
 	$onMessageReorganizeGameSegment: function(message) {
+		console.log('Reorganizing user:', message.userId, message.switchAtLockstepNumber);
 		for (var $t1 = 0; $t1 < this.allGameSegments.list.length; $t1++) {
 			var gameSegment = this.allGameSegments.list[$t1];
 			if (!ss.referenceEquals(gameSegment.gameSegmentId, this.myGameSegment.gameSegmentId) && !ss.referenceEquals(gameSegment.gameSegmentId, message.newGameSegmentId)) {
@@ -4472,13 +4482,17 @@ ss.initClass($Pather_Servers_HeadServer_HeadServer, $asm, {
 ss.initClass($Pather_Servers_HeadServer_Models_Gateway, $asm, {});
 ss.initInterface($Pather_Servers_Libraries_RTree_$ILog, $asm, { $error: null, $info: null, $warn: null, $debug: null, get_$isDebugEnabled: null, set_$isDebugEnabled: null });
 ss.initClass($Pather_Servers_Libraries_RTree_$Log, $asm, {
-	$error: function(p0) {
+	$error: function(s) {
+		//            Global.Console.Log("RTree Error", s);
 	},
 	$info: function(s) {
+		//            Global.Console.Log("RTree Info", s);
 	},
-	$warn: function(p0) {
+	$warn: function(s) {
+		//            Global.Console.Log("RTree Warn", s);
 	},
 	$debug: function(s) {
+		//            Global.Console.Log("RTree Debug",s);
 	},
 	get_$isDebugEnabled: function() {
 		return this.$1$IsDebugEnabledField;
@@ -4589,6 +4603,14 @@ ss.initClass($Pather_Servers_Libraries_RTree_Rectangle, $asm, {
 		}
 		return distanceSquared;
 	},
+	$furthestDistance: function(r) {
+		var distanceSquared = 0;
+		for (var i = 0; i < $Pather_Servers_Libraries_RTree_Rectangle.$DIMENSIONS; i++) {
+			distanceSquared += Math.max(r.$min[i], r.$max[i]);
+			//distanceSquared += Math.Max(distanceSquared(i, r.min[i]), distanceSquared(i, r.max[i]));
+		}
+		return Math.sqrt(distanceSquared);
+	},
 	$enlargement: function(r) {
 		var enlargedArea = (Math.max(this.$max[0], r.$max[0]) - Math.min(this.$min[0], r.$min[0])) * (Math.max(this.$max[1], r.$max[1]) - Math.min(this.$min[1], r.$min[1]));
 		return enlargedArea - this.$area();
@@ -4626,19 +4648,17 @@ ss.initClass($Pather_Servers_Libraries_RTree_Rectangle, $asm, {
 		return true;
 	},
 	equals: function(obj) {
-		if (ss.referenceEquals(null, obj)) {
-			return false;
+		var equals = false;
+		if (ss.referenceEquals(ss.getInstanceType(obj), $Pather_Servers_Libraries_RTree_Rectangle)) {
+			var r = ss.cast(obj, $Pather_Servers_Libraries_RTree_Rectangle);
+			if (this.$compareArrays(r.$min, this.$min) && this.$compareArrays(r.$max, this.$max)) {
+				equals = true;
+			}
 		}
-		if (ss.referenceEquals(this, obj)) {
-			return true;
-		}
-		if (!ss.referenceEquals(ss.getInstanceType(obj), ss.getInstanceType(this))) {
-			return false;
-		}
-		return this.equals(ss.cast(obj, $Pather_Servers_Libraries_RTree_Rectangle));
+		return equals;
 	},
 	$sameObject: function(o) {
-		return ss.referenceEquals(this, o);
+		return this === o;
 	},
 	toString: function() {
 		var sb = new ss.StringBuilder();

@@ -34,7 +34,7 @@ namespace Pather.Servers.GameWorldServer
             foreach (var gameWorldUser in gameWorldUsers)
             {
                 Global.Console.Log("user:", gameWorldUser.UserId, gameWorldUser.X, gameWorldUser.Y);
-                tree.Add(new Rectangle(gameWorldUser.X, gameWorldUser.Y), gameWorldUser);
+                tree.Add(new Rectangle((float)gameWorldUser.X, (float)gameWorldUser.Y), gameWorldUser);
             }
             Global.Console.Log("Building Neighbors");
 
@@ -179,7 +179,7 @@ namespace Pather.Servers.GameWorldServer
                 var currentPlayer = players[index];
 
                 //determining nearest users
-                var nearest = tree.Nearest(new RTreePoint(currentPlayer.X, currentPlayer.Y), Constants.ClusterGroupViewRadius);
+                var nearest = tree.Nearest(new RTreePoint((float)currentPlayer.X, (float)currentPlayer.Y), Constants.ClusterGroupViewRadius);
 
                 var playerClusterInfo = new UserAndNeighbors(currentPlayer);
 

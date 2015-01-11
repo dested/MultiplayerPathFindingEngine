@@ -26,19 +26,22 @@ using System.Collections.Generic;
 namespace Pather.Servers.Libraries.RTree
 {
     /// <summary>
-    ///     This is a lightweight RTree implementation, specifically designed
-    ///     for the following features (in order of importance):
-    ///     Fast intersection query performance. To achieve this, the RTree
-    ///     uses only main memory to store entries. Obviously this will only improve
-    ///     performance if there is enough physical memory to avoid paging.
-    ///     Low memory requirements.
-    ///     Fast add performance.
-    ///     The main reason for the high speed of this RTree implementation is the
-    ///     avoidance of the creation of unnecessary objects, mainly achieved by using
-    ///     primitive collections from the trove4j library.
-    ///     author aled@sourceforge.net
-    ///     version 1.0b2p1
-    ///     Ported to C# By Dror Gluska, April 9th, 2009
+    /// This is a lightweight RTree implementation, specifically designed 
+    /// for the following features (in order of importance): 
+    ///
+    /// Fast intersection query performance. To achieve this, the RTree 
+    /// uses only main memory to store entries. Obviously this will only improve
+    /// performance if there is enough physical memory to avoid paging.
+    /// Low memory requirements.
+    /// Fast add performance.
+    ///
+    ///
+    /// The main reason for the high speed of this RTree implementation is the 
+    /// avoidance of the creation of unnecessary objects, mainly achieved by using
+    /// primitive collections from the trove4j library.
+    /// author aled@sourceforge.net
+    /// version 1.0b2p1
+    /// Ported to C# By Dror Gluska, April 9th, 2009
     /// </summary>
     /// <typeparam name="T"></typeparam>
     public class RTree<T>
@@ -51,7 +54,7 @@ namespace Pather.Servers.Libraries.RTree
         // parameters of the tree
         private const int DEFAULT_MAX_NODE_ENTRIES = 10;
         internal int maxNodeEntries;
-        private int minNodeEntries;
+        int minNodeEntries;
 
         // map of nodeId -&gt; Node&lt;T&gt; object
         // [x] TODO eliminate this map - it should not be needed. Nodes
@@ -59,6 +62,8 @@ namespace Pather.Servers.Libraries.RTree
         //private TIntObjectHashMap nodeMap = new TIntObjectHashMap();
         public JsDictionary<int, Node<T>> nodeMap = new JsDictionary<int, Node<T>>();
 
+        // internal consistency checking - set to true if debugging tree corruption
+        private const bool INTERNAL_CONSISTENCY_CHECKING = false;
 
         // used to mark the status of entries during a Node&lt;T&gt; split
         private const int ENTRY_STATUS_ASSIGNED = 0;
@@ -70,13 +75,14 @@ namespace Pather.Servers.Libraries.RTree
         // from the root down to the leaf. Enables fast lookup
         // of nodes when a split is propagated up the tree.
         //private TIntStack parents = new TIntStack();
-        private readonly Stack<int> parents = new Stack<int>();
+        private Stack<int> parents = new Stack<int>();
         //private TIntStack parentsEntry = new TIntStack();
-        private readonly Stack<int> parentsEntry = new Stack<int>();
+        private Stack<int> parentsEntry = new Stack<int>();
 
         // initialisation
         private int treeHeight = 1; // leaves are always level 1
         private int rootNodeId = 0;
+        private int msize = 0;
 
         // Enables creation of new nodes
         //private int highestUsedNodeId = rootNodeId; 
@@ -86,47 +92,42 @@ namespace Pather.Servers.Libraries.RTree
         // so that they can be reused. Store the IDs of nodes
         // which can be reused.
         //private TIntStack deletedNodeIds = new TIntStack();
-        private readonly Stack<int> deletedNodeIds = new Stack<int>();
+        private Stack<int> deletedNodeIds = new Stack<int>();
 
         // List of nearest rectangles. Use a member variable to
         // avoid recreating the object each time nearest() is called.
         //private TIntArrayList nearestIds = new TIntArrayList();
-        private readonly List<int> nearestIds = new List<int>();
+        List<int> nearestIds = new List<int>();
 
         //Added dictionaries to support generic objects..
         //possibility to change the code to support objects without dictionaries.
         public JsDictionary<int, T> IdsToItems = new JsDictionary<int, T>();
-        private readonly JsDictionary<T, int> ItemsToIds = new JsDictionary<T, int>();
+        private JsDictionary<T, int> ItemsToIds = new JsDictionary<T, int>();
         private int idcounter = int.MinValue;
 
         //the recursion methods require a delegate to retrieve data
         private delegate void intproc(int x);
 
         /// <summary>
-        ///     Initialize implementation dependent properties of the RTree.
+        /// Initialize implementation dependent properties of the RTree.
         /// </summary>
         public RTree()
         {
-            Count = 0;
             init();
         }
 
         /// <summary>
-        ///     Initialize implementation dependent properties of the RTree.
+        /// Initialize implementation dependent properties of the RTree.
         /// </summary>
-        /// <param name="MaxNodeEntries">
-        ///     his specifies the maximum number of entries
-        ///     in a node. The default value is 10, which is used if the property is
-        ///     not specified, or is less than 2.
-        /// </param>
-        /// <param name="MinNodeEntries">
-        ///     This specifies the minimum number of entries
-        ///     in a node. The default value is half of the MaxNodeEntries value (rounded
-        ///     down), which is used if the property is not specified or is less than 1.
-        /// </param>
+        /// <param name="MaxNodeEntries">his specifies the maximum number of entries
+        ///in a node. The default value is 10, which is used if the property is
+        ///not specified, or is less than 2.</param>
+        /// <param name="MinNodeEntries">This specifies the minimum number of entries
+        ///in a node. The default value is half of the MaxNodeEntries value (rounded
+        ///down), which is used if the property is not specified or is less than 1.
+        ///</param>
         public RTree(int MaxNodeEntries, int MinNodeEntries)
         {
-            Count = 0;
             minNodeEntries = MinNodeEntries;
             maxNodeEntries = MaxNodeEntries;
             init();
@@ -135,8 +136,8 @@ namespace Pather.Servers.Libraries.RTree
         private void init()
         {
             //initialize logs
-            log = RTreeLogManager.GetLogger(typeof (RTree<T>).FullName);
-            deleteLog = RTreeLogManager.GetLogger(typeof (RTree<T>).FullName + "-delete");
+            log = RTreeLogManager.GetLogger(typeof(RTree<T>).FullName);
+            deleteLog = RTreeLogManager.GetLogger(typeof(RTree<T>).FullName + "-delete");
 
             // Obviously a Node&lt;T&gt; with less than 2 entries cannot be split.
             // The Node&lt;T&gt; splitting algorithm will work with only 2 entries
@@ -148,35 +149,35 @@ namespace Pather.Servers.Libraries.RTree
             }
 
             // The MinNodeEntries must be less than or equal to (int) (MaxNodeEntries / 2)
-            if (minNodeEntries < 1 || minNodeEntries > maxNodeEntries/2)
+            if (minNodeEntries < 1 || minNodeEntries > maxNodeEntries / 2)
             {
                 log.Warn("MinNodeEntries must be between 1 and MaxNodeEntries / 2");
-                minNodeEntries = maxNodeEntries/2;
+                minNodeEntries = maxNodeEntries / 2;
             }
 
             entryStatus = new byte[maxNodeEntries];
             initialEntryStatus = new byte[maxNodeEntries];
 
-            for (var i = 0; i < maxNodeEntries; i++)
+            for (int i = 0; i < maxNodeEntries; i++)
             {
                 initialEntryStatus[i] = ENTRY_STATUS_UNASSIGNED;
             }
 
-            var root = new Node<T>(rootNodeId, 1, maxNodeEntries);
+            Node<T> root = new Node<T>(rootNodeId, 1, maxNodeEntries);
             nodeMap[rootNodeId] = root;
 
             log.Info("init() " + " MaxNodeEntries = " + maxNodeEntries + ", MinNodeEntries = " + minNodeEntries);
         }
 
         /// <summary>
-        ///     Adds an item to the spatial index
+        /// Adds an item to the spatial index
         /// </summary>
         /// <param name="r"></param>
         /// <param name="item"></param>
         public void Add(Rectangle r, T item)
         {
             idcounter++;
-            var id = idcounter;
+            int id = idcounter;
 
             IdsToItems[id] = item;
             ItemsToIds[item] = id;
@@ -193,11 +194,11 @@ namespace Pather.Servers.Libraries.RTree
 
             add(r.copy(), id, 1);
 
-            Count++;
+            msize++;
         }
 
         /// <summary>
-        ///     Adds a new entry at a specified level in the tree
+        /// Adds a new entry at a specified level in the tree
         /// </summary>
         /// <param name="r"></param>
         /// <param name="id"></param>
@@ -206,7 +207,7 @@ namespace Pather.Servers.Libraries.RTree
         {
             // I1 [Find position for new record] Invoke ChooseLeaf to select a 
             // leaf Node&lt;T&gt; L in which to place r
-            var n = chooseNode(r, level);
+            Node<T> n = chooseNode(r, level);
             Node<T> newLeaf = null;
 
             // I2 [Add record to leaf node] If L has room for another entry, 
@@ -223,35 +224,40 @@ namespace Pather.Servers.Libraries.RTree
 
             // I3 [Propagate changes upwards] Invoke AdjustTree on L, also passing LL
             // if a split was performed
-            var newNode = adjustTree(n, newLeaf);
+            Node<T> newNode = adjustTree(n, newLeaf);
 
             // I4 [Grow tree taller] If Node&lt;T&gt; split propagation caused the root to 
             // split, create a new root whose children are the two resulting nodes.
             if (newNode != null)
             {
-                var oldRootNodeId = rootNodeId;
-                var oldRoot = getNode(oldRootNodeId);
+                int oldRootNodeId = rootNodeId;
+                Node<T> oldRoot = getNode(oldRootNodeId);
 
                 rootNodeId = getNextNodeId();
                 treeHeight++;
-                var root = new Node<T>(rootNodeId, treeHeight, maxNodeEntries);
+                Node<T> root = new Node<T>(rootNodeId, treeHeight, maxNodeEntries);
                 root.addEntry(newNode.mbr, newNode.nodeId);
                 root.addEntry(oldRoot.mbr, oldRoot.nodeId);
                 nodeMap[rootNodeId] = root;
             }
+
+            if (INTERNAL_CONSISTENCY_CHECKING)
+            {
+                checkConsistency(rootNodeId, treeHeight, null);
+            }
         }
 
         /// <summary>
-        ///     Deletes an item from the spatial index
+        /// Deletes an item from the spatial index
         /// </summary>
         /// <param name="r"></param>
         /// <param name="item"></param>
         /// <returns></returns>
         public bool Delete(Rectangle r, T item)
         {
-            var id = ItemsToIds[item];
+            int id = ItemsToIds[item];
 
-            var success = delete(r, id);
+            bool success = delete(r, id);
             if (success == true)
             {
                 IdsToItems.Remove(id);
@@ -279,18 +285,18 @@ namespace Pather.Servers.Libraries.RTree
             parentsEntry.Clear();
             parentsEntry.Push(-1);
             Node<T> n = null;
-            var foundIndex = -1; // index of entry to be deleted in leaf
+            int foundIndex = -1;  // index of entry to be deleted in leaf
 
             while (foundIndex == -1 && parents.Count > 0)
             {
                 n = getNode(parents.Peek());
-                var startIndex = parentsEntry.Peek() + 1;
+                int startIndex = parentsEntry.Peek() + 1;
 
                 if (!n.isLeaf())
                 {
                     deleteLog.Debug("searching Node<T> " + n.nodeId + ", from index " + startIndex);
-                    var contains = false;
-                    for (var i = startIndex; i < n.entryCount; i++)
+                    bool contains = false;
+                    for (int i = startIndex; i < n.entryCount; i++)
                     {
                         if (n.entries[i].contains(r))
                         {
@@ -320,12 +326,12 @@ namespace Pather.Servers.Libraries.RTree
             {
                 n.deleteEntry(foundIndex, minNodeEntries);
                 condenseTree(n);
-                Count--;
+                msize--;
             }
 
             // shrink the tree if possible (i.e. if root Node&lt;T%gt; has exactly one entry,and that 
             // entry is not a leaf node, delete the root (it's entry becomes the new root)
-            var root = getNode(rootNodeId);
+            Node<T> root = getNode(rootNodeId);
             while (root.entryCount == 1 && treeHeight > 1)
             {
                 root.entryCount = 0;
@@ -338,14 +344,14 @@ namespace Pather.Servers.Libraries.RTree
         }
 
         /// <summary>
-        ///     Retrieve nearest items to a point in radius furthestDistance
+        /// Retrieve nearest items to a point in radius furthestDistance
         /// </summary>
         /// <param name="p">Point of origin</param>
         /// <param name="furthestDistance">maximum distance</param>
         /// <returns>List of items</returns>
-        public List<T> Nearest(RTreePoint p, double furthestDistance)
+        public List<T> Nearest(RTreePoint p, float furthestDistance)
         {
-            var retval = new List<T>();
+            List<T> retval = new List<T>();
             nearest(p, delegate(int id)
             {
                 retval.Add(IdsToItems[id]);
@@ -354,25 +360,25 @@ namespace Pather.Servers.Libraries.RTree
         }
 
 
-        private void nearest(RTreePoint p, intproc v, double furthestDistance)
+        private void nearest(RTreePoint p, intproc v, float furthestDistance)
         {
-            var rootNode = getNode(rootNodeId);
+            Node<T> rootNode = getNode(rootNodeId);
 
             nearest(p, rootNode, furthestDistance);
 
-            foreach (var id in nearestIds)
+            foreach (int id in nearestIds)
                 v(id);
             nearestIds.Clear();
         }
 
         /// <summary>
-        ///     Retrieve items which intersect with Rectangle r
+        /// Retrieve items which intersect with Rectangle r
         /// </summary>
         /// <param name="r"></param>
         /// <returns></returns>
         public List<T> Intersects(Rectangle r)
         {
-            var retval = new List<T>();
+            List<T> retval = new List<T>();
             intersects(r, delegate(int id)
             {
                 retval.Add(IdsToItems[id]);
@@ -383,19 +389,18 @@ namespace Pather.Servers.Libraries.RTree
 
         private void intersects(Rectangle r, intproc v)
         {
-            var rootNode = getNode(rootNodeId);
+            Node<T> rootNode = getNode(rootNodeId);
             intersects(r, v, rootNode);
         }
 
         /// <summary>
-        ///     find all rectangles in the tree that are contained by the passed rectangle
-        ///     written to be non-recursive (should model other searches on this?)
-        /// </summary>
+        /// find all rectangles in the tree that are contained by the passed rectangle
+        /// written to be non-recursive (should model other searches on this?)</summary>
         /// <param name="r"></param>
         /// <returns></returns>
         public List<T> Contains(Rectangle r)
         {
-            var retval = new List<T>();
+            List<T> retval = new List<T>();
             contains(r, delegate(int id)
             {
                 retval.Add(IdsToItems[id]);
@@ -420,16 +425,16 @@ namespace Pather.Servers.Libraries.RTree
 
             while (parents.Count > 0)
             {
-                var n = getNode(parents.Peek());
-                var startIndex = parentsEntry.Peek() + 1;
+                Node<T> n = getNode(parents.Peek());
+                int startIndex = parentsEntry.Peek() + 1;
 
                 if (!n.isLeaf())
                 {
                     // go through every entry in the index Node<T> to check
                     // if it intersects the passed rectangle. If so, it 
                     // could contain entries that are contained.
-                    var intersects = false;
-                    for (var i = startIndex; i < n.entryCount; i++)
+                    bool intersects = false;
+                    for (int i = startIndex; i < n.entryCount; i++)
                     {
                         if (r.intersects(n.entries[i]))
                         {
@@ -450,7 +455,7 @@ namespace Pather.Servers.Libraries.RTree
                 {
                     // go through every entry in the leaf to check if 
                     // it is contained by the passed rectangle
-                    for (var i = 0; i < n.entryCount; i++)
+                    for (int i = 0; i < n.entryCount; i++)
                     {
                         if (r.contains(n.entries[i]))
                         {
@@ -466,12 +471,11 @@ namespace Pather.Servers.Libraries.RTree
         /**
         * @see com.infomatiq.jsi.SpatialIndex#getBounds()
         */
-
         public Rectangle getBounds()
         {
             Rectangle bounds = null;
 
-            var n = getNode(getRootNodeId());
+            Node<T> n = getNode(getRootNodeId());
             if (n != null && n.getMBR() != null)
             {
                 bounds = n.getMBR().copy();
@@ -482,12 +486,10 @@ namespace Pather.Servers.Libraries.RTree
         /**
          * @see com.infomatiq.jsi.SpatialIndex#getVersion()
          */
-
         public string getVersion()
         {
             return "RTree-" + version;
         }
-
         //-------------------------------------------------------------------------
         // end of SpatialIndex methods
         //-------------------------------------------------------------------------
@@ -496,10 +498,9 @@ namespace Pather.Servers.Libraries.RTree
          * Get the next available Node&lt;T&gt; ID. Reuse deleted Node&lt;T&gt; IDs if
          * possible
          */
-
         private int getNextNodeId()
         {
-            var nextNodeId = 0;
+            int nextNodeId = 0;
             if (deletedNodeIds.Count > 0)
             {
                 nextNodeId = deletedNodeIds.Pop();
@@ -512,18 +513,21 @@ namespace Pather.Servers.Libraries.RTree
         }
 
 
+
+
+
         /// <summary>
-        ///     Get a Node&lt;T&gt; object, given the ID of the node.
+        /// Get a Node&lt;T&gt; object, given the ID of the node.
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
         public Node<T> getNode(int index)
         {
-            return (Node<T>) nodeMap[index];
+            return (Node<T>)nodeMap[index];
         }
 
         /// <summary>
-        ///     Get the highest used Node&lt;T&gt; ID
+        /// Get the highest used Node&lt;T&gt; ID
         /// </summary>
         /// <returns></returns>
         private int getHighestUsedNodeId()
@@ -532,7 +536,7 @@ namespace Pather.Servers.Libraries.RTree
         }
 
         /// <summary>
-        ///     Get the root Node&lt;T&gt; ID
+        /// Get the root Node&lt;T&gt; ID
         /// </summary>
         /// <returns></returns>
         public int getRootNodeId()
@@ -541,8 +545,8 @@ namespace Pather.Servers.Libraries.RTree
         }
 
         /// <summary>
-        ///     Split a node. Algorithm is taken pretty much verbatim from
-        ///     Guttman's original paper.
+        /// Split a node. Algorithm is taken pretty much verbatim from
+        /// Guttman's original paper.
         /// </summary>
         /// <param name="n"></param>
         /// <param name="newRect"></param>
@@ -555,14 +559,14 @@ namespace Pather.Servers.Libraries.RTree
             // each to a group.
 
             // debug code
-            double initialArea = 0;
+            float initialArea = 0;
             if (log.IsDebugEnabled)
             {
-                var union = n.mbr.union(newRect);
+                Rectangle union = n.mbr.union(newRect);
                 initialArea = union.area();
             }
 
-            for (var i = 0; i < maxNodeEntries; i++)
+            for (int i = 0; i < maxNodeEntries; i++)
             {
                 entryStatus[i] = initialEntryStatus[i];
             }
@@ -581,7 +585,7 @@ namespace Pather.Servers.Libraries.RTree
                 if (maxNodeEntries + 1 - newNode.entryCount == minNodeEntries)
                 {
                     // assign all remaining entries to original node
-                    for (var i = 0; i < maxNodeEntries; i++)
+                    for (int i = 0; i < maxNodeEntries; i++)
                     {
                         if (entryStatus[i] == ENTRY_STATUS_UNASSIGNED)
                         {
@@ -595,7 +599,7 @@ namespace Pather.Servers.Libraries.RTree
                 if (maxNodeEntries + 1 - n.entryCount == minNodeEntries)
                 {
                     // assign all remaining entries to new node
-                    for (var i = 0; i < maxNodeEntries; i++)
+                    for (int i = 0; i < maxNodeEntries; i++)
                     {
                         if (entryStatus[i] == ENTRY_STATUS_UNASSIGNED)
                         {
@@ -617,12 +621,25 @@ namespace Pather.Servers.Libraries.RTree
 
             n.reorganize(this);
 
+            // check that the MBR stored for each Node&lt;T&gt; is correct.
+            if (INTERNAL_CONSISTENCY_CHECKING)
+            {
+                if (!n.mbr.Equals(calculateMBR(n)))
+                {
+                    log.Error("Error: splitNode old Node<T> MBR wrong");
+                }
+
+                if (!newNode.mbr.Equals(calculateMBR(newNode)))
+                {
+                    log.Error("Error: splitNode new Node<T> MBR wrong");
+                }
+            }
 
             // debug code
             if (log.IsDebugEnabled)
             {
-                var newArea = n.mbr.area() + newNode.mbr.area();
-                var percentageIncrease = (100*(newArea - initialArea))/initialArea;
+                float newArea = n.mbr.area() + newNode.mbr.area();
+                float percentageIncrease = (100 * (newArea - initialArea)) / initialArea;
                 log.Debug("Node " + n.nodeId + " split. New area increased by " + percentageIncrease + "%");
             }
 
@@ -630,8 +647,8 @@ namespace Pather.Servers.Libraries.RTree
         }
 
         /// <summary>
-        ///     Pick the seeds used to split a node.
-        ///     Select two entries to be the first elements of the groups
+        /// Pick the seeds used to split a node.
+        /// Select two entries to be the first elements of the groups
         /// </summary>
         /// <param name="n"></param>
         /// <param name="newRect"></param>
@@ -642,9 +659,9 @@ namespace Pather.Servers.Libraries.RTree
             // Find extreme rectangles along all dimension. Along each dimension,
             // find the entry whose rectangle has the highest low side, and the one 
             // with the lowest high side. Record the separation.
-            double maxNormalizedSeparation = 0;
-            var highestLowIndex = 0;
-            var lowestHighIndex = 0;
+            float maxNormalizedSeparation = 0;
+            int highestLowIndex = 0;
+            int lowestHighIndex = 0;
 
             // for the purposes of picking seeds, take the MBR of the Node&lt;T&gt; to include
             // the new rectangle aswell.
@@ -655,26 +672,25 @@ namespace Pather.Servers.Libraries.RTree
                 log.Debug("pickSeeds(): NodeId = " + n.nodeId + ", newRect = " + newRect);
             }
 
-            for (var d = 0; d < Rectangle.DIMENSIONS; d++)
+            for (int d = 0; d < Rectangle.DIMENSIONS; d++)
             {
-                var tempHighestLow = newRect.min[d];
-                var tempHighestLowIndex = -1; // -1 indicates the new rectangle is the seed
+                float tempHighestLow = newRect.min[d];
+                int tempHighestLowIndex = -1; // -1 indicates the new rectangle is the seed
 
-                var tempLowestHigh = newRect.max[d];
-                var tempLowestHighIndex = -1;
+                float tempLowestHigh = newRect.max[d];
+                int tempLowestHighIndex = -1;
 
-                for (var i = 0; i < n.entryCount; i++)
+                for (int i = 0; i < n.entryCount; i++)
                 {
-                    var tempLow = n.entries[i].min[d];
+                    float tempLow = n.entries[i].min[d];
                     if (tempLow >= tempHighestLow)
                     {
                         tempHighestLow = tempLow;
                         tempHighestLowIndex = i;
                     }
                     else
-                    {
-                        // ensure that the same index cannot be both lowestHigh and highestLow
-                        var tempHigh = n.entries[i].max[d];
+                    {  // ensure that the same index cannot be both lowestHigh and highestLow
+                        float tempHigh = n.entries[i].max[d];
                         if (tempHigh <= tempLowestHigh)
                         {
                             tempLowestHigh = tempHigh;
@@ -685,7 +701,7 @@ namespace Pather.Servers.Libraries.RTree
                     // PS2 [Adjust for shape of the rectangle cluster] Normalize the separations
                     // by dividing by the widths of the entire set along the corresponding
                     // dimension
-                    var normalizedSeparation = (tempHighestLow - tempLowestHigh)/(n.mbr.max[d] - n.mbr.min[d]);
+                    float normalizedSeparation = (tempHighestLow - tempLowestHigh) / (n.mbr.max[d] - n.mbr.min[d]);
 
                     if (normalizedSeparation > 1 || normalizedSeparation < -1)
                     {
@@ -737,40 +753,43 @@ namespace Pather.Servers.Libraries.RTree
         }
 
 
+
+
         /// <summary>
-        ///     Pick the next entry to be assigned to a group during a Node&lt;T&gt; split.
-        ///     [Determine cost of putting each entry in each group] For each
-        ///     entry not yet in a group, calculate the area increase required
-        ///     in the covering rectangles of each group
+        /// Pick the next entry to be assigned to a group during a Node&lt;T&gt; split.
+        /// [Determine cost of putting each entry in each group] For each 
+        /// entry not yet in a group, calculate the area increase required
+        /// in the covering rectangles of each group  
         /// </summary>
         /// <param name="n"></param>
         /// <param name="newNode"></param>
         /// <returns></returns>
         private int pickNext(Node<T> n, Node<T> newNode)
         {
-            var maxDifference = double.NegativeInfinity;
-            var next = 0;
-            var nextGroup = 0;
+            float maxDifference = float.NegativeInfinity;
+            int next = 0;
+            int nextGroup = 0;
 
-            maxDifference = double.NegativeInfinity;
+            maxDifference = float.NegativeInfinity;
 
             if (log.IsDebugEnabled)
             {
                 log.Debug("pickNext()");
             }
 
-            for (var i = 0; i < maxNodeEntries; i++)
+            for (int i = 0; i < maxNodeEntries; i++)
             {
                 if (entryStatus[i] == ENTRY_STATUS_UNASSIGNED)
                 {
+
                     if (n.entries[i] == null)
                     {
                         log.Error("Error: Node<T> " + n.nodeId + ", entry " + i + " is null");
                     }
 
-                    var nIncrease = n.mbr.enlargement(n.entries[i]);
-                    var newNodeIncrease = newNode.mbr.enlargement(n.entries[i]);
-                    var difference = Math.Abs(nIncrease - newNodeIncrease);
+                    float nIncrease = n.mbr.enlargement(n.entries[i]);
+                    float newNodeIncrease = newNode.mbr.enlargement(n.entries[i]);
+                    float difference = Math.Abs(nIncrease - newNodeIncrease);
 
                     if (difference > maxDifference)
                     {
@@ -792,7 +811,7 @@ namespace Pather.Servers.Libraries.RTree
                         {
                             nextGroup = 1;
                         }
-                        else if (newNode.entryCount < maxNodeEntries/2)
+                        else if (newNode.entryCount < maxNodeEntries / 2)
                         {
                             nextGroup = 0;
                         }
@@ -829,30 +848,30 @@ namespace Pather.Servers.Libraries.RTree
 
 
         /// <summary>
-        ///     Recursively searches the tree for the nearest entry. Other queries
-        ///     call execute() on an IntProcedure when a matching entry is found;
-        ///     however nearest() must store the entry Ids as it searches the tree,
-        ///     in case a nearer entry is found.
-        ///     Uses the member variable nearestIds to store the nearest
-        ///     entry IDs.
+        /// Recursively searches the tree for the nearest entry. Other queries
+        /// call execute() on an IntProcedure when a matching entry is found; 
+        /// however nearest() must store the entry Ids as it searches the tree,
+        /// in case a nearer entry is found.
+        /// Uses the member variable nearestIds to store the nearest
+        /// entry IDs.
         /// </summary>
         /// <remarks>TODO rewrite this to be non-recursive?</remarks>
         /// <param name="p"></param>
         /// <param name="n"></param>
         /// <param name="nearestDistance"></param>
         /// <returns></returns>
-        private double nearest(RTreePoint p, Node<T> n, double nearestDistance)
+        private float nearest(RTreePoint p, Node<T> n, float nearestDistance)
         {
-            for (var i = 0; i < n.entryCount; i++)
+            for (int i = 0; i < n.entryCount; i++)
             {
-                var tempDistance = n.entries[i].distance(p);
+                float tempDistance = n.entries[i].distance(p);
                 if (n.isLeaf())
                 {
                     // for leaves, the distance is an actual nearest distance 
                     if (tempDistance < nearestDistance)
                     {
-//                        nearestDistance = tempDistance;
-//                        nearestIds.Clear();
+                        //                        nearestDistance = tempDistance;
+                        //                        nearestIds.Clear();
                     }
                     if (tempDistance <= nearestDistance)
                     {
@@ -860,8 +879,7 @@ namespace Pather.Servers.Libraries.RTree
                     }
                 }
                 else
-                {
-                    // for index nodes, only go into them if they potentially could have
+                { // for index nodes, only go into them if they potentially could have
                     // a rectangle nearer than actualNearest
                     if (tempDistance <= nearestDistance)
                     {
@@ -875,18 +893,18 @@ namespace Pather.Servers.Libraries.RTree
 
 
         /// <summary>
-        ///     Recursively searches the tree for all intersecting entries.
-        ///     Immediately calls execute() on the passed IntProcedure when
-        ///     a matching entry is found.
-        ///     [x] TODO rewrite this to be non-recursive? Make sure it
-        ///     doesn't slow it down.
+        /// Recursively searches the tree for all intersecting entries.
+        /// Immediately calls execute() on the passed IntProcedure when 
+        /// a matching entry is found.
+        /// [x] TODO rewrite this to be non-recursive? Make sure it
+        /// doesn't slow it down.
         /// </summary>
         /// <param name="r"></param>
         /// <param name="v"></param>
         /// <param name="n"></param>
         private void intersects(Rectangle r, intproc v, Node<T> n)
         {
-            for (var i = 0; i < n.entryCount; i++)
+            for (int i = 0; i < n.entryCount; i++)
             {
                 if (r.intersects(n.entries[i]))
                 {
@@ -896,7 +914,7 @@ namespace Pather.Servers.Libraries.RTree
                     }
                     else
                     {
-                        var childNode = getNode(n.ids[i]);
+                        Node<T> childNode = getNode(n.ids[i]);
                         intersects(r, v, childNode);
                     }
                 }
@@ -911,18 +929,17 @@ namespace Pather.Servers.Libraries.RTree
          * contain the nodeIds of all parents up to the root.
          */
 
-        private readonly Rectangle oldRectangle = new Rectangle(0, 0, 0, 0, 0, 0);
-
+        private Rectangle oldRectangle = new Rectangle(0, 0, 0, 0, 0, 0);
         private void condenseTree(Node<T> l)
         {
             // CT1 [Initialize] Set n=l. Set the list of eliminated
             // nodes to be empty.
-            var n = l;
+            Node<T> n = l;
             Node<T> parent = null;
-            var parentEntry = 0;
+            int parentEntry = 0;
 
             //TIntStack eliminatedNodeIds = new TIntStack();
-            var eliminatedNodeIds = new Stack<int>();
+            Stack<int> eliminatedNodeIds = new Stack<int>();
 
             // CT2 [Find parent entry] If N is the root, go to CT6. Otherwise 
             // let P be the parent of N, and let En be N's entry in P  
@@ -960,8 +977,8 @@ namespace Pather.Servers.Libraries.RTree
             // level as leaves of the main tree
             while (eliminatedNodeIds.Count > 0)
             {
-                var e = getNode(eliminatedNodeIds.Pop());
-                for (var j = 0; j < e.entryCount; j++)
+                Node<T> e = getNode(eliminatedNodeIds.Pop());
+                for (int j = 0; j < e.entryCount; j++)
                 {
                     add(e.entries[j], e.ids[j], e.level);
                     e.entries[j] = null;
@@ -975,11 +992,10 @@ namespace Pather.Servers.Libraries.RTree
         /**
          *  Used by add(). Chooses a leaf to add the rectangle to.
          */
-
         private Node<T> chooseNode(Rectangle r, int level)
         {
             // CL1 [Initialize] Set N to be the root node
-            var n = getNode(rootNodeId);
+            Node<T> n = getNode(rootNodeId);
             parents.Clear();
             parentsEntry.Clear();
 
@@ -999,12 +1015,12 @@ namespace Pather.Servers.Libraries.RTree
                 // CL3 [Choose subtree] If N is not at the desired level, let F be the entry in N 
                 // whose rectangle FI needs least enlargement to include EI. Resolve
                 // ties by choosing the entry with the rectangle of smaller area.
-                var leastEnlargement = n.getEntry(0).enlargement(r);
-                var index = 0; // index of rectangle in subtree
-                for (var i = 1; i < n.entryCount; i++)
+                float leastEnlargement = n.getEntry(0).enlargement(r);
+                int index = 0; // index of rectangle in subtree
+                for (int i = 1; i < n.entryCount; i++)
                 {
-                    var tempRectangle = n.getEntry(i);
-                    var tempEnlargement = tempRectangle.enlargement(r);
+                    Rectangle tempRectangle = n.getEntry(i);
+                    float tempEnlargement = tempRectangle.enlargement(r);
                     if ((tempEnlargement < leastEnlargement) ||
                         ((tempEnlargement == leastEnlargement) &&
                          (tempRectangle.area() < n.getEntry(index).area())))
@@ -1027,7 +1043,6 @@ namespace Pather.Servers.Libraries.RTree
          * Ascend from a leaf Node&lt;T&gt; L to the root, adjusting covering rectangles and
          * propagating Node&lt;T&gt; splits as necessary.
          */
-
         private Node<T> adjustTree(Node<T> n, Node<T> nn)
         {
             // AT1 [Initialize] Set N=L. If L was split previously, set NN to be 
@@ -1036,24 +1051,25 @@ namespace Pather.Servers.Libraries.RTree
             // AT2 [Check if done] If N is the root, stop
             while (n.level != treeHeight)
             {
+
                 // AT3 [Adjust covering rectangle in parent entry] Let P be the parent 
                 // Node<T> of N, and let En be N's entry in P. Adjust EnI so that it tightly
                 // encloses all entry rectangles in N.
-                var parent = getNode(parents.Pop());
-                var entry = parentsEntry.Pop();
+                Node<T> parent = getNode(parents.Pop());
+                int entry = parentsEntry.Pop();
 
                 if (parent.ids[entry] != n.nodeId)
                 {
                     log.Error("Error: entry " + entry + " in Node<T> " +
-                              parent.nodeId + " should point to Node<T> " +
-                              n.nodeId + "; actually points to Node<T> " + parent.ids[entry]);
+                         parent.nodeId + " should point to Node<T> " +
+                         n.nodeId + "; actually points to Node<T> " + parent.ids[entry]);
                 }
 
                 if (!parent.entries[entry].Equals(n.mbr))
                 {
                     parent.entries[entry].set(n.mbr.min, n.mbr.max);
                     parent.mbr.set(parent.entries[0].min, parent.entries[0].max);
-                    for (var i = 1; i < parent.entryCount; i++)
+                    for (int i = 1; i < parent.entryCount; i++)
                     {
                         parent.mbr.add(parent.entries[i]);
                     }
@@ -1092,12 +1108,11 @@ namespace Pather.Servers.Libraries.RTree
         /**
          * Check the consistency of the tree.
          */
-
         private void checkConsistency(int nodeId, int expectedLevel, Rectangle expectedMBR)
         {
             // go through the tree, and check that the internal data structures of 
             // the tree are not corrupted.    
-            var n = getNode(nodeId);
+            Node<T> n = getNode(nodeId);
 
             if (n == null)
             {
@@ -1109,7 +1124,7 @@ namespace Pather.Servers.Libraries.RTree
                 log.Error("Error: Node<T> " + nodeId + ", expected level " + expectedLevel + ", actual level " + n.level);
             }
 
-            var calculatedMBR = calculateMBR(n);
+            Rectangle calculatedMBR = calculateMBR(n);
 
             if (!n.mbr.Equals(calculatedMBR))
             {
@@ -1127,7 +1142,7 @@ namespace Pather.Servers.Libraries.RTree
                 log.Error("Error: Node<T> " + nodeId + " MBR using same rectangle object as parent's entry");
             }
 
-            for (var i = 0; i < n.entryCount; i++)
+            for (int i = 0; i < n.entryCount; i++)
             {
                 if (n.entries[i] == null)
                 {
@@ -1135,8 +1150,7 @@ namespace Pather.Servers.Libraries.RTree
                 }
 
                 if (n.level > 1)
-                {
-                    // if not a leaf
+                { // if not a leaf
                     checkConsistency(n.ids[i], n.level - 1, n.entries[i]);
                 }
             }
@@ -1146,18 +1160,24 @@ namespace Pather.Servers.Libraries.RTree
          * Given a Node<T> object, calculate the Node<T> MBR from it's entries.
          * Used in consistency checking
          */
-
         private Rectangle calculateMBR(Node<T> n)
         {
-            var mbr = new Rectangle(n.entries[0].min, n.entries[0].max);
+            Rectangle mbr = new Rectangle(n.entries[0].min, n.entries[0].max);
 
-            for (var i = 1; i < n.entryCount; i++)
+            for (int i = 1; i < n.entryCount; i++)
             {
                 mbr.add(n.entries[i]);
             }
             return mbr;
         }
 
-        public int Count { get; private set; }
+        public int Count
+        {
+            get
+            {
+                return this.msize;
+            }
+        }
+
     }
 }

@@ -28,7 +28,6 @@ namespace Pather.Servers.Libraries.RTree
      * @author aled@sourceforge.net
      * @version 1.0b2p1
      */
-
     public class Node<T>
     {
         internal int nodeId = 0;
@@ -79,9 +78,9 @@ namespace Pather.Servers.Libraries.RTree
         // Return the index of the found entry, or -1 if not found
         internal int findEntry(Rectangle r, int id)
         {
-            for (var i = 0; i < entryCount; i++)
+            for (int i = 0; i < entryCount; i++)
             {
-                if (id == ids[i] && r == entries[i])
+                if (id == ids[i] && r.Equals(entries[i]))
                 {
                     return i;
                 }
@@ -92,8 +91,8 @@ namespace Pather.Servers.Libraries.RTree
         // delete entry. This is done by setting it to null and copying the last entry into its space.
         internal void deleteEntry(int i, int minNodeEntries)
         {
-            var lastIndex = entryCount - 1;
-            var deletedRectangle = entries[i];
+            int lastIndex = entryCount - 1;
+            Rectangle deletedRectangle = entries[i];
             entries[i] = null;
             if (i != lastIndex)
             {
@@ -120,7 +119,7 @@ namespace Pather.Servers.Libraries.RTree
             {
                 mbr.set(entries[0].min, entries[0].max);
 
-                for (var i = 1; i < entryCount; i++)
+                for (int i = 1; i < entryCount; i++)
                 {
                     mbr.add(entries[i]);
                 }
@@ -153,11 +152,10 @@ namespace Pather.Servers.Libraries.RTree
         /**
          * eliminate null entries, move all entries to the start of the source node
          */
-
         internal void reorganize(RTree<T> rtree)
         {
-            var countdownIndex = rtree.maxNodeEntries - 1;
-            for (var index = 0; index < entryCount; index++)
+            int countdownIndex = rtree.maxNodeEntries - 1;
+            for (int index = 0; index < entryCount; index++)
             {
                 if (entries[index] == null)
                 {

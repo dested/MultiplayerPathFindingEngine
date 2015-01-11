@@ -2886,7 +2886,7 @@
 		$Pather_Common_Constants.lockstepTicks = ss.Int32.div(1000, $Pather_Common_Constants.lockstepFps);
 		$Pather_Common_Constants.latencyPingInterval = 6000;
 		$Pather_Common_Constants.neighborDistance = 40;
-		$Pather_Common_Constants.usersPerGameSegment = 100;
+		$Pather_Common_Constants.usersPerGameSegment = 40;
 		$Pather_Common_Constants.gameSegmentCreationWait = 60;
 		$Pather_Common_Constants.gatewayCreationWait = 60;
 		$Pather_Common_Constants.maxConnectionsPerGateway = 100;
