@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.GameSegment;
@@ -41,7 +40,7 @@ namespace Pather.Servers.GameWorldServer
 
         private void reorganize()
         {
-            ReorganizeManager.Reorganize(GameWorld.Users.List, GameWorld.GameSegments.List,GameWorld.CreateGameSegment).Then(clusters =>
+            ReorganizeManager.Reorganize(GameWorld.Users.List, GameWorld.GameSegments.List, GameWorld.CreateGameSegment).Then(clusters =>
             {
                 foreach (var playerCluster in clusters)
                 {
@@ -225,7 +224,7 @@ namespace Pather.Servers.GameWorldServer
                 Grid[x] = new int[Constants.NumberOfSquares];
                 for (var y = 0; y < Constants.NumberOfSquares; y++)
                 {
-                    Grid[x][y] =(Math.Random()*100 < 15) ? 0 : 1;
+                    Grid[x][y] = (Math.Random()*100 < 15) ? 0 : 1;
                 }
             }
         }

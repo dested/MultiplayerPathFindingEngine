@@ -70,7 +70,7 @@ namespace Pather.Servers.Common.PubSub
         }
 
 
-        private readonly JsDictionary<string, List<IPubSub_Message>> channelCache= new JsDictionary<string, List<IPubSub_Message>>();
+        private readonly JsDictionary<string, List<IPubSub_Message>> channelCache = new JsDictionary<string, List<IPubSub_Message>>();
 
 
         private void flush()
@@ -80,7 +80,7 @@ namespace Pather.Servers.Common.PubSub
             var count = 0;
             foreach (var channel in channelCache)
             {
-                if (channel.Value.Count == 1 )
+                if (channel.Value.Count == 1)
                 {
                     pubClient.Publish(channel.Key, Json.Stringify(channel.Value[0]));
                 }

@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
-using Pather.Servers.GameSegmentServer.Logger;
 using Pather.Servers.GameWorldServer.Models;
 using Pather.Servers.Libraries.RTree;
 
@@ -25,7 +23,7 @@ namespace Pather.Servers.GameWorldServer
             this.createGameSegment = createGameSegment;
         }
 
-        private Promise<List<PlayerCluster>,UndefinedPromiseError> reorganize()
+        private Promise<List<PlayerCluster>, UndefinedPromiseError> reorganize()
         {
             var deferred = Q.Defer<List<PlayerCluster>, UndefinedPromiseError>();
 
@@ -41,7 +39,7 @@ namespace Pather.Servers.GameWorldServer
             Global.Console.Log("Building Neighbors");
 
             var userAndNeighbors = determineUserNeighbors(gameWorldUsers);
-            
+
             Global.Console.Log("Building Player Clusters");
 
             var playerClusters = buildPlayerClusters(userAndNeighbors);
@@ -55,7 +53,6 @@ namespace Pather.Servers.GameWorldServer
 
 
             return deferred.Promise;
-
         }
 
         public static Promise<List<PlayerCluster>, UndefinedPromiseError> Reorganize(List<GameWorldUser> gameWorldUsers, List<GameSegment> segments, Func<Promise<GameSegment, UndefinedPromiseError>> createGameSegment)
@@ -98,11 +95,9 @@ namespace Pather.Servers.GameWorldServer
             };
 
             processNext();
-            
 
-         
+
             return deferred.Promise;
-
         }
 
         private Promise determineBestGameSegment(PlayerCluster playerCluster, JsDictionary<string, int> numberOfUsersInGameSegment)
@@ -129,7 +124,7 @@ namespace Pather.Servers.GameWorldServer
             //sorting to see which one contains the most of our users
             founds.Sort((a, b) => b.Item1 - a.Item1);
 
-            Global.Console.Log("Cluster gs",  founds.Select(a => new
+            Global.Console.Log("Cluster gs", founds.Select(a => new
             {
                 a.Item1,
                 a.Item2.GameSegmentId
@@ -144,10 +139,10 @@ namespace Pather.Servers.GameWorldServer
                 }
 
                 //if this gamesegment can squeeze my clusters worth of players in it
-                Global.Console.Log("trying",  bestGameSegment.GameSegmentId, numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] + playerCluster.Players.Count);
+                Global.Console.Log("trying", bestGameSegment.GameSegmentId, numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] + playerCluster.Players.Count);
                 if (numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] + playerCluster.Players.Count <= Constants.UsersPerGameSegment)
                 {
-                    Global.Console.Log("setting best",  bestGameSegment.GameSegmentId);
+                    Global.Console.Log("setting best", bestGameSegment.GameSegmentId);
                     numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] += playerCluster.Players.Count;
                     //this gamesegment is best for my cluster
                     playerCluster.BestGameSegment = bestGameSegment;
@@ -173,8 +168,6 @@ namespace Pather.Servers.GameWorldServer
             }
 
             return deferred.Promise;
-
-
         }
 
         private DictionaryList<string, UserAndNeighbors> determineUserNeighbors(List<GameWorldUser> players)
@@ -195,11 +188,15 @@ namespace Pather.Servers.GameWorldServer
                     var nearPlayer = nearest[i];
                     //if nearplayer isnt me
                     if (nearPlayer == currentPlayer) continue;
-                    
+
                     //he is a neighbor of mine
                     playerClusterInfo.Neighbors.Add(new GameWorldNeighbor(nearPlayer, pointDistance(nearPlayer, currentPlayer)));
                 }
-                Global.Console.Log("Player Cluster: ", playerClusterInfo.Player.UserId, "Neighbors:", playerClusterInfo.Neighbors.Select(a => new { a.Distance, a.User.UserId }));
+                Global.Console.Log("Player Cluster: ", playerClusterInfo.Player.UserId, "Neighbors:", playerClusterInfo.Neighbors.Select(a => new
+                {
+                    a.Distance,
+                    a.User.UserId
+                }));
 
                 userAndNeighbors.Add(playerClusterInfo);
             }
@@ -228,7 +225,12 @@ namespace Pather.Servers.GameWorldServer
 
                 //Console.WriteLine(string.Format("Players Left: {0}, Clusters Total: {1} ", hitPlayerCount, playerClusters.Count));
             }
-            Global.Console.Log(playerClusters.Select(a => a.Players.Select(b => new { b.UserId ,b.X,b.Y})));
+            Global.Console.Log(playerClusters.Select(a => a.Players.Select(b => new
+            {
+                b.UserId,
+                b.X,
+                b.Y
+            })));
             return playerClusters;
         }
 
@@ -258,7 +260,7 @@ namespace Pather.Servers.GameWorldServer
                 totalPlayers++;
                 var gameWorldNeighbors = unClusteredPlayers[currentUserNeighbor.User.UserId].Neighbors;
 
-                
+
                 unClusteredPlayers.Remove(currentUserNeighbor.User.UserId);
 
                 //if we've hit our users per segment limit, we're done
@@ -272,8 +274,12 @@ namespace Pather.Servers.GameWorldServer
                 neighbors.Remove(currentUserNeighbor);
 
                 //order them by closest
-                neighbors.Sort((a, b) => (int)(a.Distance - b.Distance));
-                Global.Console.Log(neighbors.Select(a=>new {a.Distance,a.User.UserId}));
+                neighbors.Sort((a, b) => (int) (a.Distance - b.Distance));
+                Global.Console.Log(neighbors.Select(a => new
+                {
+                    a.Distance,
+                    a.User.UserId
+                }));
                 //purge for performance gains
                 if (neighbors.Count > 100)
                 {

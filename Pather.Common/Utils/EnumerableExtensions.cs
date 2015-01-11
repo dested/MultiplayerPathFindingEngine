@@ -22,6 +22,7 @@ namespace Pather.Common.Utils
             }
             return items2;
         }
+
         public static DictionaryList<T2, T> ToDictionaryList<T, T2>(this List<T> items, Func<T, T2> clause)
         {
             var items2 = new DictionaryList<T2, T>(clause);

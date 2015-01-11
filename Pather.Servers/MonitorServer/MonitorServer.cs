@@ -65,7 +65,7 @@ namespace Pather.Servers.MonitorServer
             Global.Console.Log(currentIP);
 
             app.Listen(port);
-            
+
             string[] serverTypes =
             {
                 "GameSegment", "ClusterManager", "GameWorld", "Gateway", "Chat", "Tick", "Auth"

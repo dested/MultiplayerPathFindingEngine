@@ -42,6 +42,5 @@ namespace Pather.Common.GameFramework
                 person.Tick();
             }
         }
-
     }
 }

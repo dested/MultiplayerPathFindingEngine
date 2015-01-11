@@ -29,7 +29,7 @@ namespace Pather.Servers.GameSegmentServer
             return LockstepMovePoints[lockstepTickNumber] ?? new Point(X, Y);
         }
 
-        public  void LockstepTick(long lockstepTickNumber)
+        public void LockstepTick(long lockstepTickNumber)
         {
             if (LockstepMovePoints.ContainsKey(lockstepTickNumber))
             {

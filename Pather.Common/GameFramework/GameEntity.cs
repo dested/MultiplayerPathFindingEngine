@@ -22,6 +22,5 @@ namespace Pather.Common.GameFramework
         public virtual void Tick()
         {
         }
-         
     }
 }

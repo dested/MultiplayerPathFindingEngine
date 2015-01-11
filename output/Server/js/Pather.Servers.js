@@ -404,7 +404,7 @@ global.Pather.Servers.Common.SocketManager.ISocketManager = $Pather_Servers_Comm
 // Pather.Servers.Common.SocketManager.SocketIOManager
 var $Pather_Servers_Common_SocketManager_SocketIOManager = function() {
 	this.$io = null;
-	this.$url = null;
+	this.$1$URLField = null;
 };
 $Pather_Servers_Common_SocketManager_SocketIOManager.__typeName = 'Pather.Servers.Common.SocketManager.SocketIOManager';
 global.Pather.Servers.Common.SocketManager.SocketIOManager = $Pather_Servers_Common_SocketManager_SocketIOManager;
@@ -1160,7 +1160,6 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 		this.$parentsEntry = new Array();
 		this.$treeHeight = 1;
 		this.$rootNodeId = 0;
-		this.$msize = 0;
 		this.$highestUsedNodeId = 0;
 		this.$deletedNodeIds = new Array();
 		this.$nearestIds = [];
@@ -1168,6 +1167,8 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 		this.$itemsToIds = {};
 		this.$idcounter = -2147483648;
 		this.$oldRectangle = new $Pather_Servers_Libraries_RTree_Rectangle.$ctor2(0, 0, 0, 0, 0, 0);
+		this.$1$CountField = 0;
+		this.set_count(0);
 		this.$init();
 	};
 	$type.$ctor1 = function(MaxNodeEntries, MinNodeEntries) {
@@ -1182,7 +1183,6 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 		this.$parentsEntry = new Array();
 		this.$treeHeight = 1;
 		this.$rootNodeId = 0;
-		this.$msize = 0;
 		this.$highestUsedNodeId = 0;
 		this.$deletedNodeIds = new Array();
 		this.$nearestIds = [];
@@ -1190,6 +1190,8 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 		this.$itemsToIds = {};
 		this.$idcounter = -2147483648;
 		this.$oldRectangle = new $Pather_Servers_Libraries_RTree_Rectangle.$ctor2(0, 0, 0, 0, 0, 0);
+		this.$1$CountField = 0;
+		this.set_count(0);
 		this.$minNodeEntries = MinNodeEntries;
 		this.$maxNodeEntries = MaxNodeEntries;
 		this.$init();
@@ -1232,7 +1234,7 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 				this.$log.$debug('Adding rectangle ' + r + ', id ' + id);
 			}
 			this.$add$1(r.$copy(), id, 1);
-			this.$msize++;
+			this.set_count(this.get_count() + 1);
 		},
 		$add$1: function(r, id, level) {
 			// I1 [Find position for new record] Invoke ChooseLeaf to select a 
@@ -1323,7 +1325,7 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 			if (foundIndex !== -1) {
 				n.$deleteEntry(foundIndex, this.$minNodeEntries);
 				this.$condenseTree(n);
-				this.$msize--;
+				this.set_count(this.get_count() - 1);
 			}
 			// shrink the tree if possible (i.e. if root Node&lt;T%gt; has exactly one entry,and that 
 			// entry is not a leaf node, delete the root (it's entry becomes the new root)
@@ -1832,7 +1834,10 @@ var $Pather_Servers_Libraries_RTree_RTree$1 = function(T) {
 			return mbr;
 		},
 		get_count: function() {
-			return this.$msize;
+			return this.$1$CountField;
+		},
+		set_count: function(value) {
+			this.$1$CountField = value;
 		}
 	}, function() {
 		return null;
@@ -2432,7 +2437,7 @@ ss.initClass($Pather_Servers_Common_SocketManager_SocketIOManager, $asm, {
 		this.$io = socketio.listen(app);
 		var networkIPs = $Pather_Servers_Utils_ServerHelper.getNetworkIPs();
 		var currentIP = networkIPs[0] + ':' + port;
-		this.$url = ss.formatString('http://{0}', currentIP);
+		this.set_URL(ss.formatString('http://{0}', currentIP));
 		//            Global.Console.Log("Server URL", url);
 		app.listen(port);
 	},
@@ -2442,7 +2447,10 @@ ss.initClass($Pather_Servers_Common_SocketManager_SocketIOManager, $asm, {
 		});
 	},
 	get_URL: function() {
-		return this.$url;
+		return this.$1$URLField;
+	},
+	set_URL: function(value) {
+		this.$1$URLField = value;
 	}
 }, null, [$Pather_Servers_Common_SocketManager_ISocketManager]);
 ss.initClass($Pather_Servers_Common_SocketManager_SocketIOSocket, $asm, {

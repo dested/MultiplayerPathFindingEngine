@@ -5,9 +5,7 @@ using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Common.Actions.GameWorldAction;
 using Pather.Common.Models.Common.Actions.GameWorldAction.Base;
-using Pather.Common.Models.Common.Actions.TellGameSegmentAction;
 using Pather.Common.Models.GameSegment;
-using Pather.Common.Models.GameSegment.Base;
 using Pather.Common.Models.GameWorld.Gateway;
 using Pather.Common.Models.GameWorld.ServerManager;
 using Pather.Common.Models.Gateway.PubSub;
@@ -33,7 +31,7 @@ namespace Pather.Servers.GameWorldServer
             this.backEndTickManager = backEndTickManager;
             Users = new DictionaryList<string, GameWorldUser>(a => a.UserId);
             GameSegments = new DictionaryList<string, GameSegment>(a => a.GameSegmentId);
-            backEndTickManager.OnProcessLockstep+=OnProcessLockstep;
+            backEndTickManager.OnProcessLockstep += OnProcessLockstep;
         }
 
 
@@ -66,7 +64,7 @@ namespace Pather.Servers.GameWorldServer
                 Global.Console.Log("IDK WHO THIS USER IS", dbUser);
                 throw new Exception("IDK WHO THIS USER IS");
             }
-             
+
 
             var promises = GameSegments.List
                 .Where(seg => seg != gwUser.GameSegment)
@@ -90,7 +88,7 @@ namespace Pather.Servers.GameWorldServer
         private Promise<GameSegment, UndefinedPromiseError> determineGameSegment(GameWorldUser gwUser)
         {
             var deferred = Q.Defer<GameSegment, UndefinedPromiseError>();
-            
+
             Global.Console.Log("Trying to determine new game segment");
             var noneFound = true;
             foreach (var neighbor in findClosestNeighbors(gwUser))
@@ -103,7 +101,6 @@ namespace Pather.Servers.GameWorldServer
                     noneFound = false;
                     break;
                 }
-                
             }
 
             if (noneFound)
@@ -138,7 +135,6 @@ namespace Pather.Servers.GameWorldServer
                     yield return user;
                 }
             }
-
         }
 
 
@@ -169,7 +165,6 @@ namespace Pather.Servers.GameWorldServer
 
             return deferred.Promise;
         }
-
 
 
         private readonly List<ReoragGameWorldModel> needToReorganize = new List<ReoragGameWorldModel>();
@@ -209,6 +204,7 @@ namespace Pather.Servers.GameWorldServer
                 }
             }
         }
+
         private void OnProcessLockstep(long lockstepTickNumber)
         {
             foreach (var gameWorldUser in Users.List)
@@ -223,7 +219,7 @@ namespace Pather.Servers.GameWorldServer
             switch (gameWorldActionGameSegment.Action.GameWorldActionType)
             {
                 case GameWorldActionType.MoveEntity:
-                    var moveEntity = (MoveEntity_GameWorldAction)gameWorldActionGameSegment.Action;
+                    var moveEntity = (MoveEntity_GameWorldAction) gameWorldActionGameSegment.Action;
 //                    Global.Console.Log("Move entity:",moveEntity);
                     var user = Users[moveEntity.EntityId];
                     user.SetLockstepMovePoints(moveEntity.LockstepMovePoints);

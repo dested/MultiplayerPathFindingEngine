@@ -65,7 +65,6 @@ namespace Pather.Servers.GatewayServer
         {
             if (reorgUserAtLockstep.ContainsKey(lockstepTickNumber))
             {
-
                 var reorgsThisTick = reorgUserAtLockstep[lockstepTickNumber];
                 Global.Console.Log("Reorg!", reorgsThisTick);
 
@@ -95,7 +94,7 @@ namespace Pather.Servers.GatewayServer
             }
         }
 
-        private JsDictionary<long, List<ReorganizeUser_GameWorld_Gateway_PubSub_Message>> reorgUserAtLockstep =
+        private readonly JsDictionary<long, List<ReorganizeUser_GameWorld_Gateway_PubSub_Message>> reorgUserAtLockstep =
             new JsDictionary<long, List<ReorganizeUser_GameWorld_Gateway_PubSub_Message>>();
 
 
@@ -198,19 +197,19 @@ namespace Pather.Servers.GatewayServer
 
                     break;
                 case Gateway_PubSub_MessageType.ClientActionCollection:
-                    var clientActionCollectionMessage = (ClientActionCollection_GameSegment_Gateway_PubSub_Message)message;
+                    var clientActionCollectionMessage = (ClientActionCollection_GameSegment_Gateway_PubSub_Message) message;
                     processClientAction(clientActionCollectionMessage);
                     break;
                 case Gateway_PubSub_MessageType.ReorganizeUser:
-                    var reorgUserMessage = (ReorganizeUser_GameWorld_Gateway_PubSub_Message)message;
-                    Global.Console.Log("Trying to reorg",reorgUserMessage);
+                    var reorgUserMessage = (ReorganizeUser_GameWorld_Gateway_PubSub_Message) message;
+                    Global.Console.Log("Trying to reorg", reorgUserMessage);
                     var user = Users[reorgUserMessage.UserId];
                     user.BetweenReorgs = true;
                     user.ReorgAtLockstep = reorgUserMessage.SwitchAtLockstepNumber;
 
                     if (!reorgUserAtLockstep.ContainsKey(reorgUserMessage.SwitchAtLockstepNumber))
                     {
-                        reorgUserAtLockstep[reorgUserMessage.SwitchAtLockstepNumber]=new List<ReorganizeUser_GameWorld_Gateway_PubSub_Message>();
+                        reorgUserAtLockstep[reorgUserMessage.SwitchAtLockstepNumber] = new List<ReorganizeUser_GameWorld_Gateway_PubSub_Message>();
                     }
                     reorgUserAtLockstep[reorgUserMessage.SwitchAtLockstepNumber].Add(reorgUserMessage);
                     break;
@@ -313,8 +312,8 @@ namespace Pather.Servers.GatewayServer
 
                     if (user.BetweenReorgs)
                     {
-                        Global.Console.Log("Adding to reorg queue:", user.UserId,gameSegmentActionMessage.GameSegmentAction);
-                        gameSegmentActionMessage.GameSegmentAction.LockstepTick = user.ReorgAtLockstep+1;
+                        Global.Console.Log("Adding to reorg queue:", user.UserId, gameSegmentActionMessage.GameSegmentAction);
+                        gameSegmentActionMessage.GameSegmentAction.LockstepTick = user.ReorgAtLockstep + 1;
                         user.QueuedMessagesBetweenReorg.Add(gameSegmentActionMessage.GameSegmentAction);
                     }
                     else

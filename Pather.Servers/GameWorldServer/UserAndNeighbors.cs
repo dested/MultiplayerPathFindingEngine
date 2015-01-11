@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Pather.Servers.GameWorldServer.Models;
 

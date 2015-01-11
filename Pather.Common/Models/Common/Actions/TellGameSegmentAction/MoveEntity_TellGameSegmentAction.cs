@@ -1,5 +1,4 @@
 using System;
-using Pather.Common.Models.Common.Actions.GameSegmentAction;
 using Pather.Common.Models.Common.Actions.TellGameSegmentAction.Base;
 
 namespace Pather.Common.Models.Common.Actions.TellGameSegmentAction

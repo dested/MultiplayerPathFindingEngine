@@ -2,15 +2,15 @@
 {
     public class PubSubChannels
     {
-        private static string tick = "Tick";
-        private static string gameWorld = "GameWorld";
-        private static string clusterManager = "ClusterManager";
-        private static string serverLogger = "ServerLogger";
-        private static string gameSegmentLogger = "GameSegmentLogger";
-        private static string gameSegment = "GameSegment";
-        private static string gateway = "Gateway";
-        private static string headServer = "Head";
-        private static string serverManager = "ServerManager";
+        private static readonly string tick = "Tick";
+        private static readonly string gameWorld = "GameWorld";
+        private static readonly string clusterManager = "ClusterManager";
+        private static readonly string serverLogger = "ServerLogger";
+        private static readonly string gameSegmentLogger = "GameSegmentLogger";
+        private static readonly string gameSegment = "GameSegment";
+        private static readonly string gateway = "Gateway";
+        private static readonly string headServer = "Head";
+        private static readonly string serverManager = "ServerManager";
 
 
         public static string Tick()

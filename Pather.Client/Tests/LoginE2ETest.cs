@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Html;
-using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.TestFramework;
 using Pather.Common.Utils;
@@ -12,19 +11,19 @@ namespace Pather.Client.Tests
     [TestClass()]
     public class LoginE2ETest
     {
-        [TestMethod(disable:true)]
+        [TestMethod(disable: true)]
         public void Connect4(Deferred deferred)
         {
-            ((dynamic)Window.Instance).NoDraw = true;
+            ((dynamic) Window.Instance).NoDraw = true;
 
             List<ClientGameView> clients = new List<ClientGameView>();
 
             List<Point> points = new List<Point>()
             {
-                new Point(600,600),
-                new Point(100,100),
-                new Point(650,650),
-                new Point(50,50),
+                new Point(600, 600),
+                new Point(100, 100),
+                new Point(650, 650),
+                new Point(50, 50),
             };
 
             for (int i = 0; i < 4; i++)
@@ -46,23 +45,24 @@ namespace Pather.Client.Tests
                 clients.Add(gameClient);
             }
         }
+
         [TestMethod()]
         public void Connect5(Deferred deferred)
         {
-            ((dynamic)Window.Instance).NoDraw = true;
+            ((dynamic) Window.Instance).NoDraw = true;
 
             List<ClientGameView> clients = new List<ClientGameView>();
 
             List<Point> points = new List<Point>()
             {
-                new Point(600,600),
-                new Point(25,25),
-                new Point(650,650),
-                new Point(200,200),
-                new Point(50,50),
+                new Point(600, 600),
+                new Point(25, 25),
+                new Point(650, 650),
+                new Point(200, 200),
+                new Point(50, 50),
             };
 
-            for (int i = 0; i <5; i++)
+            for (int i = 0; i < 5; i++)
             {
                 var gameClient = new ClientGameView();
                 var point = points[i];
@@ -71,7 +71,7 @@ namespace Pather.Client.Tests
                     Global.SetTimeout(() =>
                     {
                         gameClient.ClientGameManager.MoveToLocation(point.X, point.Y);
-                    }, 1000 + (int)(Math.Random() * 500));
+                    }, 1000 + (int) (Math.Random()*500));
                     Global.SetInterval(() =>
                     {
                         gameClient.ClientGameManager.MoveToLocation(point.X, point.Y);

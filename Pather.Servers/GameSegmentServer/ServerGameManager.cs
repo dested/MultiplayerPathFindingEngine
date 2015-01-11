@@ -35,7 +35,7 @@ namespace Pather.Servers.GameSegmentServer
         {
             GameSegmentId = gameSegmentId;
             GameSegmentPubSub = gameSegmentPubSub;
-            AllGameSegments = new DictionaryList<string, GameSegment>(a=>a.GameSegmentId);
+            AllGameSegments = new DictionaryList<string, GameSegment>(a => a.GameSegmentId);
             backEndTickManager = new BackEndTickManager();
 
             serverGame = new ServerGame(this, backEndTickManager);
@@ -178,50 +178,48 @@ namespace Pather.Servers.GameSegmentServer
         }
 
 
-
-
         private void onMessage(GameSegment_PubSub_Message message)
         {
             switch (message.Type)
             {
                 case GameSegment_PubSub_MessageType.UserJoin:
-                    onMessageUserJoin((UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message)message);
+                    onMessageUserJoin((UserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.TellUserJoin:
-                    onMessageTellUserJoin((TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message)message);
+                    onMessageTellUserJoin((TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.TellUserLeft:
-                    onMessageTellUserLeft((TellUserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message)message);
+                    onMessageTellUserLeft((TellUserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.UserLeft:
-                    onMessageUserLeft((UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message)message);
+                    onMessageUserLeft((UserLeft_GameWorld_GameSegment_PubSub_ReqRes_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.NewGameSegment:
-                    onMessageNewGameSegment((NewGameSegment_GameWorld_GameSegment_PubSub_Message)message);
+                    onMessageNewGameSegment((NewGameSegment_GameWorld_GameSegment_PubSub_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.Pong:
-                    onMessagePong((Pong_Tick_GameSegment_PubSub_Message)message);
+                    onMessagePong((Pong_Tick_GameSegment_PubSub_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.GameSegmentAction:
-                    onMessageGameSegmentAction((GameSegmentAction_Gateway_GameSegment_PubSub_Message)message);
+                    onMessageGameSegmentAction((GameSegmentAction_Gateway_GameSegment_PubSub_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.NeighborGameSegmentAction:
-                    onMessageNeighborGameSegmentAction((NeighborGameSegmentAction_GameSegment_GameSegment_PubSub_Message)message);
+                    onMessageNeighborGameSegmentAction((NeighborGameSegmentAction_GameSegment_GameSegment_PubSub_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.TellGameSegmentAction:
-                    onMessageTellGameSegmentAction((TellGameSegmentAction_GameSegment_GameSegment_PubSub_Message)message);
+                    onMessageTellGameSegmentAction((TellGameSegmentAction_GameSegment_GameSegment_PubSub_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.ReorganizeGameSegment:
-                    onMessageReorganizeGameSegment((ReorganizeUser_GameWorld_GameSegment_PubSub_Message)message);
+                    onMessageReorganizeGameSegment((ReorganizeUser_GameWorld_GameSegment_PubSub_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.TransferGameUser:
-                    onMessageTransferGameUser((TransferUser_GameSegment_GameSegment_PubSub_Message)message);
+                    onMessageTransferGameUser((TransferUser_GameSegment_GameSegment_PubSub_Message) message);
                     break;
                 case GameSegment_PubSub_MessageType.TellTransferUser:
-                    onMessageTellTransferUser((TellTransferUser_GameSegment_GameSegment_PubSub_Message)message);
+                    onMessageTellTransferUser((TellTransferUser_GameSegment_GameSegment_PubSub_Message) message);
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(); 
+                    throw new ArgumentOutOfRangeException();
             }
         }
 
@@ -246,29 +244,28 @@ namespace Pather.Servers.GameSegmentServer
                 {
                     GameSegmentPubSub.PublishToGameSegment(gameSegment.GameSegmentId, new TellTransferUser_GameSegment_GameSegment_PubSub_Message()
                     {
-                        NewGameSegmentId=message.NewGameSegmentId,
+                        NewGameSegmentId = message.NewGameSegmentId,
                         UserId = message.UserId
                     });
                 }
             }
-            
-            var user = (ServerGameUser)serverGame.ActiveEntities[message.UserId];
+
+            var user = (ServerGameUser) serverGame.ActiveEntities[message.UserId];
 
 
             GameSegmentPubSub.PublishToGameSegment(message.NewGameSegmentId, new TransferUser_GameSegment_GameSegment_PubSub_Message()
             {
                 UserId = user.EntityId,
-                InProgressActions=user.InProgressActions,
+                InProgressActions = user.InProgressActions,
                 LockstepMovePoints = user.LockstepMovePoints,
                 SwitchAtLockstepNumber = message.SwitchAtLockstepNumber
             });
 
             var newGameSegment = AllGameSegments[message.NewGameSegmentId];
-            
+
             user.GameSegment = newGameSegment;
             MyGameSegment.UserLeft(message.UserId);
             newGameSegment.UserJoin(user);
-            
         }
 
         private void onMessageGameSegmentAction(GameSegmentAction_Gateway_GameSegment_PubSub_Message message)

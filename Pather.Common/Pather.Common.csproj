@@ -67,7 +67,9 @@
     <Compile Include="Models\Common\Actions\GameSegmentAction\Base\GameSegmentActionType.cs" />
     <Compile Include="Models\GameSegment\Base\TellGameSegmentAction_GameSegment_GameSegment_PubSub_Message.cs" />
     <Compile Include="Models\GameSegment\Base\NeighborGameSegmentAction_GameSegment_GameSegment_PubSub_Message.cs" />
-    <Compile Include="Models\GameSegment\NewGameSegment_GameWorld_GameSegment_PubSub_Message - Copy.cs" />
+    <Compile Include="Models\GameSegment\NewGameSegment_GameWorld_GameSegment_PubSub_Message.cs" />
+    <Compile Include="Models\GameSegment\TellTransferUser_GameSegment_GameSegment_PubSub_Message.cs" />
+    <Compile Include="Models\GameSegment\TransferUser_GameSegment_GameSegment_PubSub_Message.cs" />
     <Compile Include="Models\GameSegment\UserJoinGameUser.cs" />
     <Compile Include="Models\GameWorld\ServerManager\CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message.cs" />
     <Compile Include="Models\Gateway\PubSub\Ping_Head_Gateway_PubSub_AllMessage.cs" />

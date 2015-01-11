@@ -77,7 +77,6 @@ namespace Pather.Servers.Libraries.RTree
         // initialisation
         private int treeHeight = 1; // leaves are always level 1
         private int rootNodeId = 0;
-        private int msize = 0;
 
         // Enables creation of new nodes
         //private int highestUsedNodeId = rootNodeId; 
@@ -108,6 +107,7 @@ namespace Pather.Servers.Libraries.RTree
         /// </summary>
         public RTree()
         {
+            Count = 0;
             init();
         }
 
@@ -126,6 +126,7 @@ namespace Pather.Servers.Libraries.RTree
         /// </param>
         public RTree(int MaxNodeEntries, int MinNodeEntries)
         {
+            Count = 0;
             minNodeEntries = MinNodeEntries;
             maxNodeEntries = MaxNodeEntries;
             init();
@@ -192,7 +193,7 @@ namespace Pather.Servers.Libraries.RTree
 
             add(r.copy(), id, 1);
 
-            msize++;
+            Count++;
         }
 
         /// <summary>
@@ -319,7 +320,7 @@ namespace Pather.Servers.Libraries.RTree
             {
                 n.deleteEntry(foundIndex, minNodeEntries);
                 condenseTree(n);
-                msize--;
+                Count--;
             }
 
             // shrink the tree if possible (i.e. if root Node&lt;T%gt; has exactly one entry,and that 
@@ -1157,9 +1158,6 @@ namespace Pather.Servers.Libraries.RTree
             return mbr;
         }
 
-        public int Count
-        {
-            get { return msize; }
-        }
+        public int Count { get; private set; }
     }
 }

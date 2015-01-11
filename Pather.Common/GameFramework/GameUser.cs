@@ -15,6 +15,5 @@ namespace Pather.Common.GameFramework
         {
             base.Tick();
         }
-         
     }
 }

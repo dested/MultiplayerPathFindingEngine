@@ -35,9 +35,8 @@ namespace Pather.Servers.GameWorldServer.Models
                 LockstepMovePoints.Remove(lockstepTickNumber);
                 Global.Console.Log(UserId, X, Y, LockstepMovePoints.Count, lockstepTickNumber);
             }
-             
         }
- 
+
 
         public void SetLockstepMovePoints(JsDictionary<long, Point> lockstepMovePoints)
         {
@@ -47,8 +46,6 @@ namespace Pather.Servers.GameWorldServer.Models
         public double Distance(GameWorldUser user)
         {
             return Math.Sqrt((Math.Pow(X - user.X, 2) + Math.Pow(Y - user.Y, 2)));
-
         }
-
     }
 }

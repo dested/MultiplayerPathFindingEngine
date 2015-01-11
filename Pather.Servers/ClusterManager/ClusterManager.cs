@@ -43,10 +43,10 @@ namespace Pather.Servers.ClusterManager
             switch (message.Type)
             {
                 case ClusterManager_PubSub_MessageType.CreateGameSegment:
-                    CreateGameSegment(((CreateGameSegment_ServerManager_ClusterManager_PubSub_ReqRes_Message)message));
+                    CreateGameSegment(((CreateGameSegment_ServerManager_ClusterManager_PubSub_ReqRes_Message) message));
                     break;
                 case ClusterManager_PubSub_MessageType.CreateGateway:
-                    CreateGateway(((CreateGateway_ServerManager_ClusterManager_PubSub_ReqRes_Message)message));
+                    CreateGateway(((CreateGateway_ServerManager_ClusterManager_PubSub_ReqRes_Message) message));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -95,6 +95,7 @@ namespace Pather.Servers.ClusterManager
         }
 
         private int count = 0;
+
         private void CreateGameSegment(CreateGameSegment_ServerManager_ClusterManager_PubSub_ReqRes_Message createGameSegmentMessage)
         {
             Global.Console.Log("Spawning new game segment");
@@ -126,7 +127,7 @@ namespace Pather.Servers.ClusterManager
                 str = "node";
             var child = spawn(str, new[]
             {
-               "app.js", "gamesegment", createGameSegmentMessage.GameSegmentId
+                "app.js", "gamesegment", createGameSegmentMessage.GameSegmentId
             }, new
             {
                 stdio = new object[]

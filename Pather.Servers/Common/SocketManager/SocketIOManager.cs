@@ -8,7 +8,6 @@ namespace Pather.Servers.Common.SocketManager
     public class SocketIOManager : ISocketManager
     {
         private SocketIOClient io;
-        private string url;
 
         public void Init(int port)
         {
@@ -19,10 +18,9 @@ namespace Pather.Servers.Common.SocketManager
             io = SocketIO.Listen(app);
 
 
-
             var networkIPs = ServerHelper.GetNetworkIPs();
             var currentIP = networkIPs[0] + ":" + port;
-            url = string.Format("http://{0}", currentIP);
+            URL = string.Format("http://{0}", currentIP);
 
 //            Global.Console.Log("Server URL", url);
             app.Listen(port);
@@ -36,9 +34,6 @@ namespace Pather.Servers.Common.SocketManager
             });
         }
 
-        public string URL
-        {
-            get { return url; }
-        }
+        public string URL { get; private set; }
     }
 }

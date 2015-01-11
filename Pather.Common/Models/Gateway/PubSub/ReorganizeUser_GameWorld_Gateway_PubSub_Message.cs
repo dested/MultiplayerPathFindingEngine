@@ -14,6 +14,5 @@ namespace Pather.Common.Models.Gateway.PubSub
         public string UserId;
         public string NewGameSegmentId;
         public long SwitchAtLockstepNumber;
-
     }
 }
