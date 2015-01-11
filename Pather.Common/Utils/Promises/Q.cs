@@ -44,7 +44,7 @@ namespace Pather.Common.Utils.Promises
                     }
                 });
 
-                var rejectCallback = (Action<TError>) (deferred.Reject);
+                Action<TError> rejectCallback = (deferred.Reject);
                 foreach (var promise in promises)
                 {
                     promise.Then(resolveCallback).Error(rejectCallback);
@@ -67,7 +67,7 @@ namespace Pather.Common.Utils.Promises
                 var count = 0;
 
                 var resolves = new List<TResolve>();
-                var rejectCallback = (Action<TError>) (deferred.Reject);
+                Action<TError> rejectCallback = (deferred.Reject);
                 Action<TResolve> resolveCallback = null;
                 resolveCallback = (resolve) =>
                 {
@@ -103,7 +103,7 @@ namespace Pather.Common.Utils.Promises
             {
                 var count = 0;
 
-                var rejectCallback = (Action) (deferred.Reject);
+                Action rejectCallback = (deferred.Reject);
                 Action resolveCallback = null;
                 resolveCallback = () =>
                 {
@@ -148,7 +148,7 @@ namespace Pather.Common.Utils.Promises
                     }
                 });
 
-                var rejectCallback = (Action) (deferred.Reject);
+                Action rejectCallback = (deferred.Reject);
                 foreach (var promise in promises)
                 {
                     promise.Then(resolveCallback).Error(rejectCallback);

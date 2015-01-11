@@ -1074,7 +1074,7 @@
 		$this.userId = null;
 		$this.newGameSegmentId = null;
 		$this.switchAtLockstepNumber = 0;
-		$this.type = 'userJoined';
+		$this.type = 'reorganizeUser';
 		return $this;
 	};
 	global.Pather.Common.Models.Gateway.PubSub.ReorganizeUser_GameWorld_Gateway_PubSub_Message = $Pather_Common_Models_Gateway_PubSub_ReorganizeUser_GameWorld_Gateway_PubSub_Message;
@@ -2907,7 +2907,7 @@
 		$Pather_Common_Constants.spinUpNewGatewayCheck = 4000;
 		$Pather_Common_Constants.buildNeighborsTimeout = 200;
 		$Pather_Common_Constants.reorganizeGameWorldInterval = 1000;
-		$Pather_Common_Constants.testReorganizeGameWorldInterval = 30000;
+		$Pather_Common_Constants.testReorganizeGameWorldInterval = 60000;
 		$Pather_Common_Constants.numberOfReorganizedPlayersPerSession = 10;
 		$Pather_Common_Constants.gameSegmentReorgSwitchOffset = 2;
 		$Pather_Common_Constants.clusterGroupViewRadius = $Pather_Common_Constants.neighborDistance * 10;

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Html;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
@@ -11,7 +12,7 @@ namespace Pather.Client.Tests
     [TestClass()]
     public class LoginE2ETest
     {
-        [TestMethod()]
+        [TestMethod(disable:true)]
         public void Connect4(Deferred deferred)
         {
             ((dynamic)Window.Instance).NoDraw = true;
@@ -32,19 +33,53 @@ namespace Pather.Client.Tests
                 var point = points[i];
                 gameClient.ClientGameManager.OnReady += () =>
                 {
-                    
                     Global.SetTimeout(() =>
                     {
                         gameClient.ClientGameManager.MoveToLocation(point.X, point.Y);
                     }, 1000);
+                    Global.SetInterval(() =>
+                    {
+                        gameClient.ClientGameManager.MoveToLocation(point.X, point.Y);
+                    }, 10000);
                 };
 
                 clients.Add(gameClient);
             }
+        }
+        [TestMethod()]
+        public void Connect5(Deferred deferred)
+        {
+            ((dynamic)Window.Instance).NoDraw = true;
 
+            List<ClientGameView> clients = new List<ClientGameView>();
 
+            List<Point> points = new List<Point>()
+            {
+                new Point(600,600),
+                new Point(25,25),
+                new Point(650,650),
+                new Point(200,200),
+                new Point(50,50),
+            };
 
+            for (int i = 0; i <5; i++)
+            {
+                var gameClient = new ClientGameView();
+                var point = points[i];
+                gameClient.ClientGameManager.OnReady += () =>
+                {
+                    Global.SetTimeout(() =>
+                    {
+                        gameClient.ClientGameManager.MoveToLocation(point.X, point.Y);
+                    }, 1000 + (int)(Math.Random() * 500));
+                    Global.SetInterval(() =>
+                    {
+                        gameClient.ClientGameManager.MoveToLocation(point.X, point.Y);
+                    }, 10000);
+                };
 
+                clients.Add(gameClient);
+            }
         }
 
 

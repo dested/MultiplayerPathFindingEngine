@@ -8,7 +8,7 @@ namespace Pather.Common.Models.Gateway.PubSub
     {
         public ReorganizeUser_GameWorld_Gateway_PubSub_Message()
         {
-            Type = Gateway_PubSub_MessageType.UserJoined;
+            Type = Gateway_PubSub_MessageType.ReorganizeUser;
         }
 
         public string UserId;

@@ -227,6 +227,7 @@ namespace Pather.Servers.GameSegmentServer
 
         private void onMessageTransferGameUser(TransferUser_GameSegment_GameSegment_PubSub_Message message)
         {
+            Global.Console.Log(message, serverGame.ActiveEntities.List);
             var user = ((ServerGameUser) serverGame.ActiveEntities[message.UserId]);
             user.GameSegment.UserLeft(user.EntityId);
             MyGameSegment.UserJoin(user);
@@ -256,6 +257,7 @@ namespace Pather.Servers.GameSegmentServer
 
             GameSegmentPubSub.PublishToGameSegment(message.NewGameSegmentId, new TransferUser_GameSegment_GameSegment_PubSub_Message()
             {
+                UserId = user.EntityId,
                 InProgressActions=user.InProgressActions,
                 LockstepMovePoints = user.LockstepMovePoints,
                 SwitchAtLockstepNumber = message.SwitchAtLockstepNumber

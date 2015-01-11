@@ -38,7 +38,7 @@ namespace Pather.Common
             BuildNeighborsTimeout = 200;
 
             ReorganizeGameWorldInterval = 1000;
-            TestReorganizeGameWorldInterval = 30 * 1000;
+            TestReorganizeGameWorldInterval = 60 * 1000;
 
             NumberOfReorganizedPlayersPerSession = 10;
             GameSegmentReorgSwitchOffset = 2;

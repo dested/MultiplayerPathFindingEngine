@@ -47,4 +47,6 @@ _ReSharper*/
 
 node_modules/
 gulp/passwords.js
-output/.ntvs_analysis.dat
+
+.ntvs_analysis.dat.tmp
+.ntvs_analysis.dat

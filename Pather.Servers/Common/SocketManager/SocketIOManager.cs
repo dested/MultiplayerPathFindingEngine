@@ -19,11 +19,12 @@ namespace Pather.Servers.Common.SocketManager
             io = SocketIO.Listen(app);
 
 
+
             var networkIPs = ServerHelper.GetNetworkIPs();
             var currentIP = networkIPs[0] + ":" + port;
             url = string.Format("http://{0}", currentIP);
 
-            Global.Console.Log("Server URL", url);
+//            Global.Console.Log("Server URL", url);
             app.Listen(port);
         }
 

@@ -126,8 +126,8 @@ namespace Pather.Servers.Common.PubSub
             }
             catch (Exception e)
             {
+                Global.Console.Log("Payload Dump", channel, Json.Stringify(message));
                 Global.Console.Log("An exception has occured", e, e.Stack);
-                Global.Console.Log("Payload Dump", channel, message);
                 ServerLogger.LogError("Exception", e, e.Stack, channel, message);
             }
         }

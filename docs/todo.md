@@ -50,6 +50,8 @@ ignore ping/lockstep/keepalive in pubsub
 attempt to sanatize common so not to deploy unneeded shit, like ip addresses
 
 
+moveentity to gameworld when theres are 0 lockstep points
+
 
 
 

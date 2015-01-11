@@ -25,11 +25,8 @@ namespace Pather.Servers.MonitorServer
             var port = 9992;
 
             var currentIP = ServerHelper.GetNetworkIPs()[0];
-            Global.Console.Log(currentIP);
 
             app.Listen(port);
-            io.Set("log level", 0);
-
 
             var connections = new List<SocketIOConnection>();
 
@@ -68,7 +65,7 @@ namespace Pather.Servers.MonitorServer
             Global.Console.Log(currentIP);
 
             app.Listen(port);
-            io.Set("log level", 0);
+            
             string[] serverTypes =
             {
                 "GameSegment", "ClusterManager", "GameWorld", "Gateway", "Chat", "Tick", "Auth"

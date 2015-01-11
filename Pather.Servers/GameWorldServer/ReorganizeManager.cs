@@ -4,6 +4,7 @@ using System.Diagnostics;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Utils;
+using Pather.Common.Utils.Promises;
 using Pather.Servers.GameSegmentServer.Logger;
 using Pather.Servers.GameWorldServer.Models;
 using Pather.Servers.Libraries.RTree;
@@ -14,16 +15,21 @@ namespace Pather.Servers.GameWorldServer
     {
         private readonly List<GameWorldUser> gameWorldUsers;
         private readonly List<GameSegment> segments;
+        private readonly Func<Promise<GameSegment, UndefinedPromiseError>> createGameSegment;
         private RTree<GameWorldUser> tree;
 
-        private ReorganizeManager(List<GameWorldUser> gameWorldUsers, List<GameSegment> segments)
+        private ReorganizeManager(List<GameWorldUser> gameWorldUsers, List<GameSegment> segments, Func<Promise<GameSegment, UndefinedPromiseError>> createGameSegment)
         {
             this.gameWorldUsers = gameWorldUsers;
             this.segments = segments;
+            this.createGameSegment = createGameSegment;
         }
 
-        private List<PlayerCluster> Reorganize()
+        private Promise<List<PlayerCluster>,UndefinedPromiseError> reorganize()
         {
+            var deferred = Q.Defer<List<PlayerCluster>, UndefinedPromiseError>();
+
+
             Global.Console.Log("Start Reorganize");
             tree = new RTree<GameWorldUser>();
 
@@ -34,8 +40,6 @@ namespace Pather.Servers.GameWorldServer
             }
             Global.Console.Log("Building Neighbors");
 
-            Debug.Break();
-
             var userAndNeighbors = determineUserNeighbors(gameWorldUsers);
             
             Global.Console.Log("Building Player Clusters");
@@ -44,71 +48,133 @@ namespace Pather.Servers.GameWorldServer
 
             Global.Console.Log("Determining best gamesegment for each player cluster");
 
-            determineBestGameSegment(playerClusters);
+            determineBestGameSegment(playerClusters).Then(() =>
+            {
+                deferred.Resolve(playerClusters);
+            });
 
-            return playerClusters;
+
+            return deferred.Promise;
+
         }
 
-        public static List<PlayerCluster> Reorganize(List<GameWorldUser> gameWorldUsers, List<GameSegment> segments)
+        public static Promise<List<PlayerCluster>, UndefinedPromiseError> Reorganize(List<GameWorldUser> gameWorldUsers, List<GameSegment> segments, Func<Promise<GameSegment, UndefinedPromiseError>> createGameSegment)
         {
-            var reorgManager = new ReorganizeManager(gameWorldUsers, segments);
-            return reorgManager.Reorganize();
+            var reorgManager = new ReorganizeManager(gameWorldUsers, segments, createGameSegment);
+            return reorgManager.reorganize();
         }
 
         /* Absalom P. Sanguinet's Vibrella.*/
 
-        private void determineBestGameSegment(List<PlayerCluster> clusters)
+        private Promise determineBestGameSegment(List<PlayerCluster> clusters)
         {
-            var numberOfUsersInGameSegment = new JsDictionary<string, int>();
-            for (int index = 0; index < clusters.Count; index++)
+            var deferred = Q.Defer();
+
+            if (clusters.Count == 0)
             {
-                var playerCluster = clusters[index];
-                var founds = new List<Tuple<int, GameSegment>>();
+                deferred.Resolve();
+            }
 
-                //testing each current game segment to see how many of our player cluster users it contains
-                foreach (var gameSegment in segments)
+
+            var numberOfUsersInGameSegment = new JsDictionary<string, int>();
+
+            var index = 0;
+            Action processNext = null;
+
+            processNext = () =>
+            {
+                determineBestGameSegment(clusters[index], numberOfUsersInGameSegment).Then(() =>
                 {
-                    var found = 0;
-                    foreach (var gameWorldUser in gameSegment.Users)
+                    index++;
+                    if (index < clusters.Count)
                     {
-                        if (playerCluster.Players.Contains(gameWorldUser))
-                        {
-                            found++;
-                        }
+                        processNext();
                     }
+                    else
+                    {
+                        deferred.Resolve();
+                    }
+                });
+            };
 
-                    founds.Add(new Tuple<int, GameSegment>(found, gameSegment));
+            processNext();
+            
+
+         
+            return deferred.Promise;
+
+        }
+
+        private Promise determineBestGameSegment(PlayerCluster playerCluster, JsDictionary<string, int> numberOfUsersInGameSegment)
+        {
+            var deferred = Q.Defer();
+
+
+            var founds = new List<Tuple<int, GameSegment>>();
+
+            //testing each current game segment to see how many of our player cluster users it contains
+            foreach (var gameSegment in segments)
+            {
+                var found = 0;
+                foreach (var gameWorldUser in gameSegment.Users)
+                {
+                    if (playerCluster.Players.Contains(gameWorldUser))
+                    {
+                        found++;
+                    }
                 }
-                //sorting to see which one contains the most of our users
-                founds.Sort((a, b) => b.Item1 - a.Item1);
 
-                Global.Console.Log("Cluster gs",index,founds.Select(a=>new{a.Item1,a.Item2.GameSegmentId}));
-                //try all the gamesegments
-                foreach (var gameSegment in founds)
+                founds.Add(new Tuple<int, GameSegment>(found, gameSegment));
+            }
+            //sorting to see which one contains the most of our users
+            founds.Sort((a, b) => b.Item1 - a.Item1);
+
+            Global.Console.Log("Cluster gs",  founds.Select(a => new
+            {
+                a.Item1,
+                a.Item2.GameSegmentId
+            }));
+            //try all the gamesegments
+            foreach (var gameSegment in founds)
+            {
+                var bestGameSegment = gameSegment.Item2;
+                if (!numberOfUsersInGameSegment.ContainsKey(bestGameSegment.GameSegmentId))
                 {
-                    var bestGameSegment = gameSegment.Item2;
-                    if (!numberOfUsersInGameSegment.ContainsKey(bestGameSegment.GameSegmentId))
-                    {
-                        numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] = 0;
-                    }
-
-                    //if this gamesegment can squeeze my clusters worth of players in it
-                    Global.Console.Log("trying",index,bestGameSegment.GameSegmentId, numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] + playerCluster.Players.Count);
-                    if (numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] + playerCluster.Players.Count < Constants.UsersPerGameSegment)
-                    {
-                        Global.Console.Log("setting best", index, bestGameSegment.GameSegmentId);
-                        numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] += playerCluster.Players.Count;
-                        //this gamesegment is best for my cluster
-                        playerCluster.BestGameSegment = bestGameSegment;
-                        break;
-                    }
+                    numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] = 0;
                 }
-                //if we never found a best game segment because the other ones are full, create a new one!
-                if (playerCluster.BestGameSegment == null)
+
+                //if this gamesegment can squeeze my clusters worth of players in it
+                Global.Console.Log("trying",  bestGameSegment.GameSegmentId, numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] + playerCluster.Players.Count);
+                if (numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] + playerCluster.Players.Count <= Constants.UsersPerGameSegment)
                 {
-                    Global.Console.Log("Create new game cluster buster!",index);
+                    Global.Console.Log("setting best",  bestGameSegment.GameSegmentId);
+                    numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] += playerCluster.Players.Count;
+                    //this gamesegment is best for my cluster
+                    playerCluster.BestGameSegment = bestGameSegment;
+                    break;
                 }
             }
+            //if we never found a best game segment because the other ones are full, create a new one!
+            if (playerCluster.BestGameSegment == null)
+            {
+                Global.Console.Log("Create new game cluster buster!");
+                createGameSegment().Then(gameSegment =>
+                {
+                    //new one created, continue!
+                    Global.Console.Log("setting new segment as best", gameSegment.GameSegmentId);
+                    numberOfUsersInGameSegment[gameSegment.GameSegmentId] += playerCluster.Players.Count;
+                    playerCluster.BestGameSegment = gameSegment;
+                    deferred.Resolve();
+                });
+            }
+            else
+            {
+                deferred.Resolve();
+            }
+
+            return deferred.Promise;
+
+
         }
 
         private DictionaryList<string, UserAndNeighbors> determineUserNeighbors(List<GameWorldUser> players)
@@ -156,7 +222,6 @@ namespace Pather.Servers.GameWorldServer
                 {
                     var playerClusterInfoHit = playerClusterInfoHits[index];
                     cluster.Players.Add(playerClusterInfoHit);
-                    unClusteredPlayers.Remove(playerClusterInfoHit.UserId);
                 }
 
                 playerClusters.Add(cluster);
@@ -191,10 +256,15 @@ namespace Pather.Servers.GameWorldServer
                 //add him to our cluster
                 clusteredPlayers.Add(currentUserNeighbor.User);
                 totalPlayers++;
+                var gameWorldNeighbors = unClusteredPlayers[currentUserNeighbor.User.UserId].Neighbors;
+
+                
+                unClusteredPlayers.Remove(currentUserNeighbor.User.UserId);
+
                 //if we've hit our users per segment limit, we're done
                 if (totalPlayers == Constants.UsersPerGameSegment) break;
                 //add neighbors as eligible neighbors
-                foreach (var playerNeighbor in currentUserNeighbor.User.Neighbors)
+                foreach (var playerNeighbor in gameWorldNeighbors)
                 {
                     neighbors.Add(playerNeighbor);
                 }

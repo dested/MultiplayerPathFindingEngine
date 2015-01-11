@@ -65,7 +65,9 @@ namespace Pather.Servers.GatewayServer
         {
             if (reorgUserAtLockstep.ContainsKey(lockstepTickNumber))
             {
+
                 var reorgsThisTick = reorgUserAtLockstep[lockstepTickNumber];
+                Global.Console.Log("Reorg!", reorgsThisTick);
 
                 foreach (var reorganizeUserMessage in reorgsThisTick)
                 {
@@ -75,8 +77,12 @@ namespace Pather.Servers.GatewayServer
                         Global.Console.Log("Tried to reorganize user who already left", reorganizeUserMessage.UserId);
                         continue;
                     }
+                    Global.Console.Log("Old GS:", gatewayUser.GameSegmentId, "New GS:", reorganizeUserMessage.NewGameSegmentId);
+
                     gatewayUser.GameSegmentId = reorganizeUserMessage.NewGameSegmentId;
                     gatewayUser.BetweenReorgs = false;
+                    Global.Console.Log("Queued Messages:", gatewayUser.QueuedMessagesBetweenReorg);
+
                     foreach (var gameSegmentAction in gatewayUser.QueuedMessagesBetweenReorg)
                     {
                         GatewayPubSub.PublishToGameSegment(gatewayUser.GameSegmentId, new GameSegmentAction_Gateway_GameSegment_PubSub_Message()
@@ -138,7 +144,7 @@ namespace Pather.Servers.GatewayServer
             }
         }
 
-        private readonly JsDictionary<string, List<ClientActionCacheModel>> cachedUserMoves = new JsDictionary<string, List<ClientActionCacheModel>>();
+        private readonly JsDictionary<string, List<ClientActionCacheModel>> cachedUserActions = new JsDictionary<string, List<ClientActionCacheModel>>();
 
 
         private void OnMessage(Gateway_PubSub_Message message)
@@ -170,16 +176,19 @@ namespace Pather.Servers.GatewayServer
                         LockstepTickNumber = BackEndTickManager.LockstepTickNumber
                     });
 
-                    if (cachedUserMoves.ContainsKey(userJoinedMessage.UserId))
+                    if (cachedUserActions.ContainsKey(userJoinedMessage.UserId))
                     {
-                        Global.Console.Log("Removing cached moved for ", userJoinedMessage.UserId);
-                        var userMovedMessages = cachedUserMoves[userJoinedMessage.UserId];
-                        foreach (var userMovedMessage in userMovedMessages)
+                        Global.Console.Log("Removing cached action for ", userJoinedMessage.UserId);
+                        var userActionMessages = cachedUserActions[userJoinedMessage.UserId];
+                        foreach (var userActionMessage in userActionMessages)
                         {
-                            //todo resend these messages
-//                            runUserMoved(userMovedMessage);
+                            ServerCommunicator.SendMessage(gatewayUser.Socket, new ClientAction_Gateway_User_Socket_Message()
+                            {
+                                UserId = gatewayUser.UserId,
+                                Action = userActionMessage.ClientAction
+                            });
                         }
-                        cachedUserMoves.Remove(userJoinedMessage.UserId);
+                        cachedUserActions.Remove(userJoinedMessage.UserId);
                     }
 
                     break;
@@ -194,6 +203,7 @@ namespace Pather.Servers.GatewayServer
                     break;
                 case Gateway_PubSub_MessageType.ReorganizeUser:
                     var reorgUserMessage = (ReorganizeUser_GameWorld_Gateway_PubSub_Message)message;
+                    Global.Console.Log("Trying to reorg",reorgUserMessage);
                     var user = Users[reorgUserMessage.UserId];
                     user.BetweenReorgs = true;
                     user.ReorgAtLockstep = reorgUserMessage.SwitchAtLockstepNumber;
@@ -221,17 +231,17 @@ namespace Pather.Servers.GatewayServer
                 {
                     //todo find out why user does not exist yet
 
-                    if (!cachedUserMoves.ContainsKey(userToSendTo))
+                    if (!cachedUserActions.ContainsKey(userToSendTo))
                     {
-                        cachedUserMoves[userToSendTo] = new List<ClientActionCacheModel>();
+                        cachedUserActions[userToSendTo] = new List<ClientActionCacheModel>();
                     }
-                    cachedUserMoves[userToSendTo].Add(new ClientActionCacheModel()
+                    cachedUserActions[userToSendTo].Add(new ClientActionCacheModel()
                     {
                         UserId = userToSendTo,
                         ClientAction = clientActionMessage.ClientAction
                     });
 
-                    return;
+                    continue;
                 }
                 ServerCommunicator.SendMessage(gatewayUser.Socket, new ClientAction_Gateway_User_Socket_Message()
                 {
@@ -303,6 +313,7 @@ namespace Pather.Servers.GatewayServer
 
                     if (user.BetweenReorgs)
                     {
+                        Global.Console.Log("Adding to reorg queue:", user.UserId,gameSegmentActionMessage.GameSegmentAction);
                         gameSegmentActionMessage.GameSegmentAction.LockstepTick = user.ReorgAtLockstep+1;
                         user.QueuedMessagesBetweenReorg.Add(gameSegmentActionMessage.GameSegmentAction);
                     }

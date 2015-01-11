@@ -41,14 +41,19 @@ namespace Pather.Servers.GameWorldServer
 
         private void reorganize()
         {
-            var clusters = ReorganizeManager.Reorganize(GameWorld.Users.List, GameWorld.GameSegments.List);
-            foreach (var playerCluster in clusters)
+            ReorganizeManager.Reorganize(GameWorld.Users.List, GameWorld.GameSegments.List,GameWorld.CreateGameSegment).Then(clusters =>
             {
-                foreach (var gameWorldUser in playerCluster.Players)
+                foreach (var playerCluster in clusters)
                 {
-                    GameWorld.ChangeUsersGameSegment(gameWorldUser, playerCluster.BestGameSegment);
+                    foreach (var gameWorldUser in playerCluster.Players)
+                    {
+                        if (gameWorldUser.GameSegment != playerCluster.BestGameSegment)
+                        {
+                            GameWorld.ChangeUsersGameSegment(gameWorldUser, playerCluster.BestGameSegment);
+                        }
+                    }
                 }
-            }
+            });
         }
 
 
@@ -147,7 +152,7 @@ namespace Pather.Servers.GameWorldServer
                 case GameWorld_PubSub_MessageType.UserJoined:
                     UserJoined((UserJoined_Gateway_GameWorld_PubSub_Message) message).Then(gwUser =>
                     {
-                        gameWorldPubSub.PublishToGatewayServer(PubSubChannels.Gateway(gwUser.GatewayId), new UserJoined_GameWorld_Gateway_PubSub_Message()
+                        gameWorldPubSub.PublishToGatewayServer(gwUser.GatewayId, new UserJoined_GameWorld_Gateway_PubSub_Message()
                         {
                             X = gwUser.X,
                             Y = gwUser.Y,

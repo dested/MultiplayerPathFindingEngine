@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Utils;
@@ -11,7 +12,6 @@ namespace Pather.Servers.GameWorldServer.Models
         public double Y;
         public string GatewayId;
         public GameSegment GameSegment;
-        public List<GameWorldNeighbor> Neighbors { get; set; }
         public JsDictionary<long, Point> LockstepMovePoints;
 
         public GameWorldUser()
@@ -37,22 +37,18 @@ namespace Pather.Servers.GameWorldServer.Models
             }
              
         }
-        public GameWorldNeighbor ClosestNeighbor()
-        {
-            GameWorldNeighbor closestNeighbor = null;
-            foreach (var gameWorldNeighbor in Neighbors)
-            {
-                if (closestNeighbor == null || gameWorldNeighbor.Distance < closestNeighbor.Distance)
-                {
-                    closestNeighbor = gameWorldNeighbor;
-                }
-            }
-            return closestNeighbor;
-        }
+ 
 
         public void SetLockstepMovePoints(JsDictionary<long, Point> lockstepMovePoints)
         {
             LockstepMovePoints = lockstepMovePoints;
         }
+
+        public double Distance(GameWorldUser user)
+        {
+            return Math.Sqrt((Math.Pow(X - user.X, 2) + Math.Pow(Y - user.Y, 2)));
+
+        }
+
     }
 }

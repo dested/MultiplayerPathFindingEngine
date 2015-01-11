@@ -45,9 +45,7 @@ namespace Pather.Servers.GameWorldServer
             gwUser.UserId = dbUser.UserId;
             gwUser.X = dbUser.X;
             gwUser.Y = dbUser.Y;
-            gwUser.Neighbors = new List<GameWorldNeighbor>();
             gwUser.GatewayId = gatewayChannel;
-            BuildNeighbors(gwUser);
             determineGameSegment(gwUser).Then(gameSegment =>
             {
                 gameSegment.PreAddUserToSegment(gwUser);
@@ -68,20 +66,7 @@ namespace Pather.Servers.GameWorldServer
                 Global.Console.Log("IDK WHO THIS USER IS", dbUser);
                 throw new Exception("IDK WHO THIS USER IS");
             }
-
-
-            foreach (var gameSegmentNeighbor in gwUser.Neighbors)
-            {
-                foreach (var segmentNeighbor in gameSegmentNeighbor.User.Neighbors)
-                {
-                    if (segmentNeighbor.User == gwUser)
-                    {
-                        gameSegmentNeighbor.User.Neighbors.Remove(segmentNeighbor);
-                        break;
-                    }
-                }
-            }
-
+             
 
             var promises = GameSegments.List
                 .Where(seg => seg != gwUser.GameSegment)
@@ -105,15 +90,13 @@ namespace Pather.Servers.GameWorldServer
         private Promise<GameSegment, UndefinedPromiseError> determineGameSegment(GameWorldUser gwUser)
         {
             var deferred = Q.Defer<GameSegment, UndefinedPromiseError>();
-            var neighbors = buildNeighborCollection(gwUser);
+            
             Global.Console.Log("Trying to determine new game segment");
             var noneFound = true;
-            for (var i = 0; i < neighbors.Count; i++)
+            foreach (var neighbor in findClosestNeighbors(gwUser))
             {
                 //todo REORG GAME SEGMENTS????
-
-                var neighbor = neighbors[i];
-                var neighborGameSegment = neighbor.User.GameSegment;
+                var neighborGameSegment = neighbor.GameSegment;
                 if (neighborGameSegment.CanAcceptNewUsers())
                 {
                     Global.Console.Log("Found", neighborGameSegment.GameSegmentId);
@@ -121,6 +104,7 @@ namespace Pather.Servers.GameWorldServer
                     noneFound = false;
                     break;
                 }
+                
             }
 
             if (noneFound)
@@ -144,6 +128,18 @@ namespace Pather.Servers.GameWorldServer
             }
 
             return deferred.Promise;
+        }
+
+        private IEnumerable<GameWorldUser> findClosestNeighbors(GameWorldUser gwUser)
+        {
+            foreach (var user in Users.List)
+            {
+                if (gwUser.Distance(user) < Constants.NeighborDistance*2)
+                {
+                    yield return user;
+                }
+            }
+
         }
 
 
@@ -176,69 +172,6 @@ namespace Pather.Servers.GameWorldServer
         }
 
 
-        public void BuildNeighbors()
-        {
-            var count = Users.Count;
-            for (var i = 0; i < count; i++)
-            {
-                var pUser = Users[i];
-                pUser.Neighbors.Clear();
-            }
-            for (var i = 0; i < count; i++)
-            {
-                var pUser = Users[i];
-                BuildNeighbors(pUser, i);
-            }
-        }
-
-        private List<GameWorldNeighbor> buildNeighborCollection(GameWorldUser pUser)
-        {
-            var count = Users.Count;
-
-            var neighbors = new List<GameWorldNeighbor>();
-
-            for (var c = 0; c < count; c++)
-            {
-                var cUser = Users[c];
-                var distance = PointDistance(pUser, cUser);
-                neighbors.Add(new GameWorldNeighbor(cUser, distance));
-            }
-            neighbors.Sort((a, b) => (int) (a.Distance - b.Distance));
-            return neighbors;
-        }
-
-
-        private void BuildNeighbors(GameWorldUser pUser, int i = 0)
-        {
-            var count = Users.Count;
-
-            for (var c = i; c < count; c++)
-            {
-                var cUser = Users[c];
-                var distance = PointDistance(pUser, cUser);
-                if (distance <= Constants.NeighborDistance)
-                {
-                    pUser.Neighbors.Add(new GameWorldNeighbor(cUser, distance));
-                    cUser.Neighbors.Add(new GameWorldNeighbor(pUser, distance));
-                }
-            }
-        }
-
-        private static double PointDistance(GameWorldUser pUser, GameWorldUser cUser)
-        {
-            var mx = pUser.X;
-            var my = pUser.Y;
-
-            var cx = cUser.X;
-            var cy = cUser.Y;
-
-            var _x = (cx - mx);
-            var _y = (cy - my);
-
-            var dis = Math.Sqrt((_x*_x) + (_y*_y));
-            return dis;
-        }
-
 
         private readonly List<ReoragGameWorldModel> needToReorganize = new List<ReoragGameWorldModel>();
 
@@ -260,6 +193,7 @@ namespace Pather.Servers.GameWorldServer
                     var oldGameSegment = gameWorldUser.GameSegment;
                     var newGameSegment = needToReorganize[i].BestGameSegment;
 
+                    gameWorldUser.GameSegment = newGameSegment;
                     GameWorldPubSub.PublishToGameSegment(oldGameSegment.GameSegmentId, new ReorganizeUser_GameWorld_GameSegment_PubSub_Message()
                     {
                         NewGameSegmentId = newGameSegment.GameSegmentId,
@@ -272,6 +206,7 @@ namespace Pather.Servers.GameWorldServer
                         UserId = gameWorldUser.UserId,
                         SwitchAtLockstepNumber = backEndTickManager.LockstepTickNumber + Constants.GameSegmentReorgSwitchOffset
                     });
+                    needToReorganize.RemoveAt(i);
                 }
             }
         }
@@ -290,7 +225,7 @@ namespace Pather.Servers.GameWorldServer
             {
                 case GameWorldActionType.MoveEntity:
                     var moveEntity = (MoveEntity_GameWorldAction)gameWorldActionGameSegment.Action;
-                    Global.Console.Log("Move entity:",moveEntity);
+//                    Global.Console.Log("Move entity:",moveEntity);
                     var user = Users[moveEntity.EntityId];
                     user.SetLockstepMovePoints(moveEntity.LockstepMovePoints);
                     break;

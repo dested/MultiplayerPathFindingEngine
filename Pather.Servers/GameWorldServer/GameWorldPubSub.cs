@@ -70,7 +70,7 @@ namespace Pather.Servers.GameWorldServer
 
         public void PublishToGatewayServer(string gatewayId, Gateway_PubSub_Message message)
         {
-            PubSub.Publish(gatewayId, message);
+            PubSub.Publish(PubSubChannels.Gateway(gatewayId), message);
         }
 
         public Promise<T, UndefinedPromiseError> PublishToServerManagerWithCallback<T>(ServerManager_PubSub_ReqRes_Message message)

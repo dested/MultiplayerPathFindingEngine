@@ -575,6 +575,33 @@
 					setTimeout(ss.mkdel({ gameClient: this.gameClient, point: this.point }, function() {
 						this.gameClient.$.clientGameManager.moveToLocation(this.point.$.x, this.point.$.y);
 					}), 1000);
+					setInterval(ss.mkdel({ gameClient: this.gameClient, point: this.point }, function() {
+						this.gameClient.$.clientGameManager.moveToLocation(this.point.$.x, this.point.$.y);
+					}), 10000);
+				}));
+				clients.push(gameClient.$);
+			}
+		},
+		connect5: function(deferred) {
+			window.window.NoDraw = true;
+			var clients = [];
+			var $t1 = [];
+			$t1.push(Pather.Common.Utils.Point.$ctor(600, 600));
+			$t1.push(Pather.Common.Utils.Point.$ctor(25, 25));
+			$t1.push(Pather.Common.Utils.Point.$ctor(650, 650));
+			$t1.push(Pather.Common.Utils.Point.$ctor(200, 200));
+			$t1.push(Pather.Common.Utils.Point.$ctor(50, 50));
+			var points = $t1;
+			for (var i = 0; i < 5; i++) {
+				var gameClient = { $: new $Pather_Client_ClientGameView() };
+				var point = { $: points[i] };
+				gameClient.$.clientGameManager.onReady = ss.delegateCombine(gameClient.$.clientGameManager.onReady, ss.mkdel({ gameClient: gameClient, point: point }, function() {
+					setTimeout(ss.mkdel({ gameClient: this.gameClient, point: this.point }, function() {
+						this.gameClient.$.clientGameManager.moveToLocation(this.point.$.x, this.point.$.y);
+					}), 1000 + ss.Int32.trunc(Math.random() * 500));
+					setInterval(ss.mkdel({ gameClient: this.gameClient, point: this.point }, function() {
+						this.gameClient.$.clientGameManager.moveToLocation(this.point.$.x, this.point.$.y);
+					}), 10000);
 				}));
 				clients.push(gameClient.$);
 			}
@@ -593,6 +620,6 @@
 			this.socket.disconnect();
 		}
 	});
-	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'Connect4', type: 8, sname: 'connect4', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
+	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'Connect4', type: 8, sname: 'connect4', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'Connect5', type: 8, sname: 'connect5', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
 	$Pather_Client_$Program.$main();
 })();
