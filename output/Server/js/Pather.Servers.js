@@ -2714,7 +2714,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGame, $asm, {
 		$t1.x = userJoinGameUser.x;
 		$t1.y = userJoinGameUser.y;
 		var serverGameUser = $t1;
-		this.activeEntities.add(serverGameUser);
+		this.addEntity(serverGameUser);
 		serverGameUser.gameSegment.userJoin(serverGameUser);
 		this.buildNeighbors();
 	},
@@ -2726,7 +2726,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGame, $asm, {
 		$t1.y = message.y;
 		var serverGameUser = $t1;
 		var otherGameSegment = this.$gameManager.allGameSegments.get_item(message.gameSegmentId);
-		this.activeEntities.add(serverGameUser);
+		this.addEntity(serverGameUser);
 		//            Global.Console.Log(GameSegmentId, "User joined from other gamesegment", message.GameSegmentId, message.UserId);
 		otherGameSegment.userJoin(serverGameUser);
 		this.buildNeighbors();
@@ -3542,16 +3542,21 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldPubSub, $asm, {
 });
 ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 	$reorganize: function() {
+		var now = new Date();
+		console.log('Start Reorganize');
 		$Pather_Servers_GameWorldServer_ReorganizeManager.reorganize(this.gameWorld.users.list, this.gameWorld.gameSegments.list, ss.mkdel(this.gameWorld, this.gameWorld.createGameSegment)).then(ss.mkdel(this, function(clusters) {
+			var count = 0;
 			for (var $t1 = 0; $t1 < clusters.length; $t1++) {
 				var playerCluster = clusters[$t1];
 				for (var $t2 = 0; $t2 < playerCluster.players.length; $t2++) {
 					var gameWorldUser = playerCluster.players[$t2];
 					if (!ss.referenceEquals(gameWorldUser.gameSegment, playerCluster.bestGameSegment)) {
+						count++;
 						this.gameWorld.changeUsersGameSegment(gameWorldUser, playerCluster.bestGameSegment);
 					}
 				}
 			}
+			console.log('End Reorganize', new Date() - now + 'ms. Moving', count, 'Users.');
 		}));
 	},
 	$pubsubReady: function() {
@@ -3756,7 +3761,6 @@ ss.initClass($Pather_Servers_GameWorldServer_ReoragGameWorldModel, $asm, {});
 ss.initClass($Pather_Servers_GameWorldServer_ReorganizeManager, $asm, {
 	$reorganize: function() {
 		var deferred = Pather.Common.Utils.Promises.Q.defer$2(Array, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
-		console.log('Start Reorganize');
 		this.$tree = new (ss.makeGenericType($Pather_Servers_Libraries_RTree_RTree$1, [$Pather_Servers_GameWorldServer_Models_GameWorldUser]))();
 		for (var $t1 = 0; $t1 < this.$gameWorldUsers.length; $t1++) {
 			var gameWorldUser = this.$gameWorldUsers[$t1];
@@ -4107,7 +4111,7 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 				var userJoinedMessage = message;
 				gatewayUser = this.$users.get_item(userJoinedMessage.userId);
 				if (ss.isNullOrUndefined(gatewayUser)) {
-					console.log('User succsfully joined, but doesnt exist anymore', userJoinedMessage);
+					console.log('User succsfully joined, but doesnt exist anymore', userJoinedMessage.userId, userJoinedMessage.gameSegmentId);
 					var $t2 = this.gatewayPubSub;
 					var $t1 = Pather.Common.Models.GameWorld.Gateway.UserLeft_Gateway_GameWorld_PubSub_Message.$ctor();
 					$t1.userId = userJoinedMessage.userId;

@@ -156,7 +156,7 @@ namespace Pather.Servers.GatewayServer
                     gatewayUser = Users[userJoinedMessage.UserId];
                     if (gatewayUser == null)
                     {
-                        Global.Console.Log("User succsfully joined, but doesnt exist anymore", userJoinedMessage);
+                        Global.Console.Log("User succsfully joined, but doesnt exist anymore", userJoinedMessage.UserId,userJoinedMessage.GameSegmentId);
                         GatewayPubSub.PublishToGameWorld(new UserLeft_Gateway_GameWorld_PubSub_Message()
                         {
                             UserId = userJoinedMessage.UserId

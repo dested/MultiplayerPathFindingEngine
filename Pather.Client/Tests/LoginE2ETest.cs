@@ -94,36 +94,39 @@ namespace Pather.Client.Tests
 
             for (var i = 0; i < totalHits; i++)
             {
-                Global.SetTimeout(() =>
-                {
-                    var receivedCount = 0;
-
-                    var gameClient = new ClientGameView();
-                    gameClient.ClientGameManager.OnReady += () =>
-                    {
-                        var cl = 0;
-                        cl = Global.SetInterval(() =>
-                        {
-                            if (++receivedCount < 200)
-                            {
-                                Global.Console.Log("Moving User again " + receivedCount);
-                                gameClient.ClientGameManager.MoveToLocation(Math.Random() * (Constants.NumberOfSquares - 5) * Constants.SquareSize, Math.Random() * (Constants.NumberOfSquares - 5) * Constants.SquareSize);
-                            }
-                            else
-                            {
-                                Global.ClearTimeout(cl);
-                                Global.Console.Log("Done " + receivedCount);
-                            }
-
-                        }, 4000 + (int)(Math.Random() * 10000));
-                    };
-
-                }, (int)(Math.Random() * 15000));
+                createUser(i);
             }
 
 
 
 
+        }
+
+        private static void createUser(int i)
+        {
+            Global.SetTimeout(() =>
+            {
+                var receivedCount = 0;
+
+                var gameClient = new ClientGameView();
+                gameClient.ClientGameManager.OnReady += () =>
+                {
+                    var cl = 0;
+                    cl = Global.SetInterval(() =>
+                    {
+                        if (++receivedCount < 200)
+                        {
+                            Global.Console.Log("Moving User ", i, " again " + receivedCount);
+                            gameClient.ClientGameManager.MoveToLocation(Math.Random()*(Constants.NumberOfSquares - 5)*Constants.SquareSize, Math.Random()*(Constants.NumberOfSquares - 5)*Constants.SquareSize);
+                        }
+                        else
+                        {
+                            Global.ClearTimeout(cl);
+                            Global.Console.Log("Done " + receivedCount);
+                        }
+                    }, 4000 + (int) (Math.Random()*10000));
+                };
+            }, (int) (Math.Random()*15000));
         }
 
 

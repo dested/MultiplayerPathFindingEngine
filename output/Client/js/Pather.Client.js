@@ -98,7 +98,7 @@
 		this.frontEndTickManager = new $Pather_Client_GameFramework_FrontEndTickManager();
 		this.networkManager.onMessage = ss.delegateCombine(this.networkManager.onMessage, ss.mkdel(this, this.$onGatewayMessage));
 		this.frontEndTickManager.init$1(ss.mkdel(this, this.$sendPing), function() {
-			console.log('Connected To Tick Server');
+			//                Global.Console.Log("Connected To Tick Server");
 		});
 		this.clientGame = new $Pather_Client_GameFramework_ClientGame(this.frontEndTickManager);
 		this.frontEndTickManager.startPing();
@@ -156,6 +156,25 @@
 	var $Pather_Client_Tests_LoginE2ETest = function() {
 	};
 	$Pather_Client_Tests_LoginE2ETest.__typeName = 'Pather.Client.Tests.LoginE2ETest';
+	$Pather_Client_Tests_LoginE2ETest.$createUser = function(i) {
+		setTimeout(function() {
+			var receivedCount = 0;
+			var gameClient = new $Pather_Client_ClientGameView();
+			gameClient.clientGameManager.onReady = ss.delegateCombine(gameClient.clientGameManager.onReady, function() {
+				var cl = 0;
+				cl = setInterval(function() {
+					if (++receivedCount < 200) {
+						console.log('Moving User ', i, ' again ' + receivedCount);
+						gameClient.clientGameManager.moveToLocation(Math.random() * (Pather.Common.Constants.numberOfSquares - 5) * Pather.Common.Constants.squareSize, Math.random() * (Pather.Common.Constants.numberOfSquares - 5) * Pather.Common.Constants.squareSize);
+					}
+					else {
+						clearTimeout(cl);
+						console.log('Done ' + receivedCount);
+					}
+				}, 4000 + ss.Int32.trunc(Math.random() * 10000));
+			});
+		}, ss.Int32.trunc(Math.random() * 15000));
+	};
 	global.Pather.Client.Tests.LoginE2ETest = $Pather_Client_Tests_LoginE2ETest;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Client.Utils.ClientCommunicator
@@ -164,7 +183,6 @@
 		if (Pather.Common.Constants.get_testServer()) {
 			this.socket = require('socket.io-client')(url, { reconnection: false, forceNew: true });
 			this.socket.on('connect', function() {
-				console.log('hi');
 			});
 		}
 		else {
@@ -254,7 +272,7 @@
 			clientUser.controlled = true;
 			clientUser.x = x;
 			clientUser.y = y;
-			this.activeEntities.add(clientUser);
+			this.addEntity(clientUser);
 			this.myUser = clientUser;
 		},
 		createGameUser: function(userId) {
@@ -319,7 +337,7 @@
 				var user1 = this.createGameUser(updatedNeighbor.userId);
 				user1.x = updatedNeighbor.x;
 				user1.y = updatedNeighbor.y;
-				this.activeEntities.add(user1);
+				this.addEntity(user1);
 				for (var $t3 = 0; $t3 < updatedNeighbor.inProgressClientActions.length; $t3++) {
 					var inProgressClientAction = updatedNeighbor.inProgressClientActions[$t3];
 					this.clientProcessClientAction(inProgressClientAction.action);
@@ -543,7 +561,7 @@
 			if (!this.stepActionsTicks.containsKey(action.lockstepTick)) {
 				if (action.lockstepTick <= this.$game.tickManager.lockstepTickNumber) {
 					this.processClientAction(action);
-					console.log('Misprocess of action count', ++this.$misprocess, 'Tick number:', this.$game.tickManager.lockstepTickNumber - action.lockstepTick);
+					console.log('Misprocess of action count', ++this.$misprocess, 'Tick number offset:', this.$game.tickManager.lockstepTickNumber - action.lockstepTick);
 					return;
 				}
 				this.stepActionsTicks.set_item(action.lockstepTick, []);
@@ -615,23 +633,7 @@
 			window.window.NoDraw = true;
 			var totalHits = 20;
 			for (var i = 0; i < totalHits; i++) {
-				setTimeout(function() {
-					var receivedCount = 0;
-					var gameClient = new $Pather_Client_ClientGameView();
-					gameClient.clientGameManager.onReady = ss.delegateCombine(gameClient.clientGameManager.onReady, function() {
-						var cl = 0;
-						cl = setInterval(function() {
-							if (++receivedCount < 200) {
-								console.log('Moving User again ' + receivedCount);
-								gameClient.clientGameManager.moveToLocation(Math.random() * (Pather.Common.Constants.numberOfSquares - 5) * Pather.Common.Constants.squareSize, Math.random() * (Pather.Common.Constants.numberOfSquares - 5) * Pather.Common.Constants.squareSize);
-							}
-							else {
-								clearTimeout(cl);
-								console.log('Done ' + receivedCount);
-							}
-						}, 4000 + ss.Int32.trunc(Math.random() * 10000));
-					});
-				}, ss.Int32.trunc(Math.random() * 15000));
+				$Pather_Client_Tests_LoginE2ETest.$createUser(i);
 			}
 		}
 	});

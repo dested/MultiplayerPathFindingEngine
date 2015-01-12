@@ -40,18 +40,26 @@ namespace Pather.Servers.GameWorldServer
 
         private void reorganize()
         {
+               var now = DateTime.Now;
+
+
+            Global.Console.Log("Start Reorganize");
+
             ReorganizeManager.Reorganize(GameWorld.Users.List, GameWorld.GameSegments.List, GameWorld.CreateGameSegment).Then(clusters =>
             {
+                var count = 0;
                 foreach (var playerCluster in clusters)
                 {
                     foreach (var gameWorldUser in playerCluster.Players)
                     {
                         if (gameWorldUser.GameSegment != playerCluster.BestGameSegment)
                         {
+                            count++;
                             GameWorld.ChangeUsersGameSegment(gameWorldUser, playerCluster.BestGameSegment);
                         }
                     }
                 }
+                Global.Console.Log("End Reorganize", (DateTime.Now - now)+ "ms. Moving", count, "Users.");
             });
         }
 

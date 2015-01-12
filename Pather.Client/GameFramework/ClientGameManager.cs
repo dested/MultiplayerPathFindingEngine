@@ -23,7 +23,7 @@ namespace Pather.Client.GameFramework
             NetworkManager.OnMessage += onGatewayMessage;
             FrontEndTickManager.Init(sendPing, () =>
             {
-                Global.Console.Log("Connected To Tick Server");
+//                Global.Console.Log("Connected To Tick Server");
             });
             clientGame = new ClientGame(FrontEndTickManager);
             FrontEndTickManager.StartPing();

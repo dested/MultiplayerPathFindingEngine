@@ -27,8 +27,7 @@ namespace Pather.Servers.GameWorldServer
         {
             var deferred = Q.Defer<List<PlayerCluster>, UndefinedPromiseError>();
 
-
-            Global.Console.Log("Start Reorganize");
+         
             tree = new RTree<GameWorldUser>();
 
             foreach (var gameWorldUser in gameWorldUsers)
@@ -50,6 +49,7 @@ namespace Pather.Servers.GameWorldServer
             {
                 deferred.Resolve(playerClusters);
             });
+
 
 
             return deferred.Promise;

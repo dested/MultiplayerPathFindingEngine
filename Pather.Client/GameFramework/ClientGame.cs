@@ -32,7 +32,7 @@ namespace Pather.Client.GameFramework
             clientUser.Controlled = true;
             clientUser.X = x;
             clientUser.Y = y;
-            ActiveEntities.Add(clientUser);
+            AddEntity(clientUser);
             MyUser = clientUser;
         }
 
@@ -106,7 +106,7 @@ namespace Pather.Client.GameFramework
                 var user = CreateGameUser(updatedNeighbor.UserId);
                 user.X = updatedNeighbor.X;
                 user.Y = updatedNeighbor.Y;
-                ActiveEntities.Add(user);
+                AddEntity(user);
                 foreach (var inProgressClientAction in updatedNeighbor.InProgressClientActions)
                 {
                     ClientProcessClientAction(inProgressClientAction.Action);

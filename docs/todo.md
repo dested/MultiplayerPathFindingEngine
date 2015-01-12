@@ -55,7 +55,8 @@ moveentity to gameworld when theres are 0 lockstep points
 
 
 
-
+time per messagetype
+time per lockstep tick
 
 
 

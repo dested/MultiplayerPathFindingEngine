@@ -65,7 +65,11 @@ namespace Pather.Common.Utils
                 l -= Constants.LockstepTicks;
                 CurrentLockstepTime += Constants.LockstepTicks;
                 LockstepTickNumber++;
+
+                var now = DateTime.Now;
                 ProcessLockstep(LockstepTickNumber);
+                var dt = DateTime.Now - now;
+
             }
         }
 

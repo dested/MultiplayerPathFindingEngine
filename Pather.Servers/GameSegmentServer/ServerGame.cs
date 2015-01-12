@@ -173,7 +173,7 @@ namespace Pather.Servers.GameSegmentServer
                 Y = userJoinGameUser.Y,
             };
 
-            ActiveEntities.Add(serverGameUser);
+            AddEntity(serverGameUser);
             serverGameUser.GameSegment.UserJoin(serverGameUser);
             BuildNeighbors();
         }
@@ -190,7 +190,7 @@ namespace Pather.Servers.GameSegmentServer
             };
 
             var otherGameSegment = gameManager.AllGameSegments[message.GameSegmentId];
-            ActiveEntities.Add(serverGameUser);
+            AddEntity(serverGameUser);
 
             //            Global.Console.Log(GameSegmentId, "User joined from other gamesegment", message.GameSegmentId, message.UserId);
 

@@ -24,7 +24,6 @@ namespace Pather.Client.Utils
                     });
                 Socket.On("connect", () =>
                 {
-                    Global.Console.Log("hi");
                 });
             }
             else
