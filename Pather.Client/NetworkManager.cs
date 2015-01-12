@@ -17,7 +17,7 @@ namespace Pather.Client
         public NetworkManager()
         {
             
-            GetRequest(ConnectionConstants.HeadIP, 2222, (url) =>
+            GetRequest(ConnectionConstants.HeadIP,url =>
             {
                 Global.Console.Log(url);
 
@@ -54,7 +54,7 @@ namespace Pather.Client
             });
         }
 
-        public static void GetRequest(string url, int port, Action<string> callback)
+        public static void GetRequest(string url, Action<string> callback)
         {
             //todo stub out properly idiot
 

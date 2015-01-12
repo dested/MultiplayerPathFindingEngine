@@ -110,6 +110,7 @@
     <Compile Include="Models\Gateway\Socket\Base\User_Socket_Message.cs" />
     <Compile Include="Utils\ConnectionConstants.cs" />
     <Compile Include="Utils\DictionaryList.cs" />
+    <Compile Include="Utils\Histogram\HistogramManager.cs" />
     <Compile Include="Utils\IntPoint.cs" />
     <Compile Include="Utils\TickManager.cs" />
     <Compile Include="Utils\Utilities.cs" />

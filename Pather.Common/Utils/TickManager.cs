@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Utils.Histogram;
 
 namespace Pather.Common.Utils
 {
@@ -69,7 +71,7 @@ namespace Pather.Common.Utils
                 var now = DateTime.Now;
                 ProcessLockstep(LockstepTickNumber);
                 var dt = DateTime.Now - now;
-
+                HistogramManager.AddPoint("Tick", dt);
             }
         }
 
@@ -79,8 +81,9 @@ namespace Pather.Common.Utils
             {
                 OnProcessLockstep(lockstepTickNumber);
             }
-//            Global.Console.Log("Lockstep", LockstepTickNumber, new DateTime().GetTime());
-//            ServerLogger.LogInformation("Lockstep", LockstepTickNumber, new DateTime().GetTime());
+            //            Global.Console.Log("Lockstep", LockstepTickNumber, new DateTime().GetTime());
+            //            ServerLogger.LogInformation("Lockstep", LockstepTickNumber, new DateTime().GetTime());
         }
     }
+
 }

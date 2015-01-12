@@ -46,7 +46,7 @@ _ReSharper*/
 .idea/
 
 node_modules/
-gulp/passwords.js
+passwords.js
 
 .ntvs_analysis.dat.tmp
 .ntvs_analysis.dat

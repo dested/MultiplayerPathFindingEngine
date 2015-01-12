@@ -42,6 +42,7 @@
 	global.Pather.Common.Models.Tick.Base = global.Pather.Common.Models.Tick.Base || {};
 	global.Pather.Common.TestFramework = global.Pather.Common.TestFramework || {};
 	global.Pather.Common.Utils = global.Pather.Common.Utils || {};
+	global.Pather.Common.Utils.Histogram = global.Pather.Common.Utils.Histogram || {};
 	global.Pather.Common.Utils.Promises = global.Pather.Common.Utils.Promises || {};
 	ss.initAssembly($asm, 'Pather.Common');
 	////////////////////////////////////////////////////////////////////////////////
@@ -2224,6 +2225,87 @@
 	};
 	global.Pather.Common.Utils.Utilities = $Pather_Common_Utils_Utilities;
 	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Utils.Histogram.HistogramManager
+	var $Pather_Common_Utils_Histogram_$HistogramManager = function() {
+	};
+	$Pather_Common_Utils_Histogram_$HistogramManager.__typeName = 'Pather.Common.Utils.Histogram.$HistogramManager';
+	$Pather_Common_Utils_Histogram_$HistogramManager.$addPoint = function(name, value) {
+		if (!ss.keyExists($Pather_Common_Utils_Histogram_$HistogramManager.$histograms, name)) {
+			$Pather_Common_Utils_Histogram_$HistogramManager.$histograms[name] = [];
+		}
+		var ints = $Pather_Common_Utils_Histogram_$HistogramManager.$histograms[name];
+		ints.push(value);
+		if (ints.length % 20 === 0) {
+			$Pather_Common_Utils_Histogram_$HistogramManager.$printDistributions($Pather_Common_Utils_Histogram_$HistogramManager.$getDistribution(name));
+		}
+	};
+	$Pather_Common_Utils_Histogram_$HistogramManager.$getDistribution = function(name) {
+		if (!ss.keyExists($Pather_Common_Utils_Histogram_$HistogramManager.$histograms, name)) {
+			$Pather_Common_Utils_Histogram_$HistogramManager.$histograms[name] = [];
+		}
+		var l = $Pather_Common_Utils_Histogram_$HistogramManager.$histograms[name];
+		l.sort(function(a, b) {
+			return a - b;
+		});
+		var binCounter = {};
+		for (var $t1 = 0; $t1 < $Pather_Common_Utils_Histogram_$HistogramManager.$bins.length; $t1++) {
+			var bin = $Pather_Common_Utils_Histogram_$HistogramManager.$bins[$t1];
+			binCounter[bin] = 0;
+		}
+		for (var index = 0; index < l.length; index++) {
+			var i = l[index];
+			for (var $t2 = 0; $t2 < $Pather_Common_Utils_Histogram_$HistogramManager.$bins.length; $t2++) {
+				var bin1 = $Pather_Common_Utils_Histogram_$HistogramManager.$bins[$t2];
+				if (i <= bin1) {
+					binCounter[bin1]++;
+					break;
+				}
+			}
+		}
+		var dist = new $Pather_Common_Utils_Histogram_HistogramDistribution();
+		dist.name = name;
+		dist.items = [];
+		dist.totalItems = l.length;
+		for (var index1 = 0; index1 < $Pather_Common_Utils_Histogram_$HistogramManager.$bins.length - 1; index1++) {
+			var $t4 = dist.items;
+			var $t3 = new $Pather_Common_Utils_Histogram_HistogramDistributionItem();
+			$t3.lowerBound = $Pather_Common_Utils_Histogram_$HistogramManager.$bins[index1];
+			$t3.upperBound = $Pather_Common_Utils_Histogram_$HistogramManager.$bins[index1 + 1];
+			$t3.value = binCounter[$Pather_Common_Utils_Histogram_$HistogramManager.$bins[index1]];
+			$t4.push($t3);
+		}
+		return dist;
+	};
+	$Pather_Common_Utils_Histogram_$HistogramManager.$printDistributions = function(dist) {
+		console.log(dist.name + ' Histogram:');
+		for (var $t1 = 0; $t1 < dist.items.length; $t1++) {
+			var item = dist.items[$t1];
+			if (item.value === 0) {
+				continue;
+			}
+			var c = item.value / dist.totalItems * 100;
+			console.log(c + '% Of the items took between ' + item.lowerBound + 'ms and ' + item.upperBound + 'ms');
+		}
+	};
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Utils.Histogram.HistogramDistribution
+	var $Pather_Common_Utils_Histogram_HistogramDistribution = function() {
+		this.name = null;
+		this.totalItems = 0;
+		this.items = null;
+	};
+	$Pather_Common_Utils_Histogram_HistogramDistribution.__typeName = 'Pather.Common.Utils.Histogram.HistogramDistribution';
+	global.Pather.Common.Utils.Histogram.HistogramDistribution = $Pather_Common_Utils_Histogram_HistogramDistribution;
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Utils.Histogram.HistogramDistributionItem
+	var $Pather_Common_Utils_Histogram_HistogramDistributionItem = function() {
+		this.lowerBound = 0;
+		this.upperBound = 0;
+		this.value = 0;
+	};
+	$Pather_Common_Utils_Histogram_HistogramDistributionItem.__typeName = 'Pather.Common.Utils.Histogram.HistogramDistributionItem';
+	global.Pather.Common.Utils.Histogram.HistogramDistributionItem = $Pather_Common_Utils_Histogram_HistogramDistributionItem;
+	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Utils.Promises.Deferred
 	var $Pather_Common_Utils_Promises_Deferred = function() {
 		this.promise = null;
@@ -2742,7 +2824,10 @@
 				l -= $Pather_Common_Constants.lockstepTicks;
 				this.currentLockstepTime += $Pather_Common_Constants.lockstepTicks;
 				this.lockstepTickNumber++;
+				var now = new Date();
 				this.processLockstep(this.lockstepTickNumber);
+				var dt = new Date() - now;
+				$Pather_Common_Utils_Histogram_$HistogramManager.$addPoint('Tick', dt);
 			}
 		},
 		processLockstep: function(lockstepTickNumber) {
@@ -2754,6 +2839,9 @@
 		}
 	});
 	ss.initClass($Pather_Common_Utils_Utilities, $asm, {});
+	ss.initClass($Pather_Common_Utils_Histogram_$HistogramManager, $asm, {});
+	ss.initClass($Pather_Common_Utils_Histogram_HistogramDistribution, $asm, {});
+	ss.initClass($Pather_Common_Utils_Histogram_HistogramDistributionItem, $asm, {});
 	ss.initClass($Pather_Common_Utils_Promises_Deferred, $asm, {
 		resolve: function() {
 			this.promise.resolve();
@@ -2891,7 +2979,11 @@
 		eval("\r\nglobal.$instantiateInterface$=function ($type$) {\r\n    var obj={};\r\n    for(var m in $type$.prototype) {\r\n        obj[m]=function(){throw new Error('Mock interface method '+m+' not overridden');};\r\n    }\r\n    return obj;\r\n}");
 	})();
 	(function() {
-		$Pather_Common_Utils_ConnectionConstants.redisIP = ($Pather_Common_Utils_ConnectionConstants.get_production() ? '173.255.211.118' : '127.0.0.1');
+		$Pather_Common_Utils_ConnectionConstants.redisIP = ($Pather_Common_Utils_ConnectionConstants.get_production() ? '74.207.245.158' : '127.0.0.1');
 		$Pather_Common_Utils_ConnectionConstants.headIP = ($Pather_Common_Utils_ConnectionConstants.get_production() ? 'http://96.126.103.76:2222/api/' : 'http://127.0.0.1:2222/api/');
+	})();
+	(function() {
+		$Pather_Common_Utils_Histogram_$HistogramManager.$histograms = {};
+		$Pather_Common_Utils_Histogram_$HistogramManager.$bins = [0, 3, 5, 10, 20, 30, 50, 75, 100, 500, 1000, 100000000];
 	})();
 })();

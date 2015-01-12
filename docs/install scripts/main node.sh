@@ -18,21 +18,26 @@ cd /usr/local/src/
 git clone https://github.com/dested/MultiplayerPathFindingEngine
 cd MultiplayerPathFindingEngine
 git pull
-cd output/Server
+cd gulp
+npm install
+cd ../output/Server
 npm install
 cd ../Client
 npm install
 cd ../Server
 
+cd /usr/local/src/MultiplayerPathFindingEngine/output/Server
+
+
 pkill node
 pkill gulp
 
-node app t &
+node prod-app t &
 
-node app m &
-node app h &
+node prod-app m &
+node prod-app h &
 
-node app gw &
+node prod-app gw &
 
 cd ../../gulp
 

@@ -49,7 +49,7 @@
 	var $Pather_Client_NetworkManager = function() {
 		this.$clientCommunicator = null;
 		this.onMessage = null;
-		$Pather_Client_NetworkManager.getRequest(Pather.Common.Utils.ConnectionConstants.headIP, 2222, ss.mkdel(this, function(url) {
+		$Pather_Client_NetworkManager.getRequest(Pather.Common.Utils.ConnectionConstants.headIP, ss.mkdel(this, function(url) {
 			console.log(url);
 			this.$clientCommunicator = new $Pather_Client_Utils_ClientCommunicator(url);
 			this.$clientCommunicator.listenForGatewayMessage(ss.mkdel(this, function(message) {
@@ -59,7 +59,7 @@
 		}));
 	};
 	$Pather_Client_NetworkManager.__typeName = 'Pather.Client.NetworkManager';
-	$Pather_Client_NetworkManager.getRequest = function(url, port, callback) {
+	$Pather_Client_NetworkManager.getRequest = function(url, callback) {
 		//todo stub out properly idiot
 		if (Pather.Common.Constants.get_testServer()) {
 			var http = require('http');
