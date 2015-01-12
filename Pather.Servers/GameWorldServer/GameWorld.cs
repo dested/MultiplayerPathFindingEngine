@@ -92,14 +92,14 @@ namespace Pather.Servers.GameWorldServer
         {
             var deferred = Q.Defer<GameSegment, UndefinedPromiseError>();
 
-            Global.Console.Log("Trying to determine new game segment");
+//            Global.Console.Log("Trying to determine new game segment");
             var noneFound = true;
             foreach (var neighbor in findClosestNeighbors(gwUser))
             {
                 var neighborGameSegment = neighbor.GameSegment;
                 if (neighborGameSegment.CanAcceptNewUsers())
                 {
-                    Global.Console.Log("Found", neighborGameSegment.GameSegmentId);
+//                    Global.Console.Log("Found", neighborGameSegment.GameSegmentId);
                     deferred.Resolve(neighborGameSegment);
                     noneFound = false;
                     break;
@@ -112,7 +112,7 @@ namespace Pather.Servers.GameWorldServer
                 {
                     if (gameSegment.CanAcceptNewUsers())
                     {
-                        Global.Console.Log("Found2", gameSegment.GameSegmentId);
+//                        Global.Console.Log("Found2", gameSegment.GameSegmentId);
                         deferred.Resolve(gameSegment);
                         noneFound = false;
                         break;
@@ -122,7 +122,7 @@ namespace Pather.Servers.GameWorldServer
 
             if (noneFound)
             {
-                Global.Console.Log("Creating new ");
+                Global.Console.Log("Creating new segment");
                 return CreateGameSegment();
             }
 
@@ -182,8 +182,8 @@ namespace Pather.Servers.GameWorldServer
             if (needToReorganize.Count > 0)
             {
                 Debug.Break();
-                Global.Console.Log(needToReorganize);
                 var reorg = Math.Min(needToReorganize.Count, Constants.NumberOfReorganizedPlayersPerSession);
+                Global.Console.Log("Reorganizing ",reorg,"Users");
                 for (var i = reorg - 1; i >= 0; i--)
                 {
                     var gameWorldUser = needToReorganize[i].GameWorldUser;

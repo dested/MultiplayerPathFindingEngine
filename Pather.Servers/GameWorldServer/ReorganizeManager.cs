@@ -33,18 +33,18 @@ namespace Pather.Servers.GameWorldServer
 
             foreach (var gameWorldUser in gameWorldUsers)
             {
-                Global.Console.Log("user:", gameWorldUser.UserId, gameWorldUser.X, gameWorldUser.Y);
+//                Global.Console.Log("user:", gameWorldUser.UserId, gameWorldUser.X, gameWorldUser.Y);
                 tree.Add(new Rectangle((float)gameWorldUser.X, (float)gameWorldUser.Y), gameWorldUser);
             }
-            Global.Console.Log("Building Neighbors");
+//            Global.Console.Log("Building Neighbors");
 
             var userAndNeighbors = determineUserNeighbors(gameWorldUsers);
 
-            Global.Console.Log("Building Player Clusters");
+//            Global.Console.Log("Building Player Clusters");
 
             var playerClusters = buildPlayerClusters(userAndNeighbors);
 
-            Global.Console.Log("Determining best gamesegment for each player cluster");
+//            Global.Console.Log("Determining best gamesegment for each player cluster");
 
             determineBestGameSegment(playerClusters).Then(() =>
             {
@@ -124,11 +124,7 @@ namespace Pather.Servers.GameWorldServer
             //sorting to see which one contains the most of our users
             founds.Sort((a, b) => b.Item1 - a.Item1);
 
-            Global.Console.Log("Cluster gs", founds.Select(a => new
-            {
-                a.Item1,
-                a.Item2.GameSegmentId
-            }));
+//            Global.Console.Log("Cluster gs", founds.Select(a => new{a.Item1,a.Item2.GameSegmentId}));
             //try all the gamesegments
             foreach (var gameSegment in founds)
             {
@@ -139,10 +135,10 @@ namespace Pather.Servers.GameWorldServer
                 }
 
                 //if this gamesegment can squeeze my clusters worth of players in it
-                Global.Console.Log("trying", bestGameSegment.GameSegmentId, numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] + playerCluster.Players.Count);
+//                Global.Console.Log("trying", bestGameSegment.GameSegmentId, numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] + playerCluster.Players.Count);
                 if (numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] + playerCluster.Players.Count <= Constants.UsersPerGameSegment)
                 {
-                    Global.Console.Log("setting best", bestGameSegment.GameSegmentId);
+//                    Global.Console.Log("setting best", bestGameSegment.GameSegmentId);
                     numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] += playerCluster.Players.Count;
                     //this gamesegment is best for my cluster
                     playerCluster.BestGameSegment = bestGameSegment;
@@ -152,11 +148,11 @@ namespace Pather.Servers.GameWorldServer
             //if we never found a best game segment because the other ones are full, create a new one!
             if (playerCluster.BestGameSegment == null)
             {
-                Global.Console.Log("Create new game cluster buster!");
+//                Global.Console.Log("Create new game cluster buster!");
                 createGameSegment().Then(gameSegment =>
                 {
                     //new one created, continue!
-                    Global.Console.Log("setting new segment as best", gameSegment.GameSegmentId);
+//                    Global.Console.Log("setting new segment as best", gameSegment.GameSegmentId);
                     numberOfUsersInGameSegment[gameSegment.GameSegmentId] += playerCluster.Players.Count;
                     playerCluster.BestGameSegment = gameSegment;
                     deferred.Resolve();
@@ -192,11 +188,7 @@ namespace Pather.Servers.GameWorldServer
                     //he is a neighbor of mine
                     playerClusterInfo.Neighbors.Add(new GameWorldNeighbor(nearPlayer, pointDistance(nearPlayer, currentPlayer)));
                 }
-                Global.Console.Log("Player Cluster: ", playerClusterInfo.Player.UserId, "Neighbors:", playerClusterInfo.Neighbors.Select(a => new
-                {
-                    a.Distance,
-                    a.User.UserId
-                }));
+//                Global.Console.Log("Player Cluster: ", playerClusterInfo.Player.UserId, "Neighbors:", playerClusterInfo.Neighbors.Select(a => new{a.Distance,a.User.UserId}));
 
                 userAndNeighbors.Add(playerClusterInfo);
             }
@@ -225,12 +217,7 @@ namespace Pather.Servers.GameWorldServer
 
                 //Console.WriteLine(string.Format("Players Left: {0}, Clusters Total: {1} ", hitPlayerCount, playerClusters.Count));
             }
-            Global.Console.Log(playerClusters.Select(a => a.Players.Select(b => new
-            {
-                b.UserId,
-                b.X,
-                b.Y
-            })));
+//            Global.Console.Log(playerClusters.Select(a => a.Players.Select(b => new{b.UserId,b.X,b.Y})));
             return playerClusters;
         }
 
@@ -245,7 +232,7 @@ namespace Pather.Servers.GameWorldServer
             while (neighbors.Count > 0)
             {
                 var currentUserNeighbor = neighbors[0];
-                Global.Console.Log(currentUserNeighbor.User.UserId);
+//                Global.Console.Log(currentUserNeighbor.User.UserId);
 
                 //if hes already allocated, or hes already part of our cluster
                 if (!unClusteredPlayers.Contains(currentUserNeighbor.User.UserId) ||
@@ -275,11 +262,7 @@ namespace Pather.Servers.GameWorldServer
 
                 //order them by closest
                 neighbors.Sort((a, b) => (int) (a.Distance - b.Distance));
-                Global.Console.Log(neighbors.Select(a => new
-                {
-                    a.Distance,
-                    a.User.UserId
-                }));
+//                Global.Console.Log(neighbors.Select(a => new{a.Distance,a.User.UserId}));
                 //purge for performance gains
                 if (neighbors.Count > 100)
                 {

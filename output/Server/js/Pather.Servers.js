@@ -2652,7 +2652,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGame, $asm, {
 			case 'moveEntity': {
 				var moveEntity = action;
 				ss.cast(this.activeEntities.get_item(action.entityId), $Pather_Servers_GameSegmentServer_ServerGameUser).setPointInTime(moveEntity.x, moveEntity.y, moveEntity.lockstepTick);
-				console.log('Got tell move action from gamesegment');
+				//                    Global.Console.Log("Got tell move action from gamesegment");
 				break;
 			}
 			default: {
@@ -3011,7 +3011,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameManager, $asm, {
 		}
 	},
 	$onMessageTransferGameUser: function(message) {
-		console.log(message, this.$serverGame.activeEntities.list);
+		//            Global.Console.Log(message, serverGame.ActiveEntities.List);
 		var user = ss.cast(this.$serverGame.activeEntities.get_item(message.userId), $Pather_Servers_GameSegmentServer_ServerGameUser);
 		user.gameSegment.userLeft(user.entityId);
 		this.myGameSegment.userJoin(user);
@@ -3020,7 +3020,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameManager, $asm, {
 		ss.cast(this.$serverGame.activeEntities.get_item(message.userId), $Pather_Servers_GameSegmentServer_ServerGameUser).gameSegment = this.allGameSegments.get_item(message.newGameSegmentId);
 	},
 	$onMessageReorganizeGameSegment: function(message) {
-		console.log('Reorganizing user:', message.userId, message.switchAtLockstepNumber);
+		//            Global.Console.Log("Reorganizing user:", message.UserId, message.SwitchAtLockstepNumber);
 		for (var $t1 = 0; $t1 < this.allGameSegments.list.length; $t1++) {
 			var gameSegment = this.allGameSegments.list[$t1];
 			if (!ss.referenceEquals(gameSegment.gameSegmentId, this.myGameSegment.gameSegmentId) && !ss.referenceEquals(gameSegment.gameSegmentId, message.newGameSegmentId)) {
@@ -3123,7 +3123,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameUser, $asm, {
 			this.x = point.x;
 			this.y = point.y;
 			delete this.lockstepMovePoints[lockstepTickNumber];
-			console.log(this.entityId, this.x, this.y, ss.getKeyCount(this.lockstepMovePoints), lockstepTickNumber);
+			//                Global.Console.Log(EntityId, X, Y, LockstepMovePoints.Count, lockstepTickNumber);
 		}
 		for (var index = this.inProgressActions.length - 1; index >= 0; index--) {
 			var inProgressAction = this.inProgressActions[index];
@@ -3152,7 +3152,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameUser, $asm, {
 		$t1.path = path;
 		var moveEntityOnPathAction = $t1;
 		var lockstepTickNumber = this.projectMovement(x, y, destinationAction.lockstepTick, path);
-		console.log('Move entity on path:', moveEntityOnPathAction);
+		//            Global.Console.Log("Move entity on path:", moveEntityOnPathAction);
 		this.inProgressActions.push(Pather.Common.Models.Common.InProgressClientAction.$ctor(moveEntityOnPathAction, lockstepTickNumber));
 		return lockstepTickNumber;
 		//            Global.Console.Log("Path points:", InProgressActions);
@@ -3342,7 +3342,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 	},
 	$determineGameSegment: function(gwUser) {
 		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_Servers_GameWorldServer_GameSegment, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
-		console.log('Trying to determine new game segment');
+		//            Global.Console.Log("Trying to determine new game segment");
 		var noneFound = true;
 		var $t1 = ss.getEnumerator(this.$findClosestNeighbors(gwUser));
 		try {
@@ -3350,7 +3350,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 				var neighbor = $t1.current();
 				var neighborGameSegment = neighbor.gameSegment;
 				if (neighborGameSegment.canAcceptNewUsers()) {
-					console.log('Found', neighborGameSegment.gameSegmentId);
+					//                    Global.Console.Log("Found", neighborGameSegment.GameSegmentId);
 					deferred.resolve(neighborGameSegment);
 					noneFound = false;
 					break;
@@ -3364,7 +3364,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 			for (var $t2 = 0; $t2 < this.gameSegments.list.length; $t2++) {
 				var gameSegment = this.gameSegments.list[$t2];
 				if (gameSegment.canAcceptNewUsers()) {
-					console.log('Found2', gameSegment.gameSegmentId);
+					//                        Global.Console.Log("Found2", gameSegment.GameSegmentId);
 					deferred.resolve(gameSegment);
 					noneFound = false;
 					break;
@@ -3372,7 +3372,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 			}
 		}
 		if (noneFound) {
-			console.log('Creating new ');
+			console.log('Creating new segment');
 			return this.createGameSegment();
 		}
 		return deferred.promise;
@@ -3448,8 +3448,8 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 	reorganize: function() {
 		if (this.$needToReorganize.length > 0) {
 			debugger;
-			console.log(this.$needToReorganize);
 			var reorg = Math.min(this.$needToReorganize.length, Pather.Common.Constants.numberOfReorganizedPlayersPerSession);
+			console.log('Reorganizing ', reorg, 'Users');
 			for (var i = reorg - 1; i >= 0; i--) {
 				var gameWorldUser = this.$needToReorganize[i].gameWorldUser;
 				var oldGameSegment = gameWorldUser.gameSegment;
@@ -3760,14 +3760,14 @@ ss.initClass($Pather_Servers_GameWorldServer_ReorganizeManager, $asm, {
 		this.$tree = new (ss.makeGenericType($Pather_Servers_Libraries_RTree_RTree$1, [$Pather_Servers_GameWorldServer_Models_GameWorldUser]))();
 		for (var $t1 = 0; $t1 < this.$gameWorldUsers.length; $t1++) {
 			var gameWorldUser = this.$gameWorldUsers[$t1];
-			console.log('user:', gameWorldUser.userId, gameWorldUser.x, gameWorldUser.y);
+			//                Global.Console.Log("user:", gameWorldUser.UserId, gameWorldUser.X, gameWorldUser.Y);
 			this.$tree.add(new $Pather_Servers_Libraries_RTree_Rectangle(gameWorldUser.x, gameWorldUser.y), gameWorldUser);
 		}
-		console.log('Building Neighbors');
+		//            Global.Console.Log("Building Neighbors");
 		var userAndNeighbors = this.$determineUserNeighbors(this.$gameWorldUsers);
-		console.log('Building Player Clusters');
+		//            Global.Console.Log("Building Player Clusters");
 		var playerClusters = this.$buildPlayerClusters(userAndNeighbors);
-		console.log('Determining best gamesegment for each player cluster');
+		//            Global.Console.Log("Determining best gamesegment for each player cluster");
 		this.$determineBestGameSegment(playerClusters).then(function() {
 			deferred.resolve(playerClusters);
 		});
@@ -3814,9 +3814,7 @@ ss.initClass($Pather_Servers_GameWorldServer_ReorganizeManager, $asm, {
 		founds.sort(function(a, b) {
 			return b.item1 - a.item1;
 		});
-		console.log('Cluster gs', Pather.Common.Utils.EnumerableExtensions.select(founds, function(a1) {
-			return { Item1: a1.item1, GameSegmentId: a1.item2.gameSegmentId };
-		}));
+		//            Global.Console.Log("Cluster gs", founds.Select(a => new{a.Item1,a.Item2.GameSegmentId}));
 		//try all the gamesegments
 		for (var $t3 = 0; $t3 < founds.length; $t3++) {
 			var gameSegment1 = founds[$t3];
@@ -3825,9 +3823,9 @@ ss.initClass($Pather_Servers_GameWorldServer_ReorganizeManager, $asm, {
 				numberOfUsersInGameSegment[bestGameSegment.gameSegmentId] = 0;
 			}
 			//if this gamesegment can squeeze my clusters worth of players in it
-			console.log('trying', bestGameSegment.gameSegmentId, numberOfUsersInGameSegment[bestGameSegment.gameSegmentId] + playerCluster.players.length);
+			//                Global.Console.Log("trying", bestGameSegment.GameSegmentId, numberOfUsersInGameSegment[bestGameSegment.GameSegmentId] + playerCluster.Players.Count);
 			if (numberOfUsersInGameSegment[bestGameSegment.gameSegmentId] + playerCluster.players.length <= Pather.Common.Constants.usersPerGameSegment) {
-				console.log('setting best', bestGameSegment.gameSegmentId);
+				//                    Global.Console.Log("setting best", bestGameSegment.GameSegmentId);
 				numberOfUsersInGameSegment[bestGameSegment.gameSegmentId] += playerCluster.players.length;
 				//this gamesegment is best for my cluster
 				playerCluster.bestGameSegment = bestGameSegment;
@@ -3836,10 +3834,10 @@ ss.initClass($Pather_Servers_GameWorldServer_ReorganizeManager, $asm, {
 		}
 		//if we never found a best game segment because the other ones are full, create a new one!
 		if (ss.isNullOrUndefined(playerCluster.bestGameSegment)) {
-			console.log('Create new game cluster buster!');
+			//                Global.Console.Log("Create new game cluster buster!");
 			this.$createGameSegment().then(function(gameSegment2) {
 				//new one created, continue!
-				console.log('setting new segment as best', gameSegment2.gameSegmentId);
+				//                    Global.Console.Log("setting new segment as best", gameSegment.GameSegmentId);
 				numberOfUsersInGameSegment[gameSegment2.gameSegmentId] += playerCluster.players.length;
 				playerCluster.bestGameSegment = gameSegment2;
 				deferred.resolve();
@@ -3868,9 +3866,7 @@ ss.initClass($Pather_Servers_GameWorldServer_ReorganizeManager, $asm, {
 				//he is a neighbor of mine
 				playerClusterInfo.$neighbors.push(new $Pather_Servers_GameWorldServer_Models_GameWorldNeighbor(nearPlayer, $Pather_Servers_GameWorldServer_ReorganizeManager.$pointDistance(nearPlayer, currentPlayer)));
 			}
-			console.log('Player Cluster: ', playerClusterInfo.$player.userId, 'Neighbors:', Pather.Common.Utils.EnumerableExtensions.select(playerClusterInfo.$neighbors, function(a1) {
-				return { Distance: a1.distance, UserId: a1.user.userId };
-			}));
+			//                Global.Console.Log("Player Cluster: ", playerClusterInfo.Player.UserId, "Neighbors:", playerClusterInfo.Neighbors.Select(a => new{a.Distance,a.User.UserId}));
 			userAndNeighbors.add(playerClusterInfo);
 		}
 		return userAndNeighbors;
@@ -3891,11 +3887,7 @@ ss.initClass($Pather_Servers_GameWorldServer_ReorganizeManager, $asm, {
 			playerClusters.push(cluster);
 			//Console.WriteLine(string.Format("Players Left: {0}, Clusters Total: {1} ", hitPlayerCount, playerClusters.Count));
 		}
-		console.log(Pather.Common.Utils.EnumerableExtensions.select(playerClusters, function(a) {
-			return Pather.Common.Utils.EnumerableExtensions.select(a.players, function(b) {
-				return { UserId: b.userId, X: b.x, Y: b.y };
-			});
-		}));
+		//            Global.Console.Log(playerClusters.Select(a => a.Players.Select(b => new{b.UserId,b.X,b.Y})));
 		return playerClusters;
 	},
 	$getPlayerCluster: function(currentUser, unClusteredPlayers) {
@@ -3908,7 +3900,7 @@ ss.initClass($Pather_Servers_GameWorldServer_ReorganizeManager, $asm, {
 		var totalPlayers = 0;
 		while (neighbors.length > 0) {
 			var currentUserNeighbor = neighbors[0];
-			console.log(currentUserNeighbor.user.userId);
+			//                Global.Console.Log(currentUserNeighbor.User.UserId);
 			//if hes already allocated, or hes already part of our cluster
 			if (!unClusteredPlayers.contains$1(currentUserNeighbor.user.userId) || clusteredPlayers.contains$1(currentUserNeighbor.user.userId)) {
 				//remove him from eligibility
@@ -3935,9 +3927,7 @@ ss.initClass($Pather_Servers_GameWorldServer_ReorganizeManager, $asm, {
 			neighbors.sort(function(a1, b) {
 				return ss.Int32.trunc(a1.distance - b.distance);
 			});
-			console.log(Pather.Common.Utils.EnumerableExtensions.select(neighbors, function(a2) {
-				return { Distance: a2.distance, UserId: a2.user.userId };
-			}));
+			//                Global.Console.Log(neighbors.Select(a => new{a.Distance,a.User.UserId}));
 			//purge for performance gains
 			if (neighbors.length > 100) {
 				ss.arrayRemoveRange(neighbors, 100, neighbors.length - 100);
@@ -3958,7 +3948,7 @@ ss.initClass($Pather_Servers_GameWorldServer_Models_GameWorldUser, $asm, {
 			this.x = point.x;
 			this.y = point.y;
 			delete this.lockstepMovePoints[lockstepTickNumber];
-			console.log(this.userId, this.x, this.y, ss.getKeyCount(this.lockstepMovePoints), lockstepTickNumber);
+			//                Global.Console.Log(UserId, X, Y, LockstepMovePoints.Count, lockstepTickNumber);
 		}
 	},
 	setLockstepMovePoints: function(lockstepMovePoints) {
@@ -4051,10 +4041,10 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 					console.log('Tried to reorganize user who already left', reorganizeUserMessage.userId);
 					continue;
 				}
-				console.log('Old GS:', gatewayUser.gameSegmentId, 'New GS:', reorganizeUserMessage.newGameSegmentId);
+				//                    Global.Console.Log("Old GS:", gatewayUser.GameSegmentId, "New GS:", reorganizeUserMessage.NewGameSegmentId);
 				gatewayUser.gameSegmentId = reorganizeUserMessage.newGameSegmentId;
 				gatewayUser.betweenReorgs = false;
-				console.log('Queued Messages:', gatewayUser.queuedMessagesBetweenReorg);
+				//                    Global.Console.Log("Queued Messages:", gatewayUser.QueuedMessagesBetweenReorg);
 				for (var $t2 = 0; $t2 < gatewayUser.queuedMessagesBetweenReorg.length; $t2++) {
 					var gameSegmentAction = gatewayUser.queuedMessagesBetweenReorg[$t2];
 					var $t4 = this.gatewayPubSub;
@@ -4163,7 +4153,7 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 			}
 			case 'reorganizeUser': {
 				var reorgUserMessage = message;
-				console.log('Trying to reorg', reorgUserMessage);
+				//                    Global.Console.Log("Trying to reorg", reorgUserMessage);
 				var user = this.$users.get_item(reorgUserMessage.userId);
 				user.betweenReorgs = true;
 				user.reorgAtLockstep = reorgUserMessage.switchAtLockstepNumber;

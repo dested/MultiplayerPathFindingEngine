@@ -76,11 +76,11 @@ namespace Pather.Servers.GatewayServer
                         Global.Console.Log("Tried to reorganize user who already left", reorganizeUserMessage.UserId);
                         continue;
                     }
-                    Global.Console.Log("Old GS:", gatewayUser.GameSegmentId, "New GS:", reorganizeUserMessage.NewGameSegmentId);
+//                    Global.Console.Log("Old GS:", gatewayUser.GameSegmentId, "New GS:", reorganizeUserMessage.NewGameSegmentId);
 
                     gatewayUser.GameSegmentId = reorganizeUserMessage.NewGameSegmentId;
                     gatewayUser.BetweenReorgs = false;
-                    Global.Console.Log("Queued Messages:", gatewayUser.QueuedMessagesBetweenReorg);
+//                    Global.Console.Log("Queued Messages:", gatewayUser.QueuedMessagesBetweenReorg);
 
                     foreach (var gameSegmentAction in gatewayUser.QueuedMessagesBetweenReorg)
                     {
@@ -202,7 +202,7 @@ namespace Pather.Servers.GatewayServer
                     break;
                 case Gateway_PubSub_MessageType.ReorganizeUser:
                     var reorgUserMessage = (ReorganizeUser_GameWorld_Gateway_PubSub_Message) message;
-                    Global.Console.Log("Trying to reorg", reorgUserMessage);
+//                    Global.Console.Log("Trying to reorg", reorgUserMessage);
                     var user = Users[reorgUserMessage.UserId];
                     user.BetweenReorgs = true;
                     user.ReorgAtLockstep = reorgUserMessage.SwitchAtLockstepNumber;

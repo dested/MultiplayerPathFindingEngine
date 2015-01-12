@@ -2,7 +2,7 @@
 
 var gulp = require('gulp');
 var gutil = require('gulp-util');
-require('./passwords');
+//require('./passwords');
 require('./client');
 require('./server');
 var runSequence = require('run-sequence');
@@ -28,6 +28,11 @@ gulp.task('default', function (callback) {
 gulp.task('client', function (callback) {
     process.chdir('../');
     runClient(callback);
+});
+
+gulp.task('client-express', function (callback) {
+    process.chdir('../');
+    runSequence('client.express',callback);
 });
 
 gulp.task('server', function (callback) {

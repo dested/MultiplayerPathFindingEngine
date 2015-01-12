@@ -55,12 +55,10 @@
     <Content Include="Server\batches\redis.bat" />
     <Content Include="Server\batches\run.bat" />
     <Content Include="Server\batches\tick.bat" />
-    <Content Include="Server\outcluster.log" />
-    <Content Include="Server\outgs.log" />
-    <Content Include="Server\outgw.log" />
     <Content Include="Server\package.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client\prod-app.js" />
     <Compile Include="Client\app.js" />
     <Compile Include="Client\js\Pather.Client.js" />
     <Compile Include="Client\js\Pather.Common.js" />
@@ -78,6 +76,7 @@
     <Compile Include="Server\js\Pather.Servers.js" />
     <Compile Include="Server\libs\astar.js" />
     <Compile Include="Server\libs\mscorlib.js" />
+    <Compile Include="Server\prod-app.js" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsTools.targets" />
 </Project>

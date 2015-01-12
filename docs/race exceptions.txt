@@ -1,0 +1,41 @@
+TypeError: Cannot read property 'entityId' of undefined
+    at null.$setKeyCallback (/usr/local/src/MultiplayerPathFindingEngine/output/Client/js/Pather.Common.js:87:12)
+    at ss.registerGenericClassInstance.remove (/usr/local/src/MultiplayerPathFindingEngine/output/Client/js/Pather.Common.js:1762:20)
+    at ss.initClass.updateNeighbors (/usr/local/src/MultiplayerPathFindingEngine/output/Client/js/Pather.Client.js:317:25)
+    at ss.initClass.clientProcessClientAction (/usr/local/src/MultiplayerPathFindingEngine/output/Client/js/Pather.Client.js:305:11)
+    at delegate [as processClientAction] (/usr/local/src/MultiplayerPathFindingEngine/output/Client/libs/mscorlib.js:2072:22)
+    at ss.initClass.processAction (/usr/local/src/MultiplayerPathFindingEngine/output/Client/js/Pather.Client.js:562:10)
+    at delegate [as onProcessLockstep] (/usr/local/src/MultiplayerPathFindingEngine/output/Client/libs/mscorlib.js:2072:22)
+    at ss.initClass.processLockstep (/usr/local/src/MultiplayerPathFindingEngine/output/Client/js/Pather.Common.js:2746:10)
+    at ss.initClass.setLockStepTick (/usr/local/src/MultiplayerPathFindingEngine/output/Client/js/Pather.Common.js:2725:11)
+    at ss.initClass.setLockStepTick (/usr/local/src/MultiplayerPathFindingEngine/output/Client/js/Pather.Client.js:523:62)
+    at ss.initClass.$onTickSyncMessage (/usr/local/src/MultiplayerPathFindingEngine/output/Client/js/Pather.Client.js:378:29)
+    at ss.initClass.$onGatewayMessage (/usr/local/src/MultiplayerPathFindingEngine/output/Client/js/Pather.Client.js:361:11)
+    at delegate [as onMessage] (/usr/local/src/MultiplayerPathFindingEngine/output/Client/libs/mscorlib.js:2072:22)
+
+
+
+
+
+
+
+TypeError: Cannot call method 'removeUserFromGameSegment' of null
+    at ss.initClass.userLeft (/usr/local/src/MultiplayerPathFindingEngine/output/Server/js/Pather.Servers.js:3334:37)
+    at null.<anonymous> (/usr/local/src/MultiplayerPathFindingEngine/output/Server/js/Pather.Servers.js:3747:19)
+    at delegate (/usr/local/src/MultiplayerPathFindingEngine/output/Server/libs/mscorlib.js:2072:22)
+    at ss.registerGenericClassInstance.$resolve (/usr/local/src/MultiplayerPathFindingEngine/output/Server/js/Pather.Common.js:2292:6)
+    at ss.registerGenericClassInstance.resolve (/usr/local/src/MultiplayerPathFindingEngine/output/Server/js/Pather.Common.js:2239:18)
+    at null._onTimeout (/usr/local/src/MultiplayerPathFindingEngine/output/Server/js/Pather.Servers.js:2512:13)
+    at Timer.listOnTimeout [as ontimeout] (timers.js:112:15)
+
+
+
+
+usr/local/src/MultiplayerPathFindingEngine/output/Server/js/Pather.Servers.js:3459
+                                var $t3 = oldGameSegment.gameSegmentId;
+                                                        ^
+TypeError: Cannot read property 'gameSegmentId' of null
+    at ss.initClass.reorganize (/usr/local/src/MultiplayerPathFindingEngine/output/Server/js/Pather.Servers.js:3459:29)
+    at delegate (/usr/local/src/MultiplayerPathFindingEngine/output/Server/libs/mscorlib.js:2072:22)
+    at wrapper [as _onTimeout] (timers.js:261:14)
+    at Timer.listOnTimeout [as ontimeout] (timers.js:112:15)

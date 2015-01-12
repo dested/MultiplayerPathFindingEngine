@@ -95,7 +95,7 @@ namespace Pather.Servers.GameSegmentServer
                 case TellGameSegmentActionType.MoveEntity:
                     var moveEntity = (MoveEntity_TellGameSegmentAction) action;
                     ((ServerGameUser) ActiveEntities[action.EntityId]).SetPointInTime(moveEntity.X, moveEntity.Y, moveEntity.LockstepTick);
-                    Global.Console.Log("Got tell move action from gamesegment");
+//                    Global.Console.Log("Got tell move action from gamesegment");
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

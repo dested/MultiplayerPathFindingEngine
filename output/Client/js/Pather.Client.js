@@ -63,8 +63,7 @@
 		//todo stub out properly idiot
 		if (Pather.Common.Constants.get_testServer()) {
 			var http = require('http');
-			var options = { port: port, path: url, method: 'get' };
-			http.request(options, function(res) {
+			http.request(url, function(res) {
 				res.setEncoding('utf8');
 				res.on('data', function(chunk) {
 					callback(chunk);
@@ -475,12 +474,12 @@
 			ss.arrayAddRange(this.path, Pather.Common.Utils.EnumerableExtensions.select(astar.search(graph, start, end), function(a) {
 				return Pather.Common.Definitions.AStar.AStarLockstepPath.$ctor(a.x, a.y);
 			}));
-			console.log('Path', JSON.stringify(this.path));
+			//            Global.Console.Log("Path", Json.Stringify(Path));
 		},
 		setPath: function(path) {
 			ss.clear(this.path);
 			ss.arrayAddRange(this.path, path);
-			console.log('Path', JSON.stringify(this.path));
+			//            Global.Console.Log("Path", Json.Stringify(Path));
 		}
 	}, Pather.Common.GameFramework.GameUser, [$Pather_Client_GameFramework_IClientGameEntity]);
 	ss.initClass($Pather_Client_GameFramework_FrontEndTickManager, $asm, {
@@ -544,7 +543,7 @@
 			if (!this.stepActionsTicks.containsKey(action.lockstepTick)) {
 				if (action.lockstepTick <= this.$game.tickManager.lockstepTickNumber) {
 					this.processClientAction(action);
-					console.log('Misprocess of action count', ++this.$misprocess, this.$game.tickManager.lockstepTickNumber - action.lockstepTick);
+					console.log('Misprocess of action count', ++this.$misprocess, 'Tick number:', this.$game.tickManager.lockstepTickNumber - action.lockstepTick);
 					return;
 				}
 				this.stepActionsTicks.set_item(action.lockstepTick, []);

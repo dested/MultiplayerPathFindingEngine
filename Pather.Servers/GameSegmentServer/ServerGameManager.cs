@@ -225,7 +225,7 @@ namespace Pather.Servers.GameSegmentServer
 
         private void onMessageTransferGameUser(TransferUser_GameSegment_GameSegment_PubSub_Message message)
         {
-            Global.Console.Log(message, serverGame.ActiveEntities.List);
+//            Global.Console.Log(message, serverGame.ActiveEntities.List);
             var user = ((ServerGameUser) serverGame.ActiveEntities[message.UserId]);
             user.GameSegment.UserLeft(user.EntityId);
             MyGameSegment.UserJoin(user);
@@ -238,7 +238,7 @@ namespace Pather.Servers.GameSegmentServer
 
         private void onMessageReorganizeGameSegment(ReorganizeUser_GameWorld_GameSegment_PubSub_Message message)
         {
-            Global.Console.Log("Reorganizing user:", message.UserId, message.SwitchAtLockstepNumber);
+//            Global.Console.Log("Reorganizing user:", message.UserId, message.SwitchAtLockstepNumber);
 
             foreach (var gameSegment in AllGameSegments.List)
             {

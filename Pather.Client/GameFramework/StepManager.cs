@@ -30,7 +30,7 @@ namespace Pather.Client.GameFramework
                 if (action.LockstepTick <= game.tickManager.LockstepTickNumber)
                 {
                     ProcessClientAction(action);
-                    Global.Console.Log("Misprocess of action count", ++misprocess, game.tickManager.LockstepTickNumber - action.LockstepTick);
+                    Global.Console.Log("Misprocess of action count", ++misprocess, "Tick number:",game.tickManager.LockstepTickNumber - action.LockstepTick);
                     return;
                 }
                 StepActionsTicks[action.LockstepTick] = new List<ClientAction>();

@@ -38,7 +38,7 @@ namespace Pather.Servers.GameSegmentServer
                 Y = point.Y;
 
                 LockstepMovePoints.Remove(lockstepTickNumber);
-                Global.Console.Log(EntityId, X, Y, LockstepMovePoints.Count, lockstepTickNumber);
+//                Global.Console.Log(EntityId, X, Y, LockstepMovePoints.Count, lockstepTickNumber);
             }
 
             for (var index = InProgressActions.Count - 1; index >= 0; index--)
@@ -78,7 +78,7 @@ namespace Pather.Servers.GameSegmentServer
             };
 
             var lockstepTickNumber = ProjectMovement(x, y, destinationAction.LockstepTick, path);
-            Global.Console.Log("Move entity on path:", moveEntityOnPathAction);
+//            Global.Console.Log("Move entity on path:", moveEntityOnPathAction);
             InProgressActions.Add(new InProgressClientAction(moveEntityOnPathAction, lockstepTickNumber));
 
             return lockstepTickNumber;

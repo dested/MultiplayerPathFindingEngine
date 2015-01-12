@@ -33,7 +33,7 @@ namespace Pather.Servers.GameWorldServer.Models
                 Y = point.Y;
 
                 LockstepMovePoints.Remove(lockstepTickNumber);
-                Global.Console.Log(UserId, X, Y, LockstepMovePoints.Count, lockstepTickNumber);
+//                Global.Console.Log(UserId, X, Y, LockstepMovePoints.Count, lockstepTickNumber);
             }
         }
 

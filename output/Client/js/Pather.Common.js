@@ -1709,6 +1709,10 @@
 	var $Pather_Common_Utils_ConnectionConstants = function() {
 	};
 	$Pather_Common_Utils_ConnectionConstants.__typeName = 'Pather.Common.Utils.ConnectionConstants';
+	$Pather_Common_Utils_ConnectionConstants.get_production = function() {
+		var production = window.window.Production;
+		return !!production;
+	};
 	global.Pather.Common.Utils.ConnectionConstants = $Pather_Common_Utils_ConnectionConstants;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Utils.DataObject
@@ -2887,7 +2891,7 @@
 		eval("\r\nglobal.$instantiateInterface$=function ($type$) {\r\n    var obj={};\r\n    for(var m in $type$.prototype) {\r\n        obj[m]=function(){throw new Error('Mock interface method '+m+' not overridden');};\r\n    }\r\n    return obj;\r\n}");
 	})();
 	(function() {
-		$Pather_Common_Utils_ConnectionConstants.redisIP = '173.255.211.118';
-		$Pather_Common_Utils_ConnectionConstants.headIP = 'http://96.126.103.76:2222/api/';
+		$Pather_Common_Utils_ConnectionConstants.redisIP = ($Pather_Common_Utils_ConnectionConstants.get_production() ? '173.255.211.118' : '127.0.0.1');
+		$Pather_Common_Utils_ConnectionConstants.headIP = ($Pather_Common_Utils_ConnectionConstants.get_production() ? 'http://96.126.103.76:2222/api/' : 'http://127.0.0.1:2222/api/');
 	})();
 })();

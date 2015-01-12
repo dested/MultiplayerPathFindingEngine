@@ -117,7 +117,7 @@ namespace Pather.Client.GameFramework
             var end = graph.Grid[Utilities.ToSquare(destinationAction.X)][Utilities.ToSquare(destinationAction.Y)];
             Path.Clear();
             Path.AddRange(AStar.Search(graph, start, end).Select(a => new AStarLockstepPath(a.X, a.Y)));
-            Global.Console.Log("Path", Json.Stringify(Path));
+//            Global.Console.Log("Path", Json.Stringify(Path));
         }
 
 
@@ -125,7 +125,7 @@ namespace Pather.Client.GameFramework
         {
             Path.Clear();
             Path.AddRange(path);
-            Global.Console.Log("Path", Json.Stringify(Path));
+//            Global.Console.Log("Path", Json.Stringify(Path));
         }
     }
 }

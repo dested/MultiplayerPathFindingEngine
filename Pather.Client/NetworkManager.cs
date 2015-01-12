@@ -61,14 +61,8 @@ namespace Pather.Client
             if (Constants.TestServer)
             {
                 var http = Global.Require<dynamic>("http");
-                var options = new
-                {
-                    port = port,
-                    path = url,
-                    method = "get"
-                };
 
-                http.request(options, ((Action<dynamic>) ((res) =>
+                http.request(url, ((Action<dynamic>)((res) =>
                 {
                     res.setEncoding("utf8");
                     res.on("data", (Action<string>) ((chunk) =>
