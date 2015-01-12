@@ -47,7 +47,7 @@ namespace Pather.Client.GameFramework
 
         private void onGatewayMessage(Gateway_User_Socket_Message message)
         {
-            Global.Console.Log("Gateway Message", message);
+//            Global.Console.Log("Gateway Message", message);
 
             switch (message.GatewayUserMessageType)
             {
@@ -89,7 +89,7 @@ namespace Pather.Client.GameFramework
             FrontEndTickManager.SetLockStepTick(message.LockstepTickNumber);
         }
 
-        public void Draw(Dictionary<string, CanvasRenderingContext2D> contextCollection, double interpolatedTime)
+        public void Draw(JsDictionary<string, CanvasRenderingContext2D> contextCollection, double interpolatedTime)
         {
             contextCollection["Foreground"].ClearRect(0, 0, Constants.NumberOfSquares * Constants.SquareSize, Constants.NumberOfSquares * Constants.SquareSize);
             DrawBackground(contextCollection["Background"]);

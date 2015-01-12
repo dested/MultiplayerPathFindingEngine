@@ -11,10 +11,8 @@ namespace Pather.Client.Utils
     {
         public SocketIOClient Socket;
 
-        public ClientCommunicator(string url = null)
+        public ClientCommunicator(string url )
         {
-//            var url = "http://198.211.107.101:8991";
-            url = url ?? "http://127.0.0.1:8991";
 
             if (Constants.TestServer)
             {

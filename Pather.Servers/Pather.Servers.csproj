@@ -34,7 +34,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AuthServer\AuthServer.cs" />
-    <Compile Include="Common\ConnectionConstants.cs" />
     <Compile Include="Common\PubSub\IPubSub.cs" />
     <Compile Include="Common\PubSub\PubSub.cs" />
     <Compile Include="Common\PubSub\PubSubChannels.cs" />
@@ -133,7 +132,6 @@
     <Compile Include="Utils\ServerHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

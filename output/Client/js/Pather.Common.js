@@ -64,30 +64,6 @@
 	};
 	global.Pather.Common.Constants = $Pather_Common_Constants;
 	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.SocketChannels
-	var $Pather_Common_SocketChannels = function() {
-	};
-	$Pather_Common_SocketChannels.__typeName = 'Pather.Common.SocketChannels';
-	$Pather_Common_SocketChannels.clientChannel = function(c) {
-		return 'Client.' + c;
-	};
-	$Pather_Common_SocketChannels.serverChannel = function(c) {
-		return 'Server.' + c;
-	};
-	global.Pather.Common.SocketChannels = $Pather_Common_SocketChannels;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.SocketChannels.Client
-	var $Pather_Common_SocketChannels$Client = function() {
-	};
-	$Pather_Common_SocketChannels$Client.__typeName = 'Pather.Common.SocketChannels$Client';
-	global.Pather.Common.SocketChannels$Client = $Pather_Common_SocketChannels$Client;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.SocketChannels.Server
-	var $Pather_Common_SocketChannels$Server = function() {
-	};
-	$Pather_Common_SocketChannels$Server.__typeName = 'Pather.Common.SocketChannels$Server';
-	global.Pather.Common.SocketChannels$Server = $Pather_Common_SocketChannels$Server;
-	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Definitions.AStar.AStarLockstepPath
 	var $Pather_Common_Definitions_AStar_AStarLockstepPath = function() {
 	};
@@ -1729,6 +1705,12 @@
 	$Pather_Common_Utils_AnimationStep.__typeName = 'Pather.Common.Utils.AnimationStep';
 	global.Pather.Common.Utils.AnimationStep = $Pather_Common_Utils_AnimationStep;
 	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Utils.ConnectionConstants
+	var $Pather_Common_Utils_ConnectionConstants = function() {
+	};
+	$Pather_Common_Utils_ConnectionConstants.__typeName = 'Pather.Common.Utils.ConnectionConstants';
+	global.Pather.Common.Utils.ConnectionConstants = $Pather_Common_Utils_ConnectionConstants;
+	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Utils.DataObject
 	var $Pather_Common_Utils_DataObject$1 = function(T) {
 		var $type = function() {
@@ -2531,9 +2513,6 @@
 	global.Pather.Common.Utils.Promises.UndefinedPromiseError = $Pather_Common_Utils_Promises_UndefinedPromiseError;
 	ss.initClass($Pather_$Common_TestFramework_TestFramework$TestProgressCounter, $asm, {});
 	ss.initClass($Pather_Common_Constants, $asm, {});
-	ss.initClass($Pather_Common_SocketChannels, $asm, {});
-	ss.initEnum($Pather_Common_SocketChannels$Client, $asm, { postAction: 'postAction', joinPlayer: 'joinPlayer', ping: 'ping' }, true);
-	ss.initEnum($Pather_Common_SocketChannels$Server, $asm, { connect: 'connect', postAction: 'postAction', playerSync: 'playerSync', pong: 'pong', syncLockstep: 'syncLockstep' }, true);
 	ss.initClass($Pather_Common_Definitions_AStar_AStarLockstepPath, $asm, {});
 	ss.initClass($Pather_Common_GameFramework_Game, $asm, {
 		init: function(grid, lockstepTickNumber, serverLatency) {
@@ -2720,6 +2699,7 @@
 	});
 	ss.initClass($Pather_Common_Utils_Point, $asm, {});
 	ss.initClass($Pather_Common_Utils_AnimationStep, $asm, {}, $Pather_Common_Utils_Point);
+	ss.initClass($Pather_Common_Utils_ConnectionConstants, $asm, {});
 	ss.initClass($Pather_Common_Utils_EnumerableExtensions, $asm, {});
 	ss.initClass($Pather_Common_Utils_IntPoint, $asm, {});
 	ss.initClass($Pather_Common_Utils_Lerper, $asm, {});
@@ -2905,5 +2885,9 @@
 	(function() {
 		eval('\r\nglobal.$overwiteMethodCallForMocker$=function ($call$,$overwrite$) {\r\n    var $targets$=$call$._targets[0];\r\n    for(var m in $targets$) {\r\n        if($targets$[m]==$call$._targets[1]) {\r\n            $targets$[m]=$overwrite$;\r\n        }\r\n    }\r\n}');
 		eval("\r\nglobal.$instantiateInterface$=function ($type$) {\r\n    var obj={};\r\n    for(var m in $type$.prototype) {\r\n        obj[m]=function(){throw new Error('Mock interface method '+m+' not overridden');};\r\n    }\r\n    return obj;\r\n}");
+	})();
+	(function() {
+		$Pather_Common_Utils_ConnectionConstants.redisIP = '173.255.211.118';
+		$Pather_Common_Utils_ConnectionConstants.headIP = 'http://96.126.103.76:2222/api/';
 	})();
 })();

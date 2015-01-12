@@ -61,11 +61,13 @@ namespace Pather.Client.GameFramework
                 case ClientActionType.Move:
                     var moveAction = (MoveEntity_ClientAction) action;
                     user = (ClientGameUser) ActiveEntities[moveAction.EntityId];
+                    if (user == null) return;
                     user.RePathFind(moveAction);
                     break;
                 case ClientActionType.MoveEntityOnPath:
                     var moveEntityOnPath = (MoveEntityOnPath_ClientAction) action;
                     user = (ClientGameUser) ActiveEntities[moveEntityOnPath.EntityId];
+                    if (user == null) return;
 
                     var removeStart = 0;
                     for (; removeStart < moveEntityOnPath.Path.Count; removeStart++)

@@ -24,7 +24,7 @@
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Client.ClientGameView
 	var $Pather_Client_ClientGameView = function() {
-		this.$contextCollection = new (ss.makeGenericType(ss.Dictionary$2, [String, CanvasRenderingContext2D]))();
+		this.$contextCollection = {};
 		this.clientGameManager = null;
 		this.curTickTime = 0;
 		this.tickNumber = 0;
@@ -49,7 +49,7 @@
 	var $Pather_Client_NetworkManager = function() {
 		this.$clientCommunicator = null;
 		this.onMessage = null;
-		$Pather_Client_NetworkManager.getRequest('http://localhost:2222/api/', 2222, ss.mkdel(this, function(url) {
+		$Pather_Client_NetworkManager.getRequest(Pather.Common.Utils.ConnectionConstants.headIP, 2222, ss.mkdel(this, function(url) {
 			console.log(url);
 			this.$clientCommunicator = new $Pather_Client_Utils_ClientCommunicator(url);
 			this.$clientCommunicator.listenForGatewayMessage(ss.mkdel(this, function(message) {
@@ -162,8 +162,6 @@
 	// Pather.Client.Utils.ClientCommunicator
 	var $Pather_Client_Utils_ClientCommunicator = function(url) {
 		this.socket = null;
-		//            var url = "http://198.211.107.101:8991";
-		url = ss.coalesce(url, 'http://127.0.0.1:8991');
 		if (Pather.Common.Constants.get_testServer()) {
 			this.socket = require('socket.io-client')(url, { reconnection: false, forceNew: true });
 			this.socket.on('connect', function() {
@@ -190,8 +188,8 @@
 				canvas.width = Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize;
 				canvas.height = Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize;
 				var context = ss.cast(canvas.getContext('2d'), CanvasRenderingContext2D);
-				this.$contextCollection.add('Background', backContext);
-				this.$contextCollection.add('Foreground', context);
+				this.$contextCollection['Background'] = backContext;
+				this.$contextCollection['Foreground'] = context;
 				canvas.onmousedown = ss.mkdel(this, function(ev) {
 					var event = ev;
 					this.clientGameManager.moveToLocation(ss.unbox(ss.cast(event.offsetX, Number)), ss.unbox(ss.cast(event.offsetY, Number)));
@@ -277,12 +275,18 @@
 				case 'move': {
 					var moveAction = action;
 					user = ss.cast(this.activeEntities.get_item(moveAction.entityId), $Pather_Client_GameFramework_ClientGameUser);
+					if (ss.isNullOrUndefined(user)) {
+						return;
+					}
 					user.rePathFind(moveAction);
 					break;
 				}
 				case 'moveEntityOnPath': {
 					var moveEntityOnPath = action;
 					user = ss.cast(this.activeEntities.get_item(moveEntityOnPath.entityId), $Pather_Client_GameFramework_ClientGameUser);
+					if (ss.isNullOrUndefined(user)) {
+						return;
+					}
 					var removeStart = 0;
 					for (; removeStart < moveEntityOnPath.path.length; removeStart++) {
 						var aStarLockstepPath = moveEntityOnPath.path[removeStart];
@@ -337,7 +341,7 @@
 			$t2.sendClientAction($t1);
 		},
 		$onGatewayMessage: function(message) {
-			console.log('Gateway Message', message);
+			//            Global.Console.Log("Gateway Message", message);
 			switch (message.gatewayUserMessageType) {
 				case 'pong': {
 					var pongMessage = message;
@@ -373,9 +377,9 @@
 			this.frontEndTickManager.setLockStepTick(message.lockstepTickNumber);
 		},
 		draw: function(contextCollection, interpolatedTime) {
-			contextCollection.get_item('Foreground').clearRect(0, 0, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize);
-			this.$drawBackground(contextCollection.get_item('Background'));
-			this.clientGame.drawEntities(contextCollection.get_item('Foreground'), interpolatedTime);
+			contextCollection['Foreground'].clearRect(0, 0, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize);
+			this.$drawBackground(contextCollection['Background']);
+			this.clientGame.drawEntities(contextCollection['Foreground'], interpolatedTime);
 		},
 		$drawBackground: function(context) {
 			context.clearRect(0, 0, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize);
@@ -405,7 +409,7 @@
 			if (ss.isNullOrUndefined(nextPathPoint)) {
 				return;
 			}
-			console.log(this.entityId, this.x, this.y, this.game.tickManager.lockstepTickNumber);
+			//            Global.Console.Log(EntityId, X, Y, game.tickManager.LockstepTickNumber);
 			var halfSquareSize = ss.Int32.div(Pather.Common.Constants.squareSize, 2);
 			var animationDividedSpeed = this.speed / Pather.Common.Constants.numberOfAnimationSteps;
 			var projectedX = nextPathPoint.x * Pather.Common.Constants.squareSize + halfSquareSize;

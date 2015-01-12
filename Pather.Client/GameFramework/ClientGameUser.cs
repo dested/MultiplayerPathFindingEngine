@@ -33,7 +33,7 @@ namespace Pather.Client.GameFramework
             var nextPathPoint = Path[0];
             if (nextPathPoint == null) return;
 
-            Global.Console.Log(EntityId, X, Y, game.tickManager.LockstepTickNumber);
+//            Global.Console.Log(EntityId, X, Y, game.tickManager.LockstepTickNumber);
             var halfSquareSize = Constants.SquareSize/2;
             var animationDividedSpeed = (Speed/Constants.NumberOfAnimationSteps);
 

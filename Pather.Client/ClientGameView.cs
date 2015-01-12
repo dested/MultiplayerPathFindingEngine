@@ -10,8 +10,8 @@ namespace Pather.Client
 {
     public class ClientGameView
     {
-        private readonly Dictionary<string, CanvasRenderingContext2D> contextCollection =
-            new Dictionary<string, CanvasRenderingContext2D>();
+        private readonly JsDictionary<string, CanvasRenderingContext2D> contextCollection =
+            new JsDictionary<string, CanvasRenderingContext2D>();
 
         public readonly ClientGameManager ClientGameManager;
 
@@ -41,8 +41,8 @@ namespace Pather.Client
                 canvas.Width = Constants.NumberOfSquares * Constants.SquareSize;
                 canvas.Height = Constants.NumberOfSquares * Constants.SquareSize;
                 var context = (CanvasRenderingContext2D)canvas.GetContext(CanvasContextId.Render2D);
-                contextCollection.Add("Background", backContext);
-                contextCollection.Add("Foreground", context);
+                contextCollection["Background"] = backContext;
+                contextCollection["Foreground"] = context;
                 canvas.OnMousedown = (ev) =>
                 {
                     var @event = (dynamic) ev;

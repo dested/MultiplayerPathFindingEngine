@@ -16,7 +16,8 @@ namespace Pather.Client
 
         public NetworkManager()
         {
-            GetRequest("http://localhost:2222/api/", 2222, (url) =>
+            
+            GetRequest(ConnectionConstants.HeadIP, 2222, (url) =>
             {
                 Global.Console.Log(url);
 

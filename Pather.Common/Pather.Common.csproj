@@ -108,6 +108,7 @@
     <Compile Include="Models\Gateway\Socket\Base\UserJoined_User_Gateway_Socket_Message.cs" />
     <Compile Include="Models\Gateway\Socket\Base\User_Gateway_Socket_MessageType.cs" />
     <Compile Include="Models\Gateway\Socket\Base\User_Socket_Message.cs" />
+    <Compile Include="Utils\ConnectionConstants.cs" />
     <Compile Include="Utils\DictionaryList.cs" />
     <Compile Include="Utils\IntPoint.cs" />
     <Compile Include="Utils\TickManager.cs" />
@@ -192,7 +193,6 @@
     <Compile Include="Models\Tick\Ping_Tick_PubSub_Message.cs" />
     <Compile Include="Models\Tick\Base\Tick_PubSub_MessageType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SocketChannels.cs" />
     <Compile Include="TestFramework\Assert.cs" />
     <Compile Include="TestFramework\AssertException.cs" />
     <Compile Include="TestFramework\DeferredAssert.cs" />
@@ -213,7 +213,6 @@
     <Compile Include="Utils\Promises\UndefinedPromiseError.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

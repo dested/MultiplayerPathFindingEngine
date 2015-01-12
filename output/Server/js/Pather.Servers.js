@@ -200,12 +200,6 @@ var $Pather_Servers_Common_BackEndTickManager = function() {
 $Pather_Servers_Common_BackEndTickManager.__typeName = 'Pather.Servers.Common.BackEndTickManager';
 global.Pather.Servers.Common.BackEndTickManager = $Pather_Servers_Common_BackEndTickManager;
 ////////////////////////////////////////////////////////////////////////////////
-// Pather.Servers.Common.ConnectionConstants
-var $Pather_Servers_Common_ConnectionConstants = function() {
-};
-$Pather_Servers_Common_ConnectionConstants.__typeName = 'Pather.Servers.Common.ConnectionConstants';
-global.Pather.Servers.Common.ConnectionConstants = $Pather_Servers_Common_ConnectionConstants;
-////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.Common.ServerCommunicator
 var $Pather_Servers_Common_ServerCommunicator = function(socketManager, port) {
 	this.$socketManager = null;
@@ -2227,7 +2221,6 @@ ss.initClass($Pather_Servers_Common_BackEndTickManager, $asm, {
 		this.$onTickManagerReady();
 	}
 }, Pather.Common.Utils.TickManager);
-ss.initClass($Pather_Servers_Common_ConnectionConstants, $asm, {});
 ss.initClass($Pather_Servers_Common_ServerCommunicator, $asm, {
 	listenOnChannel: function(T) {
 		return function(socket, channel, callback) {
@@ -2261,8 +2254,8 @@ ss.initClass($Pather_Servers_Common_PubSub_PubSub, $asm, {
 		this.$subbed = {};
 		var redis = require('redis');
 		redis.debug_mode = false;
-		this.$subClient = redis.createClient(port, $Pather_Servers_Common_ConnectionConstants.redisIP);
-		this.$pubClient = redis.createClient(port, $Pather_Servers_Common_ConnectionConstants.redisIP);
+		this.$subClient = redis.createClient(port, Pather.Common.Utils.ConnectionConstants.redisIP);
+		this.$pubClient = redis.createClient(port, Pather.Common.Utils.ConnectionConstants.redisIP);
 		this.$subClient.on('subscribe', function(channel, count) {
 			Pather.Common.Utils.Logger.log('subscribed: ' + channel + ' ' + count, 'information');
 		});
@@ -2387,8 +2380,8 @@ ss.initClass($Pather_Servers_Common_PushPop_PushPop, $asm, {
 		var deferred = Pather.Common.Utils.Promises.Q.defer();
 		var redis = require('redis');
 		redis.debug_mode = false;
-		this.$pushClient = redis.createClient(6379, $Pather_Servers_Common_ConnectionConstants.redisIP);
-		this.$popClient = redis.createClient(6379, $Pather_Servers_Common_ConnectionConstants.redisIP);
+		this.$pushClient = redis.createClient(6379, Pather.Common.Utils.ConnectionConstants.redisIP);
+		this.$popClient = redis.createClient(6379, Pather.Common.Utils.ConnectionConstants.redisIP);
 		this.$pushClient.on('ready', ss.mkdel(this, function() {
 			this.$pushReady = true;
 			if (this.$pushReady && this.$popReady) {
@@ -3329,19 +3322,22 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 		var gwUser = this.users.get_item(dbUser.userId);
 		if (ss.isNullOrUndefined(gwUser)) {
 			console.log('IDK WHO THIS USER IS', dbUser);
-			throw new ss.Exception('IDK WHO THIS USER IS');
+			deferred.reject();
+			//                throw new Exception("IDK WHO THIS USER IS");
 		}
-		var promises = Pather.Common.Utils.EnumerableExtensions.select(Pather.Common.Utils.EnumerableExtensions.where$1(this.gameSegments.list, function(seg) {
-			return !ss.referenceEquals(seg, gwUser.gameSegment);
-		}), function(seg1) {
-			return seg1.tellSegmentAboutRemoveUser(gwUser);
-		});
-		promises.push(gwUser.gameSegment.removeUserFromGameSegment(gwUser));
-		Pather.Common.Utils.Promises.Q.all$2(promises).then(ss.mkdel(this, function() {
-			this.users.remove(gwUser);
-			console.log('User left', gwUser.userId);
-			deferred.resolve();
-		}));
+		else {
+			var promises = Pather.Common.Utils.EnumerableExtensions.select(Pather.Common.Utils.EnumerableExtensions.where$1(this.gameSegments.list, function(seg) {
+				return !ss.referenceEquals(seg, gwUser.gameSegment);
+			}), function(seg1) {
+				return seg1.tellSegmentAboutRemoveUser(gwUser);
+			});
+			promises.push(gwUser.gameSegment.removeUserFromGameSegment(gwUser));
+			Pather.Common.Utils.Promises.Q.all$2(promises).then(ss.mkdel(this, function() {
+				this.users.remove(gwUser);
+				console.log('User left', gwUser.userId);
+				deferred.resolve();
+			}));
+		}
 		return deferred.promise;
 	},
 	$determineGameSegment: function(gwUser) {
@@ -4956,9 +4952,6 @@ ss.setMetadata($Pather_Servers_GatewayServer_Tests_GatewayServerTests, { attr: [
 	$Pather_Servers_Common_PubSub_PubSubChannels.$gateway = 'Gateway';
 	$Pather_Servers_Common_PubSub_PubSubChannels.$headServer = 'Head';
 	$Pather_Servers_Common_PubSub_PubSubChannels.$serverManager = 'ServerManager';
-})();
-(function() {
-	$Pather_Servers_Common_ConnectionConstants.redisIP = '127.0.0.1';
 })();
 (function() {
 	$Pather_Servers_Common_ServerLogging_ServerLogger.$pubsub = null;

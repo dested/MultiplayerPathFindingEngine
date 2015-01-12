@@ -62,24 +62,27 @@ namespace Pather.Servers.GameWorldServer
             if (gwUser == null)
             {
                 Global.Console.Log("IDK WHO THIS USER IS", dbUser);
-                throw new Exception("IDK WHO THIS USER IS");
+                deferred.Reject();
+                //                throw new Exception("IDK WHO THIS USER IS");
             }
+            else
+            {
 
 
-            var promises = GameSegments.List
-                .Where(seg => seg != gwUser.GameSegment)
-                .Select(seg => seg.TellSegmentAboutRemoveUser(gwUser));
+                var promises = GameSegments.List
+                    .Where(seg => seg != gwUser.GameSegment)
+                    .Select(seg => seg.TellSegmentAboutRemoveUser(gwUser));
 
-            promises.Add(gwUser.GameSegment.RemoveUserFromGameSegment(gwUser));
+                promises.Add(gwUser.GameSegment.RemoveUserFromGameSegment(gwUser));
 
-            Q.All(promises)
-                .Then(() =>
-                {
-                    Users.Remove(gwUser);
-                    Global.Console.Log("User left", gwUser.UserId);
-                    deferred.Resolve();
-                });
-
+                Q.All(promises)
+                    .Then(() =>
+                    {
+                        Users.Remove(gwUser);
+                        Global.Console.Log("User left", gwUser.UserId);
+                        deferred.Resolve();
+                    });
+            }
 
             return deferred.Promise;
         }
