@@ -46,6 +46,8 @@ ignore ping/lockstep/keepalive in pubsub
 '/ change gamesegmentcluster to new pubsub model
 
 
+look into jump point path finding
+
 
 attempt to sanatize common so not to deploy unneeded shit, like ip addresses
 

@@ -31,8 +31,8 @@
 	global.GameLogic.Client.IClientGameEntity = $GameLogic_Client_IClientGameEntity;
 	////////////////////////////////////////////////////////////////////////////////
 	// GameLogic.Client.LogicClientGame
-	var $GameLogic_Client_LogicClientGame = function(frontEndTickManager) {
-		Pather.Client.GameFramework.ClientGame.call(this, frontEndTickManager);
+	var $GameLogic_Client_LogicClientGame = function(frontEndTickManager, networkManager) {
+		Pather.Client.GameFramework.ClientGame.call(this, frontEndTickManager, networkManager);
 	};
 	$GameLogic_Client_LogicClientGame.__typeName = 'GameLogic.Client.LogicClientGame';
 	global.GameLogic.Client.LogicClientGame = $GameLogic_Client_LogicClientGame;
@@ -65,12 +65,16 @@
 		createClientGameManager: function() {
 			return new $GameLogic_Client_LogicClientGameManager(this);
 		},
-		createClientGame: function(frontEndTickManager) {
-			return new $GameLogic_Client_LogicClientGame(frontEndTickManager);
+		createClientGame: function(frontEndTickManager, networkManager) {
+			return new $GameLogic_Client_LogicClientGame(frontEndTickManager, networkManager);
 		}
 	}, null, [Pather.Client.Utils.IClientInstantiateLogic]);
 	ss.initInterface($GameLogic_Client_IClientGameEntity, $asm, { draw: null });
 	ss.initClass($GameLogic_Client_LogicClientGame, $asm, {
+		initializeGameBoard: function(grid) {
+			this.board = new GameLogic.Common.LogicGameBoard();
+			this.board.init$1(grid);
+		},
 		createGameUser: function(userId) {
 			return new $GameLogic_Client_LogicClientGameUser(this, userId);
 		},
@@ -80,6 +84,67 @@
 				context.save();
 				entity.draw(context, interpolatedTime);
 				context.restore();
+			}
+		},
+		clickLocation: function(x, y) {
+			var clickSquareX = Pather.Common.Utils.Utilities.toSquare(x);
+			var clickSquareY = Pather.Common.Utils.Utilities.toSquare(y);
+			var squareX = Pather.Common.Utils.Utilities.toSquare(this.myUser.x);
+			var squareY = Pather.Common.Utils.Utilities.toSquare(this.myUser.y);
+			var distance = Pather.Common.Utils.Utilities.pointDistance(clickSquareX, clickSquareY, squareX, squareY);
+			var item = ss.cast(this.board, GameLogic.Common.LogicGameBoard).getAtXY(clickSquareX, clickSquareY);
+			switch (item.type) {
+				case 'tree': {
+					if (distance < 2) {
+						var $t2 = this.networkManager;
+						var $t1 = GameLogic.Common.CutTree_CustomLogicAction_GameSegmentAction.$ctor();
+						$t1.treeX = Pather.Common.Utils.Utilities.toSquare(x);
+						$t1.treeY = Pather.Common.Utils.Utilities.toSquare(y);
+						$t1.lockstepTick = this.tickManager.lockstepTickNumber + 1;
+						$t2.sendClientAction($t1);
+					}
+					break;
+				}
+				case 'wall': {
+					break;
+				}
+				case 'empty': {
+					if (distance < 20) {
+						var $t4 = this.networkManager;
+						var $t3 = Pather.Common.Models.Common.Actions.GameSegmentAction.MoveEntity_GameSegmentAction.$ctor();
+						$t3.x = x;
+						$t3.y = y;
+						$t3.lockstepTick = this.tickManager.lockstepTickNumber + 1;
+						$t4.sendClientAction($t3);
+					}
+					break;
+				}
+				default: {
+					throw new ss.ArgumentOutOfRangeException();
+				}
+			}
+		},
+		processLogicAction: function(logicAction) {
+			var customLogicAction = logicAction;
+			var logicGameBoard = ss.cast(this.board, GameLogic.Common.LogicGameBoard);
+			switch (customLogicAction.logicActionType) {
+				case 0: {
+					var cutTreeAction = customLogicAction;
+					var item = logicGameBoard.getAtXY(cutTreeAction.treeX, cutTreeAction.treeY);
+					if (item.type === 'tree') {
+						if (item.value <= 10) {
+							logicGameBoard.changePoint(GameLogic.Common.LogicGridItem.$ctor('empty', -2147483648), cutTreeAction.treeX, cutTreeAction.treeY);
+						}
+						else {
+							item.value -= 10;
+							logicGameBoard.changePoint(item, cutTreeAction.treeX, cutTreeAction.treeY);
+						}
+					}
+					break;
+				}
+				default: {
+					throw new ss.ArgumentOutOfRangeException();
+				}
 			}
 		}
 	}, Pather.Client.GameFramework.ClientGame);
@@ -92,17 +157,47 @@
 		$drawBackground: function(context) {
 			context.clearRect(0, 0, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize);
 			context.save();
-			context.fillStyle = 'black';
+			context.fillStyle = '#83EFEF';
 			context.fillRect(0, 0, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize);
-			context.fillStyle = 'blue';
 			for (var y = 0; y < Pather.Common.Constants.numberOfSquares; y++) {
 				for (var x = 0; x < Pather.Common.Constants.numberOfSquares; x++) {
-					if (this.clientGame.board.grid[x][y] === 0) {
-						context.fillRect(x * Pather.Common.Constants.squareSize, y * Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
+					var item = ss.cast(this.clientGame.board, GameLogic.Common.LogicGameBoard).logicGrid[x][y];
+					switch (item.type) {
+						case 'tree': {
+							context.fillStyle = this.blendColors('#45AD7B', '#83EFEF', 1 - item.value / 100);
+							context.fillRect(x * Pather.Common.Constants.squareSize, y * Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
+							break;
+						}
+						case 'wall': {
+							context.fillStyle = '#D3D3D3';
+							context.fillRect(x * Pather.Common.Constants.squareSize, y * Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
+							break;
+						}
+						case 'empty': {
+							break;
+						}
+						default: {
+							throw new ss.ArgumentOutOfRangeException();
+						}
 					}
 				}
 			}
 			context.restore();
+		},
+		clickLocation: function(x, y) {
+			ss.cast(this.clientGame, $GameLogic_Client_LogicClientGame).clickLocation(x, y);
+		},
+		blendColors: function(c0, c1, p) {
+			var f = parseInt(c0.substr(1), 16);
+			var t = parseInt(c1.substr(1), 16);
+			var R1 = f >> 16;
+			var G1 = f >> 8 & 255;
+			var B1 = f & 255;
+			var R2 = t >> 16;
+			var G2 = t >> 8 & 255;
+			var B2 = t & 255;
+			var d = 16777216 + (ss.Int32.trunc(Math.round((R2 - R1) * p)) + R1) * 65536 + (ss.Int32.trunc(Math.round((G2 - G1) * p)) + G1) * 256 + (ss.Int32.trunc(Math.round((B2 - B1) * p)) + B1);
+			return '#' + d.toString(16).substr(1);
 		}
 	}, Pather.Client.GameFramework.ClientGameManager);
 	ss.initClass($GameLogic_Client_LogicClientGameUser, $asm, {
@@ -189,7 +284,7 @@
 				this.$contextCollection['Foreground'] = context;
 				canvas.onmousedown = ss.mkdel(this, function(ev) {
 					var event = ev;
-					this.clientGameManager.moveToLocation(ss.unbox(ss.cast(event.offsetX, Number)), ss.unbox(ss.cast(event.offsetY, Number)));
+					ss.cast(this.clientGameManager, $GameLogic_Client_LogicClientGameManager).clickLocation(ss.unbox(ss.cast(event.offsetX, Number)), ss.unbox(ss.cast(event.offsetY, Number)));
 				});
 				window.requestAnimationFrame(ss.mkdel(this, function(a) {
 					this.$draw();

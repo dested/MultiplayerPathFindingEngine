@@ -14,4 +14,13 @@ namespace Pather.Common.Models.Common.Actions.ClientActions
         public double X;
         public double Y;
     }
+    [Serializable]
+    public class LogicAction_ClientAction : ClientAction
+    {
+        public LogicAction_ClientAction()
+        {
+            ClientActionType = ClientActionType.LogicAction;
+        }
+
+    }
 }

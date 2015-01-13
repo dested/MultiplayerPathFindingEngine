@@ -1,3 +1,4 @@
+using Pather.Client;
 using Pather.Client.GameFramework;
 using Pather.Client.Utils;
 
@@ -10,9 +11,9 @@ namespace GameLogic.Client
             return new LogicClientGameManager(this);
         }
 
-        public ClientGame CreateClientGame(FrontEndTickManager frontEndTickManager)
+        public ClientGame CreateClientGame(FrontEndTickManager frontEndTickManager, NetworkManager networkManager)
         {
-            return new LogicClientGame(frontEndTickManager);
+            return new LogicClientGame(frontEndTickManager,networkManager);
         }
     }
 }

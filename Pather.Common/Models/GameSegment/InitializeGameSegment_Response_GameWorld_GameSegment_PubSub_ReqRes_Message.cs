@@ -16,7 +16,7 @@ namespace Pather.Common.Models.GameSegment
 
         public List<string> GameSegmentIds;
         public List<InitialGameUser> AllUsers;
-        public int[][] Grid;
+        public string[][] Grid;
         public long LockstepTickNumber;
         public int ServerLatency;
     }

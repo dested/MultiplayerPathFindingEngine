@@ -49,5 +49,16 @@ namespace Pather.Common.Utils
         {
             return (int) (pos/Constants.SquareSize);
         }
+
+        public static double PointDistance(int x1, int y1, int x2, int y2)
+        {
+
+            var x = (x2 - x1);
+            var y = (y2 - y1);
+
+            var dis = Math.Sqrt((x * x) + (y * y));
+            return (dis);
+
+        }
     }
 }

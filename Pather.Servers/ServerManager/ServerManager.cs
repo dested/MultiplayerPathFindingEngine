@@ -167,12 +167,7 @@ namespace Pather.Servers.ServerManager
             var applicationId = Utilities.UniqueId();
 
 
-            Global.Console.Log("Spawning new server");
-            var spawn = Global.Require<ChildProcess>("child_process").Spawn;
-            var fs = Global.Require<FS>("fs");
-            var m = fs.OpenSync("./outcluster.log", "a", null);
-            var @out = fs.OpenSync("./outcluster.log", "a", null);
-            var err = fs.OpenSync("./outcluster.log", "a", null);
+            Global.Console.Log("Spawning new server"); 
 
             PushPop.BlockingPop(applicationId, Constants.GameSegmentCreationWait).Then((content) =>
             {
@@ -187,24 +182,71 @@ namespace Pather.Servers.ServerManager
             });
 
 
-            var str = @"C:\Users\deste_000\AppData\Roaming\npm\node-debug.cmd";
-            str = "node";
-            var child = spawn(str, new[]
+            startApp(new[]
             {
-                "app.js", application, applicationId
-            }, new
-            {
-                stdio = new object[]
-                {
-                    m, @out, err
-                },
-                //                detached = true,
-            });
-
-            //            child.Unref();
+                "", application, applicationId
+            }, "./outcluster.log");
 
 
             return deferred.Promise;
         }
+
+
+        private void startApp(string[] arguments, string logFile)
+        {
+            Global.Console.Log("start app");
+
+
+
+            if (Constants.DontSpawnNewApp)
+            {
+                Global.Console.Log("Fake start app");
+                var serverStarter = new ServerStarter();
+                ((dynamic) arguments).splice(0, 0, "");
+                serverStarter.Start(ServerStarter.InstantiateLogic, arguments);
+
+            }
+            else
+            {
+
+                var spawn = Global.Require<ChildProcess>("child_process").Spawn;
+
+                var fs = Global.Require<FS>("fs");
+                var m = fs.OpenSync(logFile, "a", null);
+                var @out = fs.OpenSync(logFile, "a", null);
+                var err = fs.OpenSync(logFile, "a", null);
+
+
+                var str = @"C:\Users\deste_000\AppData\Roaming\npm\node-debug.cmd";
+                    str = "node";
+
+
+                string appName;
+                if (ConnectionConstants.Production)
+                {
+                    appName = "prod-app.js";
+
+                }
+                else
+                {
+                    appName = "app.js";
+                }
+
+                arguments[0] = appName;
+
+                var child = spawn(str, arguments, new
+                {
+                    stdio = new object[]
+                {
+                    m, @out, err
+                },
+                    //                detached = true,
+                });
+
+                //            child.Unref();
+            }
+
+        }
+
     }
 }

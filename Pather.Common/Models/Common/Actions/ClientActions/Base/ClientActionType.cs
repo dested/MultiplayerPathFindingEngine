@@ -7,6 +7,7 @@ namespace Pather.Common.Models.Common.Actions.ClientActions.Base
     {
         Move,
         UpdateNeighbors,
-        MoveEntityOnPath
+        MoveEntityOnPath,
+        LogicAction
     }
 }

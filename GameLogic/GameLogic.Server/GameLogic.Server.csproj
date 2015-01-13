@@ -35,6 +35,8 @@
   <ItemGroup>
     <Compile Include="InstantiateLogic.cs" />
     <Compile Include="LogicGameWorld.cs" />
+    <Compile Include="LogicServerGame.cs" />
+    <Compile Include="LogicServerGameUser.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -54,6 +56,10 @@
     <ProjectReference Include="..\..\Pather.Servers\Pather.Servers.csproj">
       <Project>{0A604FF9-6A9C-452D-A4FA-4B263FB0E798}</Project>
       <Name>Pather.Servers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\GameLogic.Common\GameLogic.Common.csproj">
+      <Project>{14FA1DD1-88D5-4E27-87EC-FA895DF968C0}</Project>
+      <Name>GameLogic.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" Condition="!Exists('$(SolutionDir)packages\Saltarelle.Compiler.2.6.2\tools\Saltarelle.Compiler.targets')" />

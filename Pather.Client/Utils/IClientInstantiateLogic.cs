@@ -5,6 +5,6 @@ namespace Pather.Client.Utils
     public interface IClientInstantiateLogic
     {
         ClientGameManager CreateClientGameManager();
-        ClientGame CreateClientGame(FrontEndTickManager frontEndTickManager);
+        ClientGame CreateClientGame(FrontEndTickManager frontEndTickManager, NetworkManager networkManager);
     }
 }

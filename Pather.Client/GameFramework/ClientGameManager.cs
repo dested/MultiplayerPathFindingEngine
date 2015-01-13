@@ -29,7 +29,7 @@ namespace Pather.Client.GameFramework
 //                Global.Console.Log("Connected To Tick Server");
             });
 
-            clientGame = clientInstantiateLogic.CreateClientGame(FrontEndTickManager);
+            clientGame = clientInstantiateLogic.CreateClientGame(FrontEndTickManager, NetworkManager);
             FrontEndTickManager.StartPing();
         }
 
@@ -38,15 +38,6 @@ namespace Pather.Client.GameFramework
             NetworkManager.SendPing();
         }
 
-        public void MoveToLocation(double x, double y)
-        {
-            NetworkManager.SendClientAction(new MoveEntity_GameSegmentAction()
-            {
-                X = x,
-                Y = y,
-                LockstepTick = FrontEndTickManager.LockstepTickNumber + 1
-            });
-        }
 
 
         private void onGatewayMessage(Gateway_User_Socket_Message message)
@@ -80,8 +71,8 @@ namespace Pather.Client.GameFramework
 
         private void onUserJoined(UserJoined_Gateway_User_Socket_Message userJoinedMessage)
         {
-            clientGame.Init(userJoinedMessage.Grid, userJoinedMessage.LockstepTickNumber, userJoinedMessage.ServerLatency);
-
+            clientGame.Init(userJoinedMessage.LockstepTickNumber, userJoinedMessage.ServerLatency);
+            clientGame.InitializeGameBoard(userJoinedMessage.Grid);
             clientGame.MyUserJoined(userJoinedMessage.UserId, userJoinedMessage.X, userJoinedMessage.Y);
 
 

@@ -73,9 +73,11 @@
 	global.Pather.Client.NetworkManager = $Pather_Client_NetworkManager;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Client.GameFramework.ClientGame
-	var $Pather_Client_GameFramework_ClientGame = function(tickManager) {
+	var $Pather_Client_GameFramework_ClientGame = function(tickManager, networkManager) {
+		this.networkManager = null;
 		this.stepManager = null;
 		Pather.Common.GameFramework.Game.call(this, tickManager);
+		this.networkManager = networkManager;
 		this.stepManager = new $Pather_Client_GameFramework_StepManager(this);
 		tickManager.onProcessLockstep = ss.delegateCombine(tickManager.onProcessLockstep, ss.mkdel(this.stepManager, this.stepManager.processAction));
 		this.stepManager.processClientAction = ss.delegateCombine(this.stepManager.processClientAction, ss.mkdel(this, this.clientProcessClientAction));
@@ -98,7 +100,7 @@
 		this.frontEndTickManager.init$1(ss.mkdel(this, this.$sendPing), function() {
 			//                Global.Console.Log("Connected To Tick Server");
 		});
-		this.clientGame = clientInstantiateLogic.createClientGame(this.frontEndTickManager);
+		this.clientGame = clientInstantiateLogic.createClientGame(this.frontEndTickManager, this.networkManager);
 		this.frontEndTickManager.startPing();
 	};
 	$Pather_Client_GameFramework_ClientGameManager.__typeName = 'Pather.Client.GameFramework.ClientGameManager';
@@ -146,25 +148,6 @@
 	var $Pather_Client_Tests_LoginE2ETest = function() {
 	};
 	$Pather_Client_Tests_LoginE2ETest.__typeName = 'Pather.Client.Tests.LoginE2ETest';
-	$Pather_Client_Tests_LoginE2ETest.$createUser = function(i) {
-		setTimeout(function() {
-			var receivedCount = 0;
-			var gameClient = new $Pather_Client_ClientGameView(null);
-			gameClient.clientGameManager.onReady = ss.delegateCombine(gameClient.clientGameManager.onReady, function() {
-				var cl = 0;
-				cl = setInterval(function() {
-					if (++receivedCount < 200) {
-						console.log('Moving User ', i, ' again ' + receivedCount);
-						gameClient.clientGameManager.moveToLocation(Math.random() * (Pather.Common.Constants.numberOfSquares - 5) * Pather.Common.Constants.squareSize, Math.random() * (Pather.Common.Constants.numberOfSquares - 5) * Pather.Common.Constants.squareSize);
-					}
-					else {
-						clearTimeout(cl);
-						console.log('Done ' + receivedCount);
-					}
-				}, 4000 + ss.Int32.trunc(Math.random() * 10000));
-			});
-		}, ss.Int32.trunc(Math.random() * 15000));
-	};
 	global.Pather.Client.Tests.LoginE2ETest = $Pather_Client_Tests_LoginE2ETest;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Client.Utils.ClientCommunicator
@@ -216,8 +199,8 @@
 		createClientGameManager: function() {
 			return new $Pather_Client_GameFramework_ClientGameManager(this);
 		},
-		createClientGame: function(frontEndTickManager) {
-			return new $Pather_Client_GameFramework_ClientGame(frontEndTickManager);
+		createClientGame: function(frontEndTickManager, networkManager) {
+			return new $Pather_Client_GameFramework_ClientGame(frontEndTickManager, networkManager);
 		}
 	}, null, [$Pather_Client_Utils_IClientInstantiateLogic]);
 	ss.initClass($Pather_Client_NetworkManager, $asm, {
@@ -266,6 +249,11 @@
 					user.rePathFind(moveAction);
 					break;
 				}
+				case 'logicAction': {
+					var logicAction = action;
+					this.processLogicAction(logicAction);
+					break;
+				}
 				case 'moveEntityOnPath': {
 					var moveEntityOnPath = action;
 					user = ss.cast(this.activeEntities.get_item(moveEntityOnPath.entityId), $Pather_Client_GameFramework_ClientGameUser);
@@ -294,6 +282,8 @@
 				}
 			}
 		},
+		processLogicAction: function(logicAction) {
+		},
 		updateNeighbors: function(added, removed) {
 			for (var $t1 = 0; $t1 < removed.length; $t1++) {
 				var userId = removed[$t1];
@@ -316,14 +306,6 @@
 	ss.initClass($Pather_Client_GameFramework_ClientGameManager, $asm, {
 		$sendPing: function() {
 			this.networkManager.sendPing();
-		},
-		moveToLocation: function(x, y) {
-			var $t2 = this.networkManager;
-			var $t1 = Pather.Common.Models.Common.Actions.GameSegmentAction.MoveEntity_GameSegmentAction.$ctor();
-			$t1.x = x;
-			$t1.y = y;
-			$t1.lockstepTick = this.frontEndTickManager.lockstepTickNumber + 1;
-			$t2.sendClientAction($t1);
 		},
 		$onGatewayMessage: function(message) {
 			//            Global.Console.Log("Gateway Message", message);
@@ -354,7 +336,8 @@
 			this.clientGame.queueClientAction(clientActionGatewayUserSocketMessage.action);
 		},
 		$onUserJoined: function(userJoinedMessage) {
-			this.clientGame.init(userJoinedMessage.grid, userJoinedMessage.lockstepTickNumber, userJoinedMessage.serverLatency);
+			this.clientGame.init(userJoinedMessage.lockstepTickNumber, userJoinedMessage.serverLatency);
+			this.clientGame.initializeGameBoard(userJoinedMessage.grid);
 			this.clientGame.myUserJoined(userJoinedMessage.userId, userJoinedMessage.x, userJoinedMessage.y);
 			this.onReady();
 		},
@@ -463,62 +446,7 @@
 			this.stepActionsTicks.remove(lockstepTickNumber);
 		}
 	});
-	ss.initClass($Pather_Client_Tests_LoginE2ETest, $asm, {
-		connect4: function(deferred) {
-			window.window.NoDraw = true;
-			var clients = [];
-			var $t1 = [];
-			$t1.push(Pather.Common.Utils.Point.$ctor(600, 600));
-			$t1.push(Pather.Common.Utils.Point.$ctor(100, 100));
-			$t1.push(Pather.Common.Utils.Point.$ctor(650, 650));
-			$t1.push(Pather.Common.Utils.Point.$ctor(50, 50));
-			var points = $t1;
-			for (var i = 0; i < 4; i++) {
-				var gameClient = { $: new $Pather_Client_ClientGameView(null) };
-				var point = { $: points[i] };
-				gameClient.$.clientGameManager.onReady = ss.delegateCombine(gameClient.$.clientGameManager.onReady, ss.mkdel({ gameClient: gameClient, point: point }, function() {
-					setTimeout(ss.mkdel({ gameClient: this.gameClient, point: this.point }, function() {
-						this.gameClient.$.clientGameManager.moveToLocation(this.point.$.x, this.point.$.y);
-					}), 1000);
-					setInterval(ss.mkdel({ gameClient: this.gameClient, point: this.point }, function() {
-						this.gameClient.$.clientGameManager.moveToLocation(this.point.$.x, this.point.$.y);
-					}), 10000);
-				}));
-				clients.push(gameClient.$);
-			}
-		},
-		connect5: function(deferred) {
-			window.window.NoDraw = true;
-			var clients = [];
-			var $t1 = [];
-			$t1.push(Pather.Common.Utils.Point.$ctor(600, 600));
-			$t1.push(Pather.Common.Utils.Point.$ctor(25, 25));
-			$t1.push(Pather.Common.Utils.Point.$ctor(650, 650));
-			$t1.push(Pather.Common.Utils.Point.$ctor(200, 200));
-			$t1.push(Pather.Common.Utils.Point.$ctor(50, 50));
-			var points = $t1;
-			for (var i = 0; i < 5; i++) {
-				var gameClient = { $: new $Pather_Client_ClientGameView(null) };
-				var point = { $: points[i] };
-				gameClient.$.clientGameManager.onReady = ss.delegateCombine(gameClient.$.clientGameManager.onReady, ss.mkdel({ gameClient: gameClient, point: point }, function() {
-					setTimeout(ss.mkdel({ gameClient: this.gameClient, point: this.point }, function() {
-						this.gameClient.$.clientGameManager.moveToLocation(this.point.$.x, this.point.$.y);
-					}), 1000 + ss.Int32.trunc(Math.random() * 500));
-					setInterval(ss.mkdel({ gameClient: this.gameClient, point: this.point }, function() {
-						this.gameClient.$.clientGameManager.moveToLocation(this.point.$.x, this.point.$.y);
-					}), 10000);
-				}));
-				clients.push(gameClient.$);
-			}
-		},
-		slam: function(deferred) {
-			window.window.NoDraw = true;
-			var totalHits = 20;
-			for (var i = 0; i < totalHits; i++) {
-				$Pather_Client_Tests_LoginE2ETest.$createUser(i);
-			}
-		}
-	});
+	ss.initClass($Pather_Client_Tests_LoginE2ETest, $asm, {});
 	ss.initClass($Pather_Client_Utils_ClientCommunicator, $asm, {
 		listenForGatewayMessage: function(callback) {
 			this.socket.on('Gateway.Message', function(obj) {
@@ -532,5 +460,5 @@
 			this.socket.disconnect();
 		}
 	});
-	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'Connect4', type: 8, sname: 'connect4', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'Connect5', type: 8, sname: 'connect5', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'Slam', type: 8, sname: 'slam', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
+	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)] });
 })();

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Pather.Common;
+using Pather.Common.GameFramework;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Common.Actions.GameWorldAction;
 using Pather.Common.Models.Common.Actions.GameWorldAction.Base;
@@ -15,6 +16,7 @@ using Pather.Common.Utils.Promises;
 using Pather.Servers.Common;
 using Pather.Servers.Database;
 using Pather.Servers.GameWorldServer.Models;
+using Pather.Servers.Utils;
 
 namespace Pather.Servers.GameWorldServer
 {
@@ -22,16 +24,29 @@ namespace Pather.Servers.GameWorldServer
     {
         public GameWorldPubSub GameWorldPubSub;
         private readonly BackEndTickManager backEndTickManager;
+        private readonly IInstantiateLogic instantiateLogic;
         public DictionaryList<string, GameWorldUser> Users;
         public DictionaryList<string, GameSegment> GameSegments;
+        public GameBoard Board;
 
-        public GameWorld(GameWorldPubSub gameWorldPubSub, BackEndTickManager backEndTickManager)
+
+        public GameWorld(GameWorldPubSub gameWorldPubSub, BackEndTickManager backEndTickManager,IInstantiateLogic instantiateLogic)
         {
             GameWorldPubSub = gameWorldPubSub;
             this.backEndTickManager = backEndTickManager;
+            this.instantiateLogic = instantiateLogic;
             Users = new DictionaryList<string, GameWorldUser>(a => a.UserId);
             GameSegments = new DictionaryList<string, GameSegment>(a => a.GameSegmentId);
             backEndTickManager.OnProcessLockstep += OnProcessLockstep;
+
+
+            Board=instantiateLogic.CreateGameBoard();
+
+        }
+
+        public void Init()
+        {
+            Board.Init();
         }
 
 
@@ -222,14 +237,23 @@ namespace Pather.Servers.GameWorldServer
             switch (gameWorldActionGameSegment.Action.GameWorldActionType)
             {
                 case GameWorldActionType.MoveEntity:
-                    var moveEntity = (MoveEntity_GameWorldAction) gameWorldActionGameSegment.Action;
-//                    Global.Console.Log("Move entity:",moveEntity);
+                    var moveEntity = (MoveEntity_GameWorldAction)gameWorldActionGameSegment.Action;
+                    //                    Global.Console.Log("Move entity:",moveEntity);
                     var user = Users[moveEntity.EntityId];
                     user.SetLockstepMovePoints(moveEntity.LockstepMovePoints);
+                    break;
+                case GameWorldActionType.LogicAction:
+                    var logicAction = (LogicAction_GameWorldAction)gameWorldActionGameSegment.Action;
+                    ProcessLogicAction(logicAction);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public virtual void ProcessLogicAction(LogicAction_GameWorldAction logicAction)
+        {
+
         }
     }
 }

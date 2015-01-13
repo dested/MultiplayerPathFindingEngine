@@ -14,4 +14,12 @@ namespace Pather.Common.Models.Common.Actions.TellGameSegmentAction
         public double X;
         public double Y;
     }
+    [Serializable]
+    public class LogicAction_TellGameSegmentAction : Base.TellGameSegmentAction
+    {
+        public LogicAction_TellGameSegmentAction()
+        {
+            TellGameSegmentActionType = TellGameSegmentActionType.LogicAction;
+        }
+    }
 }

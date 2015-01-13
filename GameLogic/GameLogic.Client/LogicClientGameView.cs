@@ -40,7 +40,7 @@ namespace GameLogic.Client
                 {
                     var @event = (dynamic)ev;
 
-                    ClientGameManager.MoveToLocation(@event.offsetX, @event.offsetY);
+                    ((LogicClientGameManager)ClientGameManager).ClickLocation(@event.offsetX, @event.offsetY);
                 };
 
 

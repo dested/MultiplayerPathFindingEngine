@@ -15,4 +15,12 @@ namespace Pather.Common.Models.Common.Actions.NeighborGameSegmentAction
 
         public JsDictionary<long, Point> LockstepMovePoints;
     }
+    [Serializable]
+    public class LogicAction_NeighborGameSegmentAction : Base.NeighborGameSegmentAction
+    {
+        public LogicAction_NeighborGameSegmentAction()
+        {
+            NeighborGameSegmentActionType = NeighborGameSegmentActionType.LogicAction;
+        }
+    }
 }

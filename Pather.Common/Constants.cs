@@ -44,6 +44,14 @@ namespace Pather.Common
             GameSegmentReorgSwitchLockstepOffset = 2;
 
             ClusterGroupViewRadius = NeighborDistance*5;
+
+
+
+
+
+
+
+            DontSpawnNewApp = true;
         }
 
         public static int NumberOfAnimationSteps;
@@ -78,6 +86,8 @@ namespace Pather.Common
         {
             get { return ((dynamic) Window.Instance).NoDraw; }
         }
+
+        public static bool DontSpawnNewApp;
 
         public static int ClusterGroupViewRadius;
 

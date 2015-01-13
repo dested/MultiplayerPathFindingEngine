@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.ClusterManager;
@@ -20,6 +21,7 @@ namespace Pather.Servers.ClusterManager
 
         public ClusterManager(IPubSub pubsub, IPushPop pushPop, string clusterManagerId)
         {
+            Global.Console.Log("Hi");
             ServerLogger.InitLogger("ClusterManager", clusterManagerId);
             PushPop = pushPop;
             ClusterManagerId = clusterManagerId;
@@ -56,11 +58,7 @@ namespace Pather.Servers.ClusterManager
         private void CreateGateway(CreateGateway_ServerManager_ClusterManager_PubSub_ReqRes_Message createGatewayMessage)
         {
             Global.Console.Log("Spawning new gateway");
-            var spawn = Global.Require<ChildProcess>("child_process").Spawn;
-            var fs = Global.Require<FS>("fs");
-            var m = fs.OpenSync("./outgw.log", "a", null);
-            var @out = fs.OpenSync("./outgw.log", "a", null);
-            var err = fs.OpenSync("./outgw.log", "a", null);
+
 
             PushPop.BlockingPop(createGatewayMessage.GatewayId, Constants.GatewayCreationWait).Then((content) =>
             {
@@ -76,32 +74,11 @@ namespace Pather.Servers.ClusterManager
                 Global.Console.Log("Gateway Server Creation Failed!");
             });
 
-
-            var str = @"C:\Users\deste_000\AppData\Roaming\npm\node-debug.cmd";
-            str = "node";
-            string appName;
-            if (ConnectionConstants.Production)
+            var arguments = new[]
             {
-                appName = "prod-app.js";
-
-            }
-            else
-            {
-                appName = "app.js";
-            }
-            var child = spawn(str, new[]
-            {
-                appName, "gateway", createGatewayMessage.GatewayId, createGatewayMessage.Port.ToString()
-            }, new
-            {
-                stdio = new object[]
-                {
-                    m, @out, err
-                },
-                //                detached = true,
-            });
-
-            //            child.Unref();
+                "", "gateway", createGatewayMessage.GatewayId, createGatewayMessage.Port.ToString()
+            };
+            startApp(arguments, "./outgw.log");
         }
 
         private int count = 0;
@@ -109,11 +86,6 @@ namespace Pather.Servers.ClusterManager
         private void CreateGameSegment(CreateGameSegment_ServerManager_ClusterManager_PubSub_ReqRes_Message createGameSegmentMessage)
         {
             Global.Console.Log("Spawning new game segment");
-            var spawn = Global.Require<ChildProcess>("child_process").Spawn;
-            var fs = Global.Require<FS>("fs");
-            var m = fs.OpenSync("./outgs.log", "a", null);
-            var @out = fs.OpenSync("./outgs.log", "a", null);
-            var err = fs.OpenSync("./outgs.log", "a", null);
 
             PushPop.BlockingPop(createGameSegmentMessage.GameSegmentId, Constants.GameSegmentCreationWait).Then((content) =>
             {
@@ -132,35 +104,70 @@ namespace Pather.Servers.ClusterManager
 
             count++;
 
-            var str = @"C:\Users\deste_000\AppData\Roaming\npm\node-debug.cmd";
-            if (count >= 0)
-                str = "node";
-
-
-            string appName;
-            if (ConnectionConstants.Production)
+            var arguments = new[]
             {
-                appName = "prod-app.js";
+                "", "gamesegment", createGameSegmentMessage.GameSegmentId
+            };
+
+            startApp(arguments, "./outgs.log");
+
+        }
+
+        private void startApp(string[] arguments, string logFile)
+        {
+            Global.Console.Log("start app");
+
+
+
+            if (Constants.DontSpawnNewApp)
+            {
+                Global.Console.Log("Fake start app");
+                var serverStarter = new ServerStarter();
+                ((dynamic)arguments).splice(0, 0, "");
+                serverStarter.Start(ServerStarter.InstantiateLogic, arguments);
 
             }
             else
             {
-                appName = "app.js";
-            }
 
-            var child = spawn(str, new[]
-            {
-                appName, "gamesegment", createGameSegmentMessage.GameSegmentId
-            }, new
-            {
-                stdio = new object[]
+                var spawn = Global.Require<ChildProcess>("child_process").Spawn;
+
+                var fs = Global.Require<FS>("fs");
+                var m = fs.OpenSync(logFile, "a", null);
+                var @out = fs.OpenSync(logFile, "a", null);
+                var err = fs.OpenSync(logFile, "a", null);
+
+
+                var str = @"C:\Users\deste_000\AppData\Roaming\npm\node-debug.cmd";
+                if (count >= 0)
+                    str = "node";
+
+
+                string appName;
+                if (ConnectionConstants.Production)
+                {
+                    appName = "prod-app.js";
+
+                }
+                else
+                {
+                    appName = "app.js";
+                }
+
+                arguments[0] = appName;
+
+                var child = spawn(str, arguments, new
+                {
+                    stdio = new object[]
                 {
                     m, @out, err
                 },
-                //                detached = true,
-            });
+                    //                detached = true,
+                });
 
-            //            child.Unref();
+                //            child.Unref();
+            }
+
         }
     }
 }

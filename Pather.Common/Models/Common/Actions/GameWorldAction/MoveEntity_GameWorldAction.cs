@@ -15,4 +15,13 @@ namespace Pather.Common.Models.Common.Actions.GameWorldAction
 
         public JsDictionary<long, Point> LockstepMovePoints;
     }
+    [Serializable]
+    public class LogicAction_GameWorldAction : Base.GameWorldAction
+    {
+        public LogicAction_GameWorldAction()
+        {
+            GameWorldActionType = GameWorldActionType.LogicAction;
+        }
+
+    }
 }

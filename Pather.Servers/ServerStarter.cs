@@ -15,12 +15,12 @@ namespace Pather.Servers
 {
     public class ServerStarter
     {
-        private IInstantiateLogic instantiateLogic;
+        public static  IInstantiateLogic InstantiateLogic;
 
-        public void Start(IInstantiateLogic instantiateLogic)
+        public void Start(IInstantiateLogic instantiateLogic, string[] arguments)
         {
-            this.instantiateLogic = instantiateLogic;
-            var arg = Global.Process.Arguments[2];
+            InstantiateLogic = instantiateLogic;
+            var arg = arguments[2];
 
             if (string.IsNullOrEmpty(arg))
             {
@@ -34,9 +34,9 @@ namespace Pather.Servers
             {
                 string testClass = null;
 
-                if (!string.IsNullOrEmpty(Global.Process.Arguments[3]))
+                if (!string.IsNullOrEmpty(arguments[3]))
                 {
-                    testClass = Global.Process.Arguments[3];
+                    testClass = arguments[3];
                 }
 
                 TestFramework.RunTests(testClass);
@@ -53,12 +53,12 @@ namespace Pather.Servers
                     dns.lookup(ConnectionConstants.RedisIP, (Action<string, string>)((err, value) =>
                     {
                         ConnectionConstants.RedisIP = value;
-                        ready(arg);
+                        ready(arg,arguments);
                     }));
                 }
                 else
                 {
-                    ready(arg);
+                    ready(arg, arguments);
 
                 }
 
@@ -70,7 +70,7 @@ namespace Pather.Servers
             }
         }
 
-        private  void ready(string server)
+        private  void ready(string server,string[] arguments)
         {
             switch (server)
             {
@@ -84,7 +84,7 @@ namespace Pather.Servers
                     break;
                 case "gt":
                 case "gateway":
-                    createGatewayServer(Global.Process.Arguments[3], int.Parse(Global.Process.Arguments[4]));
+                    createGatewayServer(arguments[3], int.Parse(arguments[4]));
                     break;
                 case "au":
                 case "auth":
@@ -100,11 +100,11 @@ namespace Pather.Servers
                     break;
                 case "cm":
                 case "clustermanager":
-                    createClusterManagerServer(Global.Process.Arguments[3]);
+                    createClusterManagerServer(arguments[3]);
                     break;
                 case "gs":
                 case "gamesegment":
-                    createGameSegmentServer(Global.Process.Arguments[3]);
+                    createGameSegmentServer(arguments[3]);
                     break;
                 case "sm":
                 case "servermanager":
@@ -119,7 +119,7 @@ namespace Pather.Servers
                     createTickServer();
                     break;
                 default:
-                    Global.Console.Log("Failed to load: ", Global.Process.Arguments[2]);
+                    Global.Console.Log("Failed to load: ", arguments[2]);
                     break;
             }
         }
@@ -136,12 +136,12 @@ namespace Pather.Servers
 
         private void createGameWorldServer()
         {
-            new GameWorldServer.GameWorldServer(new PubSub(), new DatabaseQueries(), instantiateLogic);
+            new GameWorldServer.GameWorldServer(new PubSub(), new DatabaseQueries(), InstantiateLogic);
         }
 
         private void createGameSegmentServer(string gameSegmentId)
         {
-            new GameSegmentServer.GameSegmentServer(new PubSub(), new PushPop(), gameSegmentId);
+            new GameSegmentServer.GameSegmentServer(new PubSub(), new PushPop(), gameSegmentId, InstantiateLogic);
         }
 
         private void createClusterManagerServer(string clusterManagerId)

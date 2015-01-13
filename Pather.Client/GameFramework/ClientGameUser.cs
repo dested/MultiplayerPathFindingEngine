@@ -26,7 +26,7 @@ namespace Pather.Client.GameFramework
 
         public void RePathFind(MoveEntity_ClientAction destinationAction)
         {
-            var graph = game.Board.AStarGraph;
+            var graph = Game.Board.AStarGraph;
 
 
             var start = graph.Grid[Utilities.ToSquare(X)][Utilities.ToSquare(Y)];

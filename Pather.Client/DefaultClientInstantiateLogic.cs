@@ -9,9 +9,9 @@ namespace Pather.Client
         {
             return new ClientGameManager(this);
         }
-        public ClientGame CreateClientGame(FrontEndTickManager frontEndTickManager)
+        public ClientGame CreateClientGame(FrontEndTickManager frontEndTickManager, NetworkManager networkManager)
         {
-            return new ClientGame(frontEndTickManager);
+            return new ClientGame(frontEndTickManager, networkManager);
         }
 
     }

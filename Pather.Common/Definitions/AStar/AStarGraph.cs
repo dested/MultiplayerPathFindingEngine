@@ -7,7 +7,7 @@ namespace Pather.Common.Definitions.AStar
     [IgnoreNamespace]
     public class AStarGraph
     {
-        public AStarGraph(int[][] gridWeight)
+        public AStarGraph(double[][] gridWeight)
         {
         }
 

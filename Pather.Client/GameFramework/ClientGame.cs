@@ -12,10 +12,12 @@ namespace Pather.Client.GameFramework
 {
     public class ClientGame : Game
     {
+        protected internal NetworkManager NetworkManager;
         public StepManager StepManager;
 
-        public ClientGame(TickManager tickManager) : base(tickManager)
+        public ClientGame(TickManager tickManager, NetworkManager networkManager) : base(tickManager)
         {
+            NetworkManager = networkManager;
             StepManager = new StepManager(this);
             tickManager.OnProcessLockstep += StepManager.ProcessAction;
             StepManager.ProcessClientAction += ClientProcessClientAction;
@@ -47,10 +49,15 @@ namespace Pather.Client.GameFramework
             switch (action.ClientActionType)
             {
                 case ClientActionType.Move:
-                    var moveAction = (MoveEntity_ClientAction) action;
-                    user = (ClientGameUser) ActiveEntities[moveAction.EntityId];
+                    var moveAction = (MoveEntity_ClientAction)action;
+                    user = (ClientGameUser)ActiveEntities[moveAction.EntityId];
                     if (user == null) return;
                     user.RePathFind(moveAction);
+                    break;
+                case ClientActionType.LogicAction:
+                    var logicAction = (LogicAction_ClientAction)action;
+                    ProcessLogicAction(logicAction);
+
                     break;
                 case ClientActionType.MoveEntityOnPath:
                     var moveEntityOnPath = (MoveEntityOnPath_ClientAction) action;
@@ -79,6 +86,10 @@ namespace Pather.Client.GameFramework
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public virtual void ProcessLogicAction(LogicAction_ClientAction logicAction)
+        {
         }
 
         public void UpdateNeighbors(List<UpdatedNeighbor> added, List<string> removed)

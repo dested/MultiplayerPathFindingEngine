@@ -5,6 +5,7 @@ using Pather.Common.GameFramework;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Common;
 using Pather.Common.Models.Common.Actions.ClientActions;
+using Pather.Common.Models.Common.Actions.ClientActions.Base;
 using Pather.Common.Models.Common.Actions.GameSegmentAction;
 using Pather.Common.Utils;
 
@@ -14,13 +15,18 @@ namespace Pather.Servers.GameSegmentServer
     {
         public GameSegment GameSegment;
         public string GatewayId;
+        
+        //todo merge thes thtree concepts
         public List<InProgressClientAction> InProgressActions;
         public JsDictionary<long, Point> LockstepMovePoints;
-
+        public JsDictionary<long, List<ClientAction>> FutureActions;
+        
         public ServerGameUser(ServerGame game, string userId)
             : base(game, userId)
         {
             LockstepMovePoints = new JsDictionary<long, Point>();
+            FutureActions = new JsDictionary<long, List<ClientAction>>();
+
             InProgressActions = new List<InProgressClientAction>();
         }
 
@@ -41,6 +47,22 @@ namespace Pather.Servers.GameSegmentServer
 //                Global.Console.Log(EntityId, X, Y, LockstepMovePoints.Count, lockstepTickNumber);
             }
 
+            if (FutureActions.ContainsKey(lockstepTickNumber))
+            {
+                var actions = FutureActions[lockstepTickNumber];
+
+                foreach (var clientAction in actions)
+                {
+                    ProcessAction(clientAction);
+                    
+                }
+
+                FutureActions.Remove(lockstepTickNumber);
+            }
+
+            
+
+
             for (var index = InProgressActions.Count - 1; index >= 0; index--)
             {
                 var inProgressAction = InProgressActions[index];
@@ -51,9 +73,23 @@ namespace Pather.Servers.GameSegmentServer
             }
         }
 
+        public virtual void ProcessAction(ClientAction action)
+        {
+            
+        }
+
+        public void AddAction(ClientAction action, long lockstepTick)
+        {
+            if (!FutureActions.ContainsKey(lockstepTick))
+            {
+                FutureActions[lockstepTick] = new List<ClientAction>();
+            }
+            FutureActions[lockstepTick].Add(action);
+        }
+
         public long RePathFind(MoveEntity_GameSegmentAction destinationAction)
         {
-            var graph = game.Board.AStarGraph;
+            var graph = Game.Board.AStarGraph;
 
             var p = GetPositionAtLockstep(destinationAction.LockstepTick);
 

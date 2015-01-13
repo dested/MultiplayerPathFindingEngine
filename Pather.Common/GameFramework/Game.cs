@@ -15,12 +15,15 @@ namespace Pather.Common.GameFramework
         }
 
 
-        public virtual void Init(int[][] grid, long lockstepTickNumber, int serverLatency)
+        public virtual void Init(long lockstepTickNumber, int serverLatency)
+        {
+            tickManager.SetServerLatency(serverLatency);
+            tickManager.SetLockStepTick(lockstepTickNumber);
+        }
+        public virtual void InitializeGameBoard(string[][] grid)
         {
             Board = new GameBoard();
             Board.Init(grid);
-            tickManager.SetServerLatency(serverLatency);
-            tickManager.SetLockStepTick(lockstepTickNumber);
         }
 
 

@@ -12,7 +12,7 @@ namespace Pather.Client.Tests
     [TestClass()]
     public class LoginE2ETest
     {
-        [TestMethod(disable: true)]
+      /*  [TestMethod(disable: true)]
         public void Connect4(Deferred deferred)
         {
             ((dynamic)Window.Instance).NoDraw = true;
@@ -35,7 +35,7 @@ namespace Pather.Client.Tests
                 {
                     Global.SetTimeout(() =>
                     {
-                        gameClient.ClientGameManager.MoveToLocation(point.X, point.Y);
+                        gameClient.ClientGameManager.Cl(point.X, point.Y);
                     }, 1000);
                     Global.SetInterval(() =>
                     {
@@ -128,7 +128,7 @@ namespace Pather.Client.Tests
                 };
             }, (int) (Math.Random()*15000));
         }
-
+*/
 
         /*   [TestMethod()]
         public void SlamWWithUsers(Deferred deferred)

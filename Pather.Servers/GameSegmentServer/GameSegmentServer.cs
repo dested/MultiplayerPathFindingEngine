@@ -5,6 +5,7 @@ using Pather.Common.Utils.Promises;
 using Pather.Servers.Common.PubSub;
 using Pather.Servers.Common.PushPop;
 using Pather.Servers.Common.ServerLogging;
+using Pather.Servers.Utils;
 
 namespace Pather.Servers.GameSegmentServer
 {
@@ -17,7 +18,7 @@ namespace Pather.Servers.GameSegmentServer
 
         private ServerGameManager gameManager;
 
-        public GameSegmentServer(IPubSub pubsub, IPushPop pushPop, string gameSegmentId)
+        public GameSegmentServer(IPubSub pubsub, IPushPop pushPop, string gameSegmentId, IInstantiateLogic instantiateLogic)
         {
             //            GameSegmentLogger.InitLogger(gameSegmentId);
             ServerLogger.InitLogger("GameSegment", gameSegmentId);
@@ -35,7 +36,7 @@ namespace Pather.Servers.GameSegmentServer
                     GameSegmentPubSub = new GameSegmentPubSub(this.pubsub, GameSegmentId);
                     GameSegmentPubSub.OnAllMessage += onAllMessage;
 
-                    gameManager = new ServerGameManager(GameSegmentId, GameSegmentPubSub);
+                    gameManager = new ServerGameManager(GameSegmentId, GameSegmentPubSub,instantiateLogic);
                     gameManager.RegisterGameSegmentWithCluster += registerGameSegmentWithCluster;
                     gameManager.Init();
                 });

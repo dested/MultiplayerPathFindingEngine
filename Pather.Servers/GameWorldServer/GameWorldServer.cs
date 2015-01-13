@@ -42,7 +42,6 @@ namespace Pather.Servers.GameWorldServer
             DatabaseQueries = dbQueries;
             pubSub.Init().Then(pubsubReady);
             //            new TickWatcher();
-            ConstructGrid();
             Global.SetInterval(reorganize, Constants.TestReorganizeGameWorldInterval);
         }
 
@@ -81,7 +80,7 @@ namespace Pather.Servers.GameWorldServer
             BackEndTickManager = new BackEndTickManager();
 
             GameWorld = this.instantiateLogic.CreateGameWorld(gameWorldPubSub, BackEndTickManager);
-
+            GameWorld.Init();
             BackEndTickManager.Init(sendPing, () =>
             {
                 Global.Console.Log("Connected To Tick Server");
@@ -165,7 +164,7 @@ namespace Pather.Servers.GameWorldServer
                             Y = gwUser.Y,
                             GameSegmentId = gwUser.GameSegment.GameSegmentId,
                             UserId = gwUser.UserId,
-                            Grid = Grid,
+                            Grid = GameWorld.Board.Grid,
                         });
                     });
                     break;
@@ -214,7 +213,7 @@ namespace Pather.Servers.GameWorldServer
                         GameSegmentIds = GameWorld.GameSegments.Keys,
                         LockstepTickNumber = BackEndTickManager.LockstepTickNumber,
                         ServerLatency = BackEndTickManager.CurrentServerLatency,
-                        Grid = Grid,
+                        Grid = GameWorld.Board.Grid,
                         AllUsers = GameWorld.Users.List.Select(user => new InitialGameUser()
                         {
                             GameSegmentId = user.GameSegment.GameSegmentId,
@@ -232,20 +231,6 @@ namespace Pather.Servers.GameWorldServer
             }
         }
 
-        public void ConstructGrid()
-        {
-            Grid = new int[Constants.NumberOfSquares][];
-            for (var x = 0; x < Constants.NumberOfSquares; x++)
-            {
-                Grid[x] = new int[Constants.NumberOfSquares];
-                for (var y = 0; y < Constants.NumberOfSquares; y++)
-                {
-                    Grid[x][y] = (Math.Random() * 100 < 15) ? 0 : 1;
-                }
-            }
-        }
-
-        public int[][] Grid;
 
         private readonly JsDictionary<string, List<Tuple<GameWorldUser, Deferred<GameWorldUser, UserJoinError>>>> preAddedUsers = new JsDictionary<string, List<Tuple<GameWorldUser, Deferred<GameWorldUser, UserJoinError>>>>();
         private readonly List<Tuple<UserJoined_Gateway_GameWorld_PubSub_Message, Deferred<GameWorldUser, UserJoinError>>> stalledJoins = new List<Tuple<UserJoined_Gateway_GameWorld_PubSub_Message, Deferred<GameWorldUser, UserJoinError>>>();

@@ -71,7 +71,7 @@ namespace Pather.Common.Utils.Histogram
             foreach (var item in dist.Items)
             {
                 if (item.Value == 0) continue;
-                var c = ((double)item.Value / (double)dist.TotalItems) * 100;
+                var c = (((double)item.Value / (double)dist.TotalItems) * 100).ToString("F");
                 Global.Console.Log(c + "% Of the items took between " + item.LowerBound + "ms and " + item.UpperBound + "ms");
             }
         }

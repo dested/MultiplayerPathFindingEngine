@@ -62,6 +62,10 @@
       <Project>{5574C74A-E8F7-4B4F-85D2-8A6CFC1F824B}</Project>
       <Name>Pather.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\GameLogic.Common\GameLogic.Common.csproj">
+      <Project>{14FA1DD1-88D5-4E27-87EC-FA895DF968C0}</Project>
+      <Name>GameLogic.Common</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" Condition="!Exists('$(SolutionDir)packages\Saltarelle.Compiler.2.6.2\tools\Saltarelle.Compiler.targets')" />
   <Import Project="$(SolutionDir)packages\Saltarelle.Compiler.2.6.2\tools\Saltarelle.Compiler.targets" Condition="Exists('$(SolutionDir)packages\Saltarelle.Compiler.2.6.2\tools\Saltarelle.Compiler.targets')" />

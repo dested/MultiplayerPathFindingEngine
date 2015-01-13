@@ -6,5 +6,6 @@ namespace Pather.Common.Models.Common.Actions.GameSegmentAction.Base
     public enum GameSegmentActionType
     {
         MoveEntity,
+        LogicAction
     }
 }

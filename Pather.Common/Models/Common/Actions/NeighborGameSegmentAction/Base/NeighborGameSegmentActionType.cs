@@ -5,6 +5,7 @@ namespace Pather.Common.Models.Common.Actions.NeighborGameSegmentAction.Base
     [NamedValues]
     public enum NeighborGameSegmentActionType
     {
-        MoveEntity
+        MoveEntity,
+        LogicAction
     }
 }

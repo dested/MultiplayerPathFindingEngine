@@ -20,7 +20,7 @@ namespace Pather.Servers.GameSegmentServer
 {
     public class ServerGame : Game
     {
-        private readonly ServerGameManager gameManager;
+        protected readonly ServerGameManager gameManager;
 
         public ServerGame(ServerGameManager gameManager, TickManager tickManager)
             : base(tickManager)
@@ -40,13 +40,12 @@ namespace Pather.Servers.GameSegmentServer
             return new ServerGameUser(this, userId);
         }
 
-
         public void ServerProcessGameSegmentAction(ServerGameUser user, GameSegmentAction action)
         {
             switch (action.GameSegmentActionType)
             {
                 case GameSegmentActionType.MoveEntity:
-                    var moveEntityAction = (MoveEntity_GameSegmentAction) action;
+                    var moveEntityAction = (MoveEntity_GameSegmentAction)action;
                     var completedLockStep = user.RePathFind(moveEntityAction);
                     if (completedLockStep == 0)
                     {
@@ -82,10 +81,15 @@ namespace Pather.Servers.GameSegmentServer
                         }
                         );
                     break;
+                case GameSegmentActionType.LogicAction:
+                    var logicAction = (LogicAction_GameSegmentAction)action;
+                    ProcessLogicAction(user,logicAction);
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
+
 
 
         public void ServerProcessTellGameSegmentAction(TellGameSegmentAction action)
@@ -93,13 +97,27 @@ namespace Pather.Servers.GameSegmentServer
             switch (action.TellGameSegmentActionType)
             {
                 case TellGameSegmentActionType.MoveEntity:
-                    var moveEntity = (MoveEntity_TellGameSegmentAction) action;
-                    ((ServerGameUser) ActiveEntities[action.EntityId]).SetPointInTime(moveEntity.X, moveEntity.Y, moveEntity.LockstepTick);
-//                    Global.Console.Log("Got tell move action from gamesegment");
+                    var moveEntity = (MoveEntity_TellGameSegmentAction)action;
+                    ((ServerGameUser)ActiveEntities[action.EntityId]).SetPointInTime(moveEntity.X, moveEntity.Y, moveEntity.LockstepTick);
+                    //                    Global.Console.Log("Got tell move action from gamesegment");
+                    break;
+                case TellGameSegmentActionType.LogicAction:
+                    var logicAction = (LogicAction_TellGameSegmentAction)action;
+                    ProcessTellLogicAction(logicAction);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        public virtual void ProcessTellLogicAction(LogicAction_TellGameSegmentAction logicAction)
+        {
+        }
+        public virtual void ProcessNeighborLogicAction(LogicAction_NeighborGameSegmentAction logicAction)
+        {
+        }
+        public virtual void ProcessLogicAction(ServerGameUser user, LogicAction_GameSegmentAction action)
+        {
         }
 
         public void ServerProcessNeighborGameSegmentAction(NeighborGameSegmentAction action)
@@ -107,13 +125,19 @@ namespace Pather.Servers.GameSegmentServer
             switch (action.NeighborGameSegmentActionType)
             {
                 case NeighborGameSegmentActionType.MoveEntity:
-                    var moveEntity = (MoveEntity_NeighborGameSegmentAction) action;
-                    ((ServerGameUser) ActiveEntities[action.EntityId]).SetPath(moveEntity.LockstepMovePoints);
+                    var moveEntity = (MoveEntity_NeighborGameSegmentAction)action;
+                    ((ServerGameUser)ActiveEntities[action.EntityId]).SetPath(moveEntity.LockstepMovePoints);
+                    break;
+                case NeighborGameSegmentActionType.LogicAction:
+                    var logicAction = (LogicAction_NeighborGameSegmentAction)action;
+                    ProcessNeighborLogicAction(logicAction);
+                    
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
+
 
 
         public void UserLeft(string userId)
@@ -165,13 +189,11 @@ namespace Pather.Servers.GameSegmentServer
 
         public void UserJoin(UserJoinGameUser userJoinGameUser)
         {
-            var serverGameUser = new ServerGameUser(this, userJoinGameUser.UserId)
-            {
-                GameSegment = gameManager.AllGameSegments[gameManager.GameSegmentId],
-                GatewayId = userJoinGameUser.GatewayId,
-                X = userJoinGameUser.X,
-                Y = userJoinGameUser.Y,
-            };
+            var serverGameUser = (ServerGameUser)CreateGameUser(userJoinGameUser.UserId);
+            serverGameUser.GameSegment = gameManager.AllGameSegments[gameManager.GameSegmentId];
+            serverGameUser.GatewayId = userJoinGameUser.GatewayId;
+            serverGameUser.X = userJoinGameUser.X;
+            serverGameUser.Y = userJoinGameUser.Y;
 
             AddEntity(serverGameUser);
             serverGameUser.GameSegment.UserJoin(serverGameUser);
@@ -181,13 +203,11 @@ namespace Pather.Servers.GameSegmentServer
 
         public void TellUserJoin(TellUserJoin_GameWorld_GameSegment_PubSub_ReqRes_Message message)
         {
-            var serverGameUser = new ServerGameUser(this, message.UserId)
-            {
-                GameSegment = gameManager.AllGameSegments[message.GameSegmentId],
-                GatewayId = message.GatewayId,
-                X = message.X,
-                Y = message.Y,
-            };
+            var serverGameUser = (ServerGameUser)CreateGameUser(message.UserId);
+            serverGameUser.GameSegment = gameManager.AllGameSegments[message.GameSegmentId];
+            serverGameUser.GatewayId = message.GatewayId;
+            serverGameUser.X = message.X;
+            serverGameUser.Y = message.Y;
 
             var otherGameSegment = gameManager.AllGameSegments[message.GameSegmentId];
             AddEntity(serverGameUser);

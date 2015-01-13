@@ -1,6 +1,5 @@
 ﻿global.window = global;
 
-
 require('./libs/mscorlib');
 var astar = require('./libs/astar');
 global.Graph = astar.Graph;
