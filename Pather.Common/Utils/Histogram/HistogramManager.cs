@@ -76,17 +76,4 @@ namespace Pather.Common.Utils.Histogram
             }
         }
     }
-    public class HistogramDistribution
-    {
-        public string Name;
-        public int TotalItems;
-        public List<HistogramDistributionItem> Items;
-    }
-
-    public class HistogramDistributionItem
-    {
-        public int LowerBound;
-        public int UpperBound;
-        public int Value;
-    }
 }

@@ -32,8 +32,8 @@ gulp.task('client', function (callback) {
 
 gulp.task('client-express', function (callback) {
     process.chdir('../');
-    runSequence('client.express',callback);
-});
+    runSequence('client.prod-express', callback);
+}); 
 
 gulp.task('server', function (callback) {
     process.chdir('../');

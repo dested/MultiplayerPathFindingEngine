@@ -4,18 +4,18 @@ using Pather.Servers.GameSegmentServer.Logger;
 
 namespace Pather.Servers.Common.ServerLogging
 {
-    public class GameSegmentLogListener
+    public class HistogramLogListener
     {
         private readonly PubSub.PubSub pubsub;
 
-        public GameSegmentLogListener(Action<GameSegmentLogMessageContent> callback)
+        public HistogramLogListener(Action<HistogramLogMessageContent> callback)
         {
             pubsub = new PubSub.PubSub();
             pubsub.DontLog();
             pubsub.Init(6380)
                 .Then(() =>
                 {
-                    pubsub.Subscribe(PubSubChannels.GameSegmentLogger(), (content) => callback((GameSegmentLogMessageContent)(content)));
+                    pubsub.Subscribe(PubSubChannels.GameSegmentLogger(), (content) => callback((HistogramLogMessageContent)(content)));
                 });
         }
 

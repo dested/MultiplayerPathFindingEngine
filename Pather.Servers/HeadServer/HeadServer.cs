@@ -57,7 +57,16 @@ namespace Pather.Servers.HeadServer
                 }
             });
 
+            if (ConnectionConstants.Production)
+            {
+                app.Listen(2222, ConnectionConstants.MainDomain);
+
+            }
+            else
+            {
             app.Listen(2222);
+                
+            }
         }
 
         private int isCurrentlySpawning = 0;

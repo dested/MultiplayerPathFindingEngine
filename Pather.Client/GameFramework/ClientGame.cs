@@ -73,7 +73,7 @@ namespace Pather.Client.GameFramework
                     user.SetPath(moveEntityOnPath.Path);
                     break;
                 case ClientActionType.UpdateNeighbors:
-                    var updateNeighborAction = (UpdateNeighborsClientAction) action;
+                    var updateNeighborAction = (UpdateNeighborsClientAction)action;
                     UpdateNeighbors(updateNeighborAction.Added, updateNeighborAction.Removed);
                     break;
                 default:

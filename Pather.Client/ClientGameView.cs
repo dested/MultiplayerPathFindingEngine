@@ -9,18 +9,6 @@ using Pather.Common.Libraries.NodeJS;
 
 namespace Pather.Client
 {
-    public class DefaultClientInstantiateLogic : IClientInstantiateLogic
-    {
-        public ClientGameManager CreateClientGameManager()
-        {
-            return new ClientGameManager(this);
-        }
-        public ClientGame CreateClientGame(FrontEndTickManager frontEndTickManager)
-        {
-            return new ClientGame(frontEndTickManager);
-        }
-
-    }
     public   class ClientGameView
     {
         private readonly IClientInstantiateLogic clientInstantiateLogic;

@@ -3,12 +3,9 @@ using System.Runtime.CompilerServices;
 namespace Pather.Servers.GameSegmentServer.Logger
 {
     [NamedValues]
-    public enum GameSegmentLogMessageType
+    public enum HistogramLogMessageType
     {
         KeepAlive,
-        UserJoined,
-        UserMoved,
-        UserLeft,
-        TellUserMoved
+        LogDistribution
     }
 }

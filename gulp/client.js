@@ -101,9 +101,6 @@ gulp.task('client.express', function () {
         console.log('Client Server listening on port ' + app.get('port'));
     });
 
-
-
-
     var app2 = express();
     app2.set('port', 5000);
     app2.use(express.static('output/Monitor'));
@@ -111,6 +108,25 @@ gulp.task('client.express', function () {
         console.log('Monitor Server listening on port ' + app2.get('port'));
     });
 
+});
 
+
+gulp.task('client.prod-express', function () {
+    console.log(process.cwd());
+    var express = require('express');
+    var http = require('http');
+    var app = express();
+    app.set('port', 4000);
+    app.use(express.static('output/Client'));
+    http.createServer(app).listen(app.get('port'),'whoscoding.net', function () {
+        console.log('Client Server listening on port ' + app.get('port'));
+    });
+
+    var app2 = express();
+    app2.set('port', 5000);
+    app2.use(express.static('output/Monitor'));
+    http.createServer(app2).listen(app2.get('port'), 'whoscoding.net',function () {
+        console.log('Monitor Server listening on port ' + app2.get('port'));
+    });
 
 });

@@ -4606,7 +4606,12 @@ ss.initClass($Pather_Servers_HeadServer_HeadServer, $asm, {
 				res.send(this.$oldGateways[0].address);
 			}
 		}));
-		app.listen(2222);
+		if (Pather.Common.ConnectionConstants.get_production()) {
+			app.listen(2222, Pather.Common.ConnectionConstants.mainDomain);
+		}
+		else {
+			app.listen(2222);
+		}
 	},
 	$shouldSpinUpNewGateway: function() {
 		if (this.$isCurrentlySpawning === 0) {

@@ -3,8 +3,8 @@ using System;
 namespace Pather.Servers.GameSegmentServer.Logger
 {
     [Serializable]
-    public abstract class GameSegmentLogMessage
+    public abstract class HistogramLogMessage
     {
-        public GameSegmentLogMessageType Type;
+        public HistogramLogMessageType Type;
     }
 }

@@ -15,6 +15,9 @@ namespace Pather.Servers.Libraries.ExpressJS
         public void Listen(int port)
         {
         }
+        public void Listen(int port,string hostName)
+        {
+        }
 
         public void Use(object plugin)
         {

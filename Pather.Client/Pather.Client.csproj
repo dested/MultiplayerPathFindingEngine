@@ -36,6 +36,7 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DefaultClientInstantiateLogic.cs" />
     <Compile Include="GameFramework\ClientGame.cs" />
     <Compile Include="GameFramework\ClientGameUser.cs" />
     <Compile Include="GameFramework\FrontEndTickManager.cs" />
@@ -50,6 +51,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerSlammer.cs" />
     <Compile Include="Tests\LoginE2ETest.cs" />
+    <Compile Include="Utils\IClientInstantiateLogic.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

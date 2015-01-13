@@ -20,13 +20,6 @@ using Pather.Servers.Utils;
 
 namespace Pather.Servers.GameWorldServer
 {
-    public class DefaultInstanitateLogic : IInstantiateLogic
-    {
-        public GameWorld CreateGameWorld(GameWorldPubSub gameWorldPubSub, BackEndTickManager backEndTickManager)
-        {
-            return new GameWorld(gameWorldPubSub, backEndTickManager);
-        }
-    }
     public class GameWorldServer
     {
         private readonly IPubSub pubSub;

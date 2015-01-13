@@ -33,6 +33,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="ClientInstantiateLogic.cs" />
+    <Compile Include="IClientGameEntity.cs" />
+    <Compile Include="LogicClientGame.cs" />
+    <Compile Include="LogicClientGameManager.cs" />
+    <Compile Include="LogicClientGameUser.cs" />
+    <Compile Include="LogicClientGameView.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

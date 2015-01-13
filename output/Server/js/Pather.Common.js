@@ -2920,8 +2920,9 @@
 	ss.initClass($Pather_Common_Utils_Promises_Q, $asm, {});
 	ss.initClass($Pather_Common_Utils_Promises_UndefinedPromiseError, $asm, {});
 	(function() {
-		$Pather_Common_ConnectionConstants.redisIP = ($Pather_Common_ConnectionConstants.get_production() ? 'redis.whoscoding.net' : '127.0.0.1');
-		$Pather_Common_ConnectionConstants.headIP = ($Pather_Common_ConnectionConstants.get_production() ? 'http://head.whoscoding.net:2222/api/' : 'http://127.0.0.1:2222/api/');
+		$Pather_Common_ConnectionConstants.mainDomain = 'whoscoding.net';
+		$Pather_Common_ConnectionConstants.redisIP = ($Pather_Common_ConnectionConstants.get_production() ? ('redis.' + $Pather_Common_ConnectionConstants.mainDomain) : '127.0.0.1');
+		$Pather_Common_ConnectionConstants.headIP = ($Pather_Common_ConnectionConstants.get_production() ? ('http://head.' + $Pather_Common_ConnectionConstants.mainDomain + ':2222/api/') : 'http://127.0.0.1:2222/api/');
 	})();
 	(function() {
 		$Pather_Common_Constants.numberOfAnimationSteps = 0;

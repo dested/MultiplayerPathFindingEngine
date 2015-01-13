@@ -43,6 +43,7 @@
     <Compile Include="Common\PushPop\IPushPop.cs" />
     <Compile Include="Common\PushPop\PushPop.cs" />
     <Compile Include="Common\ServerLogging\GameSegmentLogListener.cs" />
+    <Compile Include="Common\ServerLogging\HistogramLogListener.cs" />
     <Compile Include="Common\ServerLogging\ServerLogger.cs" />
     <Compile Include="Common\ServerLogging\ServerLogListener.cs" />
     <Compile Include="Common\ServerLogging\ServerLogMessage.cs" />
@@ -61,11 +62,16 @@
     <Compile Include="GameSegmentServer\GameSegment.cs" />
     <Compile Include="GameSegmentServer\GameSegmentPubSub.cs" />
     <Compile Include="GameSegmentServer\IServerGameEntity.cs" />
-    <Compile Include="GameSegmentServer\Logger\GameSegmentLogger.cs" />
+    <Compile Include="GameSegmentServer\Logger\HistogramLogger.cs" />
     <Compile Include="GameSegmentServer\Logger\GameSegmentLogMessage.cs" />
     <Compile Include="GameSegmentServer\Logger\GameSegmentLogMessageContent.cs" />
     <Compile Include="GameSegmentServer\Logger\GameSegmentLogMessageType.cs" />
+    <Compile Include="GameSegmentServer\Logger\HistogramLogMessage.cs" />
+    <Compile Include="GameSegmentServer\Logger\HistogramLogMessageContent.cs" />
+    <Compile Include="GameSegmentServer\Logger\HistogramLogMessageType.cs" />
     <Compile Include="GameSegmentServer\Logger\KeepAlive_GameSegmentLogMessage.cs" />
+    <Compile Include="GameSegmentServer\Logger\KeepAlive_HistogramLogMessage.cs" />
+    <Compile Include="GameSegmentServer\Logger\LogDistribution_HistogramLogMessage.cs" />
     <Compile Include="GameSegmentServer\Logger\TellUserMoved_GameSegmentLogMessage.cs" />
     <Compile Include="GameSegmentServer\Logger\UserJoined_GameSegmentLogMessage.cs" />
     <Compile Include="GameSegmentServer\Logger\UserLeft_GameSegmentLogMessage.cs" />
@@ -73,6 +79,7 @@
     <Compile Include="GameSegmentServer\ServerGame.cs" />
     <Compile Include="GameSegmentServer\ServerGameManager.cs" />
     <Compile Include="GameSegmentServer\ServerGameUser.cs" />
+    <Compile Include="GameWorldServer\DefaultInstanitateLogic.cs" />
     <Compile Include="GameWorldServer\GameSegment.cs" />
     <Compile Include="GameWorldServer\GameWorld.cs" />
     <Compile Include="GameWorldServer\GameWorldPubSub.cs" />
@@ -103,6 +110,7 @@
     <Compile Include="Libraries\RTree\Node.cs" />
     <Compile Include="Libraries\RTree\Rectangle.cs" />
     <Compile Include="Libraries\RTree\RTree.cs" />
+    <Compile Include="Libraries\RTree\RTreePoint.cs" />
     <Compile Include="Libraries\RTree\Vector2.cs" />
     <Compile Include="MonitorServer\MonitorServer.cs" />
     <Compile Include="ServerManager\ClusterCreation.cs" />
