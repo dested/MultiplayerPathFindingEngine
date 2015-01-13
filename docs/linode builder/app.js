@@ -1,6 +1,5 @@
 require('./passwords');
 
-
 function LinodeBuilder(){
 	this.client = new(require('linode-api').LinodeClient)(global.apikey);
 	this.smallPlanId=1;
@@ -8,13 +7,22 @@ function LinodeBuilder(){
 	this.ubuntuDistribution=133;
 	this.goodKernalId=138;
 
+	this.mainDomainId=656600;
+	this.mainDomainName='whoscoding.net';
+
+	this.mainDomainResources={
+		'':{resourceId:4769266},
+		'www':{resourceId:4769255},
+		'head':{resourceId:4769265},
+		'redis':{resourceId:4769264}
+	};
+
+
 }
 
 LinodeBuilder.prototype.init=function(callback){
-
 	this.images={};
 	this.client.call('image.list',{},(function(err,res){
-
 		for (var i = 0; i < res.length; i++) {
 			var script=res[i];
 
@@ -23,9 +31,6 @@ LinodeBuilder.prototype.init=function(callback){
 
 		callback();
 	}).bind(this));
-
-
-
 }
 
 
@@ -54,6 +59,35 @@ LinodeBuilder.prototype.waitTillDone=function(id,callback){
 			console.log('Waiting on',badCount,'Tasks');
 			setTimeout(function(){ that.waitTillDone(id,callback);},5000);
 		}
+	});
+
+}
+
+
+LinodeBuilder.prototype.updateDomainTarget=function(resourceId,target, callback){
+
+	var that=this;
+	this.client.call('domain.resource.update', {DomainID :this.mainDomainId, ResourceId:resourceId,Target :target},function(err,res){
+		if(err){
+			console.log(err);
+			throw err;
+		}
+		callback();
+	});
+
+}
+
+
+LinodeBuilder.prototype.getDomains=function(callback){
+
+	var that=this;
+	this.client.call('domain.resource.list', {DomainID:this.mainDomainId},function(err,res){
+
+		if(err){
+			console.log(err);
+			throw err;
+		}
+		console.log(res);
 	});
 
 }
@@ -162,18 +196,18 @@ LinodeBuilder.prototype.create=function(name,image, planId,callback){
 
 var builder=new LinodeBuilder();
 builder.init(function(){
-	builder.create('Redis','Redis',builder.smallPlanId,ready);
-//	builder.create('Main-Node','Node',builder.mediumPlanId,ready);
-/*	builder.create('Cluster-Node','Node',builder.mediumPlanId,ready);
+	builder.create('Redis','Redis',builder.smallPlanId,redisReady);
+	builder.create('Main-Node','Node',builder.mediumPlanId,mainNodeReady);
+	builder.create('Cluster-Node','Node',builder.mediumPlanId,ready);
 
-	builder.create('Client1','Node',builder.mediumPlanId,ready);
+/*	builder.create('Client1','Node',builder.mediumPlanId,ready);
 	builder.create('Client2','Node',builder.mediumPlanId,ready);
 	builder.create('Client3','Node',builder.mediumPlanId,ready);
 	builder.create('Client4','Node',builder.mediumPlanId,ready);
 	*/
 });
 
-function ready(id,name,ip){
+function redisReady(id,name,ip){
 
 	var exec = require('ssh-exec');
 
@@ -185,18 +219,67 @@ function ready(id,name,ip){
 
 
 
-	switch(name){
-		case 'Redis':
+	console.log('updating target domain');
+	builder.updateDomainTarget(builder.mainDomainResources['redis'].resourceId,ip,function(){
 
-		exec('redis-server  --port 6379 --bind '+ip+' &', c).pipe(process.stdout);
-		exec('redis-server  --port 6380 --bind '+ip+' &', c).pipe(process.stdout);
+		console.log('executing data');
 
-		break;
-	}
+		exec('redis-server  --port 6379 --bind redis.whoscoding.net &', c).pipe(process.stdout);
+		exec('redis-server  --port 6380 --bind redis.whoscoding.net &', c).pipe(process.stdout);
+
+		console.log("Ready! "+name, ip, id);
+	});
 
 
-	c.end();
 
-	console.log("Ready! "+name, ip, id);
+
+
+}
+
+
+
+function mainNodeReady(id,name,ip){
+
+
+
+
+	console.log('updating target domain');
+	builder.updateDomainTarget(builder.mainDomainResources[''].resourceId,ip,function(err,res){
+		if (err) {
+			console.log(err);
+			throw err;
+		}
+
+	});
+	builder.updateDomainTarget(builder.mainDomainResources['www'].resourceId,ip,function(err,res){
+		if (err) {
+			console.log(err);
+			throw err;
+		}
+
+	});
+	builder.updateDomainTarget(builder.mainDomainResources['head'].resourceId,ip,function(err,res){
+		if (err) {
+			console.log(err);
+			throw err;
+		}
+
+	});
+
+
+
+	var exec = require('ssh-exec');
+
+	var c = exec.connection({
+		user: 'root',
+		host: ip,
+		password: global.password
+	});
+
+	exec('redis-server  --port 6379 --bind redis.whoscoding.net &', c).pipe(process.stdout);
+	exec('redis-server  --port 6380 --bind redis.whoscoding.net &', c).pipe(process.stdout);
+
+
+
 
 }

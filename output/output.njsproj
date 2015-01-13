@@ -14,7 +14,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>6b9a2ff4-5747-4c16-becb-9dfab71ba330</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>Server\app.js</StartupFile>
+    <StartupFile>Server\prod-app.js</StartupFile>
     <StartWebBrowser>False</StartWebBrowser>
     <SearchPath>
     </SearchPath>

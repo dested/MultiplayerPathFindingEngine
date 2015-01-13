@@ -2979,8 +2979,8 @@
 		eval("\r\nglobal.$instantiateInterface$=function ($type$) {\r\n    var obj={};\r\n    for(var m in $type$.prototype) {\r\n        obj[m]=function(){throw new Error('Mock interface method '+m+' not overridden');};\r\n    }\r\n    return obj;\r\n}");
 	})();
 	(function() {
-		$Pather_Common_Utils_ConnectionConstants.redisIP = ($Pather_Common_Utils_ConnectionConstants.get_production() ? '74.207.245.158' : '127.0.0.1');
-		$Pather_Common_Utils_ConnectionConstants.headIP = ($Pather_Common_Utils_ConnectionConstants.get_production() ? 'http://96.126.103.76:2222/api/' : 'http://127.0.0.1:2222/api/');
+		$Pather_Common_Utils_ConnectionConstants.redisIP = ($Pather_Common_Utils_ConnectionConstants.get_production() ? 'redis.whoscoding.net' : '127.0.0.1');
+		$Pather_Common_Utils_ConnectionConstants.headIP = ($Pather_Common_Utils_ConnectionConstants.get_production() ? 'http://head.whoscoding.net:2222/api/' : 'http://127.0.0.1:2222/api/');
 	})();
 	(function() {
 		$Pather_Common_Utils_Histogram_$HistogramManager.$histograms = {};

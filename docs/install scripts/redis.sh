@@ -6,5 +6,5 @@ apt-get -y install redis-server
 
  
 
-redis-server --port 6379 --bind 173.255.211.118 &
-redis-server --port 6380 --bind 173.255.211.118 &
+redis-server --port 6379 --bind redis.whoscoding.net &
+redis-server --port 6380 --bind redis.whoscoding.net &

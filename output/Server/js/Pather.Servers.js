@@ -51,70 +51,83 @@ $Pather_Servers_ServerStarter.main = function() {
 		return;
 	}
 	try {
-		switch (arg) {
-			case 'all': {
-				$Pather_Servers_ServerStarter.$createTickServer();
-				$Pather_Servers_ServerStarter.$createMonitorServer();
-				$Pather_Servers_ServerStarter.$createAuthServer();
-				$Pather_Servers_ServerStarter.$createServerManager();
-				$Pather_Servers_ServerStarter.$createGameWorldServer();
-				$Pather_Servers_ServerStarter.$createHeadServer();
-				break;
-			}
-			case 'gt':
-			case 'gateway': {
-				$Pather_Servers_ServerStarter.$createGatewayServer(global.process.argv[3], parseInt(global.process.argv[4]));
-				break;
-			}
-			case 'au':
-			case 'auth': {
-				$Pather_Servers_ServerStarter.$createAuthServer();
-				break;
-			}
-			case 'm':
-			case 'monitor': {
-				$Pather_Servers_ServerStarter.$createMonitorServer();
-				break;
-			}
-			case 'h':
-			case 'head': {
-				$Pather_Servers_ServerStarter.$createHeadServer();
-				break;
-			}
-			case 'cm':
-			case 'clustermanager': {
-				$Pather_Servers_ServerStarter.$createClusterManagerServer(global.process.argv[3]);
-				break;
-			}
-			case 'gs':
-			case 'gamesegment': {
-				$Pather_Servers_ServerStarter.$createGameSegmentServer(global.process.argv[3]);
-				break;
-			}
-			case 'sm':
-			case 'servermanager': {
-				$Pather_Servers_ServerStarter.$createServerManager();
-				break;
-			}
-			case 'gw':
-			case 'gameworld': {
-				$Pather_Servers_ServerStarter.$createGameWorldServer();
-				break;
-			}
-			case 't':
-			case 'tick': {
-				$Pather_Servers_ServerStarter.$createTickServer();
-				break;
-			}
-			default: {
-				console.log('Failed to load: ', global.process.argv[2]);
-				break;
-			}
+		var num = {};
+		if (!ss.Int32.tryParse(String.fromCharCode(Pather.Common.Utils.ConnectionConstants.redisIP.charCodeAt(0)), num)) {
+			var dns = require('dns');
+			dns.lookup(Pather.Common.Utils.ConnectionConstants.redisIP, function(err, value) {
+				Pather.Common.Utils.ConnectionConstants.redisIP = value;
+				$Pather_Servers_ServerStarter.$ready(arg);
+			});
+		}
+		else {
+			$Pather_Servers_ServerStarter.$ready(arg);
 		}
 	}
 	catch ($t1) {
 		var exc = ss.Exception.wrap($t1);
 		console.log('CRITICAL FAILURE: ', exc);
+	}
+};
+$Pather_Servers_ServerStarter.$ready = function(server) {
+	switch (server) {
+		case 'all': {
+			$Pather_Servers_ServerStarter.$createTickServer();
+			$Pather_Servers_ServerStarter.$createMonitorServer();
+			$Pather_Servers_ServerStarter.$createAuthServer();
+			$Pather_Servers_ServerStarter.$createServerManager();
+			$Pather_Servers_ServerStarter.$createGameWorldServer();
+			$Pather_Servers_ServerStarter.$createHeadServer();
+			break;
+		}
+		case 'gt':
+		case 'gateway': {
+			$Pather_Servers_ServerStarter.$createGatewayServer(global.process.argv[3], parseInt(global.process.argv[4]));
+			break;
+		}
+		case 'au':
+		case 'auth': {
+			$Pather_Servers_ServerStarter.$createAuthServer();
+			break;
+		}
+		case 'm':
+		case 'monitor': {
+			$Pather_Servers_ServerStarter.$createMonitorServer();
+			break;
+		}
+		case 'h':
+		case 'head': {
+			$Pather_Servers_ServerStarter.$createHeadServer();
+			break;
+		}
+		case 'cm':
+		case 'clustermanager': {
+			$Pather_Servers_ServerStarter.$createClusterManagerServer(global.process.argv[3]);
+			break;
+		}
+		case 'gs':
+		case 'gamesegment': {
+			$Pather_Servers_ServerStarter.$createGameSegmentServer(global.process.argv[3]);
+			break;
+		}
+		case 'sm':
+		case 'servermanager': {
+			$Pather_Servers_ServerStarter.$createServerManager();
+			break;
+		}
+		case 'gw':
+		case 'gameworld': {
+			$Pather_Servers_ServerStarter.$createGameWorldServer();
+			break;
+		}
+		case 't':
+		case 'tick': {
+			$Pather_Servers_ServerStarter.$createTickServer();
+			break;
+		}
+		default: {
+			console.log('Failed to load: ', global.process.argv[2]);
+			break;
+		}
 	}
 };
 $Pather_Servers_ServerStarter.$createServerManager = function() {

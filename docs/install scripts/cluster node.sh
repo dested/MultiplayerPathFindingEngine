@@ -14,13 +14,17 @@ apt-get -y install git
 
 cd /usr/local/src/
 git clone https://github.com/dested/MultiplayerPathFindingEngine
-cd MultiplayerPathFindingEngine
+cd /usr/local/src/MultiplayerPathFindingEngine
 git pull
-cd output/Server
+cd /usr/local/src/MultiplayerPathFindingEngine/gulp
 npm install
-cd ../Client
+cd /usr/local/src/MultiplayerPathFindingEngine/output/Server
 npm install
-cd ../Server
+cd /usr/local/src/MultiplayerPathFindingEngine/output/Client
+npm install
 
-node app sm &
+cd /usr/local/src/MultiplayerPathFindingEngine/output/Server
+pkill node
+ 
+node prod-app sm &
 
