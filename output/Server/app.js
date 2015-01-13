@@ -8,3 +8,8 @@ global.astar = astar.astar;
 
 require('./js/Pather.Common');
 require('./js/Pather.Servers');
+
+
+
+require('./js/GameLogic.Common');
+require('./js/GameLogic.Server');

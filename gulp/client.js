@@ -11,6 +11,8 @@ var ftp = require('gulp-ftp');
 var codePaths = [
     'Pather.Common/bin/Debug/**/*.js',
     'Pather.Client/bin/Debug/**/*.js',
+    'GameLogic/GameLogic.Common/bin/Debug/**/*.js',
+    'GameLogic/GameLogic.Client/bin/Debug/**/*.js'
 ];
 
 var libPaths = ['packages/Saltarelle.Runtime.2.6.2/mscorlib.js'];

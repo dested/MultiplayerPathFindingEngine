@@ -20,4 +20,18 @@ namespace Pather.Servers.GameSegmentServer.Logger
 
         public GameSegmentLogMessage Message;
     }
+    [Serializable]
+    public class HistogramLogMessageContent : IPubSub_Message
+    {
+        public DateTime Time;
+
+        [ObjectLiteral]
+        public HistogramLogMessageContent(HistogramLogMessage message, DateTime time)
+        {
+            Message = message;
+            Time = time;
+        }
+
+        public HistogramLogMessage Message;
+    }
 }

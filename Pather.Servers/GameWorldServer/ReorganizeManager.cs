@@ -42,14 +42,19 @@ namespace Pather.Servers.GameWorldServer
 //            Global.Console.Log("Building Player Clusters");
 
             var playerClusters = buildPlayerClusters(userAndNeighbors);
-
-//            Global.Console.Log("Determining best gamesegment for each player cluster");
-
-            determineBestGameSegment(playerClusters).Then(() =>
+            if (playerClusters.Count == 0)
             {
                 deferred.Resolve(playerClusters);
-            });
+            }
+            else
+            {
+//            Global.Console.Log("Determining best gamesegment for each player cluster");
 
+                determineBestGameSegment(playerClusters).Then(() =>
+                {
+                    deferred.Resolve(playerClusters);
+                });
+            }
 
 
             return deferred.Promise;

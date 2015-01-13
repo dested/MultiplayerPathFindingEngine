@@ -1,19 +1,19 @@
 ﻿var app = angular.module('MMOMonitor', ['ui.bootstrap']);
 
 app.controller('Main', function ($scope) {
-
+    
     var socket = io.connect('127.0.0.1:9992');
     $scope.model = {};
     $scope.model.selectedLogPiece = null;
     $scope.model.tabs = [];
-
+    
     var longWait = 5 * 1000;
-
+    
     setInterval(function () {
-
+        
         for (var k = 0; k < $scope.model.tabs.length; k++) {
             var tab = $scope.model.tabs[k];
-
+            
             for (var l = 0; l < tab.servers.length; l++) {
                 var server = tab.servers[l];
                 if (((new Date()) - server.lastAlive) > longWait) {
@@ -26,17 +26,17 @@ app.controller('Main', function ($scope) {
     setInterval(function () {
         $scope.$apply();
     }, 2000);
-
-
-
+    
+    
+    
     for (var i = 0; i < servers.length; i++) {
-
+        
         (function (serverName) {
             socket.on(serverName, function (data) {
                 for (var k = 0; k < $scope.model.tabs.length; k++) {
                     if ($scope.model.tabs[k].title == data.serverType) {
                         var tab = $scope.model.tabs[k];
-
+                        
                         var selectedServer = undefined;
                         for (var l = 0; l < tab.servers.length; l++) {
                             var server = tab.servers[l];
@@ -51,8 +51,8 @@ app.controller('Main', function ($scope) {
                             }
                             tab.servers.push(selectedServer = { name: data.serverName, logPieces: logPieces });
                         }
-
-
+                        
+                        
                         var logType;
                         switch (data.logLevel) {
                             case "information":
@@ -75,37 +75,37 @@ app.controller('Main', function ($scope) {
                                 selectedServer.online = true;
                                 return;
                         }
-
-
+                        
+                        
                         for (var m = 0; m < selectedServer.logPieces.length; m++) {
                             var logPiece = selectedServer.logPieces[m];
                             if (logPiece.logTitle === logType) {
                                 logPiece.logs.push({ message: data.message, content: data.content, time: data.time });
-
+                                
                                 if (logPiece === $scope.model.selectedLogPiece) {
                                     $scope.model.selectedLogPiece.currentLogIndex = logPiece.logs.length;
                                 }
-
+                                
                                 return;
                             }
                         }
 
                     }
                 }
-
+                
                 alert('BAD' + JSON.stringify(data));
                 console.log(data);
             });
         })(servers[i]);
-
-
-
+        
+        
+        
         $scope.model.tabs.push({ title: servers[i], servers: [] })
     }
-
+    
     $scope.model.isOutOfSync = function (logPiece) {
         if (logPiece.currentLogIndex < logPiece.logs.length) {
-
+            
             return { backgroundColor: 'yellow' };
         }
         return {};
@@ -122,11 +122,34 @@ app.controller('Main', function ($scope) {
 
         }
         if (left < right) {
-
+            
             return { backgroundColor: 'yellow' };
         }
         return {};
     };
+
+
+}).controller('MainHistogram', function ($scope) {
+    
+    var socket = io.connect('127.0.0.1:9993');
+    $scope.model = {};
+    
+    
+    
+    socket.on("message", function (data) {
+        var gameSegment = $scope.model.gameSegments[data.gameSegmentId];
+        
+        if (data.message.type == 'keepAlive') {
+            return;
+        }
+        
+        switch (data.message.type) {
+            case 'LogDistribution':
+              
+                break; 
+        }
+         
+    });
 
 
 }).controller('MainSegment', function ($scope) {

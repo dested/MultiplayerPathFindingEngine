@@ -1,4 +1,5 @@
 ﻿using System;
+using Pather.Client.GameFramework;
 using Pather.Client.Libraries;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
@@ -7,6 +8,13 @@ using Pather.Common.Utils;
 
 namespace Pather.Client.Utils
 {
+    public interface IClientInstantiateLogic
+    {
+        ClientGameManager CreateClientGameManager();
+        ClientGame CreateClientGame(FrontEndTickManager frontEndTickManager);
+    }
+
+
     public class ClientCommunicator
     {
         public SocketIOClient Socket;

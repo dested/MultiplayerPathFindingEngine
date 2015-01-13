@@ -108,7 +108,7 @@
     <Compile Include="Models\Gateway\Socket\Base\UserJoined_User_Gateway_Socket_Message.cs" />
     <Compile Include="Models\Gateway\Socket\Base\User_Gateway_Socket_MessageType.cs" />
     <Compile Include="Models\Gateway\Socket\Base\User_Socket_Message.cs" />
-    <Compile Include="Utils\ConnectionConstants.cs" />
+    <Compile Include="ConnectionConstants.cs" />
     <Compile Include="Utils\DictionaryList.cs" />
     <Compile Include="Utils\Histogram\HistogramManager.cs" />
     <Compile Include="Utils\IntPoint.cs" />

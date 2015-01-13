@@ -29,7 +29,7 @@ namespace Pather.Client.Tests
 
             for (int i = 0; i < 4; i++)
             {
-                var gameClient = new ClientGameView();
+                var gameClient = new ClientGameView(null);
                 var point = points[i];
                 gameClient.ClientGameManager.OnReady += () =>
                 {
@@ -65,7 +65,7 @@ namespace Pather.Client.Tests
 
             for (int i = 0; i < 5; i++)
             {
-                var gameClient = new ClientGameView();
+                var gameClient = new ClientGameView(null);
                 var point = points[i];
                 gameClient.ClientGameManager.OnReady += () =>
                 {
@@ -108,7 +108,7 @@ namespace Pather.Client.Tests
             {
                 var receivedCount = 0;
 
-                var gameClient = new ClientGameView();
+                var gameClient = new ClientGameView(null);
                 gameClient.ClientGameManager.OnReady += () =>
                 {
                     var cl = 0;

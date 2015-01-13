@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{0A604FF9-6A9C-452D-A4FA-4B263FB0E798}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Pather.Servers</RootNamespace>
     <AssemblyName>Pather.Servers</AssemblyName>
@@ -31,6 +31,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AuthServer\AuthServer.cs" />
@@ -129,6 +132,7 @@
     <Compile Include="GameSegmentServer\GameSegmentServer.cs" />
     <Compile Include="Common\ServerCommunicator.cs" />
     <Compile Include="ServerStarter.cs" />
+    <Compile Include="Utils\IInstantiateLogic.cs" />
     <Compile Include="Utils\ServerHelper.cs" />
   </ItemGroup>
   <ItemGroup>

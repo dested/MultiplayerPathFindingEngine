@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Html.Media.Graphics;
+using Pather.Client.Utils;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Common.Actions.GameSegmentAction;
@@ -10,14 +11,16 @@ namespace Pather.Client.GameFramework
 {
     public class ClientGameManager
     {
+        private   IClientInstantiateLogic clientInstantiateLogic;
         public NetworkManager NetworkManager;
         public FrontEndTickManager FrontEndTickManager;
         public ClientGameUser MyUser;
         public Action OnReady;
         public ClientGame clientGame;
 
-        public ClientGameManager()
+        public ClientGameManager(IClientInstantiateLogic clientInstantiateLogic)
         {
+            this.clientInstantiateLogic = clientInstantiateLogic;
             NetworkManager = new NetworkManager();
             FrontEndTickManager = new FrontEndTickManager();
             NetworkManager.OnMessage += onGatewayMessage;
@@ -25,7 +28,8 @@ namespace Pather.Client.GameFramework
             {
 //                Global.Console.Log("Connected To Tick Server");
             });
-            clientGame = new ClientGame(FrontEndTickManager);
+
+            clientGame = clientInstantiateLogic.CreateClientGame(FrontEndTickManager);
             FrontEndTickManager.StartPing();
         }
 
@@ -87,34 +91,6 @@ namespace Pather.Client.GameFramework
         private void onTickSyncMessage(TickSync_Gateway_User_Socket_Message message)
         {
             FrontEndTickManager.SetLockStepTick(message.LockstepTickNumber);
-        }
-
-        public void Draw(JsDictionary<string, CanvasRenderingContext2D> contextCollection, double interpolatedTime)
-        {
-            contextCollection["Foreground"].ClearRect(0, 0, Constants.NumberOfSquares * Constants.SquareSize, Constants.NumberOfSquares * Constants.SquareSize);
-            DrawBackground(contextCollection["Background"]);
-            clientGame.DrawEntities(contextCollection["Foreground"], interpolatedTime);
-        }
-
-        private void DrawBackground(CanvasRenderingContext2D context)
-        {
-            context.ClearRect(0, 0, Constants.NumberOfSquares * Constants.SquareSize, Constants.NumberOfSquares * Constants.SquareSize);
-            context.Save();
-            context.FillStyle = "black";
-            context.FillRect(0, 0, Constants.NumberOfSquares * Constants.SquareSize, Constants.NumberOfSquares * Constants.SquareSize);
-
-            context.FillStyle = "blue";
-            for (var y = 0; y < Constants.NumberOfSquares; y++)
-            {
-                for (var x = 0; x < Constants.NumberOfSquares; x++)
-                {
-                    if (clientGame.Board.Grid[x][y] == 0)
-                    {
-                        context.FillRect(x*Constants.SquareSize, y*Constants.SquareSize, Constants.SquareSize, Constants.SquareSize);
-                    }
-                }
-            }
-            context.Restore();
         }
 
         public void Tick(long tickNumber)

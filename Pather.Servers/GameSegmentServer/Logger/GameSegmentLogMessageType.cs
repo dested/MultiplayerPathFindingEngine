@@ -11,4 +11,10 @@ namespace Pather.Servers.GameSegmentServer.Logger
         UserLeft,
         TellUserMoved
     }
+    [NamedValues]
+    public enum HistogramLogMessageType
+    {
+        KeepAlive,
+        LogDistribution
+    }
 }

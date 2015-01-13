@@ -41,18 +41,6 @@ namespace Pather.Client.GameFramework
             return new ClientGameUser(this, userId);
         }
 
-        public void DrawEntities(CanvasRenderingContext2D context, double interpolatedTime)
-        {
-            foreach (IClientGameEntity entity in ActiveEntities.List)
-            {
-                context.Save();
-                entity.Draw(context, interpolatedTime);
-
-                context.Restore();
-            }
-        }
-
-
         public void ClientProcessClientAction(ClientAction action)
         {
             ClientGameUser user;

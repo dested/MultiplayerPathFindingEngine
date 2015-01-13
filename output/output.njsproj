@@ -58,6 +58,8 @@
     <Content Include="Server\package.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client\js\GameLogic.Client.js" />
+    <Compile Include="Client\js\GameLogic.Common.js" />
     <Compile Include="Client\prod-app.js" />
     <Compile Include="Client\app.js" />
     <Compile Include="Client\js\Pather.Client.js" />
@@ -72,6 +74,8 @@
     <Compile Include="Monitor\libs\ui-bootstrap.js" />
     <Compile Include="Monitor\monitor.js" />
     <Compile Include="Server\app.js" />
+    <Compile Include="Server\js\GameLogic.Common.js" />
+    <Compile Include="Server\js\GameLogic.Server.js" />
     <Compile Include="Server\js\Pather.Common.js" />
     <Compile Include="Server\js\Pather.Servers.js" />
     <Compile Include="Server\libs\astar.js" />

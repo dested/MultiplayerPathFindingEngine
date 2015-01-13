@@ -43,10 +43,10 @@ namespace Pather.Servers.ClusterManager
             switch (message.Type)
             {
                 case ClusterManager_PubSub_MessageType.CreateGameSegment:
-                    CreateGameSegment(((CreateGameSegment_ServerManager_ClusterManager_PubSub_ReqRes_Message) message));
+                    CreateGameSegment(((CreateGameSegment_ServerManager_ClusterManager_PubSub_ReqRes_Message)message));
                     break;
                 case ClusterManager_PubSub_MessageType.CreateGateway:
-                    CreateGateway(((CreateGateway_ServerManager_ClusterManager_PubSub_ReqRes_Message) message));
+                    CreateGateway(((CreateGateway_ServerManager_ClusterManager_PubSub_ReqRes_Message)message));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -79,9 +79,19 @@ namespace Pather.Servers.ClusterManager
 
             var str = @"C:\Users\deste_000\AppData\Roaming\npm\node-debug.cmd";
             str = "node";
+            string appName;
+            if (ConnectionConstants.Production)
+            {
+                appName = "prod-app.js";
+
+            }
+            else
+            {
+                appName = "app.js";
+            }
             var child = spawn(str, new[]
             {
-                "app.js", "gateway", createGatewayMessage.GatewayId, createGatewayMessage.Port.ToString()
+                appName, "gateway", createGatewayMessage.GatewayId, createGatewayMessage.Port.ToString()
             }, new
             {
                 stdio = new object[]
@@ -125,9 +135,22 @@ namespace Pather.Servers.ClusterManager
             var str = @"C:\Users\deste_000\AppData\Roaming\npm\node-debug.cmd";
             if (count >= 0)
                 str = "node";
+
+
+            string appName;
+            if (ConnectionConstants.Production)
+            {
+                appName = "prod-app.js";
+
+            }
+            else
+            {
+                appName = "app.js";
+            }
+
             var child = spawn(str, new[]
             {
-                "app.js", "gamesegment", createGameSegmentMessage.GameSegmentId
+                appName, "gamesegment", createGameSegmentMessage.GameSegmentId
             }, new
             {
                 stdio = new object[]

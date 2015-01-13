@@ -9,3 +9,6 @@ window.NoDraw = true;
 window.RunTests = true;
 require('./js/Pather.Common');
 require('./js/Pather.Client');
+
+require('./js/GameLogic.Common');
+require('./js/GameLogic.Client');

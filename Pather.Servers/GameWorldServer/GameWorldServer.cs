@@ -16,19 +16,34 @@ using Pather.Servers.Common.PubSub;
 using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Database;
 using Pather.Servers.GameWorldServer.Models;
+using Pather.Servers.Utils;
 
 namespace Pather.Servers.GameWorldServer
 {
+    public class DefaultInstanitateLogic : IInstantiateLogic
+    {
+        public GameWorld CreateGameWorld(GameWorldPubSub gameWorldPubSub, BackEndTickManager backEndTickManager)
+        {
+            return new GameWorld(gameWorldPubSub, backEndTickManager);
+        }
+    }
     public class GameWorldServer
     {
         private readonly IPubSub pubSub;
         private readonly IDatabaseQueries DatabaseQueries;
+        private readonly IInstantiateLogic instantiateLogic;
         public GameWorld GameWorld;
         public BackEndTickManager BackEndTickManager;
         private GameWorldPubSub gameWorldPubSub;
 
-        public GameWorldServer(IPubSub pubSub, IDatabaseQueries dbQueries)
+        public GameWorldServer(IPubSub pubSub, IDatabaseQueries dbQueries, IInstantiateLogic instantiateLogic = null)
         {
+            this.instantiateLogic = instantiateLogic;
+            if (this.instantiateLogic == null)
+            {
+                this.instantiateLogic = new DefaultInstanitateLogic();
+            }
+
             ServerLogger.InitLogger("GameWorld", "GameWorld");
             this.pubSub = pubSub;
             DatabaseQueries = dbQueries;
@@ -40,7 +55,7 @@ namespace Pather.Servers.GameWorldServer
 
         private void reorganize()
         {
-               var now = DateTime.Now;
+            var now = DateTime.Now;
 
 
             Global.Console.Log("Start Reorganize");
@@ -59,7 +74,7 @@ namespace Pather.Servers.GameWorldServer
                         }
                     }
                 }
-                Global.Console.Log("End Reorganize", (DateTime.Now - now)+ "ms. Moving", count, "Users.");
+                Global.Console.Log("End Reorganize", (DateTime.Now - now) + "ms. Moving", count, "Users.");
             });
         }
 
@@ -71,8 +86,8 @@ namespace Pather.Servers.GameWorldServer
             gameWorldPubSub.Message += gameWorldMessage;
 
             BackEndTickManager = new BackEndTickManager();
-            GameWorld = new GameWorld(gameWorldPubSub, BackEndTickManager);
 
+            GameWorld = this.instantiateLogic.CreateGameWorld(gameWorldPubSub, BackEndTickManager);
 
             BackEndTickManager.Init(sendPing, () =>
             {
@@ -149,7 +164,7 @@ namespace Pather.Servers.GameWorldServer
             switch (message.Type)
             {
                 case GameWorld_PubSub_MessageType.UserJoined:
-                    UserJoined((UserJoined_Gateway_GameWorld_PubSub_Message) message).Then(gwUser =>
+                    UserJoined((UserJoined_Gateway_GameWorld_PubSub_Message)message).Then(gwUser =>
                     {
                         gameWorldPubSub.PublishToGatewayServer(gwUser.GatewayId, new UserJoined_GameWorld_Gateway_PubSub_Message()
                         {
@@ -163,7 +178,7 @@ namespace Pather.Servers.GameWorldServer
                     break;
                 case GameWorld_PubSub_MessageType.UserLeft:
 
-                    var userLeftMessage = ((UserLeft_Gateway_GameWorld_PubSub_Message) message);
+                    var userLeftMessage = ((UserLeft_Gateway_GameWorld_PubSub_Message)message);
 
                     var done = false;
                     foreach (var preAddedUser in preAddedUsers)
@@ -187,19 +202,19 @@ namespace Pather.Servers.GameWorldServer
                     });
                     break;
                 case GameWorld_PubSub_MessageType.Pong:
-                    var pongMessage = (Pong_Tick_GameWorld_PubSub_Message) message;
+                    var pongMessage = (Pong_Tick_GameWorld_PubSub_Message)message;
                     BackEndTickManager.OnPongReceived();
                     break;
                 case GameWorld_PubSub_MessageType.TickSync:
-                    var tickSyncMessage = (TickSync_Tick_GameWorld_PubSub_Message) message;
+                    var tickSyncMessage = (TickSync_Tick_GameWorld_PubSub_Message)message;
                     BackEndTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
                     break;
                 case GameWorld_PubSub_MessageType.GameWorldAction:
-                    var gameWorldAction = (GameWorldAction_GameSegment_GameWorld_PubSub_Message) message;
+                    var gameWorldAction = (GameWorldAction_GameSegment_GameWorld_PubSub_Message)message;
                     GameWorld.GameWorldAction(gameWorldAction);
                     break;
                 case GameWorld_PubSub_MessageType.InitializeGameSegment:
-                    var getAllGameSegments = ((InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message) message);
+                    var getAllGameSegments = ((InitializeGameSegment_GameSegment_GameWorld_PubSub_ReqRes_Message)message);
                     var initializeGameSegmentMessage = new InitializeGameSegment_Response_GameWorld_GameSegment_PubSub_ReqRes_Message()
                     {
                         MessageId = getAllGameSegments.MessageId,
@@ -232,7 +247,7 @@ namespace Pather.Servers.GameWorldServer
                 Grid[x] = new int[Constants.NumberOfSquares];
                 for (var y = 0; y < Constants.NumberOfSquares; y++)
                 {
-                    Grid[x][y] = (Math.Random()*100 < 15) ? 0 : 1;
+                    Grid[x][y] = (Math.Random() * 100 < 15) ? 0 : 1;
                 }
             }
         }
@@ -248,7 +263,7 @@ namespace Pather.Servers.GameWorldServer
         {
             var deferred = Q.Defer<GameWorldUser, UserJoinError>();
             //                Global.Console.Log("User Joined Game World", message.UserToken, message.GatewayId);
-//            Global.Console.Log("User trying to join");
+            //            Global.Console.Log("User trying to join");
             if (!joining)
             {
                 joining = true;

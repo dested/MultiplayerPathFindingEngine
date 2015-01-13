@@ -11,6 +11,7 @@
         private static readonly string gateway = "Gateway";
         private static readonly string headServer = "Head";
         private static readonly string serverManager = "ServerManager";
+        private static readonly string histogramLogger = "HistogramLogger";
 
 
         public static string Tick()
@@ -58,6 +59,7 @@
             return serverLogger + serverType;
         }
 
+
         public static string GameSegmentLogger()
         {
             return gameSegmentLogger;
@@ -71,6 +73,11 @@
         public static string ServerManager()
         {
             return serverManager;
+        }
+
+        public static string HistogramLogger()
+        {
+            return histogramLogger;
         }
     }
 }

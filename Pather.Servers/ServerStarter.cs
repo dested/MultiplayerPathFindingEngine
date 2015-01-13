@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.TestFramework;
 using Pather.Common.Utils;
@@ -8,13 +9,17 @@ using Pather.Servers.Common.PushPop;
 using Pather.Servers.Common.SocketManager;
 using Pather.Servers.Database;
 using Pather.Servers.Libraries.Redis;
+using Pather.Servers.Utils;
 
 namespace Pather.Servers
 {
     public class ServerStarter
     {
-        public static void Main()
+        private IInstantiateLogic instantiateLogic;
+
+        public void Start(IInstantiateLogic instantiateLogic)
         {
+            this.instantiateLogic = instantiateLogic;
             var arg = Global.Process.Arguments[2];
 
             if (string.IsNullOrEmpty(arg))
@@ -65,7 +70,7 @@ namespace Pather.Servers
             }
         }
 
-        private static void ready(string server)
+        private  void ready(string server)
         {
             switch (server)
             {
@@ -119,47 +124,47 @@ namespace Pather.Servers
             }
         }
 
-        private static void createServerManager()
+        private void createServerManager()
         {
             new ServerManager.ServerManager(new PubSub(), new PushPop());
         }
 
-        private static void createTickServer()
+        private void createTickServer()
         {
             new TickServer.TickServer(new PubSub());
         }
 
-        private static void createGameWorldServer()
+        private void createGameWorldServer()
         {
-            new GameWorldServer.GameWorldServer(new PubSub(), new DatabaseQueries());
+            new GameWorldServer.GameWorldServer(new PubSub(), new DatabaseQueries(), instantiateLogic);
         }
 
-        private static void createGameSegmentServer(string gameSegmentId)
+        private void createGameSegmentServer(string gameSegmentId)
         {
             new GameSegmentServer.GameSegmentServer(new PubSub(), new PushPop(), gameSegmentId);
         }
 
-        private static void createClusterManagerServer(string clusterManagerId)
+        private void createClusterManagerServer(string clusterManagerId)
         {
             new ClusterManager.ClusterManager(new PubSub(), new PushPop(), clusterManagerId);
         }
 
-        private static void createHeadServer()
+        private void createHeadServer()
         {
             new HeadServer.HeadServer(new PubSub());
         }
 
-        private static void createMonitorServer()
+        private void createMonitorServer()
         {
             new MonitorServer.MonitorServer();
         }
 
-        private static void createAuthServer()
+        private void createAuthServer()
         {
             new AuthServer.AuthServer();
         }
 
-        private static void createGatewayServer(string gatewayId, int port)
+        private void createGatewayServer(string gatewayId, int port)
         {
             new GatewayServer.GatewayServer(new PubSub(), new PushPop(), new SocketIOManager(), gatewayId, port);
         }

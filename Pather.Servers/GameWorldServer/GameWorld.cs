@@ -217,7 +217,7 @@ namespace Pather.Servers.GameWorldServer
         }
 
 
-        public void GameWorldAction(GameWorldAction_GameSegment_GameWorld_PubSub_Message gameWorldActionGameSegment)
+        public  void GameWorldAction(GameWorldAction_GameSegment_GameWorld_PubSub_Message gameWorldActionGameSegment)
         {
             switch (gameWorldActionGameSegment.Action.GameWorldActionType)
             {

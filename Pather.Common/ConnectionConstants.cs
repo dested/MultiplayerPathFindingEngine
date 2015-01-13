@@ -1,7 +1,6 @@
 ﻿using System.Html;
-using Pather.Common.Libraries.NodeJS;
 
-namespace Pather.Common.Utils
+namespace Pather.Common
 {
     public static class ConnectionConstants
     {

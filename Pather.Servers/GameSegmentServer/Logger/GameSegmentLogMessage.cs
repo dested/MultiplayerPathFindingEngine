@@ -7,4 +7,10 @@ namespace Pather.Servers.GameSegmentServer.Logger
     {
         public GameSegmentLogMessageType Type;
     }
+
+    [Serializable]
+    public abstract class HistogramLogMessage
+    {
+        public HistogramLogMessageType Type;
+    }
 }

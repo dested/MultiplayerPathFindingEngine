@@ -8,23 +8,9 @@
 	global.Pather.Client.Utils = global.Pather.Client.Utils || {};
 	ss.initAssembly($asm, 'Pather.Client');
 	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Client.Program
-	var $Pather_Client_$Program = function() {
-	};
-	$Pather_Client_$Program.__typeName = 'Pather.Client.$Program';
-	$Pather_Client_$Program.$main = function() {
-		if (!!(window.window.RunTests || window.location.hash === '#test')) {
-			Pather.Common.TestFramework.TestFramework.runTests(null);
-			return;
-		}
-		var gameClient = new $Pather_Client_ClientGameView();
-		//            var game = new ClientGame();
-		//            game.Init();
-	};
-	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Client.ClientGameView
-	var $Pather_Client_ClientGameView = function() {
-		this.$contextCollection = {};
+	var $Pather_Client_ClientGameView = function(clientInstantiateLogic) {
+		this.$clientInstantiateLogic = null;
 		this.clientGameManager = null;
 		this.curTickTime = 0;
 		this.tickNumber = 0;
@@ -33,8 +19,12 @@
 		this.serverLatency = 0;
 		this.trackTickNumber = 0;
 		this.trackLockstepTickNumber = 0;
-		this.clientGameManager = new $Pather_Client_GameFramework_ClientGameManager();
-		this.clientGameManager.onReady = ss.delegateCombine(this.clientGameManager.onReady, ss.mkdel(this, this.$readyToPlay));
+		this.$clientInstantiateLogic = clientInstantiateLogic;
+		if (ss.isNullOrUndefined(this.$clientInstantiateLogic)) {
+			this.$clientInstantiateLogic = new $Pather_Client_DefaultClientInstantiateLogic();
+		}
+		this.clientGameManager = clientInstantiateLogic.createClientGameManager();
+		this.clientGameManager.onReady = ss.delegateCombine(this.clientGameManager.onReady, ss.mkdel(this, this.readyToPlay));
 		this.nextGameTime = (new Date()).getTime();
 		this.curGameTime = (new Date()).getTime();
 		this.curTickTime = (new Date()).getTime();
@@ -45,11 +35,17 @@
 	$Pather_Client_ClientGameView.__typeName = 'Pather.Client.ClientGameView';
 	global.Pather.Client.ClientGameView = $Pather_Client_ClientGameView;
 	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Client.DefaultClientInstantiateLogic
+	var $Pather_Client_DefaultClientInstantiateLogic = function() {
+	};
+	$Pather_Client_DefaultClientInstantiateLogic.__typeName = 'Pather.Client.DefaultClientInstantiateLogic';
+	global.Pather.Client.DefaultClientInstantiateLogic = $Pather_Client_DefaultClientInstantiateLogic;
+	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Client.NetworkManager
 	var $Pather_Client_NetworkManager = function() {
 		this.$clientCommunicator = null;
 		this.onMessage = null;
-		$Pather_Client_NetworkManager.getRequest(Pather.Common.Utils.ConnectionConstants.headIP, ss.mkdel(this, function(url) {
+		$Pather_Client_NetworkManager.getRequest(Pather.Common.ConnectionConstants.headIP, ss.mkdel(this, function(url) {
 			console.log(url);
 			this.$clientCommunicator = new $Pather_Client_Utils_ClientCommunicator(url);
 			this.$clientCommunicator.listenForGatewayMessage(ss.mkdel(this, function(message) {
@@ -88,19 +84,21 @@
 	global.Pather.Client.GameFramework.ClientGame = $Pather_Client_GameFramework_ClientGame;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Client.GameFramework.ClientGameManager
-	var $Pather_Client_GameFramework_ClientGameManager = function() {
+	var $Pather_Client_GameFramework_ClientGameManager = function(clientInstantiateLogic) {
+		this.$clientInstantiateLogic = null;
 		this.networkManager = null;
 		this.frontEndTickManager = null;
 		this.myUser = null;
 		this.onReady = null;
 		this.clientGame = null;
+		this.$clientInstantiateLogic = clientInstantiateLogic;
 		this.networkManager = new $Pather_Client_NetworkManager();
 		this.frontEndTickManager = new $Pather_Client_GameFramework_FrontEndTickManager();
 		this.networkManager.onMessage = ss.delegateCombine(this.networkManager.onMessage, ss.mkdel(this, this.$onGatewayMessage));
 		this.frontEndTickManager.init$1(ss.mkdel(this, this.$sendPing), function() {
 			//                Global.Console.Log("Connected To Tick Server");
 		});
-		this.clientGame = new $Pather_Client_GameFramework_ClientGame(this.frontEndTickManager);
+		this.clientGame = clientInstantiateLogic.createClientGame(this.frontEndTickManager);
 		this.frontEndTickManager.startPing();
 	};
 	$Pather_Client_GameFramework_ClientGameManager.__typeName = 'Pather.Client.GameFramework.ClientGameManager';
@@ -109,10 +107,8 @@
 	// Pather.Client.GameFramework.ClientGameUser
 	var $Pather_Client_GameFramework_ClientGameUser = function(game, userId) {
 		this.controlled = false;
-		this.animations = null;
 		this.path = null;
 		Pather.Common.GameFramework.GameUser.call(this, game, userId);
-		this.animations = [];
 		this.path = [];
 	};
 	$Pather_Client_GameFramework_ClientGameUser.__typeName = 'Pather.Client.GameFramework.ClientGameUser';
@@ -131,12 +127,6 @@
 	};
 	$Pather_Client_GameFramework_FrontEndTickManager.__typeName = 'Pather.Client.GameFramework.FrontEndTickManager';
 	global.Pather.Client.GameFramework.FrontEndTickManager = $Pather_Client_GameFramework_FrontEndTickManager;
-	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Client.GameFramework.IClientGameEntity
-	var $Pather_Client_GameFramework_IClientGameEntity = function() {
-	};
-	$Pather_Client_GameFramework_IClientGameEntity.__typeName = 'Pather.Client.GameFramework.IClientGameEntity';
-	global.Pather.Client.GameFramework.IClientGameEntity = $Pather_Client_GameFramework_IClientGameEntity;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Client.GameFramework.StepManager
 	var $Pather_Client_GameFramework_StepManager = function(game) {
@@ -159,7 +149,7 @@
 	$Pather_Client_Tests_LoginE2ETest.$createUser = function(i) {
 		setTimeout(function() {
 			var receivedCount = 0;
-			var gameClient = new $Pather_Client_ClientGameView();
+			var gameClient = new $Pather_Client_ClientGameView(null);
 			gameClient.clientGameManager.onReady = ss.delegateCombine(gameClient.clientGameManager.onReady, function() {
 				var cl = 0;
 				cl = setInterval(function() {
@@ -191,37 +181,14 @@
 	};
 	$Pather_Client_Utils_ClientCommunicator.__typeName = 'Pather.Client.Utils.ClientCommunicator';
 	global.Pather.Client.Utils.ClientCommunicator = $Pather_Client_Utils_ClientCommunicator;
-	ss.initClass($Pather_Client_$Program, $asm, {});
+	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Client.Utils.IClientInstantiateLogic
+	var $Pather_Client_Utils_IClientInstantiateLogic = function() {
+	};
+	$Pather_Client_Utils_IClientInstantiateLogic.__typeName = 'Pather.Client.Utils.IClientInstantiateLogic';
+	global.Pather.Client.Utils.IClientInstantiateLogic = $Pather_Client_Utils_IClientInstantiateLogic;
 	ss.initClass($Pather_Client_ClientGameView, $asm, {
-		$readyToPlay: function() {
-			if (!Pather.Common.Constants.get_noDraw()) {
-				var $t1 = document.getElementById('backCanvas');
-				var backCanvas = ss.cast($t1, ss.isValue($t1) && (ss.isInstanceOfType($t1, Element) && $t1.tagName === 'CANVAS'));
-				backCanvas.width = Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize;
-				backCanvas.height = Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize;
-				var backContext = ss.cast(backCanvas.getContext('2d'), CanvasRenderingContext2D);
-				var $t2 = document.getElementById('canvas');
-				var canvas = ss.cast($t2, ss.isValue($t2) && (ss.isInstanceOfType($t2, Element) && $t2.tagName === 'CANVAS'));
-				canvas.width = Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize;
-				canvas.height = Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize;
-				var context = ss.cast(canvas.getContext('2d'), CanvasRenderingContext2D);
-				this.$contextCollection['Background'] = backContext;
-				this.$contextCollection['Foreground'] = context;
-				canvas.onmousedown = ss.mkdel(this, function(ev) {
-					var event = ev;
-					this.clientGameManager.moveToLocation(ss.unbox(ss.cast(event.offsetX, Number)), ss.unbox(ss.cast(event.offsetY, Number)));
-				});
-				window.requestAnimationFrame(ss.mkdel(this, function(a) {
-					this.$draw();
-				}));
-			}
-		},
-		$draw: function() {
-			window.requestAnimationFrame(ss.mkdel(this, function(a) {
-				this.$draw();
-			}));
-			var interpolatedTime = ((new Date()).getTime() - this.nextGameTime) / Pather.Common.Constants.gameTicks;
-			this.clientGameManager.draw(this.$contextCollection, interpolatedTime);
+		readyToPlay: function() {
 		},
 		get_percentCompletedWithLockStep: function() {
 			var vc = (new Date()).getTime();
@@ -244,6 +211,15 @@
 			}
 		}
 	});
+	ss.initInterface($Pather_Client_Utils_IClientInstantiateLogic, $asm, { createClientGameManager: null, createClientGame: null });
+	ss.initClass($Pather_Client_DefaultClientInstantiateLogic, $asm, {
+		createClientGameManager: function() {
+			return new $Pather_Client_GameFramework_ClientGameManager(this);
+		},
+		createClientGame: function(frontEndTickManager) {
+			return new $Pather_Client_GameFramework_ClientGame(frontEndTickManager);
+		}
+	}, null, [$Pather_Client_Utils_IClientInstantiateLogic]);
 	ss.initClass($Pather_Client_NetworkManager, $asm, {
 		joinUser: function() {
 			var $t2 = this.$clientCommunicator;
@@ -277,14 +253,6 @@
 		},
 		createGameUser: function(userId) {
 			return new $Pather_Client_GameFramework_ClientGameUser(this, userId);
-		},
-		drawEntities: function(context, interpolatedTime) {
-			for (var $t1 = 0; $t1 < this.activeEntities.list.length; $t1++) {
-				var entity = this.activeEntities.list[$t1];
-				context.save();
-				entity.draw(context, interpolatedTime);
-				context.restore();
-			}
 		},
 		clientProcessClientAction: function(action) {
 			var user;
@@ -393,97 +361,11 @@
 		$onTickSyncMessage: function(message) {
 			this.frontEndTickManager.setLockStepTick(message.lockstepTickNumber);
 		},
-		draw: function(contextCollection, interpolatedTime) {
-			contextCollection['Foreground'].clearRect(0, 0, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize);
-			this.$drawBackground(contextCollection['Background']);
-			this.clientGame.drawEntities(contextCollection['Foreground'], interpolatedTime);
-		},
-		$drawBackground: function(context) {
-			context.clearRect(0, 0, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize);
-			context.save();
-			context.fillStyle = 'black';
-			context.fillRect(0, 0, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize, Pather.Common.Constants.numberOfSquares * Pather.Common.Constants.squareSize);
-			context.fillStyle = 'blue';
-			for (var y = 0; y < Pather.Common.Constants.numberOfSquares; y++) {
-				for (var x = 0; x < Pather.Common.Constants.numberOfSquares; x++) {
-					if (this.clientGame.board.grid[x][y] === 0) {
-						context.fillRect(x * Pather.Common.Constants.squareSize, y * Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
-					}
-				}
-			}
-			context.restore();
-		},
 		tick: function(tickNumber) {
 			this.clientGame.tick(tickNumber);
 		}
 	});
-	ss.initInterface($Pather_Client_GameFramework_IClientGameEntity, $asm, { draw: null });
 	ss.initClass($Pather_Client_GameFramework_ClientGameUser, $asm, {
-		tick: function() {
-			Pather.Common.GameFramework.GameUser.prototype.tick.call(this);
-			ss.clear(this.animations);
-			var nextPathPoint = this.path[0];
-			if (ss.isNullOrUndefined(nextPathPoint)) {
-				return;
-			}
-			//            Global.Console.Log(EntityId, X, Y, game.tickManager.LockstepTickNumber);
-			var halfSquareSize = ss.Int32.div(Pather.Common.Constants.squareSize, 2);
-			var animationDividedSpeed = this.speed / Pather.Common.Constants.numberOfAnimationSteps;
-			var projectedX = nextPathPoint.x * Pather.Common.Constants.squareSize + halfSquareSize;
-			var projectedY = nextPathPoint.y * Pather.Common.Constants.squareSize + halfSquareSize;
-			for (var i = 0; i < Pather.Common.Constants.numberOfAnimationSteps; i++) {
-				var squareX = Pather.Common.Utils.Utilities.toSquare(this.x);
-				var squareY = Pather.Common.Utils.Utilities.toSquare(this.y);
-				var fromX = this.x;
-				var fromY = this.y;
-				if (squareX === nextPathPoint.x && squareY === nextPathPoint.y) {
-					ss.removeAt(this.path, 0);
-					nextPathPoint = this.path[0];
-					if (ss.isNullOrUndefined(nextPathPoint)) {
-						return;
-					}
-					projectedX = nextPathPoint.x * Pather.Common.Constants.squareSize + halfSquareSize;
-					projectedY = nextPathPoint.y * Pather.Common.Constants.squareSize + halfSquareSize;
-				}
-				if (projectedX === ss.Int32.trunc(this.x) && projectedY === ss.Int32.trunc(this.y)) {
-					return;
-				}
-				this.x = Pather.Common.Utils.Lerper.moveTowards(this.x, projectedX, animationDividedSpeed);
-				this.y = Pather.Common.Utils.Lerper.moveTowards(this.y, projectedY, animationDividedSpeed);
-				this.animations.push(new Pather.Common.Utils.AnimationStep(fromX, fromY, this.x, this.y));
-			}
-		},
-		draw: function(context, interpolatedTime) {
-			context.save();
-			if (interpolatedTime < 0) {
-				interpolatedTime = 0;
-			}
-			if (interpolatedTime > 1) {
-				interpolatedTime = 1;
-			}
-			var _x = ss.Int32.trunc(this.x);
-			var _y = ss.Int32.trunc(this.y);
-			if (this.animations.length > 0) {
-				var animationIndex = ss.Int32.trunc(interpolatedTime * Pather.Common.Constants.numberOfAnimationSteps);
-				var animation = this.animations[animationIndex];
-				if (ss.isValue(animation)) {
-					var interpolateStep = interpolatedTime % (1 / Pather.Common.Constants.numberOfAnimationSteps) * Pather.Common.Constants.numberOfAnimationSteps;
-					_x = ss.Int32.trunc(animation.fromX + (animation.x - animation.fromX) * interpolateStep);
-					_y = ss.Int32.trunc(animation.fromY + (animation.y - animation.fromY) * interpolateStep);
-				}
-			}
-			context.lineWidth = 5;
-			if (this.controlled) {
-				context.strokeStyle = 'green';
-			}
-			else {
-				context.strokeStyle = 'yellow';
-			}
-			context.fillStyle = 'red';
-			context.fillRect(_x - ss.Int32.div(Pather.Common.Constants.squareSize, 2), _y - ss.Int32.div(Pather.Common.Constants.squareSize, 2), Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
-			context.strokeRect(_x - ss.Int32.div(Pather.Common.Constants.squareSize, 2), _y - ss.Int32.div(Pather.Common.Constants.squareSize, 2), Pather.Common.Constants.squareSize, Pather.Common.Constants.squareSize);
-			context.restore();
-		},
 		rePathFind: function(destinationAction) {
 			var graph = this.game.board.aStarGraph;
 			var start = graph.grid[Pather.Common.Utils.Utilities.toSquare(this.x)][Pather.Common.Utils.Utilities.toSquare(this.y)];
@@ -499,7 +381,7 @@
 			ss.arrayAddRange(this.path, path);
 			//            Global.Console.Log("Path", Json.Stringify(Path));
 		}
-	}, Pather.Common.GameFramework.GameUser, [$Pather_Client_GameFramework_IClientGameEntity]);
+	}, Pather.Common.GameFramework.GameUser);
 	ss.initClass($Pather_Client_GameFramework_FrontEndTickManager, $asm, {
 		init$1: function(sendPing, onTickManagerReady) {
 			this.$sendPing = sendPing;
@@ -592,7 +474,7 @@
 			$t1.push(Pather.Common.Utils.Point.$ctor(50, 50));
 			var points = $t1;
 			for (var i = 0; i < 4; i++) {
-				var gameClient = { $: new $Pather_Client_ClientGameView() };
+				var gameClient = { $: new $Pather_Client_ClientGameView(null) };
 				var point = { $: points[i] };
 				gameClient.$.clientGameManager.onReady = ss.delegateCombine(gameClient.$.clientGameManager.onReady, ss.mkdel({ gameClient: gameClient, point: point }, function() {
 					setTimeout(ss.mkdel({ gameClient: this.gameClient, point: this.point }, function() {
@@ -616,7 +498,7 @@
 			$t1.push(Pather.Common.Utils.Point.$ctor(50, 50));
 			var points = $t1;
 			for (var i = 0; i < 5; i++) {
-				var gameClient = { $: new $Pather_Client_ClientGameView() };
+				var gameClient = { $: new $Pather_Client_ClientGameView(null) };
 				var point = { $: points[i] };
 				gameClient.$.clientGameManager.onReady = ss.delegateCombine(gameClient.$.clientGameManager.onReady, ss.mkdel({ gameClient: gameClient, point: point }, function() {
 					setTimeout(ss.mkdel({ gameClient: this.gameClient, point: this.point }, function() {
@@ -651,5 +533,4 @@
 		}
 	});
 	ss.setMetadata($Pather_Client_Tests_LoginE2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'Connect4', type: 8, sname: 'connect4', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'Connect5', type: 8, sname: 'connect5', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'Slam', type: 8, sname: 'slam', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
-	$Pather_Client_$Program.$main();
 })();

@@ -12,8 +12,45 @@ namespace Pather.Servers.MonitorServer
         {
             startMonitorServer();
             startSegmentMonitorServer();
+            startHistogramMonitorServer();
         }
 
+        private static void startHistogramMonitorServer()
+        {
+            //ExtensionMethods.debugger("");
+            var http = Global.Require<Http>("http");
+
+            var app = http.CreateServer((req, res) => res.End());
+
+            var io = SocketIO.Listen(app);
+            var port = 9993;
+
+            var currentIP = ServerHelper.GetNetworkIPs()[0];
+
+            app.Listen(port);
+
+            var connections = new List<SocketIOConnection>();
+
+            var logListener = new HistogramLogListener((mess) =>
+            {
+                foreach (var socketIoConnection in connections)
+                {
+                    socketIoConnection.Emit("message", mess);
+                }
+            });
+
+            io.Sockets.On("connection",
+                (SocketIOConnection socket) =>
+                {
+                    Global.Console.Log("User Joined");
+                    connections.Add(socket);
+                    socket.On("disconnect",
+                        (string data) =>
+                        {
+                            connections.Remove(socket);
+                        });
+                });
+        }
         private static void startSegmentMonitorServer()
         {
             //ExtensionMethods.debugger("");

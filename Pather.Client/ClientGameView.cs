@@ -3,21 +3,40 @@ using System.Collections.Generic;
 using System.Html;
 using System.Html.Media.Graphics;
 using Pather.Client.GameFramework;
+using Pather.Client.Utils;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 
 namespace Pather.Client
 {
-    public class ClientGameView
+    public class DefaultClientInstantiateLogic : IClientInstantiateLogic
     {
-        private readonly JsDictionary<string, CanvasRenderingContext2D> contextCollection =
-            new JsDictionary<string, CanvasRenderingContext2D>();
+        public ClientGameManager CreateClientGameManager()
+        {
+            return new ClientGameManager(this);
+        }
+        public ClientGame CreateClientGame(FrontEndTickManager frontEndTickManager)
+        {
+            return new ClientGame(frontEndTickManager);
+        }
+
+    }
+    public   class ClientGameView
+    {
+        private readonly IClientInstantiateLogic clientInstantiateLogic;
 
         public readonly ClientGameManager ClientGameManager;
 
-        public ClientGameView()
+        public ClientGameView(IClientInstantiateLogic clientInstantiateLogic)
         {
-            ClientGameManager = new ClientGameManager();
+            this.clientInstantiateLogic = clientInstantiateLogic;
+
+            if (this.clientInstantiateLogic == null)
+            {
+                this.clientInstantiateLogic = new DefaultClientInstantiateLogic();
+            }
+
+            ClientGameManager =clientInstantiateLogic.CreateClientGameManager();
             ClientGameManager.OnReady += ReadyToPlay;
 
 
@@ -29,41 +48,11 @@ namespace Pather.Client
             Global.SetTimeout(() => Tick(), 1);
         }
 
-        private void ReadyToPlay()
+        public virtual void ReadyToPlay()
         {
-            if (!Constants.NoDraw)
-            {
-                var backCanvas = (CanvasElement) Document.GetElementById("backCanvas");
-                backCanvas.Width = Constants.NumberOfSquares * Constants.SquareSize;
-                backCanvas.Height = Constants.NumberOfSquares * Constants.SquareSize;
-                var backContext = (CanvasRenderingContext2D) backCanvas.GetContext(CanvasContextId.Render2D);
-                var canvas = (CanvasElement) Document.GetElementById("canvas");
-                canvas.Width = Constants.NumberOfSquares * Constants.SquareSize;
-                canvas.Height = Constants.NumberOfSquares * Constants.SquareSize;
-                var context = (CanvasRenderingContext2D)canvas.GetContext(CanvasContextId.Render2D);
-                contextCollection["Background"] = backContext;
-                contextCollection["Foreground"] = context;
-                canvas.OnMousedown = (ev) =>
-                {
-                    var @event = (dynamic) ev;
-
-                    ClientGameManager.MoveToLocation(@event.offsetX, @event.offsetY);
-                };
-
-
-                Window.RequestAnimationFrame((a) => Draw());
-            }
+            
         }
-
-
-        private void Draw()
-        {
-            Window.RequestAnimationFrame((a) => Draw());
-
-            var interpolatedTime = (((new DateTime()).GetTime() - NextGameTime)/(double) Constants.GameTicks);
-
-            ClientGameManager.Draw(contextCollection, interpolatedTime);
-        }
+    
 
         public long CurTickTime;
         public long TickNumber;

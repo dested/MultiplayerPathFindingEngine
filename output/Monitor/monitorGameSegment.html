@@ -20,7 +20,7 @@
 <body ng-controller="MainSegment">
     <div class="container">
         <tabset>
-            <tab ng-repeat="(gameSegmentId,gameSegment) in model.gameSegments" heading="{{gameSegmentId}}" >
+            <tab ng-repeat="(gameSegmentId,gameSegment) in model.histgram" heading="{{gameSegmentId}}" >
                 <tabset  >
                     <canvas id="{{gameSegmentId}}"></canvas>
                 </tabset>

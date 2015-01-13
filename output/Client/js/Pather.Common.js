@@ -53,6 +53,16 @@
 	};
 	$Pather_$Common_TestFramework_TestFramework$TestProgressCounter.__typeName = 'Pather.$Common.TestFramework.TestFramework$TestProgressCounter';
 	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.ConnectionConstants
+	var $Pather_Common_ConnectionConstants = function() {
+	};
+	$Pather_Common_ConnectionConstants.__typeName = 'Pather.Common.ConnectionConstants';
+	$Pather_Common_ConnectionConstants.get_production = function() {
+		var production = window.window.Production;
+		return !!production;
+	};
+	global.Pather.Common.ConnectionConstants = $Pather_Common_ConnectionConstants;
+	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Constants
 	var $Pather_Common_Constants = function() {
 	};
@@ -1706,16 +1716,6 @@
 	$Pather_Common_Utils_AnimationStep.__typeName = 'Pather.Common.Utils.AnimationStep';
 	global.Pather.Common.Utils.AnimationStep = $Pather_Common_Utils_AnimationStep;
 	////////////////////////////////////////////////////////////////////////////////
-	// Pather.Common.Utils.ConnectionConstants
-	var $Pather_Common_Utils_ConnectionConstants = function() {
-	};
-	$Pather_Common_Utils_ConnectionConstants.__typeName = 'Pather.Common.Utils.ConnectionConstants';
-	$Pather_Common_Utils_ConnectionConstants.get_production = function() {
-		var production = window.window.Production;
-		return !!production;
-	};
-	global.Pather.Common.Utils.ConnectionConstants = $Pather_Common_Utils_ConnectionConstants;
-	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Utils.DataObject
 	var $Pather_Common_Utils_DataObject$1 = function(T) {
 		var $type = function() {
@@ -2598,6 +2598,7 @@
 	$Pather_Common_Utils_Promises_UndefinedPromiseError.__typeName = 'Pather.Common.Utils.Promises.UndefinedPromiseError';
 	global.Pather.Common.Utils.Promises.UndefinedPromiseError = $Pather_Common_Utils_Promises_UndefinedPromiseError;
 	ss.initClass($Pather_$Common_TestFramework_TestFramework$TestProgressCounter, $asm, {});
+	ss.initClass($Pather_Common_ConnectionConstants, $asm, {});
 	ss.initClass($Pather_Common_Constants, $asm, {});
 	ss.initClass($Pather_Common_Definitions_AStar_AStarLockstepPath, $asm, {});
 	ss.initClass($Pather_Common_GameFramework_Game, $asm, {
@@ -2785,7 +2786,6 @@
 	});
 	ss.initClass($Pather_Common_Utils_Point, $asm, {});
 	ss.initClass($Pather_Common_Utils_AnimationStep, $asm, {}, $Pather_Common_Utils_Point);
-	ss.initClass($Pather_Common_Utils_ConnectionConstants, $asm, {});
 	ss.initClass($Pather_Common_Utils_EnumerableExtensions, $asm, {});
 	ss.initClass($Pather_Common_Utils_IntPoint, $asm, {});
 	ss.initClass($Pather_Common_Utils_Lerper, $asm, {});
@@ -2920,6 +2920,10 @@
 	ss.initClass($Pather_Common_Utils_Promises_Q, $asm, {});
 	ss.initClass($Pather_Common_Utils_Promises_UndefinedPromiseError, $asm, {});
 	(function() {
+		$Pather_Common_ConnectionConstants.redisIP = ($Pather_Common_ConnectionConstants.get_production() ? 'redis.whoscoding.net' : '127.0.0.1');
+		$Pather_Common_ConnectionConstants.headIP = ($Pather_Common_ConnectionConstants.get_production() ? 'http://head.whoscoding.net:2222/api/' : 'http://127.0.0.1:2222/api/');
+	})();
+	(function() {
 		$Pather_Common_Constants.numberOfAnimationSteps = 0;
 		$Pather_Common_Constants.gameFps = 0;
 		$Pather_Common_Constants.drawTicks = 0;
@@ -2977,10 +2981,6 @@
 	(function() {
 		eval('\r\nglobal.$overwiteMethodCallForMocker$=function ($call$,$overwrite$) {\r\n    var $targets$=$call$._targets[0];\r\n    for(var m in $targets$) {\r\n        if($targets$[m]==$call$._targets[1]) {\r\n            $targets$[m]=$overwrite$;\r\n        }\r\n    }\r\n}');
 		eval("\r\nglobal.$instantiateInterface$=function ($type$) {\r\n    var obj={};\r\n    for(var m in $type$.prototype) {\r\n        obj[m]=function(){throw new Error('Mock interface method '+m+' not overridden');};\r\n    }\r\n    return obj;\r\n}");
-	})();
-	(function() {
-		$Pather_Common_Utils_ConnectionConstants.redisIP = ($Pather_Common_Utils_ConnectionConstants.get_production() ? 'redis.whoscoding.net' : '127.0.0.1');
-		$Pather_Common_Utils_ConnectionConstants.headIP = ($Pather_Common_Utils_ConnectionConstants.get_production() ? 'http://head.whoscoding.net:2222/api/' : 'http://127.0.0.1:2222/api/');
 	})();
 	(function() {
 		$Pather_Common_Utils_Histogram_$HistogramManager.$histograms = {};

@@ -33,130 +33,9 @@ ss.initAssembly($asm, 'Pather.Servers');
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.ServerStarter
 var $Pather_Servers_ServerStarter = function() {
+	this.$instantiateLogic = null;
 };
 $Pather_Servers_ServerStarter.__typeName = 'Pather.Servers.ServerStarter';
-$Pather_Servers_ServerStarter.main = function() {
-	var arg = global.process.argv[2];
-	if (ss.isNullOrEmptyString(arg)) {
-		throw new ss.Exception('Server argument not supplied');
-	}
-	arg = arg.toLowerCase();
-	console.log('Server started', arg);
-	if (arg === 'test') {
-		var testClass = null;
-		if (!ss.isNullOrEmptyString(global.process.argv[3])) {
-			testClass = global.process.argv[3];
-		}
-		Pather.Common.TestFramework.TestFramework.runTests(testClass);
-		return;
-	}
-	try {
-		var num = {};
-		if (!ss.Int32.tryParse(String.fromCharCode(Pather.Common.Utils.ConnectionConstants.redisIP.charCodeAt(0)), num)) {
-			var dns = require('dns');
-			dns.lookup(Pather.Common.Utils.ConnectionConstants.redisIP, function(err, value) {
-				Pather.Common.Utils.ConnectionConstants.redisIP = value;
-				$Pather_Servers_ServerStarter.$ready(arg);
-			});
-		}
-		else {
-			$Pather_Servers_ServerStarter.$ready(arg);
-		}
-	}
-	catch ($t1) {
-		var exc = ss.Exception.wrap($t1);
-		console.log('CRITICAL FAILURE: ', exc);
-	}
-};
-$Pather_Servers_ServerStarter.$ready = function(server) {
-	switch (server) {
-		case 'all': {
-			$Pather_Servers_ServerStarter.$createTickServer();
-			$Pather_Servers_ServerStarter.$createMonitorServer();
-			$Pather_Servers_ServerStarter.$createAuthServer();
-			$Pather_Servers_ServerStarter.$createServerManager();
-			$Pather_Servers_ServerStarter.$createGameWorldServer();
-			$Pather_Servers_ServerStarter.$createHeadServer();
-			break;
-		}
-		case 'gt':
-		case 'gateway': {
-			$Pather_Servers_ServerStarter.$createGatewayServer(global.process.argv[3], parseInt(global.process.argv[4]));
-			break;
-		}
-		case 'au':
-		case 'auth': {
-			$Pather_Servers_ServerStarter.$createAuthServer();
-			break;
-		}
-		case 'm':
-		case 'monitor': {
-			$Pather_Servers_ServerStarter.$createMonitorServer();
-			break;
-		}
-		case 'h':
-		case 'head': {
-			$Pather_Servers_ServerStarter.$createHeadServer();
-			break;
-		}
-		case 'cm':
-		case 'clustermanager': {
-			$Pather_Servers_ServerStarter.$createClusterManagerServer(global.process.argv[3]);
-			break;
-		}
-		case 'gs':
-		case 'gamesegment': {
-			$Pather_Servers_ServerStarter.$createGameSegmentServer(global.process.argv[3]);
-			break;
-		}
-		case 'sm':
-		case 'servermanager': {
-			$Pather_Servers_ServerStarter.$createServerManager();
-			break;
-		}
-		case 'gw':
-		case 'gameworld': {
-			$Pather_Servers_ServerStarter.$createGameWorldServer();
-			break;
-		}
-		case 't':
-		case 'tick': {
-			$Pather_Servers_ServerStarter.$createTickServer();
-			break;
-		}
-		default: {
-			console.log('Failed to load: ', global.process.argv[2]);
-			break;
-		}
-	}
-};
-$Pather_Servers_ServerStarter.$createServerManager = function() {
-	new $Pather_Servers_ServerManager_ServerManager(new $Pather_Servers_Common_PubSub_PubSub(), new $Pather_Servers_Common_PushPop_PushPop());
-};
-$Pather_Servers_ServerStarter.$createTickServer = function() {
-	new $Pather_Servers_TickServer_TickServer(new $Pather_Servers_Common_PubSub_PubSub());
-};
-$Pather_Servers_ServerStarter.$createGameWorldServer = function() {
-	new $Pather_Servers_GameWorldServer_GameWorldServer(new $Pather_Servers_Common_PubSub_PubSub(), new $Pather_Servers_Database_DatabaseQueries());
-};
-$Pather_Servers_ServerStarter.$createGameSegmentServer = function(gameSegmentId) {
-	new $Pather_Servers_GameSegmentServer_GameSegmentServer(new $Pather_Servers_Common_PubSub_PubSub(), new $Pather_Servers_Common_PushPop_PushPop(), gameSegmentId);
-};
-$Pather_Servers_ServerStarter.$createClusterManagerServer = function(clusterManagerId) {
-	new $Pather_Servers_ClusterManager_ClusterManager(new $Pather_Servers_Common_PubSub_PubSub(), new $Pather_Servers_Common_PushPop_PushPop(), clusterManagerId);
-};
-$Pather_Servers_ServerStarter.$createHeadServer = function() {
-	new $Pather_Servers_HeadServer_HeadServer(new $Pather_Servers_Common_PubSub_PubSub());
-};
-$Pather_Servers_ServerStarter.$createMonitorServer = function() {
-	new $Pather_Servers_MonitorServer_MonitorServer();
-};
-$Pather_Servers_ServerStarter.$createAuthServer = function() {
-	new $Pather_Servers_AuthServer_AuthServer();
-};
-$Pather_Servers_ServerStarter.$createGatewayServer = function(gatewayId, port) {
-	new $Pather_Servers_GatewayServer_GatewayServer(new $Pather_Servers_Common_PubSub_PubSub(), new $Pather_Servers_Common_PushPop_PushPop(), new $Pather_Servers_Common_SocketManager_SocketIOManager(), gatewayId, port);
-};
 global.Pather.Servers.ServerStarter = $Pather_Servers_ServerStarter;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.AuthServer.AuthServer
@@ -301,6 +180,9 @@ $Pather_Servers_Common_PubSub_PubSubChannels.head = function() {
 $Pather_Servers_Common_PubSub_PubSubChannels.serverManager = function() {
 	return $Pather_Servers_Common_PubSub_PubSubChannels.$serverManager;
 };
+$Pather_Servers_Common_PubSub_PubSubChannels.histogramLogger = function() {
+	return $Pather_Servers_Common_PubSub_PubSubChannels.$histogramLogger;
+};
 global.Pather.Servers.Common.PubSub.PubSubChannels = $Pather_Servers_Common_PubSub_PubSubChannels;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.Common.PushPop.IPushPop
@@ -332,6 +214,20 @@ var $Pather_Servers_Common_ServerLogging_GameSegmentLogListener = function(callb
 };
 $Pather_Servers_Common_ServerLogging_GameSegmentLogListener.__typeName = 'Pather.Servers.Common.ServerLogging.GameSegmentLogListener';
 global.Pather.Servers.Common.ServerLogging.GameSegmentLogListener = $Pather_Servers_Common_ServerLogging_GameSegmentLogListener;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Common.ServerLogging.HistogramLogListener
+var $Pather_Servers_Common_ServerLogging_HistogramLogListener = function(callback) {
+	this.$pubsub = null;
+	this.$pubsub = new $Pather_Servers_Common_PubSub_PubSub();
+	this.$pubsub.dontLog();
+	this.$pubsub.init(6380).then(ss.mkdel(this, function() {
+		this.$pubsub.subscribe($Pather_Servers_Common_PubSub_PubSubChannels.gameSegmentLogger(), function(content) {
+			callback(content);
+		});
+	}));
+};
+$Pather_Servers_Common_ServerLogging_HistogramLogListener.__typeName = 'Pather.Servers.Common.ServerLogging.HistogramLogListener';
+global.Pather.Servers.Common.ServerLogging.HistogramLogListener = $Pather_Servers_Common_ServerLogging_HistogramLogListener;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.Common.ServerLogging.ServerLogger
 var $Pather_Servers_Common_ServerLogging_ServerLogger = function() {
@@ -599,6 +495,54 @@ var $Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessageType = functio
 $Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessageType.__typeName = 'Pather.Servers.GameSegmentServer.Logger.GameSegmentLogMessageType';
 global.Pather.Servers.GameSegmentServer.Logger.GameSegmentLogMessageType = $Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessageType;
 ////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.GameSegmentServer.Logger.HistogramLogger
+var $Pather_Servers_GameSegmentServer_Logger_HistogramLogger = function() {
+};
+$Pather_Servers_GameSegmentServer_Logger_HistogramLogger.__typeName = 'Pather.Servers.GameSegmentServer.Logger.HistogramLogger';
+$Pather_Servers_GameSegmentServer_Logger_HistogramLogger.initLogger = function() {
+	$Pather_Servers_GameSegmentServer_Logger_HistogramLogger.$pubsub = new $Pather_Servers_Common_PubSub_PubSub();
+	$Pather_Servers_GameSegmentServer_Logger_HistogramLogger.$pubsub.dontLog();
+	$Pather_Servers_GameSegmentServer_Logger_HistogramLogger.$pubsub.init(6380).then(function() {
+		setInterval(function() {
+			$Pather_Servers_GameSegmentServer_Logger_HistogramLogger.logKeepAlive();
+		}, 500);
+	});
+};
+$Pather_Servers_GameSegmentServer_Logger_HistogramLogger.logKeepAlive = function() {
+	$Pather_Servers_GameSegmentServer_Logger_HistogramLogger.$pubsub.publish($Pather_Servers_Common_PubSub_PubSubChannels.histogramLogger(), { message: $Pather_Servers_GameSegmentServer_Logger_KeepAlive_HistogramLogMessage.$ctor(), time: new Date() });
+};
+$Pather_Servers_GameSegmentServer_Logger_HistogramLogger.logDistribution = function(dist) {
+	var $t2 = $Pather_Servers_GameSegmentServer_Logger_HistogramLogger.$pubsub;
+	var $t3 = $Pather_Servers_Common_PubSub_PubSubChannels.histogramLogger();
+	var $t1 = $Pather_Servers_GameSegmentServer_Logger_LogDistribution_HistogramLogMessage.$ctor();
+	$t1.distribution = dist;
+	$t2.publish($t3, { message: $t1, time: new Date() });
+};
+global.Pather.Servers.GameSegmentServer.Logger.HistogramLogger = $Pather_Servers_GameSegmentServer_Logger_HistogramLogger;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.GameSegmentServer.Logger.HistogramLogMessage
+var $Pather_Servers_GameSegmentServer_Logger_HistogramLogMessage = function() {
+};
+$Pather_Servers_GameSegmentServer_Logger_HistogramLogMessage.__typeName = 'Pather.Servers.GameSegmentServer.Logger.HistogramLogMessage';
+$Pather_Servers_GameSegmentServer_Logger_HistogramLogMessage.$ctor = function() {
+	var $this = {};
+	$this.type = null;
+	return $this;
+};
+global.Pather.Servers.GameSegmentServer.Logger.HistogramLogMessage = $Pather_Servers_GameSegmentServer_Logger_HistogramLogMessage;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.GameSegmentServer.Logger.HistogramLogMessageContent
+var $Pather_Servers_GameSegmentServer_Logger_HistogramLogMessageContent = function() {
+};
+$Pather_Servers_GameSegmentServer_Logger_HistogramLogMessageContent.__typeName = 'Pather.Servers.GameSegmentServer.Logger.HistogramLogMessageContent';
+global.Pather.Servers.GameSegmentServer.Logger.HistogramLogMessageContent = $Pather_Servers_GameSegmentServer_Logger_HistogramLogMessageContent;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.GameSegmentServer.Logger.HistogramLogMessageType
+var $Pather_Servers_GameSegmentServer_Logger_HistogramLogMessageType = function() {
+};
+$Pather_Servers_GameSegmentServer_Logger_HistogramLogMessageType.__typeName = 'Pather.Servers.GameSegmentServer.Logger.HistogramLogMessageType';
+global.Pather.Servers.GameSegmentServer.Logger.HistogramLogMessageType = $Pather_Servers_GameSegmentServer_Logger_HistogramLogMessageType;
+////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameSegmentServer.Logger.KeepAlive_GameSegmentLogMessage
 var $Pather_Servers_GameSegmentServer_Logger_KeepAlive_GameSegmentLogMessage = function() {
 };
@@ -612,6 +556,35 @@ $Pather_Servers_GameSegmentServer_Logger_KeepAlive_GameSegmentLogMessage.$ctor =
 	return $this;
 };
 global.Pather.Servers.GameSegmentServer.Logger.KeepAlive_GameSegmentLogMessage = $Pather_Servers_GameSegmentServer_Logger_KeepAlive_GameSegmentLogMessage;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.GameSegmentServer.Logger.KeepAlive_HistogramLogMessage
+var $Pather_Servers_GameSegmentServer_Logger_KeepAlive_HistogramLogMessage = function() {
+};
+$Pather_Servers_GameSegmentServer_Logger_KeepAlive_HistogramLogMessage.__typeName = 'Pather.Servers.GameSegmentServer.Logger.KeepAlive_HistogramLogMessage';
+$Pather_Servers_GameSegmentServer_Logger_KeepAlive_HistogramLogMessage.createInstance = function() {
+	return $Pather_Servers_GameSegmentServer_Logger_KeepAlive_HistogramLogMessage.$ctor();
+};
+$Pather_Servers_GameSegmentServer_Logger_KeepAlive_HistogramLogMessage.$ctor = function() {
+	var $this = $Pather_Servers_GameSegmentServer_Logger_HistogramLogMessage.$ctor();
+	$this.type = 'keepAlive';
+	return $this;
+};
+global.Pather.Servers.GameSegmentServer.Logger.KeepAlive_HistogramLogMessage = $Pather_Servers_GameSegmentServer_Logger_KeepAlive_HistogramLogMessage;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.GameSegmentServer.Logger.LogDistribution_HistogramLogMessage
+var $Pather_Servers_GameSegmentServer_Logger_LogDistribution_HistogramLogMessage = function() {
+};
+$Pather_Servers_GameSegmentServer_Logger_LogDistribution_HistogramLogMessage.__typeName = 'Pather.Servers.GameSegmentServer.Logger.LogDistribution_HistogramLogMessage';
+$Pather_Servers_GameSegmentServer_Logger_LogDistribution_HistogramLogMessage.createInstance = function() {
+	return $Pather_Servers_GameSegmentServer_Logger_LogDistribution_HistogramLogMessage.$ctor();
+};
+$Pather_Servers_GameSegmentServer_Logger_LogDistribution_HistogramLogMessage.$ctor = function() {
+	var $this = $Pather_Servers_GameSegmentServer_Logger_HistogramLogMessage.$ctor();
+	$this.distribution = null;
+	$this.type = 'logDistribution';
+	return $this;
+};
+global.Pather.Servers.GameSegmentServer.Logger.LogDistribution_HistogramLogMessage = $Pather_Servers_GameSegmentServer_Logger_LogDistribution_HistogramLogMessage;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameSegmentServer.Logger.TellUserMoved_GameSegmentLogMessage
 var $Pather_Servers_GameSegmentServer_Logger_TellUserMoved_GameSegmentLogMessage = function() {
@@ -693,6 +666,12 @@ var $Pather_Servers_GameWorldServer_$UserAndNeighbors = function(player) {
 };
 $Pather_Servers_GameWorldServer_$UserAndNeighbors.__typeName = 'Pather.Servers.GameWorldServer.$UserAndNeighbors';
 ////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.GameWorldServer.DefaultInstanitateLogic
+var $Pather_Servers_GameWorldServer_DefaultInstanitateLogic = function() {
+};
+$Pather_Servers_GameWorldServer_DefaultInstanitateLogic.__typeName = 'Pather.Servers.GameWorldServer.DefaultInstanitateLogic';
+global.Pather.Servers.GameWorldServer.DefaultInstanitateLogic = $Pather_Servers_GameWorldServer_DefaultInstanitateLogic;
+////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameWorldServer.GameSegment
 var $Pather_Servers_GameWorldServer_GameSegment = function(gameWorld) {
 	this.gameWorld = null;
@@ -737,9 +716,10 @@ $Pather_Servers_GameWorldServer_GameWorldPubSub.__typeName = 'Pather.Servers.Gam
 global.Pather.Servers.GameWorldServer.GameWorldPubSub = $Pather_Servers_GameWorldServer_GameWorldPubSub;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameWorldServer.GameWorldServer
-var $Pather_Servers_GameWorldServer_GameWorldServer = function(pubSub, dbQueries) {
+var $Pather_Servers_GameWorldServer_GameWorldServer = function(pubSub, dbQueries, instantiateLogic) {
 	this.$pubSub = null;
 	this.$databaseQueries = null;
+	this.$instantiateLogic = null;
 	this.gameWorld = null;
 	this.backEndTickManager = null;
 	this.$gameWorldPubSub = null;
@@ -747,6 +727,10 @@ var $Pather_Servers_GameWorldServer_GameWorldServer = function(pubSub, dbQueries
 	this.$preAddedUsers = {};
 	this.$stalledJoins = [];
 	this.$joining = false;
+	this.$instantiateLogic = instantiateLogic;
+	if (ss.isNullOrUndefined(this.$instantiateLogic)) {
+		this.$instantiateLogic = new $Pather_Servers_GameWorldServer_DefaultInstanitateLogic();
+	}
 	$Pather_Servers_Common_ServerLogging_ServerLogger.initLogger('GameWorld', 'GameWorld');
 	this.$pubSub = pubSub;
 	this.$databaseQueries = dbQueries;
@@ -1902,8 +1886,34 @@ global.Pather.Servers.Libraries.RTree.Vector2 = $Pather_Servers_Libraries_RTree_
 var $Pather_Servers_MonitorServer_MonitorServer = function() {
 	$Pather_Servers_MonitorServer_MonitorServer.$startMonitorServer();
 	$Pather_Servers_MonitorServer_MonitorServer.$startSegmentMonitorServer();
+	$Pather_Servers_MonitorServer_MonitorServer.$startHistogramMonitorServer();
 };
 $Pather_Servers_MonitorServer_MonitorServer.__typeName = 'Pather.Servers.MonitorServer.MonitorServer';
+$Pather_Servers_MonitorServer_MonitorServer.$startHistogramMonitorServer = function() {
+	//ExtensionMethods.debugger("");
+	var http = require('http');
+	var app = http.createServer(function(req, res) {
+		res.end();
+	});
+	var io = socketio.listen(app);
+	var port = 9993;
+	var currentIP = $Pather_Servers_Utils_ServerHelper.getNetworkIPs()[0];
+	app.listen(port);
+	var connections = [];
+	var logListener = new $Pather_Servers_Common_ServerLogging_HistogramLogListener(function(mess) {
+		for (var $t1 = 0; $t1 < connections.length; $t1++) {
+			var socketIoConnection = connections[$t1];
+			socketIoConnection.emit('message', mess);
+		}
+	});
+	io.sockets.on('connection', function(socket) {
+		console.log('User Joined');
+		connections.push(socket);
+		socket.on('disconnect', function(data) {
+			ss.remove(connections, socket);
+		});
+	});
+};
 $Pather_Servers_MonitorServer_MonitorServer.$startSegmentMonitorServer = function() {
 	//ExtensionMethods.debugger("");
 	var http = require('http');
@@ -2056,6 +2066,12 @@ var $Pather_Servers_TickServer_TickServerTickManager = function(tickPubSub) {
 $Pather_Servers_TickServer_TickServerTickManager.__typeName = 'Pather.Servers.TickServer.TickServerTickManager';
 global.Pather.Servers.TickServer.TickServerTickManager = $Pather_Servers_TickServer_TickServerTickManager;
 ////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Utils.IInstantiateLogic
+var $Pather_Servers_Utils_IInstantiateLogic = function() {
+};
+$Pather_Servers_Utils_IInstantiateLogic.__typeName = 'Pather.Servers.Utils.IInstantiateLogic';
+global.Pather.Servers.Utils.IInstantiateLogic = $Pather_Servers_Utils_IInstantiateLogic;
+////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.Utils.ServerHelper
 var $Pather_Servers_Utils_ServerHelper = function() {
 };
@@ -2089,7 +2105,131 @@ $Pather_Servers_Utils_ServerHelper.getNetworkIPs = function() {
 	return addresses;
 };
 global.Pather.Servers.Utils.ServerHelper = $Pather_Servers_Utils_ServerHelper;
-ss.initClass($Pather_Servers_ServerStarter, $asm, {});
+ss.initClass($Pather_Servers_ServerStarter, $asm, {
+	start: function(instantiateLogic) {
+		this.$instantiateLogic = instantiateLogic;
+		var arg = global.process.argv[2];
+		if (ss.isNullOrEmptyString(arg)) {
+			throw new ss.Exception('Server argument not supplied');
+		}
+		arg = arg.toLowerCase();
+		console.log('Server started', arg);
+		if (arg === 'test') {
+			var testClass = null;
+			if (!ss.isNullOrEmptyString(global.process.argv[3])) {
+				testClass = global.process.argv[3];
+			}
+			Pather.Common.TestFramework.TestFramework.runTests(testClass);
+			return;
+		}
+		try {
+			var num = {};
+			if (!ss.Int32.tryParse(String.fromCharCode(Pather.Common.ConnectionConstants.redisIP.charCodeAt(0)), num)) {
+				var dns = require('dns');
+				dns.lookup(Pather.Common.ConnectionConstants.redisIP, ss.mkdel(this, function(err, value) {
+					Pather.Common.ConnectionConstants.redisIP = value;
+					this.$ready(arg);
+				}));
+			}
+			else {
+				this.$ready(arg);
+			}
+		}
+		catch ($t1) {
+			var exc = ss.Exception.wrap($t1);
+			console.log('CRITICAL FAILURE: ', exc);
+		}
+	},
+	$ready: function(server) {
+		switch (server) {
+			case 'all': {
+				this.$createTickServer();
+				this.$createMonitorServer();
+				this.$createAuthServer();
+				this.$createServerManager();
+				this.$createGameWorldServer();
+				this.$createHeadServer();
+				break;
+			}
+			case 'gt':
+			case 'gateway': {
+				this.$createGatewayServer(global.process.argv[3], parseInt(global.process.argv[4]));
+				break;
+			}
+			case 'au':
+			case 'auth': {
+				this.$createAuthServer();
+				break;
+			}
+			case 'm':
+			case 'monitor': {
+				this.$createMonitorServer();
+				break;
+			}
+			case 'h':
+			case 'head': {
+				this.$createHeadServer();
+				break;
+			}
+			case 'cm':
+			case 'clustermanager': {
+				this.$createClusterManagerServer(global.process.argv[3]);
+				break;
+			}
+			case 'gs':
+			case 'gamesegment': {
+				this.$createGameSegmentServer(global.process.argv[3]);
+				break;
+			}
+			case 'sm':
+			case 'servermanager': {
+				this.$createServerManager();
+				break;
+			}
+			case 'gw':
+			case 'gameworld': {
+				this.$createGameWorldServer();
+				break;
+			}
+			case 't':
+			case 'tick': {
+				this.$createTickServer();
+				break;
+			}
+			default: {
+				console.log('Failed to load: ', global.process.argv[2]);
+				break;
+			}
+		}
+	},
+	$createServerManager: function() {
+		new $Pather_Servers_ServerManager_ServerManager(new $Pather_Servers_Common_PubSub_PubSub(), new $Pather_Servers_Common_PushPop_PushPop());
+	},
+	$createTickServer: function() {
+		new $Pather_Servers_TickServer_TickServer(new $Pather_Servers_Common_PubSub_PubSub());
+	},
+	$createGameWorldServer: function() {
+		new $Pather_Servers_GameWorldServer_GameWorldServer(new $Pather_Servers_Common_PubSub_PubSub(), new $Pather_Servers_Database_DatabaseQueries(), this.$instantiateLogic);
+	},
+	$createGameSegmentServer: function(gameSegmentId) {
+		new $Pather_Servers_GameSegmentServer_GameSegmentServer(new $Pather_Servers_Common_PubSub_PubSub(), new $Pather_Servers_Common_PushPop_PushPop(), gameSegmentId);
+	},
+	$createClusterManagerServer: function(clusterManagerId) {
+		new $Pather_Servers_ClusterManager_ClusterManager(new $Pather_Servers_Common_PubSub_PubSub(), new $Pather_Servers_Common_PushPop_PushPop(), clusterManagerId);
+	},
+	$createHeadServer: function() {
+		new $Pather_Servers_HeadServer_HeadServer(new $Pather_Servers_Common_PubSub_PubSub());
+	},
+	$createMonitorServer: function() {
+		new $Pather_Servers_MonitorServer_MonitorServer();
+	},
+	$createAuthServer: function() {
+		new $Pather_Servers_AuthServer_AuthServer();
+	},
+	$createGatewayServer: function(gatewayId, port) {
+		new $Pather_Servers_GatewayServer_GatewayServer(new $Pather_Servers_Common_PubSub_PubSub(), new $Pather_Servers_Common_PushPop_PushPop(), new $Pather_Servers_Common_SocketManager_SocketIOManager(), gatewayId, port);
+	}
+});
 ss.initClass($Pather_Servers_AuthServer_AuthServer, $asm, {});
 ss.initClass($Pather_Servers_ClusterManager_ClusterManager, $asm, {
 	$pubsubsConnected: function() {
@@ -2132,7 +2272,14 @@ ss.initClass($Pather_Servers_ClusterManager_ClusterManager, $asm, {
 		});
 		var str = 'C:\\Users\\deste_000\\AppData\\Roaming\\npm\\node-debug.cmd';
 		str = 'node';
-		var child = spawn(str, ['app.js', 'gateway', createGatewayMessage.gatewayId, createGatewayMessage.port.toString()], { stdio: [m, out, err] });
+		var appName;
+		if (Pather.Common.ConnectionConstants.get_production()) {
+			appName = 'prod-app.js';
+		}
+		else {
+			appName = 'app.js';
+		}
+		var child = spawn(str, [appName, 'gateway', createGatewayMessage.gatewayId, createGatewayMessage.port.toString()], { stdio: [m, out, err] });
 		//            child.Unref();
 	},
 	$createGameSegment: function(createGameSegmentMessage) {
@@ -2157,7 +2304,14 @@ ss.initClass($Pather_Servers_ClusterManager_ClusterManager, $asm, {
 		if (this.$count >= 0) {
 			str = 'node';
 		}
-		var child = spawn(str, ['app.js', 'gamesegment', createGameSegmentMessage.gameSegmentId], { stdio: [m, out, err] });
+		var appName;
+		if (Pather.Common.ConnectionConstants.get_production()) {
+			appName = 'prod-app.js';
+		}
+		else {
+			appName = 'app.js';
+		}
+		var child = spawn(str, [appName, 'gamesegment', createGameSegmentMessage.gameSegmentId], { stdio: [m, out, err] });
 		//            child.Unref();
 	}
 });
@@ -2267,8 +2421,8 @@ ss.initClass($Pather_Servers_Common_PubSub_PubSub, $asm, {
 		this.$subbed = {};
 		var redis = require('redis');
 		redis.debug_mode = false;
-		this.$subClient = redis.createClient(port, Pather.Common.Utils.ConnectionConstants.redisIP);
-		this.$pubClient = redis.createClient(port, Pather.Common.Utils.ConnectionConstants.redisIP);
+		this.$subClient = redis.createClient(port, Pather.Common.ConnectionConstants.redisIP);
+		this.$pubClient = redis.createClient(port, Pather.Common.ConnectionConstants.redisIP);
 		this.$subClient.on('subscribe', function(channel, count) {
 			Pather.Common.Utils.Logger.log('subscribed: ' + channel + ' ' + count, 'information');
 		});
@@ -2393,8 +2547,8 @@ ss.initClass($Pather_Servers_Common_PushPop_PushPop, $asm, {
 		var deferred = Pather.Common.Utils.Promises.Q.defer();
 		var redis = require('redis');
 		redis.debug_mode = false;
-		this.$pushClient = redis.createClient(6379, Pather.Common.Utils.ConnectionConstants.redisIP);
-		this.$popClient = redis.createClient(6379, Pather.Common.Utils.ConnectionConstants.redisIP);
+		this.$pushClient = redis.createClient(6379, Pather.Common.ConnectionConstants.redisIP);
+		this.$popClient = redis.createClient(6379, Pather.Common.ConnectionConstants.redisIP);
 		this.$pushClient.on('ready', ss.mkdel(this, function() {
 			this.$pushReady = true;
 			if (this.$pushReady && this.$popReady) {
@@ -2426,6 +2580,13 @@ ss.initClass($Pather_Servers_Common_PushPop_PushPop, $asm, {
 	}
 }, null, [$Pather_Servers_Common_PushPop_IPushPop]);
 ss.initClass($Pather_Servers_Common_ServerLogging_GameSegmentLogListener, $asm, {
+	subscribe: function(channel, callback) {
+		this.$pubsub.subscribe($Pather_Servers_Common_PubSub_PubSubChannels.serverLogger(channel), function(content) {
+			callback(content);
+		});
+	}
+});
+ss.initClass($Pather_Servers_Common_ServerLogging_HistogramLogListener, $asm, {
 	subscribe: function(channel, callback) {
 		this.$pubsub.subscribe($Pather_Servers_Common_PubSub_PubSubChannels.serverLogger(channel), function(content) {
 			callback(content);
@@ -3233,12 +3394,24 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameUser, $asm, {
 ss.initClass($Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessage, $asm, {});
 ss.initClass($Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessageContent, $asm, {}, null, [Pather.Common.Models.Common.IPubSub_Message]);
 ss.initEnum($Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessageType, $asm, { keepAlive: 'keepAlive', userJoined: 'userJoined', userMoved: 'userMoved', userLeft: 'userLeft', tellUserMoved: 'tellUserMoved' }, true);
+ss.initClass($Pather_Servers_GameSegmentServer_Logger_HistogramLogger, $asm, {});
+ss.initClass($Pather_Servers_GameSegmentServer_Logger_HistogramLogMessage, $asm, {});
+ss.initClass($Pather_Servers_GameSegmentServer_Logger_HistogramLogMessageContent, $asm, {}, null, [Pather.Common.Models.Common.IPubSub_Message]);
+ss.initEnum($Pather_Servers_GameSegmentServer_Logger_HistogramLogMessageType, $asm, { keepAlive: 'keepAlive', logDistribution: 'logDistribution' }, true);
 ss.initClass($Pather_Servers_GameSegmentServer_Logger_KeepAlive_GameSegmentLogMessage, $asm, {}, $Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessage);
+ss.initClass($Pather_Servers_GameSegmentServer_Logger_KeepAlive_HistogramLogMessage, $asm, {}, $Pather_Servers_GameSegmentServer_Logger_HistogramLogMessage);
+ss.initClass($Pather_Servers_GameSegmentServer_Logger_LogDistribution_HistogramLogMessage, $asm, {}, $Pather_Servers_GameSegmentServer_Logger_HistogramLogMessage);
 ss.initClass($Pather_Servers_GameSegmentServer_Logger_TellUserMoved_GameSegmentLogMessage, $asm, {}, $Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessage);
 ss.initClass($Pather_Servers_GameSegmentServer_Logger_UserJoined_GameSegmentLogMessage, $asm, {}, $Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessage);
 ss.initClass($Pather_Servers_GameSegmentServer_Logger_UserLeft_GameSegmentLogMessage, $asm, {}, $Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessage);
 ss.initClass($Pather_Servers_GameSegmentServer_Logger_UserMoved_GameSegmentLogMessage, $asm, {}, $Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessage);
 ss.initClass($Pather_Servers_GameWorldServer_$UserAndNeighbors, $asm, {});
+ss.initInterface($Pather_Servers_Utils_IInstantiateLogic, $asm, { createGameWorld: null });
+ss.initClass($Pather_Servers_GameWorldServer_DefaultInstanitateLogic, $asm, {
+	createGameWorld: function(gameWorldPubSub, backEndTickManager) {
+		return new $Pather_Servers_GameWorldServer_GameWorld(gameWorldPubSub, backEndTickManager);
+	}
+}, null, [$Pather_Servers_Utils_IInstantiateLogic]);
 ss.initClass($Pather_Servers_GameWorldServer_GameSegment, $asm, {
 	canAcceptNewUsers: function() {
 		return this.users.length + this.preAddedUsers.length < Pather.Common.Constants.usersPerGameSegment;
@@ -3577,7 +3750,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 		this.$gameWorldPubSub.init();
 		this.$gameWorldPubSub.message = ss.delegateCombine(this.$gameWorldPubSub.message, ss.mkdel(this, this.$gameWorldMessage));
 		this.backEndTickManager = new $Pather_Servers_Common_BackEndTickManager();
-		this.gameWorld = new $Pather_Servers_GameWorldServer_GameWorld(this.$gameWorldPubSub, this.backEndTickManager);
+		this.gameWorld = this.$instantiateLogic.createGameWorld(this.$gameWorldPubSub, this.backEndTickManager);
 		this.backEndTickManager.init$1(ss.mkdel(this, this.$sendPing), ss.mkdel(this, function() {
 			console.log('Connected To Tick Server');
 			setInterval(ss.mkdel(this, this.$flushPreAddedUsers), 200);
@@ -3784,10 +3957,15 @@ ss.initClass($Pather_Servers_GameWorldServer_ReorganizeManager, $asm, {
 		var userAndNeighbors = this.$determineUserNeighbors(this.$gameWorldUsers);
 		//            Global.Console.Log("Building Player Clusters");
 		var playerClusters = this.$buildPlayerClusters(userAndNeighbors);
-		//            Global.Console.Log("Determining best gamesegment for each player cluster");
-		this.$determineBestGameSegment(playerClusters).then(function() {
+		if (playerClusters.length === 0) {
 			deferred.resolve(playerClusters);
-		});
+		}
+		else {
+			//            Global.Console.Log("Determining best gamesegment for each player cluster");
+			this.$determineBestGameSegment(playerClusters).then(function() {
+				deferred.resolve(playerClusters);
+			});
+		}
 		return deferred.promise;
 	},
 	$determineBestGameSegment: function(clusters) {
@@ -4006,7 +4184,7 @@ ss.initClass($Pather_Servers_GameWorldServer_Tests_GameWorldServerTests, $asm, {
 			Pather.Common.TestFramework.DeferredAssert.that(testDeferred, data.userId).get_does().equal(userId);
 			testDeferred.resolve();
 		});
-		var gws = new $Pather_Servers_GameWorldServer_GameWorldServer(pubSubTest, databaseQueriesTest);
+		var gws = new $Pather_Servers_GameWorldServer_GameWorldServer(pubSubTest, databaseQueriesTest, null);
 	}
 });
 ss.initClass($Pather_Servers_GatewayServer_$GatewayUser, $asm, {});
@@ -4366,7 +4544,7 @@ ss.initClass($Pather_Servers_GatewayServer_Tests_GatewayServerTests, $asm, {
 			Pather.Common.TestFramework.DeferredAssert.that(testDeferred, data2.userId).get_does().equal(userToken);
 			publishData(channel5, data2);
 		});
-		var gws = new $Pather_Servers_GameWorldServer_GameWorldServer(pubSubTest, databaseQueriesTest);
+		var gws = new $Pather_Servers_GameWorldServer_GameWorldServer(pubSubTest, databaseQueriesTest, null);
 	}
 });
 ss.initClass($Pather_Servers_HeadServer_HeadPubSub, $asm, {
@@ -4959,6 +5137,7 @@ ss.setMetadata($Pather_Servers_GatewayServer_Tests_GatewayServerTests, { attr: [
 	$Pather_Servers_Common_PubSub_PubSubChannels.$gateway = 'Gateway';
 	$Pather_Servers_Common_PubSub_PubSubChannels.$headServer = 'Head';
 	$Pather_Servers_Common_PubSub_PubSubChannels.$serverManager = 'ServerManager';
+	$Pather_Servers_Common_PubSub_PubSubChannels.$histogramLogger = 'HistogramLogger';
 })();
 (function() {
 	$Pather_Servers_Common_ServerLogging_ServerLogger.$pubsub = null;
@@ -4971,4 +5150,6 @@ ss.setMetadata($Pather_Servers_GatewayServer_Tests_GatewayServerTests, { attr: [
 (function() {
 	$Pather_Servers_Libraries_RTree_RTreePoint.$DIMENSIONS = 3;
 })();
-$Pather_Servers_ServerStarter.main();
+(function() {
+	$Pather_Servers_GameSegmentServer_Logger_HistogramLogger.$pubsub = null;
+})();
