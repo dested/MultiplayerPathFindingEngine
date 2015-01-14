@@ -58,7 +58,28 @@ moveentity to gameworld when theres are 0 lockstep points
 
 
 time per messagetype
-time per lockstep tick
+'/ time per lockstep tick
+
+
+
+
+
+figure out database
+figure out auth
+make sure projection will always work
+    can i determine what the ==gamestate== will look like at lcokstep
+separate server for gamesegment and gateway
+spin up new servers at will programmatically
+proper logging of whats happening
+proper exception handling
+proper failover for gamesegment/gateway/gameworld/cluster/head
+can i support 1k users
+can i support 5k users
+
+art.
+
+
+
 
 
 
