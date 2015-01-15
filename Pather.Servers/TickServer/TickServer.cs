@@ -16,13 +16,15 @@ namespace Pather.Servers.TickServer
         public TickServerTickManager TickManager;
         public TickPubSub TickPubSub;
         public IPubSub PubSub;
+                public ServerLogger ServerLogger;
 
         public TickServer(IPubSub pubSub)
         {
-            ServerLogger.InitLogger("Tick", "Tick");
+            ServerLogger = new ServerLogger("Tick", "Tick");
+
             PubSub = pubSub;
 
-            pubSub.Init().Then(() =>
+            pubSub.Init(ServerLogger).Then(() =>
             {
                 TickPubSub = new TickPubSub(pubSub);
                 TickPubSub.Init().Then(ready);
@@ -31,7 +33,7 @@ namespace Pather.Servers.TickServer
 
         private void ready()
         {
-            TickManager = new TickServerTickManager(TickPubSub);
+            TickManager = new TickServerTickManager(ServerLogger,TickPubSub);
             TickManager.Init(0);
 
             ServerLogger.LogInformation("Tick Server Ready.");

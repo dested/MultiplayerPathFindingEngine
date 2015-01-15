@@ -19,14 +19,16 @@ namespace Pather.Servers.Common.PubSub
         private bool sready;
         private RedisClient subClient;
         private JsDictionary<string, Action<IPubSub_Message>> subbed;
+        public ServerLogger ServerLogger;
         private bool dontLog;
 
         public PubSub()
         {
         }
 
-        public Promise Init(int port = 6379)
+        public Promise Init(ServerLogger serverLogger, int port = 6379)
         {
+            this.ServerLogger = serverLogger;
             var deferred = Q.Defer();
             subbed = new JsDictionary<string, Action<IPubSub_Message>>();
 
@@ -64,6 +66,7 @@ namespace Pather.Servers.Common.PubSub
             return deferred.Promise;
         }
 
+
         [InlineCode("this.$flush.bind(this)")]
         public static Action NoDelegateFlush()
         {
@@ -99,7 +102,8 @@ namespace Pather.Servers.Common.PubSub
             }
             if (count > 70)
             {
-                Global.Console.Log("Flushing", count);
+                if (ServerLogger!=null)
+                ServerLogger.LogInformation("Flushing Pubsub with over 70 items", count);
             }
             channelCache.Clear();
         }
@@ -110,7 +114,8 @@ namespace Pather.Servers.Common.PubSub
             {
                 if (!dontLog)
                 {
-                    ServerLogger.LogTransport("Pubsub Message Received", channel, message);
+                    if (ServerLogger != null)
+                        ServerLogger.LogTransport("Pubsub Message Received", channel, message);
                 }
                 var channelCallback = subbed[channel];
                 if (channelCallback != null)
@@ -133,9 +138,8 @@ namespace Pather.Servers.Common.PubSub
             }
             catch (Exception e)
             {
-                Global.Console.Log("Payload Dump", channel, Json.Stringify(message));
-                Global.Console.Log("An exception has occured", e, e.Stack);
-                ServerLogger.LogError("Exception", e, e.Stack, channel, message);
+                if (ServerLogger != null)
+                    ServerLogger.LogError("Exception", e, e.Stack, channel, message);
             }
         }
 
@@ -149,7 +153,8 @@ namespace Pather.Servers.Common.PubSub
         {
             if (!dontLog)
                 if (channel != PubSubChannels.Tick())
-                    ServerLogger.LogTransport("Pubsub Message Sent", channel, message);
+                    if (ServerLogger != null)
+                        ServerLogger.LogTransport("Pubsub Message Sent", channel, message);
 
             addToCache(channel, message);
         }
@@ -158,7 +163,8 @@ namespace Pather.Servers.Common.PubSub
         {
             if (!dontLog)
                 if (channel != PubSubChannels.Tick())
-                    ServerLogger.LogTransport("Pubsub Message Sent", channel, message);
+                    if (ServerLogger != null)
+                        ServerLogger.LogTransport("Pubsub Message Sent", channel, message);
 
 
             pubClient.Publish(channel, Json.Stringify(message));
@@ -178,7 +184,8 @@ namespace Pather.Servers.Common.PubSub
         {
             if (!dontLog)
                 if (channel != PubSubChannels.Tick())
-                    ServerLogger.LogDebug("Pubsub Subscribed to", channel);
+                    if (ServerLogger != null)
+                        ServerLogger.LogDebug("Pubsub Subscribed to", channel);
             subClient.Subscribe(channel);
             subbed[channel] = callback;
         }

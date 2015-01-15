@@ -6,6 +6,7 @@ using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Models.Common.Actions.ClientActions;
 using Pather.Common.Models.Common.Actions.GameWorldAction;
 using Pather.Servers.Common;
+using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.GameWorldServer;
 using Pather.Servers.Utils;
 
@@ -14,10 +15,10 @@ namespace GameLogic.Server
     public class LogicGameWorld : GameWorld
     {
 
-        public LogicGameWorld(GameWorldPubSub gameWorldPubSub, BackEndTickManager backEndTickManager, IInstantiateLogic instantiateLogic)
-            : base(gameWorldPubSub, backEndTickManager, instantiateLogic)
+        public LogicGameWorld(GameWorldPubSub gameWorldPubSub, BackEndTickManager backEndTickManager, IInstantiateLogic instantiateLogic, ServerLogger serverLogger)
+            : base(gameWorldPubSub, backEndTickManager, instantiateLogic,serverLogger)
         {
-            Global.Console.Log("Hello logic!");
+            serverLogger.LogInformation("Logic Server Entered");
         }
 
 

@@ -8,17 +8,20 @@ using Pather.Common.Models.Tick.Base;
 using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common.PubSub;
+using Pather.Servers.Common.ServerLogging;
 
 namespace Pather.Servers.GameSegmentServer
 {
     public class GameSegmentPubSub
     {
         public string GameSegmentId;
+        private readonly ServerLogger serverLogger;
         public IPubSub PubSub;
 
-        public GameSegmentPubSub(IPubSub pubSub, string gameSegmentId)
+        public GameSegmentPubSub(IPubSub pubSub, string gameSegmentId,ServerLogger serverLogger)
         {
             GameSegmentId = gameSegmentId;
+            this.serverLogger = serverLogger;
             PubSub = pubSub;
         }
 
@@ -44,8 +47,8 @@ namespace Pather.Servers.GameSegmentServer
                     var possibleMessageReqRes = (GameSegment_PubSub_ReqRes_Message) gameSegmentPubSubMessage;
                     if (!deferredMessages.ContainsKey(possibleMessageReqRes.MessageId))
                     {
-                        Global.Console.Log("Received message that I didnt ask for.", message);
-                        throw new Exception("Received message that I didnt ask for.");
+                        serverLogger.LogError("Received message that I didnt ask for.", message);
+                        return;
                     }
                     deferredMessages[possibleMessageReqRes.MessageId].Resolve(gameSegmentPubSubMessage);
                     deferredMessages.Remove(possibleMessageReqRes.MessageId);

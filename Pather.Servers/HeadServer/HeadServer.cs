@@ -7,6 +7,7 @@ using Pather.Common.Models.Head;
 using Pather.Common.Models.Head.Base;
 using Pather.Common.Models.ServerManager.Base;
 using Pather.Servers.Common.PubSub;
+using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.HeadServer.Models;
 using Pather.Servers.Libraries.ExpressJS;
 
@@ -15,17 +16,20 @@ namespace Pather.Servers.HeadServer
     public class HeadServer
     {
         private HeadPubSub headPubSub;
+        public ServerLogger ServerLogger;
         private List<Gateway> oldGateways = new List<Gateway>();
         private List<Gateway> gateways = new List<Gateway>();
 
         public HeadServer(IPubSub pubSub)
         {
-            pubSub.Init().Then(() => ready(pubSub));
+            ServerLogger = new ServerLogger("Head", "0");
+            pubSub.Init(ServerLogger).Then(() => ready(pubSub));
         }
+
 
         private void ready(IPubSub pubSub)
         {
-            headPubSub = new HeadPubSub(pubSub);
+            headPubSub = new HeadPubSub(pubSub,ServerLogger);
             headPubSub.Init();
 
             var app = Global.Require<Func<Express>>("express")();
@@ -76,19 +80,24 @@ namespace Pather.Servers.HeadServer
             if (isCurrentlySpawning == 0)
             {
                 var totalConnections = 0;
+                ServerLogger.LogDebug("Checking if should spawn new gateway");
                 foreach (var gateway in oldGateways)
                 {
                     totalConnections += gateway.LiveConnections;
                 }
                 if (totalConnections > oldGateways.Count*Constants.MaxConnectionsPerGateway - Constants.GatewayConnectionSpawnThreshold)
                 {
+                    ServerLogger.LogDebug("Spawning new", totalConnections,
+                        oldGateways.Count*Constants.MaxConnectionsPerGateway - Constants.GatewayConnectionSpawnThreshold);
                     isCurrentlySpawning = 1;
+                    ServerLogger.LogInformation("Spawning new gateway");
                     headPubSub.PublishToServerManagerWithCallback<CreateGateway_Response_ServerManager_Head_PubSub_ReqRes_Message>(
                         new CreateGateway_Head_ServerManager_PubSub_ReqRes_Message()
                         )
                         .Then(response =>
                         {
                             isCurrentlySpawning = 0;
+                            ServerLogger.LogInformation("Spawning new gateway succesful");
                             //todo idk, the new gateway has been created. it shoudl begin accepting pings and stuff.
                         });
                 }
@@ -99,7 +108,7 @@ namespace Pather.Servers.HeadServer
                 if (isCurrentlySpawning == 10)
                 {
                     isCurrentlySpawning = 0;
-                    Global.Console.Log("Failed to create a new gateway.");
+                    ServerLogger.LogError("Failed to create a new gateway.");
                 }
             }
         }
@@ -125,6 +134,7 @@ namespace Pather.Servers.HeadServer
 
         private void OnPingMessage(Ping_Response_Gateway_Head_PubSub_Message pingResponseMessage)
         {
+            ServerLogger.LogDebug("Received Ping From",pingResponseMessage);
             gateways.Add(new Gateway()
             {
                 Address = pingResponseMessage.Address,

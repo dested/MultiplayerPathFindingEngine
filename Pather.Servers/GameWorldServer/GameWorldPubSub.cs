@@ -10,15 +10,18 @@ using Pather.Common.Models.Tick.Base;
 using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common.PubSub;
+using Pather.Servers.Common.ServerLogging;
 
 namespace Pather.Servers.GameWorldServer
 {
     public class GameWorldPubSub
     {
         public IPubSub PubSub;
+        public ServerLogger ServerLogger;
 
-        public GameWorldPubSub(IPubSub pubSub)
+        public GameWorldPubSub(IPubSub pubSub, ServerLogger serverLogger)
         {
+            ServerLogger = serverLogger;
             PubSub = pubSub;
         }
 
@@ -32,12 +35,11 @@ namespace Pather.Servers.GameWorldServer
                 var gameWorldPubSubMessage = (GameWorld_PubSub_Message) (message);
 
                 if (Utilities.HasField<IPubSub_ReqRes_Message>(gameWorldPubSubMessage, m => m.MessageId) && ((GameWorld_PubSub_ReqRes_Message) gameWorldPubSubMessage).Response)
-                {
-//                    Global.Console.Log("message", message);
+                { 
                     var possibleMessageReqRes = (GameWorld_PubSub_ReqRes_Message) gameWorldPubSubMessage;
                     if (!deferredMessages.ContainsKey(possibleMessageReqRes.MessageId))
                     {
-                        Global.Console.Log("Received message that I didnt ask for.", message);
+                        ServerLogger.LogError("Received message that I didnt ask for.", message);
                         throw new Exception("Received message that I didnt ask for.");
                     }
                     deferredMessages[possibleMessageReqRes.MessageId].Resolve(gameWorldPubSubMessage);
@@ -48,6 +50,7 @@ namespace Pather.Servers.GameWorldServer
                 Message(gameWorldPubSubMessage);
             });
         }
+
 
         public void PublishToGameSegment(string gameSegmentId, GameSegment_PubSub_Message message)
         {

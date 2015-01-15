@@ -1,15 +1,18 @@
 using System;
 using Pather.Common.Models.Gateway.Socket.Base;
 using Pather.Common.Utils;
+using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Common.SocketManager;
 
 namespace Pather.Servers.Common
 {
     public class ServerCommunicator
     {
+        private readonly ServerLogger serverLogger;
         private readonly ISocketManager socketManager;
         public Action<ISocket> OnNewConnection;
         public Action<ISocket> OnDisconnectConnection;
+ 
 
         public void ListenOnChannel<T>(ISocket socket, string channel, Action<ISocket, T> callback) where T : Socket_Message
         {
@@ -25,11 +28,11 @@ namespace Pather.Servers.Common
         }
 
 
-        public ServerCommunicator(ISocketManager socketManager, int port)
+        public ServerCommunicator(ISocketManager socketManager, int port,ServerLogger serverLogger)
         {
             this.socketManager = socketManager;
 
-            socketManager.Init(port);
+            socketManager.Init(port,serverLogger);
 
             socketManager.Connections(socket =>
             {

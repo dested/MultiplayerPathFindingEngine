@@ -21,9 +21,9 @@
 	global.GameLogic.Server.InstantiateLogic = $GameLogic_Server_InstantiateLogic;
 	////////////////////////////////////////////////////////////////////////////////
 	// GameLogic.Server.LogicGameWorld
-	var $GameLogic_Server_LogicGameWorld = function(gameWorldPubSub, backEndTickManager, instantiateLogic) {
-		Pather.Servers.GameWorldServer.GameWorld.call(this, gameWorldPubSub, backEndTickManager, instantiateLogic);
-		console.log('Hello logic!');
+	var $GameLogic_Server_LogicGameWorld = function(gameWorldPubSub, backEndTickManager, instantiateLogic, serverLogger) {
+		Pather.Servers.GameWorldServer.GameWorld.call(this, gameWorldPubSub, backEndTickManager, instantiateLogic, serverLogger);
+		serverLogger.logInformation('Logic Server Entered', []);
 	};
 	$GameLogic_Server_LogicGameWorld.__typeName = 'GameLogic.Server.LogicGameWorld';
 	global.GameLogic.Server.LogicGameWorld = $GameLogic_Server_LogicGameWorld;
@@ -45,8 +45,8 @@
 	global.GameLogic.Server.LogicServerGameUser = $GameLogic_Server_LogicServerGameUser;
 	ss.initClass($GameLogic_Server_$Program, $asm, {});
 	ss.initClass($GameLogic_Server_InstantiateLogic, $asm, {
-		createGameWorld: function(gameWorldPubSub, backEndTickManager) {
-			return new $GameLogic_Server_LogicGameWorld(gameWorldPubSub, backEndTickManager, this);
+		createGameWorld: function(gameWorldPubSub, backEndTickManager, serverLogger) {
+			return new $GameLogic_Server_LogicGameWorld(gameWorldPubSub, backEndTickManager, this, serverLogger);
 		},
 		createServerGame: function(serverGameManager, backEndTickManager) {
 			return new $GameLogic_Server_LogicServerGame(serverGameManager, backEndTickManager);

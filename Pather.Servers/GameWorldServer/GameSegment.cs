@@ -5,16 +5,19 @@ using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.GameWorld.GameSegment;
 using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
+using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.GameWorldServer.Models;
 
 namespace Pather.Servers.GameWorldServer
 {
     public class GameSegment
     {
+        public ServerLogger ServerLogger;
         public GameWorld GameWorld;
 
-        public GameSegment(GameWorld gameWorld)
+        public GameSegment(GameWorld gameWorld, ServerLogger serverLogger)
         {
+            ServerLogger = serverLogger;
             GameWorld = gameWorld;
             Users = new List<GameWorldUser>();
             PreAddedUsers = new List<GameWorldUser>();
@@ -49,7 +52,7 @@ namespace Pather.Servers.GameWorldServer
             };
             GameWorld.GameWorldPubSub.PublishToGameSegmentWithCallback<UserJoin_Response_GameSegment_GameWorld_PubSub_ReqRes_Message>(GameSegmentId, userJoinGameWorldGameSegmentPubSubReqResMessage).Then((userJoinResponse) =>
             {
-//                Global.Console.Log("User joined!");
+                ServerLogger.LogInformation("User joined!");
                 foreach (var gwUser in collection)
                 {
                     Users.Add(gwUser.Item1);

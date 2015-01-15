@@ -14,6 +14,7 @@ using Pather.Common.Models.ServerManager.Base;
 using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common;
+using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Database;
 using Pather.Servers.GameWorldServer.Models;
 using Pather.Servers.Utils;
@@ -22,6 +23,7 @@ namespace Pather.Servers.GameWorldServer
 {
     public class GameWorld
     {
+        public ServerLogger ServerLogger;
         public GameWorldPubSub GameWorldPubSub;
         private readonly BackEndTickManager backEndTickManager;
         private readonly IInstantiateLogic instantiateLogic;
@@ -30,8 +32,9 @@ namespace Pather.Servers.GameWorldServer
         public GameBoard Board;
 
 
-        public GameWorld(GameWorldPubSub gameWorldPubSub, BackEndTickManager backEndTickManager,IInstantiateLogic instantiateLogic)
+        public GameWorld(GameWorldPubSub gameWorldPubSub, BackEndTickManager backEndTickManager,IInstantiateLogic instantiateLogic,ServerLogger serverLogger)
         {
+            ServerLogger = serverLogger;
             GameWorldPubSub = gameWorldPubSub;
             this.backEndTickManager = backEndTickManager;
             this.instantiateLogic = instantiateLogic;
@@ -54,7 +57,7 @@ namespace Pather.Servers.GameWorldServer
         {
             var defer = Q.Defer<GameWorldUser, UserJoinError>();
 
-            var gwUser = new GameWorldUser();
+            var gwUser = new GameWorldUser(this);
             gwUser.UserId = dbUser.UserId;
             gwUser.X = dbUser.X;
             gwUser.Y = dbUser.Y;
@@ -76,7 +79,7 @@ namespace Pather.Servers.GameWorldServer
 
             if (gwUser == null)
             {
-                Global.Console.Log("IDK WHO THIS USER IS", dbUser);
+                ServerLogger.LogError("IDK WHO THIS USER IS", dbUser);
                 deferred.Reject();
                 //                throw new Exception("IDK WHO THIS USER IS");
             }
@@ -94,7 +97,7 @@ namespace Pather.Servers.GameWorldServer
                     .Then(() =>
                     {
                         Users.Remove(gwUser);
-                        Global.Console.Log("User left", gwUser.UserId);
+                        ServerLogger.LogError("User left", gwUser.UserId);
                         deferred.Resolve();
                     });
             }
@@ -107,14 +110,14 @@ namespace Pather.Servers.GameWorldServer
         {
             var deferred = Q.Defer<GameSegment, UndefinedPromiseError>();
 
-//            Global.Console.Log("Trying to determine new game segment");
+            ServerLogger.LogDebug("Trying to determine new game segment");
             var noneFound = true;
             foreach (var neighbor in findClosestNeighbors(gwUser))
             {
                 var neighborGameSegment = neighbor.GameSegment;
                 if (neighborGameSegment.CanAcceptNewUsers())
                 {
-//                    Global.Console.Log("Found", neighborGameSegment.GameSegmentId);
+                    ServerLogger.LogDebug("Found space in game segment", neighborGameSegment.GameSegmentId);
                     deferred.Resolve(neighborGameSegment);
                     noneFound = false;
                     break;
@@ -127,7 +130,7 @@ namespace Pather.Servers.GameWorldServer
                 {
                     if (gameSegment.CanAcceptNewUsers())
                     {
-//                        Global.Console.Log("Found2", gameSegment.GameSegmentId);
+                        ServerLogger.LogDebug("Found space in empty game segment", gameSegment.GameSegmentId);
                         deferred.Resolve(gameSegment);
                         noneFound = false;
                         break;
@@ -137,7 +140,7 @@ namespace Pather.Servers.GameWorldServer
 
             if (noneFound)
             {
-                Global.Console.Log("Creating new segment");
+                ServerLogger.LogInformation("Creating new segment");
                 return CreateGameSegment();
             }
 
@@ -164,7 +167,7 @@ namespace Pather.Servers.GameWorldServer
             GameWorldPubSub.PublishToServerManagerWithCallback<CreateGameSegment_Response_ServerManager_GameWorld_PubSub_ReqRes_Message>(new CreateGameSegment_GameWorld_ServerManager_PubSub_ReqRes_Message())
                 .Then((createGameMessageResponse) =>
                 {
-                    var gs = new GameSegment(this);
+                    var gs = new GameSegment(this, ServerLogger);
                     gs.GameSegmentId = createGameMessageResponse.GameSegmentId;
 
 
@@ -198,7 +201,7 @@ namespace Pather.Servers.GameWorldServer
             {
                 Debug.Break();
                 var reorg = Math.Min(needToReorganize.Count, Constants.NumberOfReorganizedPlayersPerSession);
-                Global.Console.Log("Reorganizing ",reorg,"Users");
+                ServerLogger.LogDebug("Reorganizing ", reorg, "Users");
                 for (var i = reorg - 1; i >= 0; i--)
                 {
                     var gameWorldUser = needToReorganize[i].GameWorldUser;
@@ -238,7 +241,7 @@ namespace Pather.Servers.GameWorldServer
             {
                 case GameWorldActionType.MoveEntity:
                     var moveEntity = (MoveEntity_GameWorldAction)gameWorldActionGameSegment.Action;
-                    //                    Global.Console.Log("Move entity:",moveEntity);
+                    ServerLogger.LogDebug("Move entity:", moveEntity);
                     var user = Users[moveEntity.EntityId];
                     user.SetLockstepMovePoints(moveEntity.LockstepMovePoints);
                     break;

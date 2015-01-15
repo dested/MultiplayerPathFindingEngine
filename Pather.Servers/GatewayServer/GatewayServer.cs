@@ -28,6 +28,7 @@ namespace Pather.Servers.GatewayServer
         public ServerCommunicator ServerCommunicator;
         public GatewayPubSub GatewayPubSub;
         public BackEndTickManager BackEndTickManager;
+        public ServerLogger ServerLogger;
         private readonly DictionaryList<string, GatewayUser> Users = new DictionaryList<string, GatewayUser>(a => a.UserId);
 
 
@@ -37,22 +38,22 @@ namespace Pather.Servers.GatewayServer
             this.socketManager = socketManager;
             GatewayId = gatewayId;
             this.port = port;
-            ServerLogger.InitLogger("Gateway", GatewayId);
+            ServerLogger = new ServerLogger("Gateway", GatewayId);
 
-            Global.Console.Log(GatewayId, port);
+            ServerLogger.LogInformation(GatewayId, port);
 
 
-            Q.All(pubsub.Init(), pushPop.Init()).Then(() =>
+            Q.All(pubsub.Init(ServerLogger), pushPop.Init(ServerLogger)).Then(() =>
             {
                 GatewayPubSub = new GatewayPubSub(pubsub, GatewayId);
                 GatewayPubSub.OnMessage += OnMessage;
                 GatewayPubSub.OnAllMessage += OnAllMessage;
                 GatewayPubSub.Init();
 
-                BackEndTickManager = new BackEndTickManager();
+                BackEndTickManager = new BackEndTickManager(ServerLogger);
                 BackEndTickManager.Init(SendPing, () =>
                 {
-                    Global.Console.Log("Connected To Tick Server");
+                    ServerLogger.LogInformation("Connected To Tick Server");
                     registerGatewayWithCluster();
                     pubsubReady();
                 });
@@ -61,26 +62,27 @@ namespace Pather.Servers.GatewayServer
             });
         }
 
+
         private void processLockStep(long lockstepTickNumber)
         {
             if (reorgUserAtLockstep.ContainsKey(lockstepTickNumber))
             {
                 var reorgsThisTick = reorgUserAtLockstep[lockstepTickNumber];
-                Global.Console.Log("Reorg!", reorgsThisTick);
+                ServerLogger.LogInformation("Reorg!", reorgsThisTick);
 
                 foreach (var reorganizeUserMessage in reorgsThisTick)
                 {
                     var gatewayUser = Users[reorganizeUserMessage.UserId];
                     if (gatewayUser == null)
                     {
-                        Global.Console.Log("Tried to reorganize user who already left", reorganizeUserMessage.UserId);
+                        ServerLogger.LogError("Tried to reorganize user who already left", reorganizeUserMessage.UserId);
                         continue;
                     }
-//                    Global.Console.Log("Old GS:", gatewayUser.GameSegmentId, "New GS:", reorganizeUserMessage.NewGameSegmentId);
+                    ServerLogger.LogInformation("Old GS:", gatewayUser.GameSegmentId, "New GS:", reorganizeUserMessage.NewGameSegmentId);
 
                     gatewayUser.GameSegmentId = reorganizeUserMessage.NewGameSegmentId;
                     gatewayUser.BetweenReorgs = false;
-//                    Global.Console.Log("Queued Messages:", gatewayUser.QueuedMessagesBetweenReorg);
+                    ServerLogger.LogInformation("Queued Messages:", gatewayUser.QueuedMessagesBetweenReorg);
 
                     foreach (var gameSegmentAction in gatewayUser.QueuedMessagesBetweenReorg)
                     {
@@ -127,7 +129,7 @@ namespace Pather.Servers.GatewayServer
                     });
                     break;
                 case Gateway_PubSub_AllMessageType.TickSync:
-                    var tickSyncMessage = (TickSync_Tick_Gateway_PubSub_AllMessage) message;
+                    var tickSyncMessage = (TickSync_Tick_Gateway_PubSub_AllMessage)message;
                     BackEndTickManager.SetLockStepTick(tickSyncMessage.LockstepTickNumber);
 
                     foreach (var gatewayUser in Users.List)
@@ -152,11 +154,11 @@ namespace Pather.Servers.GatewayServer
             switch (message.Type)
             {
                 case Gateway_PubSub_MessageType.UserJoined:
-                    var userJoinedMessage = (UserJoined_GameWorld_Gateway_PubSub_Message) message;
+                    var userJoinedMessage = (UserJoined_GameWorld_Gateway_PubSub_Message)message;
                     gatewayUser = Users[userJoinedMessage.UserId];
                     if (gatewayUser == null)
                     {
-                        Global.Console.Log("User succsfully joined, but doesnt exist anymore", userJoinedMessage.UserId,userJoinedMessage.GameSegmentId);
+                        ServerLogger.LogError("User succsfully joined, but doesnt exist anymore", userJoinedMessage.UserId, userJoinedMessage.GameSegmentId);
                         GatewayPubSub.PublishToGameWorld(new UserLeft_Gateway_GameWorld_PubSub_Message()
                         {
                             UserId = userJoinedMessage.UserId
@@ -165,7 +167,7 @@ namespace Pather.Servers.GatewayServer
                         return;
                     }
                     gatewayUser.GameSegmentId = userJoinedMessage.GameSegmentId;
-                    //                    Global.Console.Log(GatewayId, "Joined", gatewayUser.GameSegmentId, gatewayUser.UserId);
+                    ServerLogger.LogInformation(GatewayId, "Joined", gatewayUser.GameSegmentId, gatewayUser.UserId);
                     ServerCommunicator.SendMessage(gatewayUser.Socket, new UserJoined_Gateway_User_Socket_Message()
                     {
                         X = userJoinedMessage.X,
@@ -177,7 +179,7 @@ namespace Pather.Servers.GatewayServer
 
                     if (cachedUserActions.ContainsKey(userJoinedMessage.UserId))
                     {
-                        Global.Console.Log("Removing cached action for ", userJoinedMessage.UserId);
+                        ServerLogger.LogInformation("Removing cached action for ", userJoinedMessage.UserId);
                         var userActionMessages = cachedUserActions[userJoinedMessage.UserId];
                         foreach (var userActionMessage in userActionMessages)
                         {
@@ -192,17 +194,17 @@ namespace Pather.Servers.GatewayServer
 
                     break;
                 case Gateway_PubSub_MessageType.Pong:
-                    var pongMessage = (Pong_Tick_Gateway_PubSub_Message) message;
+                    var pongMessage = (Pong_Tick_Gateway_PubSub_Message)message;
                     BackEndTickManager.OnPongReceived();
 
                     break;
                 case Gateway_PubSub_MessageType.ClientActionCollection:
-                    var clientActionCollectionMessage = (ClientActionCollection_GameSegment_Gateway_PubSub_Message) message;
+                    var clientActionCollectionMessage = (ClientActionCollection_GameSegment_Gateway_PubSub_Message)message;
                     processClientAction(clientActionCollectionMessage);
                     break;
                 case Gateway_PubSub_MessageType.ReorganizeUser:
-                    var reorgUserMessage = (ReorganizeUser_GameWorld_Gateway_PubSub_Message) message;
-//                    Global.Console.Log("Trying to reorg", reorgUserMessage);
+                    var reorgUserMessage = (ReorganizeUser_GameWorld_Gateway_PubSub_Message)message;
+                    ServerLogger.LogInformation("Trying to reorg", reorgUserMessage);
                     var user = Users[reorgUserMessage.UserId];
                     user.BetweenReorgs = true;
                     user.ReorgAtLockstep = reorgUserMessage.SwitchAtLockstepNumber;
@@ -229,7 +231,7 @@ namespace Pather.Servers.GatewayServer
                 if (gatewayUser == null)
                 {
                     //todo find out why user does not exist yet
-                    Global.Console.Log("User does not exist yet, storing actions", userToSendTo);
+                    ServerLogger.LogError("User does not exist yet, storing actions", userToSendTo);
                     if (!cachedUserActions.ContainsKey(userToSendTo))
                     {
                         cachedUserActions[userToSendTo] = new List<ClientActionCacheModel>();
@@ -253,8 +255,8 @@ namespace Pather.Servers.GatewayServer
 
         private void pubsubReady()
         {
-            Global.Console.Log("start socket server");
-            ServerCommunicator = new ServerCommunicator(socketManager, port);
+            ServerLogger.LogInformation("start socket server");
+            ServerCommunicator = new ServerCommunicator(socketManager, port, ServerLogger);
 
             ServerCommunicator.OnDisconnectConnection += (socket) =>
             {
@@ -270,11 +272,11 @@ namespace Pather.Servers.GatewayServer
                         });
                     }
                     Users.Remove(gatewayUser);
-                    Global.Console.Log("Left", gatewayUser.UserId, Users.Count);
+                    ServerLogger.LogInformation("Left", gatewayUser.UserId, Users.Count);
                 }
                 else
                 {
-                    Global.Console.Log("Left", Users.Count);
+                    ServerLogger.LogInformation("Left", Users.Count);
                 }
             };
 
@@ -284,14 +286,13 @@ namespace Pather.Servers.GatewayServer
                 {
                     Socket = socket
                 };
-                //                Global.Console.Log("Joined", Users.Count);
+                ServerLogger.LogInformation("Joined", Users.Count);
                 ServerCommunicator.ListenOnChannel(socket, "Gateway.Message",
                     (ISocket cSocket, Gateway_Socket_Message message) =>
                     {
                         if (Utilities.HasField<User_Gateway_Socket_Message>(message, m => m.UserGatewayMessageType))
                         {
-                            //                            Global.Console.Log("Socket message ", message);
-                            HandleUserMessage(user, (User_Gateway_Socket_Message) message);
+                            HandleUserMessage(user, (User_Gateway_Socket_Message)message);
                         }
                     });
             };
@@ -308,11 +309,11 @@ namespace Pather.Servers.GatewayServer
                     });
                     break;
                 case User_Gateway_Socket_MessageType.GameSegmentAction:
-                    var gameSegmentActionMessage = ((GameSegmentAction_User_Gateway_Socket_Message) message);
+                    var gameSegmentActionMessage = ((GameSegmentAction_User_Gateway_Socket_Message)message);
 
                     if (user.BetweenReorgs)
                     {
-                        Global.Console.Log("Adding to reorg queue:", user.UserId, gameSegmentActionMessage.GameSegmentAction);
+                        ServerLogger.LogInformation("Adding to reorg queue:", user.UserId, gameSegmentActionMessage.GameSegmentAction);
                         gameSegmentActionMessage.GameSegmentAction.LockstepTick = user.ReorgAtLockstep + 1;
                         user.QueuedMessagesBetweenReorg.Add(gameSegmentActionMessage.GameSegmentAction);
                     }
@@ -327,7 +328,7 @@ namespace Pather.Servers.GatewayServer
 
                     break;
                 case User_Gateway_Socket_MessageType.Join:
-                    var userJoinedMessage = ((UserJoined_User_Gateway_Socket_Message) message);
+                    var userJoinedMessage = ((UserJoined_User_Gateway_Socket_Message)message);
                     user.UserId = userJoinedMessage.UserToken;
                     Users.Add(user);
                     GatewayPubSub.PublishToGameWorld(new UserJoined_Gateway_GameWorld_PubSub_Message()

@@ -86,7 +86,7 @@ namespace Pather.Servers.GameSegmentServer.Logger
         {
             pubsub = new PubSub();
             pubsub.DontLog();
-            pubsub.Init(6380).Then(() =>
+            pubsub.Init(null,6380).Then(() =>
             {
                 Global.SetInterval(() => LogKeepAlive(), 500);
             });

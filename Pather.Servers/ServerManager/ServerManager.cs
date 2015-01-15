@@ -12,6 +12,7 @@ using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common.PubSub;
 using Pather.Servers.Common.PushPop;
+using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Utils.Linode;
 
 namespace Pather.Servers.ServerManager
@@ -23,6 +24,7 @@ namespace Pather.Servers.ServerManager
         private readonly List<GameSegmentCluster> gameSegmentClusters;
         private readonly List<GatewayCluster> gatewayClusters;
         private LinodeBuilder linodeBuilder;
+        public ServerLogger ServerLogger;
 
         public ServerManager(IPubSub pubSub, IPushPop pushPop)
         {
@@ -30,14 +32,17 @@ namespace Pather.Servers.ServerManager
             gameSegmentClusters = new List<GameSegmentCluster>();
             gatewayClusters = new List<GatewayCluster>();
             linodeBuilder = new LinodeBuilder();
+            
+            ServerLogger = new ServerLogger("ServerManager", "0");
 
 
-            Q.All(pubSub.Init(), pushPop.Init(), linodeBuilder.Init()).Then(() => ready(pubSub));
+            Q.All(pubSub.Init(ServerLogger), pushPop.Init(ServerLogger), linodeBuilder.Init(ServerLogger)).Then(() => ready(pubSub));
         }
+
 
         private void ready(IPubSub pubSub)
         {
-            serverManagerPubSub = new ServerManagerPubSub(pubSub);
+            serverManagerPubSub = new ServerManagerPubSub(pubSub,ServerLogger);
             serverManagerPubSub.Init();
 
             serverManagerPubSub.OnMessage += OnMessage;
@@ -65,11 +70,13 @@ namespace Pather.Servers.ServerManager
             {
                 if (gatewayCluster.CanCreateNewSegment())
                 {
+                    ServerLogger.LogDebug("Creating new gateway", message);
                     CreateNewGateway(gatewayCluster, message);
                     return;
                 }
             }
 
+            ServerLogger.LogDebug("Creating new gateway Cluster", message);
             CreateNewGatewayCluster(message);
         }
 
@@ -80,11 +87,13 @@ namespace Pather.Servers.ServerManager
             {
                 if (gameSegmentCluster.CanCreateNewSegment())
                 {
+                    ServerLogger.LogDebug("Creating new game segment", message);
                     CreateNewGameSegment(gameSegmentCluster, message);
                     return;
                 }
             }
 
+            ServerLogger.LogDebug("Creating new game segment Cluster", message);
             CreateNewGameSegmentCluster(message);
         }
 
@@ -181,7 +190,7 @@ namespace Pather.Servers.ServerManager
                     {
                         ClusterManagerId = applicationId
                     });
-                    Global.Console.Log("Spawn Success");
+                    ServerLogger.LogInformation("Spawn Success");
                 });
             }
             else
@@ -189,7 +198,7 @@ namespace Pather.Servers.ServerManager
 
 
                 var application = "clustermanager";
-                Global.Console.Log("Spawning new server");
+                ServerLogger.LogInformation("Spawning new server");
 
                 PushPop.BlockingPop(applicationId, Constants.GameSegmentCreationWait).Then((content) =>
                 {
@@ -197,10 +206,10 @@ namespace Pather.Servers.ServerManager
                     {
                         ClusterManagerId = applicationId
                     });
-                    Global.Console.Log("Spawn Success");
+                    ServerLogger.LogInformation("Spawn Success");
                 }).Error(a =>
                 {
-                    Global.Console.Log("Spawn Fail");
+                    ServerLogger.LogError("Spawn Fail");
                 });
 
 
@@ -221,13 +230,13 @@ namespace Pather.Servers.ServerManager
 
         private void startApp(string[] arguments, string logFile)
         {
-            Global.Console.Log("start app");
+            ServerLogger.LogInformation("start app");
 
 
 
             if (Constants.DontSpawnNewApp)
             {
-                Global.Console.Log("Fake start app");
+                ServerLogger.LogInformation("Fake start app");
                 var serverStarter = new ServerStarter();
                 ((dynamic)arguments).splice(0, 0, "");
                 serverStarter.Start(ServerStarter.InstantiateLogic, arguments);

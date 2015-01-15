@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Pather.Common.Models.Common;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common.PubSub;
+using Pather.Servers.Common.ServerLogging;
 
 namespace Pather.Servers.Common.Tests
 {
@@ -25,7 +26,7 @@ namespace Pather.Servers.Common.Tests
             channels.Add(channel, callback);
         }
 
-        public Promise Init(int port = 6379)
+        public Promise Init(ServerLogger serverLogger, int port = 6379)
         {
             throw new NotImplementedException();
         }

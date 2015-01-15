@@ -9,6 +9,11 @@ namespace Pather.Client.GameFramework
 {
     public class FrontEndTickManager : TickManager
     {
+        public override void LockstepForced(long lockStepTickNumber)
+        {
+            Global.Console.Log("Force Lockstep", lockStepTickNumber);
+        }
+
         public FrontEndTickManager()
         {
         }

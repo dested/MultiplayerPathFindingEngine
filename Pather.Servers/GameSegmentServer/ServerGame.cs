@@ -15,16 +15,19 @@ using Pather.Common.Models.Common.Actions.TellGameSegmentAction.Base;
 using Pather.Common.Models.GameSegment;
 using Pather.Common.Models.Gateway.PubSub;
 using Pather.Common.Utils;
+using Pather.Servers.Common.ServerLogging;
 
 namespace Pather.Servers.GameSegmentServer
 {
     public class ServerGame : Game
     {
+        public ServerLogger ServerLogger;
         protected readonly ServerGameManager gameManager;
 
         public ServerGame(ServerGameManager gameManager, TickManager tickManager)
             : base(tickManager)
         {
+            ServerLogger = gameManager.ServerLogger;
             this.gameManager = gameManager;
             tickManager.OnProcessLockstep += LockstepTick;
         }
@@ -99,7 +102,6 @@ namespace Pather.Servers.GameSegmentServer
                 case TellGameSegmentActionType.MoveEntity:
                     var moveEntity = (MoveEntity_TellGameSegmentAction)action;
                     ((ServerGameUser)ActiveEntities[action.EntityId]).SetPointInTime(moveEntity.X, moveEntity.Y, moveEntity.LockstepTick);
-                    //                    Global.Console.Log("Got tell move action from gamesegment");
                     break;
                 case TellGameSegmentActionType.LogicAction:
                     var logicAction = (LogicAction_TellGameSegmentAction)action;
@@ -212,19 +214,16 @@ namespace Pather.Servers.GameSegmentServer
             var otherGameSegment = gameManager.AllGameSegments[message.GameSegmentId];
             AddEntity(serverGameUser);
 
-            //            Global.Console.Log(GameSegmentId, "User joined from other gamesegment", message.GameSegmentId, message.UserId);
-
             otherGameSegment.UserJoin(serverGameUser);
 
             BuildNeighbors();
 
-            //            GameSegmentLogger.LogUserJoin(false, serverGameUser.UserId, serverGameUser.X, serverGameUser.Y, serverGameUser.Neighbors.Keys);
         }
 
 
         public void BuildNeighbors()
         {
-            //            Global.Console.Log(GameSegmentId, "Building Neighbors");
+            ServerLogger.LogDebug("Building Neighbors");
 
             foreach (var entity in ActiveEntities.List)
             {
@@ -239,7 +238,7 @@ namespace Pather.Servers.GameSegmentServer
             }
 
             diffNeighbors();
-            //            Global.Console.Log(GameSegmentId, "Updated", AllGameSegments);
+            ServerLogger.LogDebug("Finished Neighbors");
         }
 
 
@@ -255,7 +254,7 @@ namespace Pather.Servers.GameSegmentServer
                 var distance = pointDistance(pUser, cUser);
                 if (distance <= Constants.NeighborDistance)
                 {
-                    //                    Global.Console.Log(GameSegmentId,"Neighbor Found", cUser.UserId, pUser.UserId, distance);
+                    ServerLogger.LogDebug("Neighbor Found", cUser.EntityId, pUser.EntityId, distance);
                     pUser.Neighbors.Add(new GameEntityNeighbor(cUser, distance));
                     cUser.Neighbors.Add(new GameEntityNeighbor(pUser, distance));
                 }
@@ -308,9 +307,9 @@ namespace Pather.Servers.GameSegmentServer
                 serverGameUser.OldNeighbors = null;
                 if (added.Count > 0 || removed.Count > 0)
                 {
-                    //                    Global.Console.Log("Neighbors! ", added, removed);
+                    ServerLogger.LogDebug("Neighbors! ", added, removed);
                     var lockstepTickToRun = tickManager.LockstepTickNumber + 1;
-                    //                    Global.Console.Log("lockstep ", lockstepTickToRun);
+                    ServerLogger.LogDebug("lockstep ", lockstepTickToRun);
 
                     gameManager.SendToUser(serverGameUser, new ClientActionCollection_GameSegment_Gateway_PubSub_Message()
                     {
@@ -325,15 +324,15 @@ namespace Pather.Servers.GameSegmentServer
                             Added = added.Select(a =>
                             {
                                 var inProgressActions = a.InProgressActions.Where(action => action.EndingLockStepTicking > lockstepTickToRun);
-                                //                                Global.Console.Log("In progress actions: ", inProgressActions, a.EntityId);
+                                ServerLogger.LogDebug("In progress actions: ", inProgressActions, a.EntityId);
                                 Point point;
 
 
-                                //                                Global.Console.Log("xy ", a.X, a.Y);
+                                ServerLogger.LogDebug("xy ", a.X, a.Y);
 
-                                //                                Global.Console.Log("count ", inProgressActions.Count);
+                                ServerLogger.LogDebug("count ", inProgressActions.Count);
                                 point = a.GetPositionAtLockstep(lockstepTickToRun);
-                                //                                Global.Console.Log("xy ", point.X, point.Y);
+                                ServerLogger.LogDebug("xy ", point.X, point.Y);
 
                                 return new UpdatedNeighbor()
                                 {

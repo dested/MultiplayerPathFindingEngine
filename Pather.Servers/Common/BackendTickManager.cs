@@ -9,10 +9,17 @@ namespace Pather.Servers.Common
 {
     public class BackEndTickManager : TickManager
     {
-        public BackEndTickManager()
-        {
-        }
 
+        private readonly ServerLogger serverLogger;
+
+        public BackEndTickManager(ServerLogger serverLogger)
+        {
+            this.serverLogger = serverLogger;
+        }
+        public override void LockstepForced(long lockStepTickNumber)
+        {
+            serverLogger.LogInformation("Force Lockstep", lockStepTickNumber);
+        }
 
         public void Init(Action sendPing, Action onTickManagerReady)
         {
@@ -38,7 +45,7 @@ namespace Pather.Servers.Common
         {
             if (pingSent == null)
             {
-                Global.Console.Log("Mis pong");
+                serverLogger.LogError("Tried to send pong, but already completed ping cycle");
                 return;
             }
 
@@ -86,7 +93,7 @@ namespace Pather.Servers.Common
         {
             if (CurrentServerLatency != latency)
             {
-                ServerLogger.LogInformation("Severy latency is ", latency, "ms");
+                serverLogger.LogDebug("Severy latency is ", latency, "ms");
             }
             base.SetServerLatency(latency);
             hasLatency = true;

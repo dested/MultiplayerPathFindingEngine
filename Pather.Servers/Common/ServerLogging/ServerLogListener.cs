@@ -11,7 +11,7 @@ namespace Pather.Servers.Common.ServerLogging
         {
             pubsub = new PubSub.PubSub();
             pubsub.DontLog();
-            pubsub.Init(6380)
+            pubsub.Init(null,6380)
                 .Then(() =>
                 {
                     foreach (var serverType in serverTypes)

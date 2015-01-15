@@ -7,8 +7,10 @@ namespace Pather.Servers.GameSegmentServer
 {
     public class GameSegment
     {
-        public GameSegment(string gameSegmentId)
+        private ServerLogger serverLogger;
+        public GameSegment(string gameSegmentId,ServerLogger serverLogger)
         {
+            this.serverLogger = serverLogger;
             GameSegmentId = gameSegmentId;
         }
 
@@ -26,8 +28,7 @@ namespace Pather.Servers.GameSegmentServer
             Users.Remove(userId);
             user.GameSegment = null;
 
-            Global.Console.Log(GameSegmentId, "User Left Game Segment");
-            ServerLogger.LogInformation("User Left Game Segment", "User count now: ", Users.Count);
+            serverLogger.LogInformation("User Left Game Segment", "User count now: ", Users.Count);
         }
 
         public string GameSegmentId;
@@ -36,8 +37,7 @@ namespace Pather.Servers.GameSegmentServer
         {
             serverGameUser.GameSegment = this;
             Users.Add(serverGameUser);
-            ServerLogger.LogInformation("User Joined A Game Segment");
-            //            Global.Console.Log(GameSegmentId, "User Joined A Game Segment", serverGameUser.UserId, serverGameUser.GatewayId);
+            serverLogger.LogInformation("User Joined A Game Segment", "User count now: ", Users.Count);
         }
     }
 }

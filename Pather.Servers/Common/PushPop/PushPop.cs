@@ -2,6 +2,7 @@ using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
+using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Libraries.Redis;
 
 namespace Pather.Servers.Common.PushPop
@@ -12,13 +13,14 @@ namespace Pather.Servers.Common.PushPop
         private RedisClient pushClient;
         private bool popReady;
         private RedisClient popClient;
-
+        private ServerLogger serverLogger;
         public PushPop()
         {
         }
 
-        public Promise Init()
+        public Promise Init(ServerLogger serverLogger)
         {
+            this.serverLogger = serverLogger;
             var deferred = Q.Defer();
             var redis = Global.Require<Redis>("redis");
             redis.DebugMode = false;

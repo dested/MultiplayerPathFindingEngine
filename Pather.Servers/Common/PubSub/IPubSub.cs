@@ -2,6 +2,7 @@ using System;
 using System.Runtime.CompilerServices;
 using Pather.Common.Models.Common;
 using Pather.Common.Utils.Promises;
+using Pather.Servers.Common.ServerLogging;
 
 namespace Pather.Servers.Common.PubSub
 {
@@ -14,7 +15,7 @@ namespace Pather.Servers.Common.PubSub
         void PublishForce<T>(string channel, T content) where T : IPubSub_Message;
 
         void Subscribe(string channel, Action<IPubSub_Message> callback);
-        Promise Init(int port = 6379);
+        Promise Init(ServerLogger ServerLogger, int port = 6379);
         void ReceivedMessage(string channel, IPubSub_Message message);
         void DontLog();
     }

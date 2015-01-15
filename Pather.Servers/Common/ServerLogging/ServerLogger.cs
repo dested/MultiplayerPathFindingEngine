@@ -1,60 +1,62 @@
+using System;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Utils;
 using Pather.Servers.Common.PubSub;
 
 namespace Pather.Servers.Common.ServerLogging
 {
-    public static class ServerLogger
+    public class ServerLogger
     {
-        private static IPubSub pubsub;
-        private static string ServerType;
-        private static string ServerName;
+        private IPubSub pubsub;
+        private string ServerType;
+        private string ServerName;
 
-        public static void InitLogger(string serverType, string serverName)
+        public ServerLogger(string serverType, string serverName)
         {
             ServerName = serverName;
             ServerType = serverType;
             pubsub = new PubSub.PubSub();
             pubsub.DontLog();
-            pubsub.Init(6380).Then(() =>
+            pubsub.Init(null,6380).Then(() =>
             {
                 Global.SetInterval(() => LogKeepAlive(), 500);
             });
         }
 
-        public static void LogInformation(string item, params object[] jsonContent)
+        public void LogInformation(string item, params object[] jsonContent)
         {
             Logger.Log(item, LogLevel.Information);
-//            pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, item, jsonContent, LogLevel.Information, DateTime.Now));
+            pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, item, jsonContent, LogLevel.Information, DateTime.Now));
         }
 
-        public static void LogDebug(string item, params object[] jsonContent)
+        public void LogDebug(string item, params object[] jsonContent)
         {
             Logger.Log(item, LogLevel.DebugInformation);
-//            pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, item, jsonContent, LogLevel.DebugInformation, DateTime.Now));
+            pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, item, jsonContent, LogLevel.DebugInformation, DateTime.Now));
         }
 
-        public static void LogKeepAlive()
+        public void LogKeepAlive()
         {
-//            pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, null, null, LogLevel.KeepAlive, DateTime.Now));
+            pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, null, null, LogLevel.KeepAlive, DateTime.Now));
         }
 
-        public static void LogError(string item, params object[] jsonContent)
+        public void LogError(string item, params object[] jsonContent)
         {
             Logger.Log(item, LogLevel.Error);
-//            pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, item, jsonContent, LogLevel.Error, DateTime.Now));
+            pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, item, jsonContent, LogLevel.Error, DateTime.Now));
         }
 
-        public static void LogTransport(string item, params object[] jsonContent)
+        public void LogTransport(string item, params object[] jsonContent)
         {
             Logger.Log(item, LogLevel.TransportInfo);
-//            pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, item, jsonContent, LogLevel.TransportInfo, DateTime.Now));
+            pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, item, jsonContent, LogLevel.TransportInfo, DateTime.Now));
         }
 
-        public static void LogData(string item, params object[] jsonContent)
+        public void LogData(string item, params object[] jsonContent)
         {
             Logger.Log(item, LogLevel.DataInfo);
-//            pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, item, jsonContent, LogLevel.DataInfo, DateTime.Now));
+            pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, item, jsonContent, LogLevel.DataInfo, DateTime.Now));
         }
     }
+
 }

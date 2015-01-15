@@ -366,6 +366,9 @@
 		}
 	}, Pather.Common.GameFramework.GameUser);
 	ss.initClass($Pather_Client_GameFramework_FrontEndTickManager, $asm, {
+		lockstepForced: function(lockStepTickNumber) {
+			console.log('Force Lockstep', lockStepTickNumber);
+		},
 		init$1: function(sendPing, onTickManagerReady) {
 			this.$sendPing = sendPing;
 			this.$onTickManagerReady = onTickManagerReady;

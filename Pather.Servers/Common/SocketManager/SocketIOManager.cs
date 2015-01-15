@@ -1,5 +1,6 @@
 ﻿using System;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Libraries.Socket.IO;
 using Pather.Servers.Utils;
 
@@ -8,22 +9,32 @@ namespace Pather.Servers.Common.SocketManager
     public class SocketIOManager : ISocketManager
     {
         private SocketIOClient io;
+        private ServerLogger serverLogger;
 
-        public void Init(int port)
+        public void Init(int port,ServerLogger serverLogger)
         {
-            var http = Global.Require<Http>("http");
+            this.serverLogger = serverLogger;
+            try
+            {
 
-            var app = http.CreateServer((req, res) => res.End());
+                var http = Global.Require<Http>("http");
 
-            io = SocketIO.Listen(app);
+                var app = http.CreateServer((req, res) => res.End());
+
+                io = SocketIO.Listen(app);
 
 
-            var networkIPs = ServerHelper.GetNetworkIPs();
-            var currentIP = networkIPs[0] + ":" + port;
-            URL = string.Format("http://{0}", currentIP);
+                var networkIPs = ServerHelper.GetNetworkIPs();
+                var currentIP = networkIPs[0] + ":" + port;
+                URL = string.Format("http://{0}", currentIP);
 
-//            Global.Console.Log("Server URL", url);
-            app.Listen(port);
+                serverLogger.LogInformation("Socket Server URL", URL);
+                app.Listen(port);
+            }
+            catch (Exception e)
+            {
+                serverLogger.LogError("Socket Error", e);
+            }
         }
 
         public void Connections(Action<ISocket> action)

@@ -42,7 +42,7 @@ namespace Pather.Servers.MonitorServer
             io.Sockets.On("connection",
                 (SocketIOConnection socket) =>
                 {
-                    Global.Console.Log("User Joined");
+                    Global.Console.Log("User connected to histogram monitor");
                     connections.Add(socket);
                     socket.On("disconnect",
                         (string data) =>
@@ -78,7 +78,7 @@ namespace Pather.Servers.MonitorServer
             io.Sockets.On("connection",
                 (SocketIOConnection socket) =>
                 {
-                    Global.Console.Log("User Joined");
+                    Global.Console.Log("User connected to segment monitor");
                     connections.Add(socket);
                     socket.On("disconnect",
                         (string data) =>
@@ -105,7 +105,8 @@ namespace Pather.Servers.MonitorServer
 
             string[] serverTypes =
             {
-                "GameSegment", "ClusterManager", "GameWorld", "Gateway", "Chat", "Tick", "Auth"
+                "GameSegment", "ClusterManager", "GameWorld", "Gateway", "Chat", "Tick", "ServerManager", "Starter",
+                "Auth", "Head"
             };
             var connections = new List<SocketIOConnection>();
 
@@ -120,7 +121,7 @@ namespace Pather.Servers.MonitorServer
             io.Sockets.On("connection",
                 (SocketIOConnection socket) =>
                 {
-                    Global.Console.Log("User Joined");
+                    Global.Console.Log("User connected to monitor");
                     connections.Add(socket);
                     socket.On("disconnect",
                         (string data) =>

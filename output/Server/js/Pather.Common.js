@@ -2204,19 +2204,24 @@
 				break;
 			}
 			case 'debugInformation': {
+				console.log(item);
 				break;
 			}
 			case 'information': {
+				console.log(item);
 				break;
 			}
 			case 'transportInfo': {
+				console.log(item);
 				break;
 			}
 			case 'dataInfo': {
+				console.log(item);
 				break;
 			}
 			case 'keepAlive': {
-				return item;
+				console.log(item);
+				break;
 			}
 		}
 		return item;
@@ -2354,6 +2359,7 @@
 		return dist;
 	};
 	$Pather_Common_Utils_Histogram_$HistogramManager.$printDistributions = function(dist) {
+		return;
 		console.log(dist.name + ' Histogram:');
 		for (var $t1 = 0; $t1 < dist.items.length; $t1++) {
 			var item = dist.items[$t1];
@@ -2913,15 +2919,16 @@
 			this.currentLockstepTime = (new Date()).getTime();
 			setTimeout(ss.mkdel(this, this.$tick), 1);
 		},
+		lockstepForced: null,
 		setLockStepTick: function(lockStepTickNumber) {
 			//todo resolve if current > or < lockstep
 			if (this.lockstepTickNumber > lockStepTickNumber) {
 				this.lockstepTickNumber = lockStepTickNumber;
-				console.log('Force Lockstep', lockStepTickNumber);
+				this.lockstepForced(lockStepTickNumber);
 				this.processLockstep(this.lockstepTickNumber);
 			}
 			if (this.lockstepTickNumber < lockStepTickNumber) {
-				console.log('Force Lockstep', lockStepTickNumber);
+				this.lockstepForced(lockStepTickNumber);
 				while (this.lockstepTickNumber < lockStepTickNumber) {
 					this.lockstepTickNumber++;
 					this.processLockstep(this.lockstepTickNumber);

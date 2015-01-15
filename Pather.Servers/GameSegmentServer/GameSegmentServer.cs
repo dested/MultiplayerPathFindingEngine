@@ -17,30 +17,30 @@ namespace Pather.Servers.GameSegmentServer
         public GameSegmentPubSub GameSegmentPubSub;
 
         private ServerGameManager gameManager;
-
+        public ServerLogger ServerLogger;
+        
         public GameSegmentServer(IPubSub pubsub, IPushPop pushPop, string gameSegmentId, IInstantiateLogic instantiateLogic)
         {
-            //            GameSegmentLogger.InitLogger(gameSegmentId);
-            ServerLogger.InitLogger("GameSegment", gameSegmentId);
+
+            ServerLogger = new ServerLogger("GameSegment", gameSegmentId);
+            
             this.pubsub = pubsub;
             this.pushPop = pushPop;
             GameSegmentId = gameSegmentId;
 
-            //Global.SetInterval(() => { Global.Console.Log("keep alive " + new DateTime().ToString().Substring(17, 24)); }, 10 * 1000);
-            //var game = new ServerGame(socketManager, gameSegmentName);
-            //game.Init();
 
-            Q.All(pubsub.Init(), pushPop.Init())
+            Q.All(pubsub.Init(ServerLogger), pushPop.Init(ServerLogger))
                 .Then(() =>
                 {
-                    GameSegmentPubSub = new GameSegmentPubSub(this.pubsub, GameSegmentId);
+                    GameSegmentPubSub = new GameSegmentPubSub(this.pubsub, GameSegmentId,ServerLogger);
                     GameSegmentPubSub.OnAllMessage += onAllMessage;
 
-                    gameManager = new ServerGameManager(GameSegmentId, GameSegmentPubSub,instantiateLogic);
+                    gameManager = new ServerGameManager(GameSegmentId, GameSegmentPubSub, instantiateLogic, ServerLogger);
                     gameManager.RegisterGameSegmentWithCluster += registerGameSegmentWithCluster;
                     gameManager.Init();
                 });
         }
+
 
         private void registerGameSegmentWithCluster()
         {

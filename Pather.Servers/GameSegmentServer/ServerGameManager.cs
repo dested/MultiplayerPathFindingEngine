@@ -16,6 +16,7 @@ using Pather.Common.Models.Tick;
 using Pather.Common.Utils;
 using Pather.Servers.Common;
 using Pather.Servers.Common.PubSub;
+using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Utils;
 
 namespace Pather.Servers.GameSegmentServer
@@ -32,12 +33,15 @@ namespace Pather.Servers.GameSegmentServer
         public Action OnReady;
         public Action RegisterGameSegmentWithCluster;
 
-        public ServerGameManager(string gameSegmentId, GameSegmentPubSub gameSegmentPubSub, IInstantiateLogic instantiateLogic)
+        public ServerLogger ServerLogger;
+
+        public ServerGameManager(string gameSegmentId, GameSegmentPubSub gameSegmentPubSub, IInstantiateLogic instantiateLogic,ServerLogger serverLogger)
         {
+            this.ServerLogger = serverLogger;
             GameSegmentId = gameSegmentId;
             GameSegmentPubSub = gameSegmentPubSub;
             AllGameSegments = new DictionaryList<string, GameSegment>(a => a.GameSegmentId);
-            backEndTickManager = new BackEndTickManager();
+            backEndTickManager = new BackEndTickManager(serverLogger);
 
             serverGame = instantiateLogic.CreateServerGame(this, backEndTickManager);
         }
@@ -70,12 +74,12 @@ namespace Pather.Servers.GameSegmentServer
 
             serverGame.Init(message.LockstepTickNumber, message.ServerLatency);
             serverGame.InitializeGameBoard(message.Grid);
-            MyGameSegment = new GameSegment(GameSegmentId);
+            MyGameSegment = new GameSegment(GameSegmentId, ServerLogger);
             AllGameSegments.Add(MyGameSegment);
 
             foreach (var gameSegmentId in message.GameSegmentIds)
             {
-                AllGameSegments.Add(new GameSegment(gameSegmentId));
+                AllGameSegments.Add(new GameSegment(gameSegmentId, ServerLogger));
             }
 
             foreach (var initialGameUser in message.AllUsers)
@@ -95,7 +99,7 @@ namespace Pather.Servers.GameSegmentServer
             serverGame.Init();
 
             RegisterGameSegmentWithCluster();
-            Global.Console.Log(GameSegmentId, "Game Segment Initialized");
+            ServerLogger.LogInformation( "Game Segment Initialized");
         }
 
 
@@ -226,7 +230,7 @@ namespace Pather.Servers.GameSegmentServer
 
         private void onMessageTransferGameUser(TransferUser_GameSegment_GameSegment_PubSub_Message message)
         {
-//            Global.Console.Log(message, serverGame.ActiveEntities.List);
+            ServerLogger.LogInformation("Transfered users",message, serverGame.ActiveEntities.List);
             var user = ((ServerGameUser) serverGame.ActiveEntities[message.UserId]);
             user.GameSegment.UserLeft(user.EntityId);
             MyGameSegment.UserJoin(user);
@@ -239,7 +243,7 @@ namespace Pather.Servers.GameSegmentServer
 
         private void onMessageReorganizeGameSegment(ReorganizeUser_GameWorld_GameSegment_PubSub_Message message)
         {
-//            Global.Console.Log("Reorganizing user:", message.UserId, message.SwitchAtLockstepNumber);
+            ServerLogger.LogInformation("Reorganizing user:", message.UserId, message.SwitchAtLockstepNumber);
 
             foreach (var gameSegment in AllGameSegments.List)
             {
@@ -275,6 +279,7 @@ namespace Pather.Servers.GameSegmentServer
         {
             if (!MyGameSegment.Users.Contains(message.UserId))
             {
+                ServerLogger.LogError("This aint my user! " + message.UserId);
                 throw new Exception("This aint my user! " + message.UserId);
             }
 
@@ -293,9 +298,9 @@ namespace Pather.Servers.GameSegmentServer
 
         private void onMessageNewGameSegment(NewGameSegment_GameWorld_GameSegment_PubSub_Message message)
         {
-            var newGameSegment = new GameSegment(message.GameSegmentId);
+            var newGameSegment = new GameSegment(message.GameSegmentId, ServerLogger);
             AllGameSegments.Add(newGameSegment);
-            Global.Console.Log(GameSegmentId, " Added new Game Segment ", message.GameSegmentId);
+            ServerLogger.LogInformation(" Added new Game Segment ", message.GameSegmentId);
         }
 
 

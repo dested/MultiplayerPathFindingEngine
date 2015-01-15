@@ -7,6 +7,7 @@ using Pather.Common.Models.Gateway.PubSub.Base;
 using Pather.Common.TestFramework;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common.PubSub;
+using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Database;
 
 namespace Pather.Servers.GameWorldServer.Tests
@@ -40,7 +41,7 @@ namespace Pather.Servers.GameWorldServer.Tests
             }));
 
 
-            Mocker.StubMethodCall<int, Promise>(pubSubTest.Init, ((port) => Q.ResolvedPromise()));
+            Mocker.StubMethodCall<ServerLogger, int, Promise>(pubSubTest.Init, ((serverLogger, port) => Q.ResolvedPromise()));
 
             Mocker.StubMethodCall<string, Action<IPubSub_Message>>(pubSubTest.Subscribe, ((channel, callback) =>
             {

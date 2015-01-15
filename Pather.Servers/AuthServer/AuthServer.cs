@@ -4,9 +4,12 @@ namespace Pather.Servers.AuthServer
 {
     public class AuthServer
     {
+        public ServerLogger ServerLogger;
         public AuthServer()
         {
-            ServerLogger.InitLogger("Auth", "0");
+            ServerLogger = new ServerLogger("Auth", "0");
+
         }
+
     }
 }

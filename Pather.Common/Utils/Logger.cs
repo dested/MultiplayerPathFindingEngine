@@ -23,16 +23,20 @@ namespace Pather.Common.Utils
                     Console.WriteLine(item);
                     break;
                 case LogLevel.DebugInformation:
+                    Console.WriteLine(item);
                     break;
                 case LogLevel.Information:
+                    Console.WriteLine(item);
                     break;
                 case LogLevel.TransportInfo:
+                    Console.WriteLine(item);
                     break;
                 case LogLevel.DataInfo:
+                    Console.WriteLine(item);
                     break;
                 case LogLevel.KeepAlive:
-
-                    return item;
+                    Console.WriteLine(item);
+                    break;
             }
             return item;
         }

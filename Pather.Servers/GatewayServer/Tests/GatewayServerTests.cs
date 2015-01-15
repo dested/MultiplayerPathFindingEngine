@@ -10,6 +10,7 @@ using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common.PubSub;
 using Pather.Servers.Common.PushPop;
+using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Common.SocketManager;
 using Pather.Servers.Database;
 
@@ -32,7 +33,7 @@ namespace Pather.Servers.GatewayServer.Tests
 
 
             var socketManager = Mocker.InstantiateInterface<ISocketManager>();
-            Mocker.StubMethodCall<int>(socketManager.Init);
+            Mocker.StubMethodCall<int,ServerLogger>(socketManager.Init);
 
             Mocker.StubMethodCall<Action<ISocket>>(socketManager.Connections, (callback) =>
             {
@@ -62,7 +63,7 @@ namespace Pather.Servers.GatewayServer.Tests
 
             var pubSub = Mocker.InstantiateInterface<IPubSub>();
 
-            Mocker.StubMethodCall<int, Promise>(pubSub.Init, ((port) => Q.ResolvedPromise()));
+            Mocker.StubMethodCall<ServerLogger,int, Promise>(pubSub.Init, ((serverLogger, port) => Q.ResolvedPromise()));
             Mocker.StubMethodCall<string, Action<IPubSub_Message>>(pubSub.Subscribe, (channel, callback) =>
             {
                 publishData += (pchannel, pmessage) =>
@@ -114,7 +115,7 @@ namespace Pather.Servers.GatewayServer.Tests
             }));
 
 
-            Mocker.StubMethodCall<int, Promise>(pubSub.Init, ((port) => Q.ResolvedPromise()));
+            Mocker.StubMethodCall<ServerLogger, int, Promise>(pubSub.Init, ((serverLogger, port) => Q.ResolvedPromise()));
 
             Mocker.StubMethodCall<string, Action<IPubSub_Message>>(pubSubTest.Subscribe, ((channel, callback) =>
             {

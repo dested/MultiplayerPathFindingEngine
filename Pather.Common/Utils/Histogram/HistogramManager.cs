@@ -67,6 +67,7 @@ namespace Pather.Common.Utils.Histogram
 
         public static void PrintDistributions(HistogramDistribution dist)
         {
+            return;
             Global.Console.Log(dist.Name + " Histogram:");
             foreach (var item in dist.Items)
             {

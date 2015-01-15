@@ -7,6 +7,7 @@ using Pather.Common.TestFramework;
 using Pather.Common.Utils;
 using Pather.Servers.Common.PubSub;
 using Pather.Servers.Common.PushPop;
+using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Common.SocketManager;
 using Pather.Servers.Database;
 using Pather.Servers.Libraries.Redis;
@@ -18,10 +19,13 @@ namespace Pather.Servers
     public class ServerStarter
     {
         public static  IInstantiateLogic InstantiateLogic;
+        private ServerLogger serverLogger;
 
         public void Start(IInstantiateLogic instantiateLogic, string[] arguments)
         {
-          
+
+            serverLogger = new ServerLogger("Starter", "0");
+
             InstantiateLogic = instantiateLogic;
             var arg = arguments[2];
 
@@ -31,7 +35,7 @@ namespace Pather.Servers
             }
 
             arg = arg.ToLower();
-            Global.Console.Log("Server started", arg);
+            serverLogger.LogInformation("Server started", arg);
 
             if (arg == "test")
             {
@@ -69,7 +73,7 @@ namespace Pather.Servers
             }
             catch (Exception exc)
             {
-                Global.Console.Log("CRITICAL FAILURE: ", exc);
+                serverLogger.LogError("CRITICAL FAILURE: ", exc);
             }
         }
 
@@ -122,7 +126,7 @@ namespace Pather.Servers
                     createTickServer();
                     break;
                 default:
-                    Global.Console.Log("Failed to load: ", arguments[2]);
+                    serverLogger.LogError("Failed to load: ", arguments[2]);
                     break;
             }
         }

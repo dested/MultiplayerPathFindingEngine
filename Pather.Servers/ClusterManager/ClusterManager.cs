@@ -18,23 +18,27 @@ namespace Pather.Servers.ClusterManager
         public ClusterManagerPubSub ClusterManagerPubSub;
         public string ClusterManagerId;
         private readonly IPubSub pubsub;
+        public ServerLogger ServerLogger;
+
 
         public ClusterManager(IPubSub pubsub, IPushPop pushPop, string clusterManagerId)
         {
-            Global.Console.Log("Hi");
-            ServerLogger.InitLogger("ClusterManager", clusterManagerId);
+            ServerLogger = new ServerLogger("ClusterManager", clusterManagerId);
+            ServerLogger.LogInformation("PowerOn", clusterManagerId);
             PushPop = pushPop;
             ClusterManagerId = clusterManagerId;
             this.pubsub = pubsub;
 
-            Q.All(pubsub.Init(), pushPop.Init()).Then(pubsubsConnected);
+            Q.All(pubsub.Init(ServerLogger), pushPop.Init(ServerLogger)).Then(pubsubsConnected);
         }
+
 
         private void pubsubsConnected()
         {
             ClusterManagerPubSub = new ClusterManagerPubSub(pubsub, ClusterManagerId);
             ClusterManagerPubSub.OnMessage += receiveMessage;
             ClusterManagerPubSub.Init();
+            ServerLogger.LogInformation("Initialized", ClusterManagerId);
 
             PushPop.Push(ClusterManagerId, null);
         }
@@ -57,8 +61,7 @@ namespace Pather.Servers.ClusterManager
 
         private void CreateGateway(CreateGateway_ServerManager_ClusterManager_PubSub_ReqRes_Message createGatewayMessage)
         {
-            Global.Console.Log("Spawning new gateway");
-
+            ServerLogger.LogInformation("Spawning new gateway");
 
             PushPop.BlockingPop(createGatewayMessage.GatewayId, Constants.GatewayCreationWait).Then((content) =>
             {
@@ -68,10 +71,11 @@ namespace Pather.Servers.ClusterManager
                     MessageId = createGatewayMessage.MessageId,
                 });
 
-                Global.Console.Log("Gateway Server Created!", createGatewayMessage.GatewayId);
+                ServerLogger.LogInformation("Gateway Server Created!", createGatewayMessage.GatewayId);
+
             }).Error(a =>
             {
-                Global.Console.Log("Gateway Server Creation Failed!");
+                ServerLogger.LogError("Gateway Server Creation Failed!");
             });
 
             var arguments = new[]
@@ -85,7 +89,7 @@ namespace Pather.Servers.ClusterManager
 
         private void CreateGameSegment(CreateGameSegment_ServerManager_ClusterManager_PubSub_ReqRes_Message createGameSegmentMessage)
         {
-            Global.Console.Log("Spawning new game segment");
+            ServerLogger.LogInformation("Spawning new game segment");
 
             PushPop.BlockingPop(createGameSegmentMessage.GameSegmentId, Constants.GameSegmentCreationWait).Then((content) =>
             {
@@ -95,10 +99,10 @@ namespace Pather.Servers.ClusterManager
                     MessageId = createGameSegmentMessage.MessageId,
                 });
 
-                Global.Console.Log("Game Segment Server Created!", createGameSegmentMessage.GameSegmentId);
+                ServerLogger.LogInformation("Game Segment Server Created!", createGameSegmentMessage.GameSegmentId);
             }).Error(a =>
             {
-                Global.Console.Log("Game Segment Server Creation Failed!");
+                ServerLogger.LogError("Game Segment Server Creation Failed!");
             });
 
 
@@ -115,13 +119,13 @@ namespace Pather.Servers.ClusterManager
 
         private void startApp(string[] arguments, string logFile)
         {
-            Global.Console.Log("start app");
+            ServerLogger.LogInformation("Spawning Application");
 
 
 
             if (Constants.DontSpawnNewApp)
             {
-                Global.Console.Log("Fake start app");
+                ServerLogger.LogInformation("Fake start app");
                 var serverStarter = new ServerStarter();
                 ((dynamic)arguments).splice(0, 0, "");
                 serverStarter.Start(ServerStarter.InstantiateLogic, arguments);
@@ -130,6 +134,7 @@ namespace Pather.Servers.ClusterManager
             else
             {
 
+                ServerLogger.LogInformation("Real start app");
                 var spawn = Global.Require<ChildProcess>("child_process").Spawn;
 
                 var fs = Global.Require<FS>("fs");

@@ -35,6 +35,7 @@ namespace Pather.Servers.GameSegmentServer
             return LockstepMovePoints[lockstepTickNumber] ?? new Point(X, Y);
         }
 
+        //https://www.youtube.com/watch?v=vJwKKKd2ZYE
         public void LockstepTick(long lockstepTickNumber)
         {
             if (LockstepMovePoints.ContainsKey(lockstepTickNumber))
@@ -44,7 +45,7 @@ namespace Pather.Servers.GameSegmentServer
                 Y = point.Y;
 
                 LockstepMovePoints.Remove(lockstepTickNumber);
-//                Global.Console.Log(EntityId, X, Y, LockstepMovePoints.Count, lockstepTickNumber);
+                ((ServerGame)Game).ServerLogger.LogDebug(EntityId, X, Y, LockstepMovePoints.Count, lockstepTickNumber);
             }
 
             if (FutureActions.ContainsKey(lockstepTickNumber))
@@ -114,18 +115,17 @@ namespace Pather.Servers.GameSegmentServer
             };
 
             var lockstepTickNumber = ProjectMovement(x, y, destinationAction.LockstepTick, path);
-//            Global.Console.Log("Move entity on path:", moveEntityOnPathAction);
+            ((ServerGame)Game).ServerLogger.LogDebug("Move entity on path:", moveEntityOnPathAction);
             InProgressActions.Add(new InProgressClientAction(moveEntityOnPathAction, lockstepTickNumber));
 
             return lockstepTickNumber;
-            //            Global.Console.Log("Path points:", InProgressActions);
         }
 
         public long ProjectMovement(double x, double y, long startingLockstepTickNumber, List<AStarLockstepPath> path)
         {
             var pathIndex = 0;
 
-            //            Global.Console.Log(EntityId,"Projecting movement");
+            ((ServerGame)Game).ServerLogger.LogDebug(EntityId, "Projecting movement");
 
             var nextPathPoint = path[pathIndex];
             if (nextPathPoint == null) return startingLockstepTickNumber;
@@ -138,7 +138,7 @@ namespace Pather.Servers.GameSegmentServer
 
             var projectedX = nextPathPoint.X*Constants.SquareSize + halfSquareSize;
             var projectedY = nextPathPoint.Y*Constants.SquareSize + halfSquareSize;
-            //            Global.Console.Log(EntityId, projectedX,projectedY);
+            ((ServerGame)Game).ServerLogger.LogDebug(EntityId, projectedX, projectedY);
 
             while (true)
             {
@@ -154,11 +154,11 @@ namespace Pather.Servers.GameSegmentServer
                         nextPathPoint.RemoveAfterLockstep = startingLockstepTickNumber;
                         pathIndex++;
                         nextPathPoint = path[pathIndex];
-                        //                        Global.Console.Log(EntityId, "next path");
+                        ((ServerGame)Game).ServerLogger.LogDebug(EntityId, "next path");
 
                         if (nextPathPoint == null)
                         {
-                            //                            Global.Console.Log(EntityId, "done");
+                            ((ServerGame)Game).ServerLogger.LogDebug(EntityId, "done");
                             over = true;
                             break;
                         }
@@ -169,7 +169,7 @@ namespace Pather.Servers.GameSegmentServer
 
                     if ((projectedX) == (int) x && (projectedY) == (int) y)
                     {
-                        //                        Global.Console.Log(EntityId, "done");
+                        ((ServerGame)Game).ServerLogger.LogDebug(EntityId, "done");
                         over = true;
                         break;
                     }
@@ -179,7 +179,7 @@ namespace Pather.Servers.GameSegmentServer
                 }
                 if (over) break;
 
-                //                Global.Console.Log(EntityId, x, y);
+                ((ServerGame)Game).ServerLogger.LogDebug(EntityId, x, y);
                 gameTick++;
                 if (gameTick%gameTicksPerLockstepTick == 0)
                 {

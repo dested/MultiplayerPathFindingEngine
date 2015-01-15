@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Utils.Promises;
+using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Utils.Linode.ResponseModels;
 
 namespace Pather.Servers.Utils.Linode
@@ -19,17 +20,19 @@ namespace Pather.Servers.Utils.Linode
         private const int kernelId = 138;
 
         private JsDictionary<string, int> Images;
+        public LinodeClient Client;
+        private ServerLogger serverLogger;
 
 
         public LinodeBuilder()
         {
-            Client = Script.Reinterpret<LinodeClient>(Script.Eval("new (require('linode-api').LinodeClient)('" + Constants.LinodeApiKey + "')"));
         }
 
-        public Promise Init()
+        public Promise Init(ServerLogger serverLogger)
         {
             var deferred = Q.Defer();
-
+            this.serverLogger = serverLogger;
+            Client = Script.Reinterpret<LinodeClient>(Script.Eval("new (require('linode-api').LinodeClient)('" + Constants.LinodeApiKey + "')"));
 
             Images = new JsDictionary<string, int>();
 
@@ -39,14 +42,14 @@ namespace Pather.Servers.Utils.Linode
                 {
                     Images[imageListResponse.LABEL] = imageListResponse.IMAGEID;
                 }
-                Global.Console.Log(Images);
+                serverLogger.LogInformation("Linode Images:", Images);
                 deferred.Resolve();
             });
             return deferred.Promise;
         }
-        
 
-        public Promise<ServerInstance,LinodeCallError> Create(string name, string image, int planId)
+
+        public Promise<ServerInstance, LinodeCallError> Create(string name, string image, int planId)
         {
             var deferred = Q.Defer<ServerInstance, LinodeCallError>();
             var instance = new ServerInstance();
@@ -56,47 +59,47 @@ namespace Pather.Servers.Utils.Linode
             Call<CreateInstanceResponse>("linode.create", new { DatacenterID = 3, PlanId = planId })
                 .ThenPromise(res =>
                 {
-                    Global.Console.Log("Created!");
+                    serverLogger.LogInformation("Linode", "Created!");
                     instance.LinodeId = res.LinodeID;
                     return Call<object>("linode.update", new { LinodeID = instance.LinodeId, Label = name });
                 })
                 .ThenPromise(res =>
                 {
-                    Global.Console.Log("Updated!");
+                    serverLogger.LogInformation("Linode", "Updated!");
                     return Call<List<LinodeIPListResponse>>("linode.ip.list", new { LinodeID = instance.LinodeId });
                 })
                 .ThenPromise(res =>
                 {
-                    Global.Console.Log("Got IP!");
+                    serverLogger.LogInformation("Linode", "Got IP!");
                     instance.IPAddress = res[0].IPADDRESS;
                     return Call<LinodeDiskCreateResponse>("linode.disk.create", new { LinodeID = instance.LinodeId, Type = "swap", Label = "Swap Disk", Size = 256 });
                 })
                 .ThenPromise(res =>
                 {
-                    Global.Console.Log("Created Swap!");
+                    serverLogger.LogInformation("Linode", "Created Swap!");
                     instance.SwapDiskId = res.DiskID;
                     return Call<LinodeDiskCreateFromImageResponse>("linode.disk.createfromimage", new { LinodeID = instance.LinodeId, ImageID = Images[image] });
                 })
                 .ThenPromise(res =>
                 {
-                    Global.Console.Log("Created Image!");
+                    serverLogger.LogInformation("Linode", "Created Image!");
                     instance.MainDiskId = res.DISKID;
                     return Call<LinodeConfigCreate>("linode.config.create", new { LinodeID = instance.LinodeId, KernelID = kernelId, Label = name, DiskList = instance.MainDiskId + "," + instance.SwapDiskId });
                 })
                 .ThenPromise(res =>
                 {
-                    Global.Console.Log("Booted!");
+                    serverLogger.LogInformation("Linode", "Booted!");
                     return Call<LinodeConfigCreate>("linode.boot", new { LinodeID = instance.LinodeId });
                 })
                 .ThenPromise(res =>
                 {
-                    Global.Console.Log("Waiting!");
+                    serverLogger.LogInformation("Linode", "Waiting!");
                     return WaitTillDone(instance.LinodeId);
                 })
                 .Then(res => deferred.Resolve(instance))
                 .Error((err) =>
                 {
-                    Global.Console.Log(err);
+                    serverLogger.LogError("Linode", err);
                     deferred.Reject(err);
                 });
 
@@ -124,11 +127,11 @@ namespace Pather.Servers.Utils.Linode
                     }
                     else
                     {
-                        Global.Console.Log("Waiting on", stillRunning, "tasks!");
+                        serverLogger.LogInformation("Linode","Waiting on", stillRunning, "tasks!");
                         Global.SetTimeout(() =>
                         {
                             WaitTillDone(linodeId).PassThrough(deferred.Promise);
-                        },5000);
+                        }, 5000);
                     }
 
                 });
@@ -155,7 +158,6 @@ namespace Pather.Servers.Utils.Linode
             return deferred.Promise;
         }
 
-        public LinodeClient Client;
     }
 
 

@@ -28,6 +28,7 @@ namespace Pather.Servers.GameWorldServer
         public GameWorld GameWorld;
         public BackEndTickManager BackEndTickManager;
         private GameWorldPubSub gameWorldPubSub;
+        public ServerLogger ServerLogger;
 
         public GameWorldServer(IPubSub pubSub, IDatabaseQueries dbQueries, IInstantiateLogic instantiateLogic = null)
         {
@@ -37,22 +38,23 @@ namespace Pather.Servers.GameWorldServer
                 this.instantiateLogic = new DefaultInstanitateLogic();
             }
 
-            ServerLogger.InitLogger("GameWorld", "GameWorld");
+            ServerLogger=new ServerLogger("GameWorld", "GameWorld");
             this.pubSub = pubSub;
             DatabaseQueries = dbQueries;
-            pubSub.Init().Then(pubsubReady);
+            pubSub.Init(ServerLogger).Then(pubsubReady);
             //            new TickWatcher();
             Global.SetInterval(reorganize, Constants.TestReorganizeGameWorldInterval);
         }
+
 
         private void reorganize()
         {
             var now = DateTime.Now;
 
 
-            Global.Console.Log("Start Reorganize");
+            ServerLogger.LogDebug("Start Reorganize");
 
-            ReorganizeManager.Reorganize(GameWorld.Users.List, GameWorld.GameSegments.List, GameWorld.CreateGameSegment).Then(clusters =>
+            ReorganizeManager.Reorganize(GameWorld.Users.List, GameWorld.GameSegments.List, GameWorld.CreateGameSegment,ServerLogger).Then(clusters =>
             {
                 var count = 0;
                 foreach (var playerCluster in clusters)
@@ -66,24 +68,24 @@ namespace Pather.Servers.GameWorldServer
                         }
                     }
                 }
-                Global.Console.Log("End Reorganize", (DateTime.Now - now) + "ms. Moving", count, "Users.");
+                ServerLogger.LogDebug("End Reorganize", (DateTime.Now - now) + "ms. Moving", count, "Users.");
             });
         }
 
 
         private void pubsubReady()
         {
-            gameWorldPubSub = new GameWorldPubSub(pubSub);
+            gameWorldPubSub = new GameWorldPubSub(pubSub,ServerLogger);
             gameWorldPubSub.Init();
             gameWorldPubSub.Message += gameWorldMessage;
 
-            BackEndTickManager = new BackEndTickManager();
+            BackEndTickManager = new BackEndTickManager(ServerLogger);
 
-            GameWorld = this.instantiateLogic.CreateGameWorld(gameWorldPubSub, BackEndTickManager);
+            GameWorld = this.instantiateLogic.CreateGameWorld(gameWorldPubSub, BackEndTickManager,ServerLogger);
             GameWorld.Init();
             BackEndTickManager.Init(sendPing, () =>
             {
-                Global.Console.Log("Connected To Tick Server");
+                ServerLogger.LogInformation("Connected To Tick Server");
 
                 Global.SetInterval(flushPreAddedUsers, 200);
             });
@@ -114,7 +116,7 @@ namespace Pather.Servers.GameWorldServer
                     {
                         if (users.Count == 0)
                         {
-                            Global.Console.Log("No users to resolve adding to segment", items);
+                            ServerLogger.LogError("No users to resolve adding to segment", items);
 
                             return;
                         }
@@ -131,12 +133,11 @@ namespace Pather.Servers.GameWorldServer
                                     u.Item2.Resolve(u.Item1);
                                 }
 
-                                Global.Console.Log(GameWorld.Users.Count, "Users total");
 
-                                /*Global.Console.Log("",
-                                     "Gameworld added user to game segment", gameSegment.GameSegmentId,
-                                     "Total Players:", Users.Count,
-                                     "Game Segment Players:", gameSegment.Users.Count);*/
+                                ServerLogger.LogInformation(
+                                    "Gameworld added user to game segment", gameSegment.GameSegmentId,
+                                     "Total Players:", GameWorld.Users.Count,
+                                     "Game Segment Players:", gameSegment.Users.Count);
                             });
                     });
             }
@@ -223,7 +224,7 @@ namespace Pather.Servers.GameWorldServer
                             Y = user.Y,
                         })
                     };
-                    Global.Console.Log("Initalized");
+                    ServerLogger.LogInformation("Initalized");
                     gameWorldPubSub.PublishToGameSegment(getAllGameSegments.OriginGameSegment, initializeGameSegmentMessage);
                     break;
                 default:
@@ -240,8 +241,7 @@ namespace Pather.Servers.GameWorldServer
         private Promise<GameWorldUser, UserJoinError> UserJoined(UserJoined_Gateway_GameWorld_PubSub_Message message)
         {
             var deferred = Q.Defer<GameWorldUser, UserJoinError>();
-            //                Global.Console.Log("User Joined Game World", message.UserToken, message.GatewayId);
-            //            Global.Console.Log("User trying to join");
+            ServerLogger.LogDebug("User Joined Game World", message.UserToken, message.GatewayId);
             if (!joining)
             {
                 joining = true;

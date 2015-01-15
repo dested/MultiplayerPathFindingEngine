@@ -51,6 +51,7 @@
     <Compile Include="Common\SocketManager\ISocket.cs" />
     <Compile Include="Common\SocketManager\ISocketManager.cs" />
     <Compile Include="Common\SocketManager\SocketIOSocket.cs" />
+    <Compile Include="Common\TickWatcher.cs" />
     <Compile Include="Database\DatabaseQueries.cs" />
     <Compile Include="Database\DatabaseError.cs" />
     <Compile Include="Database\DBUser.cs" />
@@ -86,7 +87,6 @@
     <Compile Include="GameWorldServer\Models\GameWorldNeighbor.cs" />
     <Compile Include="GameWorldServer\Models\GameWorldUser.cs" />
     <Compile Include="GameWorldServer\Models\UserJoinError.cs" />
-    <Compile Include="Common\TickWatcher.cs" />
     <Compile Include="GameWorldServer\PlayerCluster.cs" />
     <Compile Include="GameWorldServer\PlayerClusterGroup.cs" />
     <Compile Include="GameWorldServer\UserAndNeighbors.cs" />

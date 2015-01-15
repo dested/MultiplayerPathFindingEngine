@@ -2,7 +2,10 @@
 
 app.controller('Main', function ($scope) {
     
-    var socket = io.connect('127.0.0.1:9992');
+    
+    var socket = io.connect('127.0.0.1:9991');
+    var servers = ['GameSegment', 'ClusterManager', 'GameWorld', 'Gateway', 'Chat', 'Tick', 'ServerManager', 'Starter', 'Auth', 'Head'];
+    var logTypes = ['Information', 'Debug Information', 'Errors', 'Transport', 'Data Transport'];
     $scope.model = {};
     $scope.model.selectedLogPiece = null;
     $scope.model.tabs = [];
@@ -26,8 +29,13 @@ app.controller('Main', function ($scope) {
     setInterval(function () {
         $scope.$apply();
     }, 2000);
-    
-    
+
+    $scope.model.clear = function() {
+        for (var k = 0; k < $scope.model.tabs.length; k++) {
+            var tab = $scope.model.tabs[k];
+            tab.servers.length = 0;
+        }
+    };
     
     for (var i = 0; i < servers.length; i++) {
         
@@ -145,25 +153,25 @@ app.controller('Main', function ($scope) {
         
         switch (data.message.type) {
             case 'LogDistribution':
-              
-                break; 
+                
+                break;
         }
          
     });
 
 
 }).controller('MainSegment', function ($scope) {
-
+    
     var socket = io.connect('127.0.0.1:9992');
     $scope.model = {};
     $scope.model.selectedLogPiece = null;
     $scope.model.gameSegments = {};
-
+    
     var longWait = 5 * 1000;
-
-
-
-
+    
+    
+    
+    
     socket.on("message", function (data) {
         if (!$scope.model.gameSegments[data.gameSegmentId]) {
             $scope.model.gameSegments[data.gameSegmentId] = {
@@ -173,13 +181,13 @@ app.controller('Main', function ($scope) {
             $scope.$apply();
             initializeGameSegment($scope.model.gameSegments[data.gameSegmentId]);
         }
-
+        
         var gameSegment = $scope.model.gameSegments[data.gameSegmentId];
-
+        
         if (data.message.type == 'keepAlive') {
             return;
         }
-
+        
         switch (data.message.type) {
             case 'userJoined':
                 gameSegment.users.push({
@@ -223,32 +231,32 @@ app.controller('Main', function ($scope) {
                 }
                 break;
         }
-
+        
         redrawGameSegment(gameSegment);
     });
-
+    
     function initializeGameSegment(gameSegment) {
-
+        
         var canvas = document.getElementById(gameSegment.gameSegmentId);
         canvas.width = 400;
         canvas.height = 400;
         canvas.onmousedown = function (ev) {
-
+            
             var x = ev.offsetX / 4 | 0;
             var y = ev.offsetY / 4 | 0;
             x = (x / 2) | 0;
             y = (y / 2) | 0;
-
+            
             console.log(x, y);
-
-
-
+            
+            
+            
             for (var i = 0; i < gameSegment.users.length; i++) {
                 var user = gameSegment.users[i];
                 user.showingNeighbor = false;
             }
-
-
+            
+            
             for (var i = 0; i < gameSegment.users.length; i++) {
                 var user = gameSegment.users[i];
                 user.showingNeighbor = false;
@@ -260,32 +268,32 @@ app.controller('Main', function ($scope) {
             redrawGameSegment(gameSegment);
         }
     }
-
-
+    
+    
     function redrawGameSegment(gameSegment) {
-
+        
         var canvas = document.getElementById(gameSegment.gameSegmentId);
         var context = canvas.getContext('2d');
-
+        
         context.save();
         context.scale(4, 4);
         context.fillStyle = 'black';
         context.fillRect(0, 0, 100, 100);
-
-
+        
+        
         for (var i = 0; i < gameSegment.users.length; i++) {
             var user = gameSegment.users[i];
             user.isNeighbor = false;
         }
-
-
-   
-
-
+        
+        
+        
+        
+        
         for (var i = 0; i < gameSegment.users.length; i++) {
             var user = gameSegment.users[i];
-
-
+            
+            
             if (user.showingNeighbor) {
                 for (var j = 0; j < gameSegment.users.length; j++) {
                     var nUser = gameSegment.users[j];
@@ -294,26 +302,26 @@ app.controller('Main', function ($scope) {
                     }
                 }
             }
-
-
+            
+            
             if (user.isMine) {
                 context.fillStyle = 'blue';
             } else {
                 context.fillStyle = 'red';
             }
-
+            
             if (user.showingNeighbor) {
                 context.fillStyle = 'white';
             }
             if (user.isNeighbor) {
                 context.fillStyle = 'green';
             }
-
-
+            
+            
             context.fillRect(user.x * 2 - 1, user.y * 2 - 1, 2, 2);
         }
-
-
+        
+        
         context.restore();
     }
 

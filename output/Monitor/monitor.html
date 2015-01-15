@@ -3,7 +3,7 @@
 <head>
     <title>MMO Monitor</title>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    <script data-require="angular.js@1.0.x" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.7/angular.min.js" data-semver="1.0.7"></script>
+    <script data-require="angular.js@1.0.x" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.9/angular.min.js" data-semver="1.0.7"></script>
     <script type="text/javascript" src="libs/socket.io-1.2.1.js"></script>
     <script type="text/javascript" src="libs/ui-bootstrap.js"></script>
     <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
@@ -11,39 +11,40 @@
     <style>
         body, html{height: 100%;}
         body{background-color: cadetblue;}
-        .container{margin: auto;width: 800px;background-color: white;height: 750px;}
+        .container{margin: auto;margin-top: 50px;margin-bottom: 50px;width: 95%;background-color: white;height: 90%;box-sizing: content-box;}
         .warning{background-color: yellow;}
         .logBox{width:100%;height:100%;overflow-y:scroll; overflow-x:hidden; max-height:546px;min-height:546px;}
         hr{margin: 5px;}
     </style>
 </head>
 <body ng-controller="Main">
-    <div class="container">
-        <tabset>
-            <tab ng-repeat="tab in model.tabs" heading="{{tab.title}}" ng-style="$parent.model.isParentOutOfSync($parent.tab)"   >
-               <tabset  >
-                  <tab  ng-repeat="server in tab.servers" heading="{{server.name}} Online: {{server.online}}">
-                     <tabset  >
-                        <tab  ng-repeat="logPiece in server.logPieces" heading="{{logPiece.logTitle}}" ng-style="$parent.model.isOutOfSync($parent.logPiece)" select="logPiece.currentLogIndex=logPiece.logs.length;model.selectedLogPiece=logPiece;" >
-                        <button class="btn" style="width:100%;" ng-click="logPiece.logs=[]"> Clear </button>
-                           <div class="logBox" force-scroll="logPiece.logs">
-                               <div ng-repeat="log in logPiece.logs">
-                                 <div  style="height:50px;" >
-                                    <span >{{log.message}}</span>
-                                    <button class="btn" ng-show="log.content" ng-click="isCollapsed = !isCollapsed"> Expand </button>
-                                    <div collapse="!isCollapsed">
-                                       <pre class="well well-large">{{log.time}} - {{log.content}}</pre>
+<div class="container">
+    <tabset>
+        <tab ng-repeat="tab in model.tabs" heading="{{tab.title}}" ng-style="model.isParentOutOfSync(tab)">
+            <tabset >
+                <tab ng-repeat="server in tab.servers" heading="{{server.name}} Online: {{server.online}}">
+                    <tabset >
+                        <tab ng-repeat="logPiece in server.logPieces" heading="{{logPiece.logTitle}}" ng-style="model.isOutOfSync(logPiece)" select="logPiece.currentLogIndex=logPiece.logs.length;model.selectedLogPiece=logPiece;">
+                            <button class="btn" style="width: 100%;" ng-click="logPiece.logs=[]"> Clear </button>
+                            <div class="logBox" force-scroll="logPiece.logs">
+                                <div ng-repeat-start="log in logPiece.logs">
+                                    <div style="height: 50px;">
+                                        <span>{{log.message}}</span>
+                                        <button class="btn" ng-show="log.content" ng-click="log.isExpanded = !log.isExpanded"> Expand </button>
+                                        <hr/>
                                     </div>
-                                    <hr/>
-                                 </div>
-                              </div>
-                           </div>
+                                </div>
+                                <div ng-if="log.isExpanded" ng-repeat-end>
+                                    <pre class="well well-large">{{log.time}} - {{log.content}}</pre>
+                                </div>
+                            </div>
                         </tab>
-                     </tabset>
-                  </tab>
-               </tabset>
-            </tab>
-         </tabset>
-    </div>
+                    </tabset>
+                </tab>
+            </tabset>
+        </tab>
+    </tabset>
+    <button ng-click="model.clear()">Clear</button>
+</div>
 </body>
 </html>

@@ -5,7 +5,7 @@ using Pather.Common.Utils.Histogram;
 
 namespace Pather.Common.Utils
 {
-    public class TickManager
+    public abstract class TickManager
     {
         public TickManager()
         {
@@ -25,19 +25,21 @@ namespace Pather.Common.Utils
             Global.SetTimeout(tick, 1);
         }
 
+        public abstract void LockstepForced(long lockStepTickNumber);
+
         public virtual void SetLockStepTick(long lockStepTickNumber)
         {
             //todo resolve if current > or < lockstep
             if (LockstepTickNumber > lockStepTickNumber)
             {
                 LockstepTickNumber = lockStepTickNumber;
-                Global.Console.Log("Force Lockstep", lockStepTickNumber);
+                LockstepForced(lockStepTickNumber);
                 ProcessLockstep(LockstepTickNumber);
             }
 
             if (LockstepTickNumber < lockStepTickNumber)
             {
-                Global.Console.Log("Force Lockstep", lockStepTickNumber);
+                LockstepForced(lockStepTickNumber);
                 while (LockstepTickNumber < lockStepTickNumber)
                 {
                     LockstepTickNumber++;

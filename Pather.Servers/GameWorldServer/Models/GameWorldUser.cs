@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using Pather.Common.Libraries.NodeJS;
 using Pather.Common.Utils;
+using Pather.Servers.Common.ServerLogging;
 
 namespace Pather.Servers.GameWorldServer.Models
 {
     public class GameWorldUser
     {
+        private readonly GameWorld gameWorld;
         public string UserId;
         public double X;
         public double Y;
@@ -14,8 +16,9 @@ namespace Pather.Servers.GameWorldServer.Models
         public GameSegment GameSegment;
         public JsDictionary<long, Point> LockstepMovePoints;
 
-        public GameWorldUser()
+        public GameWorldUser(GameWorld gameWorld)
         {
+            this.gameWorld = gameWorld;
             LockstepMovePoints = new JsDictionary<long, Point>();
         }
 
@@ -33,7 +36,7 @@ namespace Pather.Servers.GameWorldServer.Models
                 Y = point.Y;
 
                 LockstepMovePoints.Remove(lockstepTickNumber);
-//                Global.Console.Log(UserId, X, Y, LockstepMovePoints.Count, lockstepTickNumber);
+              gameWorld.  ServerLogger.LogError(UserId, X, Y, LockstepMovePoints.Count, lockstepTickNumber);
             }
         }
 
