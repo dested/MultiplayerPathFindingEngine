@@ -43,6 +43,12 @@ namespace Pather.Servers.Utils.Linode.ResponseModels
         public int JobID;
         public int DiskID;
     }
+    [Serializable, PreserveMemberCase]
+    public class LinodeDiskCreateFromImageResponse
+    {
+        public int JOBID;
+        public int DISKID;
+    }
 
     [Serializable, PreserveMemberCase]
     public class LinodeConfigCreate

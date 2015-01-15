@@ -12,6 +12,7 @@ using Pather.Common.Utils;
 using Pather.Common.Utils.Promises;
 using Pather.Servers.Common.PubSub;
 using Pather.Servers.Common.PushPop;
+using Pather.Servers.Utils.Linode;
 
 namespace Pather.Servers.ServerManager
 {
@@ -21,14 +22,17 @@ namespace Pather.Servers.ServerManager
         private ServerManagerPubSub serverManagerPubSub;
         private readonly List<GameSegmentCluster> gameSegmentClusters;
         private readonly List<GatewayCluster> gatewayClusters;
+        private LinodeBuilder linodeBuilder;
 
         public ServerManager(IPubSub pubSub, IPushPop pushPop)
         {
             PushPop = pushPop;
             gameSegmentClusters = new List<GameSegmentCluster>();
             gatewayClusters = new List<GatewayCluster>();
+            linodeBuilder = new LinodeBuilder();
 
-            Q.All(pubSub.Init(), pushPop.Init()).Then(() => ready(pubSub));
+
+            Q.All(pubSub.Init(), pushPop.Init(), linodeBuilder.Init()).Then(() => ready(pubSub));
         }
 
         private void ready(IPubSub pubSub)
@@ -45,10 +49,10 @@ namespace Pather.Servers.ServerManager
             switch (message.Type)
             {
                 case ServerManager_PubSub_MessageType.CreateGameSegment:
-                    CreateGameSegmentMessage((CreateGameSegment_GameWorld_ServerManager_PubSub_ReqRes_Message) message);
+                    CreateGameSegmentMessage((CreateGameSegment_GameWorld_ServerManager_PubSub_ReqRes_Message)message);
                     break;
                 case ServerManager_PubSub_MessageType.CreateGateway:
-                    CreateGatewayMessage((CreateGateway_Head_ServerManager_PubSub_ReqRes_Message) message);
+                    CreateGatewayMessage((CreateGateway_Head_ServerManager_PubSub_ReqRes_Message)message);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
@@ -164,29 +168,51 @@ namespace Pather.Servers.ServerManager
         private Promise<ClusterCreation, UndefinedPromiseError> SpawnNewServer()
         {
             var deferred = Q.Defer<ClusterCreation, UndefinedPromiseError>();
-            var application = "clustermanager";
             var applicationId = Utilities.UniqueId();
 
 
-            Global.Console.Log("Spawning new server"); 
 
-            PushPop.BlockingPop(applicationId, Constants.GameSegmentCreationWait).Then((content) =>
+            if (ConnectionConstants.Production)
             {
-                deferred.Resolve(new ClusterCreation()
+                linodeBuilder.Create("Cluster-"+applicationId, "Node", LinodeBuilder.SmallPlanId).Then((instance) =>
                 {
-                    ClusterManagerId = applicationId
+                    //ssh into the system and start the cluster manager
+                    deferred.Resolve(new ClusterCreation()
+                    {
+                        ClusterManagerId = applicationId
+                    });
+                    Global.Console.Log("Spawn Success");
                 });
-                Global.Console.Log("Spawn Success");
-            }).Error(a =>
+            }
+            else
             {
-                Global.Console.Log("Spawn Fail");
-            });
 
 
-            startApp(new[]
-            {
-                "", application, applicationId
-            }, "./outcluster.log");
+                var application = "clustermanager";
+                Global.Console.Log("Spawning new server");
+
+                PushPop.BlockingPop(applicationId, Constants.GameSegmentCreationWait).Then((content) =>
+                {
+                    deferred.Resolve(new ClusterCreation()
+                    {
+                        ClusterManagerId = applicationId
+                    });
+                    Global.Console.Log("Spawn Success");
+                }).Error(a =>
+                {
+                    Global.Console.Log("Spawn Fail");
+                });
+
+
+                startApp(new[]
+                {
+                    "", application, applicationId
+                }, "./outcluster.log");
+
+            }
+
+
+
 
 
             return deferred.Promise;
@@ -203,7 +229,7 @@ namespace Pather.Servers.ServerManager
             {
                 Global.Console.Log("Fake start app");
                 var serverStarter = new ServerStarter();
-                ((dynamic) arguments).splice(0, 0, "");
+                ((dynamic)arguments).splice(0, 0, "");
                 serverStarter.Start(ServerStarter.InstantiateLogic, arguments);
 
             }
@@ -219,7 +245,7 @@ namespace Pather.Servers.ServerManager
 
 
                 var str = @"C:\Users\deste_000\AppData\Roaming\npm\node-debug.cmd";
-                    str = "node";
+                str = "node";
 
 
                 string appName;

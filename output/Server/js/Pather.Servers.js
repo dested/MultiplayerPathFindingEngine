@@ -2016,10 +2016,12 @@ var $Pather_Servers_ServerManager_ServerManager = function(pubSub, pushPop) {
 	this.$serverManagerPubSub = null;
 	this.$gameSegmentClusters = null;
 	this.$gatewayClusters = null;
+	this.$linodeBuilder = null;
 	this.pushPop = pushPop;
 	this.$gameSegmentClusters = [];
 	this.$gatewayClusters = [];
-	Pather.Common.Utils.Promises.Q.all([pubSub.init(6379), pushPop.init()]).then(ss.mkdel(this, function() {
+	this.$linodeBuilder = new $Pather_Servers_Utils_Linode_LinodeBuilder();
+	Pather.Common.Utils.Promises.Q.all([pubSub.init(6379), pushPop.init(), this.$linodeBuilder.init()]).then(ss.mkdel(this, function() {
 		this.$ready(pubSub);
 	}));
 };
@@ -2127,6 +2129,23 @@ var $Pather_Servers_Utils_Linode_LinodeCallError = function() {
 $Pather_Servers_Utils_Linode_LinodeCallError.__typeName = 'Pather.Servers.Utils.Linode.LinodeCallError';
 global.Pather.Servers.Utils.Linode.LinodeCallError = $Pather_Servers_Utils_Linode_LinodeCallError;
 ////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Utils.Linode.ServerInstance
+var $Pather_Servers_Utils_Linode_ServerInstance = function() {
+};
+$Pather_Servers_Utils_Linode_ServerInstance.__typeName = 'Pather.Servers.Utils.Linode.ServerInstance';
+$Pather_Servers_Utils_Linode_ServerInstance.createInstance = function() {
+	return $Pather_Servers_Utils_Linode_ServerInstance.$ctor();
+};
+$Pather_Servers_Utils_Linode_ServerInstance.$ctor = function() {
+	var $this = {};
+	$this.linodeId = null;
+	$this.ipAddress = null;
+	$this.swapDiskId = 0;
+	$this.mainDiskId = 0;
+	return $this;
+};
+global.Pather.Servers.Utils.Linode.ServerInstance = $Pather_Servers_Utils_Linode_ServerInstance;
+////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.Utils.Linode.ResponseModels.CreateInstanceResponse
 var $Pather_Servers_Utils_Linode_ResponseModels_CreateInstanceResponse = function() {
 };
@@ -2178,6 +2197,21 @@ $Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate.$ctor = function(
 	return $this;
 };
 global.Pather.Servers.Utils.Linode.ResponseModels.LinodeConfigCreate = $Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Utils.Linode.ResponseModels.LinodeDiskCreateFromImageResponse
+var $Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateFromImageResponse = function() {
+};
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateFromImageResponse.__typeName = 'Pather.Servers.Utils.Linode.ResponseModels.LinodeDiskCreateFromImageResponse';
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateFromImageResponse.createInstance = function() {
+	return $Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateFromImageResponse.$ctor();
+};
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateFromImageResponse.$ctor = function() {
+	var $this = {};
+	$this.JOBID = 0;
+	$this.DISKID = 0;
+	return $this;
+};
+global.Pather.Servers.Utils.Linode.ResponseModels.LinodeDiskCreateFromImageResponse = $Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateFromImageResponse;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.Utils.Linode.ResponseModels.LinodeDiskCreateResponse
 var $Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse = function() {
@@ -2236,12 +2270,6 @@ $Pather_Servers_Utils_Linode_ResponseModels_LinodeJobListResponse.$ctor = functi
 global.Pather.Servers.Utils.Linode.ResponseModels.LinodeJobListResponse = $Pather_Servers_Utils_Linode_ResponseModels_LinodeJobListResponse;
 ss.initClass($Pather_Servers_ServerStarter, $asm, {
 	start: function(instantiateLogic, arguments1) {
-		debugger;
-		var linodeBuilder = new $Pather_Servers_Utils_Linode_LinodeBuilder();
-		linodeBuilder.init();
-		linodeBuilder.create('Redis', 'redis', $Pather_Servers_Utils_Linode_LinodeBuilder.smallPlanId).then(function() {
-			console.log('Ready!');
-		});
 		$Pather_Servers_ServerStarter.instantiateLogic = instantiateLogic;
 		var arg = arguments1[2];
 		if (ss.isNullOrEmptyString(arg)) {
@@ -5164,18 +5192,29 @@ ss.initClass($Pather_Servers_ServerManager_ServerManager, $asm, {
 	},
 	$spawnNewServer: function() {
 		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_Servers_ServerManager_$ClusterCreation, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
-		var application = 'clustermanager';
 		var applicationId = Pather.Common.Utils.Utilities.uniqueId();
-		console.log('Spawning new server');
-		this.pushPop.blockingPop(applicationId, Pather.Common.Constants.gameSegmentCreationWait).then(function(content) {
-			var $t1 = new $Pather_Servers_ServerManager_$ClusterCreation();
-			$t1.$clusterManagerId = applicationId;
-			deferred.resolve($t1);
-			console.log('Spawn Success');
-		}).error(function(a) {
-			console.log('Spawn Fail');
-		});
-		this.$startApp(['', application, applicationId], './outcluster.log');
+		if (Pather.Common.ConnectionConstants.get_production()) {
+			this.$linodeBuilder.create('Cluster-' + applicationId, 'Node', $Pather_Servers_Utils_Linode_LinodeBuilder.smallPlanId).then(function(instance) {
+				//ssh into the system and start the cluster manager
+				var $t1 = new $Pather_Servers_ServerManager_$ClusterCreation();
+				$t1.$clusterManagerId = applicationId;
+				deferred.resolve($t1);
+				console.log('Spawn Success');
+			});
+		}
+		else {
+			var application = 'clustermanager';
+			console.log('Spawning new server');
+			this.pushPop.blockingPop(applicationId, Pather.Common.Constants.gameSegmentCreationWait).then(function(content) {
+				var $t2 = new $Pather_Servers_ServerManager_$ClusterCreation();
+				$t2.$clusterManagerId = applicationId;
+				deferred.resolve($t2);
+				console.log('Spawn Success');
+			}).error(function(a) {
+				console.log('Spawn Fail');
+			});
+			this.$startApp(['', application, applicationId], './outcluster.log');
+		}
 		return deferred.promise;
 	},
 	$startApp: function(arguments1, logFile) {
@@ -5330,6 +5369,7 @@ ss.initClass($Pather_Servers_TickServer_TickServerTickManager, $asm, {
 ss.initClass($Pather_Servers_Utils_ServerHelper, $asm, {});
 ss.initClass($Pather_Servers_Utils_Linode_LinodeBuilder, $asm, {
 	init: function() {
+		var deferred = Pather.Common.Utils.Promises.Q.defer();
 		this.$images = {};
 		this.$call(Array).call(this, 'image.list', {}).then(ss.mkdel(this, function(res) {
 			for (var $t1 = 0; $t1 < res.length; $t1++) {
@@ -5337,48 +5377,50 @@ ss.initClass($Pather_Servers_Utils_Linode_LinodeBuilder, $asm, {
 				this.$images[imageListResponse.LABEL] = imageListResponse.IMAGEID;
 			}
 			console.log(this.$images);
+			deferred.resolve();
 		}));
+		return deferred.promise;
 	},
 	create: function(name, image, planId) {
-		var deferred = Pather.Common.Utils.Promises.Q.defer();
-		var linodeId = '';
-		var ip = '';
-		var swapDiskId = 0;
-		var mainDiskId = 0;
+		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_Servers_Utils_Linode_ServerInstance, $Pather_Servers_Utils_Linode_LinodeCallError).call(null);
+		var instance = $Pather_Servers_Utils_Linode_ServerInstance.$ctor();
 		var $t1 = this.$call($Pather_Servers_Utils_Linode_ResponseModels_CreateInstanceResponse).call(this, 'linode.create', { DatacenterID: 3, PlanId: planId });
 		var $t2 = $t1.thenPromise$1(Object).call($t1, ss.mkdel(this, function(res) {
 			console.log('Created!');
-			linodeId = res.LinodeID;
-			return this.$call(Object).call(this, 'linode.update', { LinodeID: linodeId, Label: name });
+			instance.linodeId = res.LinodeID;
+			return this.$call(Object).call(this, 'linode.update', { LinodeID: instance.linodeId, Label: name });
 		}));
 		var $t3 = $t2.thenPromise$1(Array).call($t2, ss.mkdel(this, function(res1) {
 			console.log('Updated!');
-			return this.$call(Array).call(this, 'linode.ip.list', { LinodeID: linodeId });
+			return this.$call(Array).call(this, 'linode.ip.list', { LinodeID: instance.linodeId });
 		}));
 		var $t4 = $t3.thenPromise$1($Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse).call($t3, ss.mkdel(this, function(res2) {
 			console.log('Got IP!');
-			ip = res2[0].IPADDRESS;
-			return this.$call($Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse).call(this, 'linode.disk.create', { LinodeID: linodeId, Type: 'swap', Label: 'Swap Disk', Size: 256 });
+			instance.ipAddress = res2[0].IPADDRESS;
+			return this.$call($Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse).call(this, 'linode.disk.create', { LinodeID: instance.linodeId, Type: 'swap', Label: 'Swap Disk', Size: 256 });
 		}));
-		var $t5 = $t4.thenPromise$1($Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse).call($t4, ss.mkdel(this, function(res3) {
+		var $t5 = $t4.thenPromise$1($Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateFromImageResponse).call($t4, ss.mkdel(this, function(res3) {
 			console.log('Created Swap!');
-			swapDiskId = res3.DiskID;
-			return this.$call($Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse).call(this, 'linode.disk.createfromimage', { LinodeID: linodeId, ImageID: this.$images[image] });
+			instance.swapDiskId = res3.DiskID;
+			return this.$call($Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateFromImageResponse).call(this, 'linode.disk.createfromimage', { LinodeID: instance.linodeId, ImageID: this.$images[image] });
 		}));
 		var $t6 = $t5.thenPromise$1($Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate).call($t5, ss.mkdel(this, function(res4) {
 			console.log('Created Image!');
-			mainDiskId = res4.DiskID;
-			return this.$call($Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate).call(this, 'linode.config.create', { LinodeID: linodeId, KernalID: $Pather_Servers_Utils_Linode_LinodeBuilder.$kernalId, Label: name, DiskList: mainDiskId + ',' + swapDiskId });
+			instance.mainDiskId = res4.DISKID;
+			return this.$call($Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate).call(this, 'linode.config.create', { LinodeID: instance.linodeId, KernelID: $Pather_Servers_Utils_Linode_LinodeBuilder.$kernelId, Label: name, DiskList: instance.mainDiskId + ',' + instance.swapDiskId });
 		}));
 		var $t7 = $t6.thenPromise$1($Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate).call($t6, ss.mkdel(this, function(res5) {
 			console.log('Booted!');
-			return this.$call($Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate).call(this, 'linode.boot', { LinodeID: linodeId });
+			return this.$call($Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate).call(this, 'linode.boot', { LinodeID: instance.linodeId });
 		}));
 		$t7.thenPromise$1(Object).call($t7, ss.mkdel(this, function(res6) {
 			console.log('Waiting!');
-			return this.$waitTillDone(linodeId);
+			return this.$waitTillDone(instance.linodeId);
 		})).then(function(res7) {
-			deferred.resolve();
+			deferred.resolve(instance);
+		}).error(function(err) {
+			console.log(err);
+			deferred.reject(err);
 		});
 		return deferred.promise;
 	},
@@ -5420,21 +5462,17 @@ ss.initClass($Pather_Servers_Utils_Linode_LinodeBuilder, $asm, {
 	}
 });
 ss.initClass($Pather_Servers_Utils_Linode_LinodeCallError, $asm, {});
+ss.initClass($Pather_Servers_Utils_Linode_ServerInstance, $asm, {});
 ss.initClass($Pather_Servers_Utils_Linode_ResponseModels_CreateInstanceResponse, $asm, {});
 ss.initClass($Pather_Servers_Utils_Linode_ResponseModels_ImageListResponse, $asm, {});
 ss.initClass($Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate, $asm, {});
+ss.initClass($Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateFromImageResponse, $asm, {});
 ss.initClass($Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse, $asm, {});
 ss.initClass($Pather_Servers_Utils_Linode_ResponseModels_LinodeIPListResponse, $asm, {});
 ss.initClass($Pather_Servers_Utils_Linode_ResponseModels_LinodeJobListResponse, $asm, {});
 ss.setMetadata($Pather_Servers_ClusterManager_Tests_ClusterManagerTest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)] });
 ss.setMetadata($Pather_Servers_GameWorldServer_Tests_GameWorldServerTests, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'UserShouldJoin', type: 8, sname: 'userShouldJoin', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
 ss.setMetadata($Pather_Servers_GatewayServer_Tests_GatewayServerTests, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'UserShouldJoinFromGateway', type: 8, sname: 'userShouldJoinFromGateway', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
-(function() {
-	$Pather_Servers_Utils_Linode_LinodeBuilder.smallPlanId = 1;
-	$Pather_Servers_Utils_Linode_LinodeBuilder.$mediumPlanId = 4;
-	$Pather_Servers_Utils_Linode_LinodeBuilder.$ubuntuDistribution = 133;
-	$Pather_Servers_Utils_Linode_LinodeBuilder.$kernalId = 138;
-})();
 (function() {
 	$Pather_Servers_Common_PubSub_PubSubChannels.$tick = 'Tick';
 	$Pather_Servers_Common_PubSub_PubSubChannels.$gameWorld = 'GameWorld';
@@ -5446,6 +5484,12 @@ ss.setMetadata($Pather_Servers_GatewayServer_Tests_GatewayServerTests, { attr: [
 	$Pather_Servers_Common_PubSub_PubSubChannels.$headServer = 'Head';
 	$Pather_Servers_Common_PubSub_PubSubChannels.$serverManager = 'ServerManager';
 	$Pather_Servers_Common_PubSub_PubSubChannels.$histogramLogger = 'HistogramLogger';
+})();
+(function() {
+	$Pather_Servers_Utils_Linode_LinodeBuilder.smallPlanId = 1;
+	$Pather_Servers_Utils_Linode_LinodeBuilder.mediumPlanId = 4;
+	$Pather_Servers_Utils_Linode_LinodeBuilder.$ubuntuDistribution = 133;
+	$Pather_Servers_Utils_Linode_LinodeBuilder.$kernelId = 138;
 })();
 (function() {
 	$Pather_Servers_Common_ServerLogging_ServerLogger.$pubsub = null;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
@@ -12,10 +13,10 @@ namespace Pather.Servers.Utils.Linode
     public class LinodeBuilder
     {
         public const int SmallPlanId = 1;
-        private const int mediumPlanId = 4;
+        public const int MediumPlanId = 4;
 
         private const int ubuntuDistribution = 133;
-        private const int kernalId = 138;
+        private const int kernelId = 138;
 
         private JsDictionary<string, int> Images;
 
@@ -25,8 +26,11 @@ namespace Pather.Servers.Utils.Linode
             Client = Script.Reinterpret<LinodeClient>(Script.Eval("new (require('linode-api').LinodeClient)('" + Constants.LinodeApiKey + "')"));
         }
 
-        public void Init()
+        public Promise Init()
         {
+            var deferred = Q.Defer();
+
+
             Images = new JsDictionary<string, int>();
 
             Call<List<ImageListResponse>>("image.list", new { }).Then(res =>
@@ -36,59 +40,65 @@ namespace Pather.Servers.Utils.Linode
                     Images[imageListResponse.LABEL] = imageListResponse.IMAGEID;
                 }
                 Global.Console.Log(Images);
+                deferred.Resolve();
             });
+            return deferred.Promise;
         }
+        
 
-        public Promise Create(string name, string image, int planId)
+        public Promise<ServerInstance,LinodeCallError> Create(string name, string image, int planId)
         {
-            var deferred = Q.Defer();
-            string linodeId = "";
-            string ip = "";
-            int swapDiskId = 0;
-            int mainDiskId = 0;
+            var deferred = Q.Defer<ServerInstance, LinodeCallError>();
+            var instance = new ServerInstance();
+
 
 
             Call<CreateInstanceResponse>("linode.create", new { DatacenterID = 3, PlanId = planId })
                 .ThenPromise(res =>
                 {
                     Global.Console.Log("Created!");
-                    linodeId = res.LinodeID;
-                    return Call<object>("linode.update", new { LinodeID = linodeId, Label = name });
+                    instance.LinodeId = res.LinodeID;
+                    return Call<object>("linode.update", new { LinodeID = instance.LinodeId, Label = name });
                 })
                 .ThenPromise(res =>
                 {
                     Global.Console.Log("Updated!");
-                    return Call<List<LinodeIPListResponse>>("linode.ip.list", new {LinodeID = linodeId});
+                    return Call<List<LinodeIPListResponse>>("linode.ip.list", new { LinodeID = instance.LinodeId });
                 })
                 .ThenPromise(res =>
                 {
                     Global.Console.Log("Got IP!");
-                    ip = res[0].IPADDRESS;
-                    return Call<LinodeDiskCreateResponse>("linode.disk.create", new { LinodeID = linodeId, Type = "swap", Label = "Swap Disk", Size = 256 });
+                    instance.IPAddress = res[0].IPADDRESS;
+                    return Call<LinodeDiskCreateResponse>("linode.disk.create", new { LinodeID = instance.LinodeId, Type = "swap", Label = "Swap Disk", Size = 256 });
                 })
                 .ThenPromise(res =>
                 {
                     Global.Console.Log("Created Swap!");
-                    swapDiskId = res.DiskID;
-                    return Call<LinodeDiskCreateResponse>("linode.disk.createfromimage", new { LinodeID = linodeId, ImageID = Images[image] });
+                    instance.SwapDiskId = res.DiskID;
+                    return Call<LinodeDiskCreateFromImageResponse>("linode.disk.createfromimage", new { LinodeID = instance.LinodeId, ImageID = Images[image] });
                 })
                 .ThenPromise(res =>
                 {
                     Global.Console.Log("Created Image!");
-                    mainDiskId = res.DiskID;
-                    return Call<LinodeConfigCreate>("linode.config.create", new { LinodeID = linodeId, KernalID = kernalId, Label = name, DiskList = mainDiskId + "," + swapDiskId });
+                    instance.MainDiskId = res.DISKID;
+                    return Call<LinodeConfigCreate>("linode.config.create", new { LinodeID = instance.LinodeId, KernelID = kernelId, Label = name, DiskList = instance.MainDiskId + "," + instance.SwapDiskId });
                 })
                 .ThenPromise(res =>
                 {
                     Global.Console.Log("Booted!");
-                    return Call<LinodeConfigCreate>("linode.boot", new { LinodeID = linodeId });
+                    return Call<LinodeConfigCreate>("linode.boot", new { LinodeID = instance.LinodeId });
                 })
                 .ThenPromise(res =>
                 {
                     Global.Console.Log("Waiting!");
-                    return WaitTillDone(linodeId);
+                    return WaitTillDone(instance.LinodeId);
                 })
-                .Then(res => deferred.Resolve());
+                .Then(res => deferred.Resolve(instance))
+                .Error((err) =>
+                {
+                    Global.Console.Log(err);
+                    deferred.Reject(err);
+                });
 
             return deferred.Promise;
         }
@@ -160,5 +170,13 @@ namespace Pather.Servers.Utils.Linode
         {
 
         }
+    }
+    [Serializable]
+    public class ServerInstance
+    {
+        public string LinodeId;
+        public string IPAddress;
+        public int SwapDiskId;
+        public int MainDiskId;
     }
 }

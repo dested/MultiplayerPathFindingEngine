@@ -21,15 +21,7 @@ namespace Pather.Servers
 
         public void Start(IInstantiateLogic instantiateLogic, string[] arguments)
         {
-            Debug.Break();
-
-            var linodeBuilder = new LinodeBuilder();
-            linodeBuilder.Init();
-            linodeBuilder.Create("Redis", "redis", LinodeBuilder.SmallPlanId).Then(() =>
-            {
-                Global.Console.Log("Ready!");
-            });
-
+          
             InstantiateLogic = instantiateLogic;
             var arg = arguments[2];
 
