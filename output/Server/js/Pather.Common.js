@@ -2501,7 +2501,7 @@
 				}
 				return this;
 			},
-			then$1: function(TNewResolve) {
+			thenPromise$1: function(TNewResolve) {
 				return function(resolvePromise) {
 					var deferred = $Pather_Common_Utils_Promises_Q.defer$2(TNewResolve, TError).call(null);
 					this.then(function(resolve) {
@@ -2512,6 +2512,16 @@
 					});
 					return deferred.promise;
 				};
+			},
+			thenPromise: function(resolvePromise) {
+				var deferred = $Pather_Common_Utils_Promises_Q.defer();
+				this.then(function(resolve) {
+					resolvePromise(resolve).passThrough(deferred.promise);
+				});
+				this.error(function(a) {
+					deferred.reject();
+				});
+				return deferred.promise;
 			},
 			passThrough: function(passThrough) {
 				this.then(ss.mkdel(passThrough, passThrough.$resolve)).error(ss.mkdel(passThrough, passThrough.$reject));

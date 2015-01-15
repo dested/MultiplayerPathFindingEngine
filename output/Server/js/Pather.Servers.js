@@ -2136,7 +2136,7 @@ $Pather_Servers_Utils_Linode_ResponseModels_CreateInstanceResponse.createInstanc
 };
 $Pather_Servers_Utils_Linode_ResponseModels_CreateInstanceResponse.$ctor = function() {
 	var $this = {};
-	$this.linodeID = null;
+	$this.LinodeID = null;
 	return $this;
 };
 global.Pather.Servers.Utils.Linode.ResponseModels.CreateInstanceResponse = $Pather_Servers_Utils_Linode_ResponseModels_CreateInstanceResponse;
@@ -2150,24 +2150,98 @@ $Pather_Servers_Utils_Linode_ResponseModels_ImageListResponse.createInstance = f
 };
 $Pather_Servers_Utils_Linode_ResponseModels_ImageListResponse.$ctor = function() {
 	var $this = {};
-	$this.creatE_DT = null;
+	$this.CREATE_DT = null;
 	$this.CREATOR = null;
 	$this.DESCRIPTION = null;
-	$this.fS_TYPE = null;
+	$this.FS_TYPE = null;
 	$this.IMAGEID = 0;
 	$this.ISPUBLIC = 0;
 	$this.LABEL = null;
-	$this.lasT_USED_DT = null;
+	$this.LAST_USED_DT = null;
 	$this.MINSIZE = 0;
 	$this.STATUS = null;
 	$this.TYPE = null;
 	return $this;
 };
 global.Pather.Servers.Utils.Linode.ResponseModels.ImageListResponse = $Pather_Servers_Utils_Linode_ResponseModels_ImageListResponse;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Utils.Linode.ResponseModels.LinodeConfigCreate
+var $Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate = function() {
+};
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate.__typeName = 'Pather.Servers.Utils.Linode.ResponseModels.LinodeConfigCreate';
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate.createInstance = function() {
+	return $Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate.$ctor();
+};
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate.$ctor = function() {
+	var $this = {};
+	$this.ConfigID = 0;
+	return $this;
+};
+global.Pather.Servers.Utils.Linode.ResponseModels.LinodeConfigCreate = $Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Utils.Linode.ResponseModels.LinodeDiskCreateResponse
+var $Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse = function() {
+};
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse.__typeName = 'Pather.Servers.Utils.Linode.ResponseModels.LinodeDiskCreateResponse';
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse.createInstance = function() {
+	return $Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse.$ctor();
+};
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse.$ctor = function() {
+	var $this = {};
+	$this.JobID = 0;
+	$this.DiskID = 0;
+	return $this;
+};
+global.Pather.Servers.Utils.Linode.ResponseModels.LinodeDiskCreateResponse = $Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Utils.Linode.ResponseModels.LinodeIPListResponse
+var $Pather_Servers_Utils_Linode_ResponseModels_LinodeIPListResponse = function() {
+};
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeIPListResponse.__typeName = 'Pather.Servers.Utils.Linode.ResponseModels.LinodeIPListResponse';
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeIPListResponse.createInstance = function() {
+	return $Pather_Servers_Utils_Linode_ResponseModels_LinodeIPListResponse.$ctor();
+};
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeIPListResponse.$ctor = function() {
+	var $this = {};
+	$this.LINODEID = 0;
+	$this.ISPUBLIC = 0;
+	$this.IPADDRESS = null;
+	$this.RDNS_NAME = null;
+	$this.IPADDRESSID = 0;
+	return $this;
+};
+global.Pather.Servers.Utils.Linode.ResponseModels.LinodeIPListResponse = $Pather_Servers_Utils_Linode_ResponseModels_LinodeIPListResponse;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Utils.Linode.ResponseModels.LinodeJobListResponse
+var $Pather_Servers_Utils_Linode_ResponseModels_LinodeJobListResponse = function() {
+};
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeJobListResponse.__typeName = 'Pather.Servers.Utils.Linode.ResponseModels.LinodeJobListResponse';
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeJobListResponse.createInstance = function() {
+	return $Pather_Servers_Utils_Linode_ResponseModels_LinodeJobListResponse.$ctor();
+};
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeJobListResponse.$ctor = function() {
+	var $this = {};
+	$this.ENTERED_DT = null;
+	$this.ACTION = null;
+	$this.LABEL = null;
+	$this.HOST_START_DT = null;
+	$this.LINODEID = 0;
+	$this.HOST_FINISH_DT = null;
+	$this.DURATION = 0;
+	$this.HOST_MESSAGE = null;
+	$this.JOBID = 0;
+	$this.HOST_SUCCESS = false;
+	return $this;
+};
+global.Pather.Servers.Utils.Linode.ResponseModels.LinodeJobListResponse = $Pather_Servers_Utils_Linode_ResponseModels_LinodeJobListResponse;
 ss.initClass($Pather_Servers_ServerStarter, $asm, {
 	start: function(instantiateLogic, arguments1) {
 		debugger;
-		(new $Pather_Servers_Utils_Linode_LinodeBuilder()).init();
+		var linodeBuilder = new $Pather_Servers_Utils_Linode_LinodeBuilder();
+		linodeBuilder.init();
+		linodeBuilder.create('Redis', 'redis', $Pather_Servers_Utils_Linode_LinodeBuilder.smallPlanId).then(function() {
+			console.log('Ready!');
+		});
 		$Pather_Servers_ServerStarter.instantiateLogic = instantiateLogic;
 		var arg = arguments1[2];
 		if (ss.isNullOrEmptyString(arg)) {
@@ -5267,13 +5341,67 @@ ss.initClass($Pather_Servers_Utils_Linode_LinodeBuilder, $asm, {
 	},
 	create: function(name, image, planId) {
 		var deferred = Pather.Common.Utils.Promises.Q.defer();
-		var linodeId;
+		var linodeId = '';
+		var ip = '';
+		var swapDiskId = 0;
+		var mainDiskId = 0;
 		var $t1 = this.$call($Pather_Servers_Utils_Linode_ResponseModels_CreateInstanceResponse).call(this, 'linode.create', { DatacenterID: 3, PlanId: planId });
-		$t1.then$1(Object).call($t1, ss.mkdel(this, function(res) {
-			linodeId = res.linodeID;
+		var $t2 = $t1.thenPromise$1(Object).call($t1, ss.mkdel(this, function(res) {
+			console.log('Created!');
+			linodeId = res.LinodeID;
 			return this.$call(Object).call(this, 'linode.update', { LinodeID: linodeId, Label: name });
-		})).then(function(a) {
+		}));
+		var $t3 = $t2.thenPromise$1(Array).call($t2, ss.mkdel(this, function(res1) {
+			console.log('Updated!');
+			return this.$call(Array).call(this, 'linode.ip.list', { LinodeID: linodeId });
+		}));
+		var $t4 = $t3.thenPromise$1($Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse).call($t3, ss.mkdel(this, function(res2) {
+			console.log('Got IP!');
+			ip = res2[0].IPADDRESS;
+			return this.$call($Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse).call(this, 'linode.disk.create', { LinodeID: linodeId, Type: 'swap', Label: 'Swap Disk', Size: 256 });
+		}));
+		var $t5 = $t4.thenPromise$1($Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse).call($t4, ss.mkdel(this, function(res3) {
+			console.log('Created Swap!');
+			swapDiskId = res3.DiskID;
+			return this.$call($Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse).call(this, 'linode.disk.createfromimage', { LinodeID: linodeId, ImageID: this.$images[image] });
+		}));
+		var $t6 = $t5.thenPromise$1($Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate).call($t5, ss.mkdel(this, function(res4) {
+			console.log('Created Image!');
+			mainDiskId = res4.DiskID;
+			return this.$call($Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate).call(this, 'linode.config.create', { LinodeID: linodeId, KernalID: $Pather_Servers_Utils_Linode_LinodeBuilder.$kernalId, Label: name, DiskList: mainDiskId + ',' + swapDiskId });
+		}));
+		var $t7 = $t6.thenPromise$1($Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate).call($t6, ss.mkdel(this, function(res5) {
+			console.log('Booted!');
+			return this.$call($Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate).call(this, 'linode.boot', { LinodeID: linodeId });
+		}));
+		$t7.thenPromise$1(Object).call($t7, ss.mkdel(this, function(res6) {
+			console.log('Waiting!');
+			return this.$waitTillDone(linodeId);
+		})).then(function(res7) {
+			deferred.resolve();
 		});
+		return deferred.promise;
+	},
+	$waitTillDone: function(linodeId) {
+		var deferred = Pather.Common.Utils.Promises.Q.defer$2(Object, $Pather_Servers_Utils_Linode_LinodeCallError).call(null);
+		this.$call(Array).call(this, 'linode.job.list', { LinodeID: linodeId, pendingOnly: true }).then(ss.mkdel(this, function(res) {
+			var stillRunning = 0;
+			for (var $t1 = 0; $t1 < res.length; $t1++) {
+				var item = res[$t1];
+				if (!item.HOST_SUCCESS) {
+					stillRunning++;
+				}
+			}
+			if (stillRunning === 0) {
+				deferred.resolve(null);
+			}
+			else {
+				console.log('Waiting on', stillRunning, 'tasks!');
+				setTimeout(ss.mkdel(this, function() {
+					this.$waitTillDone(linodeId).passThrough(deferred.promise);
+				}), 5000);
+			}
+		}));
 		return deferred.promise;
 	},
 	$call: function(T) {
@@ -5294,11 +5422,15 @@ ss.initClass($Pather_Servers_Utils_Linode_LinodeBuilder, $asm, {
 ss.initClass($Pather_Servers_Utils_Linode_LinodeCallError, $asm, {});
 ss.initClass($Pather_Servers_Utils_Linode_ResponseModels_CreateInstanceResponse, $asm, {});
 ss.initClass($Pather_Servers_Utils_Linode_ResponseModels_ImageListResponse, $asm, {});
+ss.initClass($Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate, $asm, {});
+ss.initClass($Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse, $asm, {});
+ss.initClass($Pather_Servers_Utils_Linode_ResponseModels_LinodeIPListResponse, $asm, {});
+ss.initClass($Pather_Servers_Utils_Linode_ResponseModels_LinodeJobListResponse, $asm, {});
 ss.setMetadata($Pather_Servers_ClusterManager_Tests_ClusterManagerTest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)] });
 ss.setMetadata($Pather_Servers_GameWorldServer_Tests_GameWorldServerTests, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'UserShouldJoin', type: 8, sname: 'userShouldJoin', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
 ss.setMetadata($Pather_Servers_GatewayServer_Tests_GatewayServerTests, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'UserShouldJoinFromGateway', type: 8, sname: 'userShouldJoinFromGateway', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
 (function() {
-	$Pather_Servers_Utils_Linode_LinodeBuilder.$smallPlanId = 1;
+	$Pather_Servers_Utils_Linode_LinodeBuilder.smallPlanId = 1;
 	$Pather_Servers_Utils_Linode_LinodeBuilder.$mediumPlanId = 4;
 	$Pather_Servers_Utils_Linode_LinodeBuilder.$ubuntuDistribution = 133;
 	$Pather_Servers_Utils_Linode_LinodeBuilder.$kernalId = 138;

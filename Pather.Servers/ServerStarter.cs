@@ -23,7 +23,12 @@ namespace Pather.Servers
         {
             Debug.Break();
 
-            new LinodeBuilder().Init();
+            var linodeBuilder = new LinodeBuilder();
+            linodeBuilder.Init();
+            linodeBuilder.Create("Redis", "redis", LinodeBuilder.SmallPlanId).Then(() =>
+            {
+                Global.Console.Log("Ready!");
+            });
 
             InstantiateLogic = instantiateLogic;
             var arg = arguments[2];
