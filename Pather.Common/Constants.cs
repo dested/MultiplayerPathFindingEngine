@@ -48,7 +48,7 @@ namespace Pather.Common
 
 
 
-
+            LinodeApiKey = "";
 
 
             DontSpawnNewApp = true;
@@ -86,6 +86,8 @@ namespace Pather.Common
         {
             get { return ((dynamic) Window.Instance).NoDraw; }
         }
+
+        public static string LinodeApiKey;
 
         public static bool DontSpawnNewApp;
 

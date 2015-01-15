@@ -18,8 +18,6 @@ function LinodeBuilder() {
         'head': { resourceId: 4769265 },
         'redis': { resourceId: 4769264 }
     };
-
-
 }
 
 LinodeBuilder.prototype.init = function (callback) {

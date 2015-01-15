@@ -2501,6 +2501,18 @@
 				}
 				return this;
 			},
+			then$1: function(TNewResolve) {
+				return function(resolvePromise) {
+					var deferred = $Pather_Common_Utils_Promises_Q.defer$2(TNewResolve, TError).call(null);
+					this.then(function(resolve) {
+						resolvePromise(resolve).passThrough(deferred.promise);
+					});
+					this.error(function(a) {
+						deferred.reject(a);
+					});
+					return deferred.promise;
+				};
+			},
 			passThrough: function(passThrough) {
 				this.then(ss.mkdel(passThrough, passThrough.$resolve)).error(ss.mkdel(passThrough, passThrough.$reject));
 				return passThrough;
@@ -3040,6 +3052,7 @@
 		$Pather_Common_Constants.buildNeighborsTimeout = 0;
 		$Pather_Common_Constants.reorganizeGameWorldInterval = 0;
 		$Pather_Common_Constants.gameSegmentReorgSwitchLockstepOffset = 0;
+		$Pather_Common_Constants.linodeApiKey = null;
 		$Pather_Common_Constants.dontSpawnNewApp = false;
 		$Pather_Common_Constants.clusterGroupViewRadius = 0;
 		$Pather_Common_Constants.testReorganizeGameWorldInterval = 0;
@@ -3073,6 +3086,7 @@
 		$Pather_Common_Constants.numberOfReorganizedPlayersPerSession = 10;
 		$Pather_Common_Constants.gameSegmentReorgSwitchLockstepOffset = 2;
 		$Pather_Common_Constants.clusterGroupViewRadius = $Pather_Common_Constants.neighborDistance * 5;
+		$Pather_Common_Constants.linodeApiKey = '';
 		$Pather_Common_Constants.dontSpawnNewApp = true;
 	})();
 	(function() {

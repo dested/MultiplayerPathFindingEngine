@@ -141,6 +141,8 @@
     <Compile Include="Common\ServerCommunicator.cs" />
     <Compile Include="ServerStarter.cs" />
     <Compile Include="Utils\IInstantiateLogic.cs" />
+    <Compile Include="Utils\Linode\LinodeBuilder.cs" />
+    <Compile Include="Utils\Linode\ResponseModels\ImageListResponse.cs" />
     <Compile Include="Utils\ServerHelper.cs" />
   </ItemGroup>
   <ItemGroup>

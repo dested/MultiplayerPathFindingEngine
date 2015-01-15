@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Globalization;
 using Pather.Common;
 using Pather.Common.Libraries.NodeJS;
@@ -10,6 +11,7 @@ using Pather.Servers.Common.SocketManager;
 using Pather.Servers.Database;
 using Pather.Servers.Libraries.Redis;
 using Pather.Servers.Utils;
+using Pather.Servers.Utils.Linode;
 
 namespace Pather.Servers
 {
@@ -19,6 +21,10 @@ namespace Pather.Servers
 
         public void Start(IInstantiateLogic instantiateLogic, string[] arguments)
         {
+            Debug.Break();
+
+            new LinodeBuilder().Init();
+
             InstantiateLogic = instantiateLogic;
             var arg = arguments[2];
 

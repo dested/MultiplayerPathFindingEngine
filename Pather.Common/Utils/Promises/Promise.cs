@@ -103,6 +103,19 @@ namespace Pather.Common.Utils.Promises
             return this;
         }
 
+        public Promise<TNewResolve, TError> Then<TNewResolve>(Func<TResolve, Promise<TNewResolve, TError>> resolvePromise)
+        {
+            var deferred = Q.Defer<TNewResolve, TError>();
+            
+            this.Then((resolve) =>
+            {
+                resolvePromise(resolve).PassThrough(deferred.Promise);
+            });
+            this.Error(a => deferred.Reject(a));
+
+            return deferred.Promise;
+        }
+
 
         public Promise<TResolve, TError> PassThrough(Promise<TResolve, TError> passThrough)
         {

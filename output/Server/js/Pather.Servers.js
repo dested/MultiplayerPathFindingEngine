@@ -29,6 +29,8 @@ global.Pather.Servers.MonitorServer = global.Pather.Servers.MonitorServer || {};
 global.Pather.Servers.ServerManager = global.Pather.Servers.ServerManager || {};
 global.Pather.Servers.TickServer = global.Pather.Servers.TickServer || {};
 global.Pather.Servers.Utils = global.Pather.Servers.Utils || {};
+global.Pather.Servers.Utils.Linode = global.Pather.Servers.Utils.Linode || {};
+global.Pather.Servers.Utils.Linode.ResponseModels = global.Pather.Servers.Utils.Linode.ResponseModels || {};
 ss.initAssembly($asm, 'Pather.Servers');
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.ServerStarter
@@ -2109,8 +2111,63 @@ $Pather_Servers_Utils_ServerHelper.getNetworkIPs = function() {
 	return addresses;
 };
 global.Pather.Servers.Utils.ServerHelper = $Pather_Servers_Utils_ServerHelper;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Utils.Linode.LinodeBuilder
+var $Pather_Servers_Utils_Linode_LinodeBuilder = function() {
+	this.$images = null;
+	this.client = null;
+	this.client = eval("new (require('linode-api').LinodeClient)('" + Pather.Common.Constants.linodeApiKey + "')");
+};
+$Pather_Servers_Utils_Linode_LinodeBuilder.__typeName = 'Pather.Servers.Utils.Linode.LinodeBuilder';
+global.Pather.Servers.Utils.Linode.LinodeBuilder = $Pather_Servers_Utils_Linode_LinodeBuilder;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Utils.Linode.LinodeCallError
+var $Pather_Servers_Utils_Linode_LinodeCallError = function() {
+};
+$Pather_Servers_Utils_Linode_LinodeCallError.__typeName = 'Pather.Servers.Utils.Linode.LinodeCallError';
+global.Pather.Servers.Utils.Linode.LinodeCallError = $Pather_Servers_Utils_Linode_LinodeCallError;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Utils.Linode.ResponseModels.CreateInstanceResponse
+var $Pather_Servers_Utils_Linode_ResponseModels_CreateInstanceResponse = function() {
+};
+$Pather_Servers_Utils_Linode_ResponseModels_CreateInstanceResponse.__typeName = 'Pather.Servers.Utils.Linode.ResponseModels.CreateInstanceResponse';
+$Pather_Servers_Utils_Linode_ResponseModels_CreateInstanceResponse.createInstance = function() {
+	return $Pather_Servers_Utils_Linode_ResponseModels_CreateInstanceResponse.$ctor();
+};
+$Pather_Servers_Utils_Linode_ResponseModels_CreateInstanceResponse.$ctor = function() {
+	var $this = {};
+	$this.linodeID = null;
+	return $this;
+};
+global.Pather.Servers.Utils.Linode.ResponseModels.CreateInstanceResponse = $Pather_Servers_Utils_Linode_ResponseModels_CreateInstanceResponse;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Utils.Linode.ResponseModels.ImageListResponse
+var $Pather_Servers_Utils_Linode_ResponseModels_ImageListResponse = function() {
+};
+$Pather_Servers_Utils_Linode_ResponseModels_ImageListResponse.__typeName = 'Pather.Servers.Utils.Linode.ResponseModels.ImageListResponse';
+$Pather_Servers_Utils_Linode_ResponseModels_ImageListResponse.createInstance = function() {
+	return $Pather_Servers_Utils_Linode_ResponseModels_ImageListResponse.$ctor();
+};
+$Pather_Servers_Utils_Linode_ResponseModels_ImageListResponse.$ctor = function() {
+	var $this = {};
+	$this.creatE_DT = null;
+	$this.CREATOR = null;
+	$this.DESCRIPTION = null;
+	$this.fS_TYPE = null;
+	$this.IMAGEID = 0;
+	$this.ISPUBLIC = 0;
+	$this.LABEL = null;
+	$this.lasT_USED_DT = null;
+	$this.MINSIZE = 0;
+	$this.STATUS = null;
+	$this.TYPE = null;
+	return $this;
+};
+global.Pather.Servers.Utils.Linode.ResponseModels.ImageListResponse = $Pather_Servers_Utils_Linode_ResponseModels_ImageListResponse;
 ss.initClass($Pather_Servers_ServerStarter, $asm, {
 	start: function(instantiateLogic, arguments1) {
+		debugger;
+		(new $Pather_Servers_Utils_Linode_LinodeBuilder()).init();
 		$Pather_Servers_ServerStarter.instantiateLogic = instantiateLogic;
 		var arg = arguments1[2];
 		if (ss.isNullOrEmptyString(arg)) {
@@ -5197,9 +5254,55 @@ ss.initClass($Pather_Servers_TickServer_TickServerTickManager, $asm, {
 	}
 }, Pather.Common.Utils.TickManager);
 ss.initClass($Pather_Servers_Utils_ServerHelper, $asm, {});
+ss.initClass($Pather_Servers_Utils_Linode_LinodeBuilder, $asm, {
+	init: function() {
+		this.$images = {};
+		this.$call(Array).call(this, 'image.list', {}).then(ss.mkdel(this, function(res) {
+			for (var $t1 = 0; $t1 < res.length; $t1++) {
+				var imageListResponse = res[$t1];
+				this.$images[imageListResponse.LABEL] = imageListResponse.IMAGEID;
+			}
+			console.log(this.$images);
+		}));
+	},
+	create: function(name, image, planId) {
+		var deferred = Pather.Common.Utils.Promises.Q.defer();
+		var linodeId;
+		var $t1 = this.$call($Pather_Servers_Utils_Linode_ResponseModels_CreateInstanceResponse).call(this, 'linode.create', { DatacenterID: 3, PlanId: planId });
+		$t1.then$1(Object).call($t1, ss.mkdel(this, function(res) {
+			linodeId = res.linodeID;
+			return this.$call(Object).call(this, 'linode.update', { LinodeID: linodeId, Label: name });
+		})).then(function(a) {
+		});
+		return deferred.promise;
+	},
+	$call: function(T) {
+		return function(path, data) {
+			var deferred = Pather.Common.Utils.Promises.Q.defer$2(T, $Pather_Servers_Utils_Linode_LinodeCallError).call(null);
+			this.client.call(path, data, function(err, res) {
+				if (ss.isValue(err)) {
+					deferred.reject(err);
+				}
+				else {
+					deferred.resolve(res);
+				}
+			});
+			return deferred.promise;
+		};
+	}
+});
+ss.initClass($Pather_Servers_Utils_Linode_LinodeCallError, $asm, {});
+ss.initClass($Pather_Servers_Utils_Linode_ResponseModels_CreateInstanceResponse, $asm, {});
+ss.initClass($Pather_Servers_Utils_Linode_ResponseModels_ImageListResponse, $asm, {});
 ss.setMetadata($Pather_Servers_ClusterManager_Tests_ClusterManagerTest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)] });
 ss.setMetadata($Pather_Servers_GameWorldServer_Tests_GameWorldServerTests, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'UserShouldJoin', type: 8, sname: 'userShouldJoin', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
 ss.setMetadata($Pather_Servers_GatewayServer_Tests_GatewayServerTests, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'UserShouldJoinFromGateway', type: 8, sname: 'userShouldJoinFromGateway', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
+(function() {
+	$Pather_Servers_Utils_Linode_LinodeBuilder.$smallPlanId = 1;
+	$Pather_Servers_Utils_Linode_LinodeBuilder.$mediumPlanId = 4;
+	$Pather_Servers_Utils_Linode_LinodeBuilder.$ubuntuDistribution = 133;
+	$Pather_Servers_Utils_Linode_LinodeBuilder.$kernalId = 138;
+})();
 (function() {
 	$Pather_Servers_Common_PubSub_PubSubChannels.$tick = 'Tick';
 	$Pather_Servers_Common_PubSub_PubSubChannels.$gameWorld = 'GameWorld';
