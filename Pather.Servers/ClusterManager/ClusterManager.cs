@@ -119,13 +119,13 @@ namespace Pather.Servers.ClusterManager
 
         private void startApp(string[] arguments, string logFile)
         {
-            ServerLogger.LogInformation("Spawning Application");
+            ServerLogger.LogDebug("Spawning Application");
 
 
 
             if (Constants.DontSpawnNewApp)
             {
-                ServerLogger.LogInformation("Fake start app");
+                ServerLogger.LogDebug("Fake start app");
                 var serverStarter = new ServerStarter();
                 ((dynamic)arguments).splice(0, 0, "");
                 serverStarter.Start(ServerStarter.InstantiateLogic, arguments);
@@ -134,7 +134,7 @@ namespace Pather.Servers.ClusterManager
             else
             {
 
-                ServerLogger.LogInformation("Real start app");
+                ServerLogger.LogDebug("Real start app");
                 var spawn = Global.Require<ChildProcess>("child_process").Spawn;
 
                 var fs = Global.Require<FS>("fs");

@@ -2194,33 +2194,37 @@
 	$Pather_Common_Utils_Logger.__typeName = 'Pather.Common.Utils.Logger';
 	$Pather_Common_Utils_Logger.start = function(key) {
 		console.log(key + ' - ' + $Pather_Common_Utils_Utilities.longDate());
-		$Pather_Common_Utils_Logger.log('Start: ' + key, 'information');
+		$Pather_Common_Utils_Logger.log(key, 'Start', [], 'debugInformation');
 	};
-	$Pather_Common_Utils_Logger.log = function(item, level) {
-		item = ss.formatString('{0} - {1}', $Pather_Common_Utils_Utilities.shortDate(), item);
+	$Pather_Common_Utils_Logger.log = function(server, item, data, level) {
+		server = ss.padRightString(server.substr(0, Math.min(server.length, 15)), 15);
+		item = ss.formatString('{2} {0} - {1}', $Pather_Common_Utils_Utilities.shortDate(), item, server);
+		var items = [];
+		items.push(item);
+		ss.arrayAddRange(items, data);
 		switch (level) {
 			case 'error': {
-				console.log(item);
-				break;
-			}
-			case 'debugInformation': {
-				console.log(item);
+				console.log.apply(null, items);
 				break;
 			}
 			case 'information': {
-				console.log(item);
+				console.log.apply(null, items);
+				break;
+			}
+			case 'debugInformation': {
+				//                    Global.Console.Log(items);
 				break;
 			}
 			case 'transportInfo': {
-				console.log(item);
+				//                    Global.Console.Log(items);
 				break;
 			}
 			case 'dataInfo': {
-				console.log(item);
+				//                    Global.Console.Log(items);
 				break;
 			}
 			case 'keepAlive': {
-				console.log(item);
+				//                    Global.Console.Log(items);
 				break;
 			}
 		}
@@ -2288,7 +2292,7 @@
 		return sb;
 	};
 	$Pather_Common_Utils_Utilities.uniqueId = function() {
-		return ss.Guid.format(ss.Guid.newGuid(), 'N');
+		return ss.Guid.format(ss.Guid.newGuid(), 'N').substr(10);
 	};
 	$Pather_Common_Utils_Utilities.hasField = function(T) {
 		return function(message, predicate) {

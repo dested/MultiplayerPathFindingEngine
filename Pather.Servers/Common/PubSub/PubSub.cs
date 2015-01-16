@@ -36,8 +36,9 @@ namespace Pather.Servers.Common.PubSub
             redis.DebugMode = false;
             subClient = redis.CreateClient(port, ConnectionConstants.RedisIP);
             pubClient = redis.CreateClient(port, ConnectionConstants.RedisIP);
-            subClient.On("subscribe", (string channel, int count) => Logger.Log("subscribed: " + channel + " " + count, LogLevel.Information));
-            subClient.On("unsubscribe", (string channel, int count) => Logger.Log("unsubscribed: " + channel + " " + count, LogLevel.Information));
+            
+            subClient.On("subscribe", (string channel, int count) =>{if (ServerLogger!=null) ServerLogger.LogDebug("subscribed: " + channel + " " + count);});
+            subClient.On("unsubscribe", (string channel, int count) =>{ if (ServerLogger != null) ServerLogger.LogDebug("unsubscribed: " + channel + " " + count); });
 
             subClient.On("message",
                 (string channel, string messageString) =>

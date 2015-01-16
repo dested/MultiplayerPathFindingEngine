@@ -43,7 +43,7 @@ global.Pather.Servers.ServerStarter = $Pather_Servers_ServerStarter;
 // Pather.Servers.AuthServer.AuthServer
 var $Pather_Servers_AuthServer_AuthServer = function() {
 	this.serverLogger = null;
-	this.serverLogger = new $Pather_Servers_Common_ServerLogging_ServerLogger('Auth', '0');
+	this.serverLogger = new $Pather_Servers_Common_ServerLogging_ServerLogger('Auth', '');
 };
 $Pather_Servers_AuthServer_AuthServer.__typeName = 'Pather.Servers.AuthServer.AuthServer';
 global.Pather.Servers.AuthServer.AuthServer = $Pather_Servers_AuthServer_AuthServer;
@@ -118,6 +118,16 @@ var $Pather_Servers_Common_ServerCommunicator = function(socketManager, port, se
 };
 $Pather_Servers_Common_ServerCommunicator.__typeName = 'Pather.Servers.Common.ServerCommunicator';
 global.Pather.Servers.Common.ServerCommunicator = $Pather_Servers_Common_ServerCommunicator;
+////////////////////////////////////////////////////////////////////////////////
+// Pather.Servers.Common.TickWatcher
+var $Pather_Servers_Common_TickWatcher = function() {
+	this.$counter = 0;
+	this.$startTime = 0;
+	this.$startTime = (new Date()).getTime();
+	this.$setTimout();
+};
+$Pather_Servers_Common_TickWatcher.__typeName = 'Pather.Servers.Common.TickWatcher';
+global.Pather.Servers.Common.TickWatcher = $Pather_Servers_Common_TickWatcher;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.Common.PubSub.IPubSub
 var $Pather_Servers_Common_PubSub_IPubSub = function() {
@@ -727,7 +737,7 @@ var $Pather_Servers_GameWorldServer_GameWorldServer = function(pubSub, dbQueries
 	if (ss.isNullOrUndefined(this.$instantiateLogic)) {
 		this.$instantiateLogic = new $Pather_Servers_GameWorldServer_DefaultInstanitateLogic();
 	}
-	this.serverLogger = new $Pather_Servers_Common_ServerLogging_ServerLogger('GameWorld', 'GameWorld');
+	this.serverLogger = new $Pather_Servers_Common_ServerLogging_ServerLogger('GameWorld', '');
 	this.$pubSub = pubSub;
 	this.$databaseQueries = dbQueries;
 	pubSub.init(this.serverLogger, 6379).then(ss.mkdel(this, this.$pubsubReady));
@@ -920,7 +930,7 @@ var $Pather_Servers_HeadServer_HeadServer = function(pubSub) {
 	this.$oldGateways = [];
 	this.$gateways = [];
 	this.$isCurrentlySpawning = 0;
-	this.serverLogger = new $Pather_Servers_Common_ServerLogging_ServerLogger('Head', '0');
+	this.serverLogger = new $Pather_Servers_Common_ServerLogging_ServerLogger('Head', '');
 	pubSub.init(this.serverLogger, 6379).then(ss.mkdel(this, function() {
 		this.$ready(pubSub);
 	}));
@@ -1901,7 +1911,7 @@ $Pather_Servers_MonitorServer_MonitorServer.$startHistogramMonitorServer = funct
 	});
 	var io = socketio.listen(app);
 	var port = 9993;
-	var currentIP = $Pather_Servers_Utils_ServerHelper.getNetworkIPs()[0];
+	//            var currentIP = ServerHelper.GetNetworkIPs()[0];
 	app.listen(port);
 	var connections = [];
 	var logListener = new $Pather_Servers_Common_ServerLogging_HistogramLogListener(function(mess) {
@@ -1911,7 +1921,7 @@ $Pather_Servers_MonitorServer_MonitorServer.$startHistogramMonitorServer = funct
 		}
 	});
 	io.sockets.on('connection', function(socket) {
-		console.log('User connected to histogram monitor');
+		Pather.Common.Utils.Logger.log('Monitor', 'User connected to histogram monitor', [], 'information');
 		connections.push(socket);
 		socket.on('disconnect', function(data) {
 			ss.remove(connections, socket);
@@ -1926,7 +1936,7 @@ $Pather_Servers_MonitorServer_MonitorServer.$startSegmentMonitorServer = functio
 	});
 	var io = socketio.listen(app);
 	var port = 9992;
-	var currentIP = $Pather_Servers_Utils_ServerHelper.getNetworkIPs()[0];
+	//            var currentIP = ServerHelper.GetNetworkIPs()[0];
 	app.listen(port);
 	var connections = [];
 	var logListener = new $Pather_Servers_Common_ServerLogging_GameSegmentLogListener(function(mess) {
@@ -1936,7 +1946,7 @@ $Pather_Servers_MonitorServer_MonitorServer.$startSegmentMonitorServer = functio
 		}
 	});
 	io.sockets.on('connection', function(socket) {
-		console.log('User connected to segment monitor');
+		Pather.Common.Utils.Logger.log('Monitor', 'User connected to segment monitor', [], 'information');
 		connections.push(socket);
 		socket.on('disconnect', function(data) {
 			ss.remove(connections, socket);
@@ -1951,8 +1961,7 @@ $Pather_Servers_MonitorServer_MonitorServer.$startMonitorServer = function() {
 	});
 	var io = socketio.listen(app);
 	var port = 9991;
-	var currentIP = $Pather_Servers_Utils_ServerHelper.getNetworkIPs()[0];
-	console.log(currentIP);
+	//            var currentIP = ServerHelper.GetNetworkIPs()[0];
 	app.listen(port);
 	var serverTypes = ['GameSegment', 'ClusterManager', 'GameWorld', 'Gateway', 'Chat', 'Tick', 'ServerManager', 'Starter', 'Auth', 'Head'];
 	var connections = [];
@@ -1963,7 +1972,7 @@ $Pather_Servers_MonitorServer_MonitorServer.$startMonitorServer = function() {
 		}
 	});
 	io.sockets.on('connection', function(socket) {
-		console.log('User connected to monitor');
+		Pather.Common.Utils.Logger.log('Monitor', 'User connected to monitor', [], 'information');
 		connections.push(socket);
 		socket.on('disconnect', function(data) {
 			ss.remove(connections, socket);
@@ -2020,7 +2029,7 @@ var $Pather_Servers_ServerManager_ServerManager = function(pubSub, pushPop) {
 	this.$gameSegmentClusters = [];
 	this.$gatewayClusters = [];
 	this.$linodeBuilder = new $Pather_Servers_Utils_Linode_LinodeBuilder();
-	this.serverLogger = new $Pather_Servers_Common_ServerLogging_ServerLogger('ServerManager', '0');
+	this.serverLogger = new $Pather_Servers_Common_ServerLogging_ServerLogger('ServerManager', '');
 	Pather.Common.Utils.Promises.Q.all([pubSub.init(this.serverLogger, 6379), pushPop.init(this.serverLogger), this.$linodeBuilder.init(this.serverLogger)]).then(ss.mkdel(this, function() {
 		this.$ready(pubSub);
 	}));
@@ -2056,7 +2065,7 @@ var $Pather_Servers_TickServer_TickServer = function(pubSub) {
 	this.pubSub = null;
 	this.serverLogger = null;
 	this.$recievedOriginHash = {};
-	this.serverLogger = new $Pather_Servers_Common_ServerLogging_ServerLogger('Tick', 'Tick');
+	this.serverLogger = new $Pather_Servers_Common_ServerLogging_ServerLogger('Tick', '');
 	this.pubSub = pubSub;
 	pubSub.init(this.serverLogger, 6379).then(ss.mkdel(this, function() {
 		this.tickPubSub = new $Pather_Servers_TickServer_TickPubSub(pubSub);
@@ -2275,7 +2284,7 @@ $Pather_Servers_Utils_Linode_ResponseModels_LinodeJobListResponse.$ctor = functi
 global.Pather.Servers.Utils.Linode.ResponseModels.LinodeJobListResponse = $Pather_Servers_Utils_Linode_ResponseModels_LinodeJobListResponse;
 ss.initClass($Pather_Servers_ServerStarter, $asm, {
 	start: function(instantiateLogic, arguments1) {
-		this.$serverLogger = new $Pather_Servers_Common_ServerLogging_ServerLogger('Starter', '0');
+		this.$serverLogger = new $Pather_Servers_Common_ServerLogging_ServerLogger('Starter', '');
 		$Pather_Servers_ServerStarter.instantiateLogic = instantiateLogic;
 		var arg = arguments1[2];
 		if (ss.isNullOrEmptyString(arg)) {
@@ -2455,15 +2464,15 @@ ss.initClass($Pather_Servers_ClusterManager_ClusterManager, $asm, {
 		this.$startApp(arguments1, './outgs.log');
 	},
 	$startApp: function(arguments1, logFile) {
-		this.serverLogger.logInformation('Spawning Application', []);
+		this.serverLogger.logDebug('Spawning Application', []);
 		if (Pather.Common.Constants.dontSpawnNewApp) {
-			this.serverLogger.logInformation('Fake start app', []);
+			this.serverLogger.logDebug('Fake start app', []);
 			var serverStarter = new $Pather_Servers_ServerStarter();
 			arguments1.splice(0, 0, '');
 			serverStarter.start($Pather_Servers_ServerStarter.instantiateLogic, arguments1);
 		}
 		else {
-			this.serverLogger.logInformation('Real start app', []);
+			this.serverLogger.logDebug('Real start app', []);
 			var spawn = require('child_process').spawn;
 			var fs = require('fs');
 			var m = fs.openSync(logFile, 'a', null);
@@ -2503,7 +2512,7 @@ ss.initClass($Pather_Servers_ClusterManager_ClusterManagerPubSub, $asm, {
 ss.initClass($Pather_Servers_ClusterManager_Tests_ClusterManagerTest, $asm, {});
 ss.initClass($Pather_Servers_Common_BackEndTickManager, $asm, {
 	lockstepForced: function(lockStepTickNumber) {
-		this.$serverLogger.logInformation('Force Lockstep', [lockStepTickNumber]);
+		this.$serverLogger.logDebug('Force Lockstep', [lockStepTickNumber]);
 	},
 	init$1: function(sendPing, onTickManagerReady) {
 		this.$sendPing = sendPing;
@@ -2577,6 +2586,17 @@ ss.initClass($Pather_Servers_Common_ServerCommunicator, $asm, {
 		return this.$socketManager.get_URL();
 	}
 });
+ss.initClass($Pather_Servers_Common_TickWatcher, $asm, {
+	$setTimout: function() {
+		var now = (new Date()).getTime();
+		var elap = now - this.$startTime;
+		this.$counter++;
+		if (this.$counter % 10 === 0) {
+			console.log('Tick called ', this.$counter, 'Seconds since start', ss.Int32.div(elap, 1000));
+		}
+		setTimeout(ss.mkdel(this, this.$setTimout), 1);
+	}
+});
 ss.initInterface($Pather_Servers_Common_PubSub_IPubSub, $asm, { publish: null, publishForce: null, subscribe: null, init: null, receivedMessage: null, dontLog: null });
 ss.initClass($Pather_Servers_Common_PubSub_PubSub, $asm, {
 	init: function(serverLogger, port) {
@@ -2587,12 +2607,16 @@ ss.initClass($Pather_Servers_Common_PubSub_PubSub, $asm, {
 		redis.debug_mode = false;
 		this.$subClient = redis.createClient(port, Pather.Common.ConnectionConstants.redisIP);
 		this.$pubClient = redis.createClient(port, Pather.Common.ConnectionConstants.redisIP);
-		this.$subClient.on('subscribe', function(channel, count) {
-			Pather.Common.Utils.Logger.log('subscribed: ' + channel + ' ' + count, 'information');
-		});
-		this.$subClient.on('unsubscribe', function(channel1, count1) {
-			Pather.Common.Utils.Logger.log('unsubscribed: ' + channel1 + ' ' + count1, 'information');
-		});
+		this.$subClient.on('subscribe', ss.mkdel(this, function(channel, count) {
+			if (ss.isValue(this.serverLogger)) {
+				this.serverLogger.logDebug('subscribed: ' + channel + ' ' + count, []);
+			}
+		}));
+		this.$subClient.on('unsubscribe', ss.mkdel(this, function(channel1, count1) {
+			if (ss.isValue(this.serverLogger)) {
+				this.serverLogger.logDebug('unsubscribed: ' + channel1 + ' ' + count1, []);
+			}
+		}));
 		this.$subClient.on('message', ss.mkdel(this, function(channel2, messageString) {
 			this.receivedMessage(channel2, JSON.parse(messageString));
 		}));
@@ -2770,26 +2794,26 @@ ss.initClass($Pather_Servers_Common_ServerLogging_HistogramLogListener, $asm, {
 });
 ss.initClass($Pather_Servers_Common_ServerLogging_ServerLogger, $asm, {
 	logInformation: function(item, jsonContent) {
-		Pather.Common.Utils.Logger.log(item, 'information');
+		Pather.Common.Utils.Logger.log(this.$serverType + this.$serverName, item, jsonContent, 'information');
 		this.$pubsub.publish($Pather_Servers_Common_PubSub_PubSubChannels.serverLogger(this.$serverType), { serverType: this.$serverType, serverName: this.$serverName, message: item, content: jsonContent, logLevel: 'information', time: new Date() });
 	},
 	logDebug: function(item, jsonContent) {
-		Pather.Common.Utils.Logger.log(item, 'debugInformation');
+		Pather.Common.Utils.Logger.log(this.$serverType + this.$serverName, item, jsonContent, 'debugInformation');
 		this.$pubsub.publish($Pather_Servers_Common_PubSub_PubSubChannels.serverLogger(this.$serverType), { serverType: this.$serverType, serverName: this.$serverName, message: item, content: jsonContent, logLevel: 'debugInformation', time: new Date() });
 	},
 	logKeepAlive: function() {
 		this.$pubsub.publish($Pather_Servers_Common_PubSub_PubSubChannels.serverLogger(this.$serverType), { serverType: this.$serverType, serverName: this.$serverName, message: null, content: null, logLevel: 'keepAlive', time: new Date() });
 	},
 	logError: function(item, jsonContent) {
-		Pather.Common.Utils.Logger.log(item, 'error');
+		Pather.Common.Utils.Logger.log(this.$serverType + this.$serverName, item, jsonContent, 'error');
 		this.$pubsub.publish($Pather_Servers_Common_PubSub_PubSubChannels.serverLogger(this.$serverType), { serverType: this.$serverType, serverName: this.$serverName, message: item, content: jsonContent, logLevel: 'error', time: new Date() });
 	},
 	logTransport: function(item, jsonContent) {
-		Pather.Common.Utils.Logger.log(item, 'transportInfo');
+		Pather.Common.Utils.Logger.log(this.$serverType + this.$serverName, item, jsonContent, 'transportInfo');
 		this.$pubsub.publish($Pather_Servers_Common_PubSub_PubSubChannels.serverLogger(this.$serverType), { serverType: this.$serverType, serverName: this.$serverName, message: item, content: jsonContent, logLevel: 'transportInfo', time: new Date() });
 	},
 	logData: function(item, jsonContent) {
-		Pather.Common.Utils.Logger.log(item, 'dataInfo');
+		Pather.Common.Utils.Logger.log(this.$serverType + this.$serverName, item, jsonContent, 'dataInfo');
 		this.$pubsub.publish($Pather_Servers_Common_PubSub_PubSubChannels.serverLogger(this.$serverType), { serverType: this.$serverType, serverName: this.$serverName, message: item, content: jsonContent, logLevel: 'dataInfo', time: new Date() });
 	}
 });
@@ -4041,7 +4065,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 							this.$this.gameWorld.users.add(u.item1);
 							u.item2.resolve(u.item1);
 						}
-						this.$this.serverLogger.logInformation('Gameworld added user to game segment', [this.gameSegment.$.gameSegmentId, 'Total Players:', this.$this.gameWorld.users.get_count(), 'Game Segment Players:', this.gameSegment.$.users.length]);
+						this.$this.serverLogger.logInformation('Added User To ', [this.gameSegment.$.gameSegmentId, '(' + this.gameSegment.$.users.length + ')', 'Total Players:', this.$this.gameWorld.users.get_count()]);
 					}));
 				}));
 			}
@@ -4903,7 +4927,7 @@ ss.initClass($Pather_Servers_HeadServer_HeadServer, $asm, {
 		}
 	},
 	$onPingMessage: function(pingResponseMessage) {
-		this.serverLogger.logDebug('Received Ping From', [pingResponseMessage]);
+		this.serverLogger.logDebug('Got Gateway Ping ' + pingResponseMessage.gatewayId, [pingResponseMessage]);
 		var $t2 = this.$gateways;
 		var $t1 = new $Pather_Servers_HeadServer_Models_Gateway();
 		$t1.address = pingResponseMessage.address;
@@ -5242,6 +5266,7 @@ ss.initClass($Pather_Servers_ServerManager_ServerManager, $asm, {
 		var deferred = Pather.Common.Utils.Promises.Q.defer$2($Pather_Servers_ServerManager_$ClusterCreation, Pather.Common.Utils.Promises.UndefinedPromiseError).call(null);
 		var applicationId = Pather.Common.Utils.Utilities.uniqueId();
 		if (Pather.Common.ConnectionConstants.get_production()) {
+			this.serverLogger.logInformation('Building new Linode Server', []);
 			this.$linodeBuilder.create('Cluster-' + applicationId, 'Node', $Pather_Servers_Utils_Linode_LinodeBuilder.smallPlanId).then(ss.mkdel(this, function(instance) {
 				//ssh into the system and start the cluster manager
 				var $t1 = new $Pather_Servers_ServerManager_$ClusterCreation();
@@ -5266,14 +5291,15 @@ ss.initClass($Pather_Servers_ServerManager_ServerManager, $asm, {
 		return deferred.promise;
 	},
 	$startApp: function(arguments1, logFile) {
-		this.serverLogger.logInformation('start app', []);
+		this.serverLogger.logDebug('start app', []);
 		if (Pather.Common.Constants.dontSpawnNewApp) {
-			this.serverLogger.logInformation('Fake start app', []);
+			this.serverLogger.logDebug('Fake start app', []);
 			var serverStarter = new $Pather_Servers_ServerStarter();
 			arguments1.splice(0, 0, '');
 			serverStarter.start($Pather_Servers_ServerStarter.instantiateLogic, arguments1);
 		}
 		else {
+			this.serverLogger.logDebug('Real start app', []);
 			var spawn = require('child_process').spawn;
 			var fs = require('fs');
 			var m = fs.openSync(logFile, 'a', null);
@@ -5366,7 +5392,7 @@ ss.initClass($Pather_Servers_TickServer_TickServer, $asm, {
 	$pubSubMessage: function(message) {
 		switch (message.type) {
 			case 'ping': {
-				this.serverLogger.logInformation('Received Ping', [message]);
+				this.serverLogger.logData('Received Ping', [message]);
 				var pingMessage = message;
 				if (!ss.keyExists(this.$recievedOriginHash, pingMessage.origin)) {
 					this.tickManager.forceOnNextTick();
@@ -5401,12 +5427,12 @@ ss.initClass($Pather_Servers_TickServer_TickServer, $asm, {
 });
 ss.initClass($Pather_Servers_TickServer_TickServerTickManager, $asm, {
 	lockstepForced: function(lockStepTickNumber) {
-		this.$serverLogger.logInformation('Force Lockstep', [lockStepTickNumber]);
+		this.$serverLogger.logDebug('Force Lockstep', [lockStepTickNumber]);
 	},
 	$onProcessLockstep: function(lockstepTickNumber) {
 		if (lockstepTickNumber % 15 === 0 || this.$forceOnNextTick) {
 			this.$forceOnNextTick = false;
-			this.$serverLogger.logInformation('Pushed Lockstep Tick', [lockstepTickNumber]);
+			this.$serverLogger.logData('Pushed Lockstep Tick', [lockstepTickNumber]);
 			this.tickPubSub.publishToAllGameSegments(Pather.Common.Models.GameSegment.TickSync_GameSegment_PubSub_AllMessage.$ctor(lockstepTickNumber));
 			this.tickPubSub.publishToAllGateways(Pather.Common.Models.Gateway.PubSub.TickSync_Tick_Gateway_PubSub_AllMessage.$ctor(lockstepTickNumber));
 			this.tickPubSub.publishToGameWorld(Pather.Common.Models.GameWorld.Tick.TickSync_Tick_GameWorld_PubSub_Message.$ctor(lockstepTickNumber));
@@ -5428,7 +5454,7 @@ ss.initClass($Pather_Servers_Utils_Linode_LinodeBuilder, $asm, {
 				var imageListResponse = res[$t1];
 				this.$images[imageListResponse.LABEL] = imageListResponse.IMAGEID;
 			}
-			serverLogger.logInformation('Linode Images:', [this.$images]);
+			serverLogger.logDebug('Linode Images:', [this.$images]);
 			deferred.resolve();
 		}));
 		return deferred.promise;

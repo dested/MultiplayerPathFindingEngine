@@ -21,7 +21,7 @@ namespace Pather.Servers.TickServer
 
         public override void LockstepForced(long lockStepTickNumber)
         {
-            serverLogger.LogInformation("Force Lockstep", lockStepTickNumber);
+            serverLogger.LogDebug("Force Lockstep", lockStepTickNumber);
         }
 
         private void onProcessLockstep(long lockstepTickNumber)
@@ -29,7 +29,7 @@ namespace Pather.Servers.TickServer
             if (lockstepTickNumber%15 == 0 || forceOnNextTick)
             {
                 forceOnNextTick = false;
-                serverLogger.LogInformation("Pushed Lockstep Tick", lockstepTickNumber);
+                serverLogger.LogData("Pushed Lockstep Tick", lockstepTickNumber);
                 TickPubSub.PublishToAllGameSegments(new TickSync_GameSegment_PubSub_AllMessage(lockstepTickNumber));
                 TickPubSub.PublishToAllGateways(new TickSync_Tick_Gateway_PubSub_AllMessage(lockstepTickNumber));
                 TickPubSub.PublishToGameWorld(new TickSync_Tick_GameWorld_PubSub_Message(lockstepTickNumber));

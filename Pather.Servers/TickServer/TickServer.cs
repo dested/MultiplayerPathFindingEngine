@@ -20,7 +20,7 @@ namespace Pather.Servers.TickServer
 
         public TickServer(IPubSub pubSub)
         {
-            ServerLogger = new ServerLogger("Tick", "Tick");
+            ServerLogger = new ServerLogger("Tick");
 
             PubSub = pubSub;
 
@@ -47,7 +47,7 @@ namespace Pather.Servers.TickServer
             switch (message.Type)
             {
                 case Tick_PubSub_MessageType.Ping:
-                    ServerLogger.LogInformation("Received Ping", message);
+                    ServerLogger.LogData("Received Ping", message);
 
                     var pingMessage = (Ping_Tick_PubSub_Message) message;
                     if (!recievedOriginHash.ContainsKey(pingMessage.Origin))

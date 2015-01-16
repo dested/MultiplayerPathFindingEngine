@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using Pather.Common.Libraries.NodeJS;
+using Console = System.Console;
 
 namespace Pather.Common.Utils
 {
@@ -10,32 +13,37 @@ namespace Pather.Common.Utils
 
         public static void Start(string key)
         {
-            Console.WriteLine(key + " - " + Utilities.LongDate());
-            Log("Start: " + key, LogLevel.Information);
+            Global.Console.Log(key + " - " + Utilities.LongDate());
+            Log(key, "Start", new object[0], LogLevel.DebugInformation);
         }
 
-        public static string Log(string item, LogLevel level)
+        public static string Log(string server, string item, object[] data, LogLevel level)
         {
-            item = string.Format("{0} - {1}", Utilities.ShortDate(), item);
+            server= server.Substring(0, Math.Min(server.Length, 15)).PadRight(15);
+
+            item = string.Format("{2} {0} - {1}", Utilities.ShortDate(), item, server);
+            List<object> items = new List<object>();
+            items.Add(item);
+            items.AddRange(data);
             switch (level)
             {
                 case LogLevel.Error:
-                    Console.WriteLine(item);
-                    break;
-                case LogLevel.DebugInformation:
-                    Console.WriteLine(item);
+                    Global.Console.Log(items);
                     break;
                 case LogLevel.Information:
-                    Console.WriteLine(item);
+                    Global.Console.Log(items);
+                    break;
+                case LogLevel.DebugInformation:
+                    //                    Global.Console.Log(items);
                     break;
                 case LogLevel.TransportInfo:
-                    Console.WriteLine(item);
+                    //                    Global.Console.Log(items);
                     break;
                 case LogLevel.DataInfo:
-                    Console.WriteLine(item);
+                    //                    Global.Console.Log(items);
                     break;
                 case LogLevel.KeepAlive:
-                    Console.WriteLine(item);
+                    //                    Global.Console.Log(items);
                     break;
             }
             return item;

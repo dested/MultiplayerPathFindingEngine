@@ -7,7 +7,7 @@ namespace Pather.Servers.AuthServer
         public ServerLogger ServerLogger;
         public AuthServer()
         {
-            ServerLogger = new ServerLogger("Auth", "0");
+            ServerLogger = new ServerLogger("Auth");
 
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace Pather.Common.Libraries.NodeJS
@@ -8,6 +9,14 @@ namespace Pather.Common.Libraries.NodeJS
     public class Console
     {
         public void Log(object o)
+        {
+        }
+        [InlineCode("console.log.apply(null,{o})")]
+        public void Log(object[] o)
+        {
+        }
+        [InlineCode("console.log.apply(null,{o})")]
+        public void Log(List<object> o)
         {
         }
 

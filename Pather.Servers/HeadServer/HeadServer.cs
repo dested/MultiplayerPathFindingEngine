@@ -22,7 +22,7 @@ namespace Pather.Servers.HeadServer
 
         public HeadServer(IPubSub pubSub)
         {
-            ServerLogger = new ServerLogger("Head", "0");
+            ServerLogger = new ServerLogger("Head");
             pubSub.Init(ServerLogger).Then(() => ready(pubSub));
         }
 
@@ -134,7 +134,7 @@ namespace Pather.Servers.HeadServer
 
         private void OnPingMessage(Ping_Response_Gateway_Head_PubSub_Message pingResponseMessage)
         {
-            ServerLogger.LogDebug("Received Ping From",pingResponseMessage);
+            ServerLogger.LogDebug("Got Gateway Ping " + pingResponseMessage.GatewayId, pingResponseMessage);
             gateways.Add(new Gateway()
             {
                 Address = pingResponseMessage.Address,

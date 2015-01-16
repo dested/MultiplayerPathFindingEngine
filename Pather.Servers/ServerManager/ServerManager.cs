@@ -33,7 +33,7 @@ namespace Pather.Servers.ServerManager
             gatewayClusters = new List<GatewayCluster>();
             linodeBuilder = new LinodeBuilder();
             
-            ServerLogger = new ServerLogger("ServerManager", "0");
+            ServerLogger = new ServerLogger("ServerManager");
 
 
             Q.All(pubSub.Init(ServerLogger), pushPop.Init(ServerLogger), linodeBuilder.Init(ServerLogger)).Then(() => ready(pubSub));
@@ -183,7 +183,8 @@ namespace Pather.Servers.ServerManager
 
             if (ConnectionConstants.Production)
             {
-                linodeBuilder.Create("Cluster-"+applicationId, "Node", LinodeBuilder.SmallPlanId).Then((instance) =>
+                ServerLogger.LogInformation("Building new Linode Server");
+                linodeBuilder.Create("Cluster-" + applicationId, "Node", LinodeBuilder.SmallPlanId).Then((instance) =>
                 {
                     //ssh into the system and start the cluster manager
                     deferred.Resolve(new ClusterCreation()
@@ -230,13 +231,13 @@ namespace Pather.Servers.ServerManager
 
         private void startApp(string[] arguments, string logFile)
         {
-            ServerLogger.LogInformation("start app");
+            ServerLogger.LogDebug("start app");
 
 
 
             if (Constants.DontSpawnNewApp)
             {
-                ServerLogger.LogInformation("Fake start app");
+                ServerLogger.LogDebug("Fake start app");
                 var serverStarter = new ServerStarter();
                 ((dynamic)arguments).splice(0, 0, "");
                 serverStarter.Start(ServerStarter.InstantiateLogic, arguments);
@@ -245,6 +246,7 @@ namespace Pather.Servers.ServerManager
             else
             {
 
+                ServerLogger.LogDebug("Real start app");
                 var spawn = Global.Require<ChildProcess>("child_process").Spawn;
 
                 var fs = Global.Require<FS>("fs");

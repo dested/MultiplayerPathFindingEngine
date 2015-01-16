@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Pather.Common.Libraries.NodeJS;
+using Pather.Common.Utils;
 using Pather.Servers.Common.ServerLogging;
 using Pather.Servers.Libraries.Socket.IO;
 using Pather.Servers.Utils;
@@ -25,7 +26,7 @@ namespace Pather.Servers.MonitorServer
             var io = SocketIO.Listen(app);
             var port = 9993;
 
-            var currentIP = ServerHelper.GetNetworkIPs()[0];
+//            var currentIP = ServerHelper.GetNetworkIPs()[0];
 
             app.Listen(port);
 
@@ -42,7 +43,8 @@ namespace Pather.Servers.MonitorServer
             io.Sockets.On("connection",
                 (SocketIOConnection socket) =>
                 {
-                    Global.Console.Log("User connected to histogram monitor");
+                    Logger.Log("Monitor", "User connected to histogram monitor", new object[0], LogLevel.Information);
+
                     connections.Add(socket);
                     socket.On("disconnect",
                         (string data) =>
@@ -61,7 +63,7 @@ namespace Pather.Servers.MonitorServer
             var io = SocketIO.Listen(app);
             var port = 9992;
 
-            var currentIP = ServerHelper.GetNetworkIPs()[0];
+//            var currentIP = ServerHelper.GetNetworkIPs()[0];
 
             app.Listen(port);
 
@@ -78,7 +80,7 @@ namespace Pather.Servers.MonitorServer
             io.Sockets.On("connection",
                 (SocketIOConnection socket) =>
                 {
-                    Global.Console.Log("User connected to segment monitor");
+                    Logger.Log("Monitor", "User connected to segment monitor", new object[0], LogLevel.Information);
                     connections.Add(socket);
                     socket.On("disconnect",
                         (string data) =>
@@ -98,8 +100,7 @@ namespace Pather.Servers.MonitorServer
             var io = SocketIO.Listen(app);
             var port = 9991;
 
-            var currentIP = ServerHelper.GetNetworkIPs()[0];
-            Global.Console.Log(currentIP);
+//            var currentIP = ServerHelper.GetNetworkIPs()[0];
 
             app.Listen(port);
 
@@ -121,7 +122,7 @@ namespace Pather.Servers.MonitorServer
             io.Sockets.On("connection",
                 (SocketIOConnection socket) =>
                 {
-                    Global.Console.Log("User connected to monitor");
+                    Logger.Log("Monitor", "User connected to monitor", new object[0], LogLevel.Information);
                     connections.Add(socket);
                     socket.On("disconnect",
                         (string data) =>

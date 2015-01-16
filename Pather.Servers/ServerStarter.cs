@@ -24,7 +24,7 @@ namespace Pather.Servers
         public void Start(IInstantiateLogic instantiateLogic, string[] arguments)
         {
 
-            serverLogger = new ServerLogger("Starter", "0");
+            serverLogger = new ServerLogger("Starter");
 
             InstantiateLogic = instantiateLogic;
             var arg = arguments[2];

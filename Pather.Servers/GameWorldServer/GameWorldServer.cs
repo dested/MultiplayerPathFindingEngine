@@ -38,7 +38,7 @@ namespace Pather.Servers.GameWorldServer
                 this.instantiateLogic = new DefaultInstanitateLogic();
             }
 
-            ServerLogger=new ServerLogger("GameWorld", "GameWorld");
+            ServerLogger=new ServerLogger("GameWorld");
             this.pubSub = pubSub;
             DatabaseQueries = dbQueries;
             pubSub.Init(ServerLogger).Then(pubsubReady);
@@ -134,10 +134,7 @@ namespace Pather.Servers.GameWorldServer
                                 }
 
 
-                                ServerLogger.LogInformation(
-                                    "Gameworld added user to game segment", gameSegment.GameSegmentId,
-                                     "Total Players:", GameWorld.Users.Count,
-                                     "Game Segment Players:", gameSegment.Users.Count);
+                                ServerLogger.LogInformation("Added User To ", gameSegment.GameSegmentId,"("+gameSegment.Users.Count+")","Total Players:", GameWorld.Users.Count);
                             });
                     });
             }

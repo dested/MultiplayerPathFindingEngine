@@ -11,7 +11,7 @@ namespace Pather.Servers.Common.ServerLogging
         private string ServerType;
         private string ServerName;
 
-        public ServerLogger(string serverType, string serverName)
+        public ServerLogger(string serverType, string serverName="")
         {
             ServerName = serverName;
             ServerType = serverType;
@@ -25,13 +25,13 @@ namespace Pather.Servers.Common.ServerLogging
 
         public void LogInformation(string item, params object[] jsonContent)
         {
-            Logger.Log(item, LogLevel.Information);
+            Logger.Log(ServerType+ServerName,item, jsonContent, LogLevel.Information);
             pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, item, jsonContent, LogLevel.Information, DateTime.Now));
         }
 
         public void LogDebug(string item, params object[] jsonContent)
         {
-            Logger.Log(item, LogLevel.DebugInformation);
+            Logger.Log(ServerType + ServerName, item, jsonContent, LogLevel.DebugInformation);
             pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, item, jsonContent, LogLevel.DebugInformation, DateTime.Now));
         }
 
@@ -42,19 +42,19 @@ namespace Pather.Servers.Common.ServerLogging
 
         public void LogError(string item, params object[] jsonContent)
         {
-            Logger.Log(item, LogLevel.Error);
+            Logger.Log(ServerType + ServerName, item, jsonContent, LogLevel.Error);
             pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, item, jsonContent, LogLevel.Error, DateTime.Now));
         }
 
         public void LogTransport(string item, params object[] jsonContent)
         {
-            Logger.Log(item, LogLevel.TransportInfo);
+            Logger.Log(ServerType + ServerName, item, jsonContent, LogLevel.TransportInfo);
             pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, item, jsonContent, LogLevel.TransportInfo, DateTime.Now));
         }
 
         public void LogData(string item, params object[] jsonContent)
         {
-            Logger.Log(item, LogLevel.DataInfo);
+            Logger.Log(ServerType + ServerName, item, jsonContent, LogLevel.DataInfo);
             pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, item, jsonContent, LogLevel.DataInfo, DateTime.Now));
         }
     }

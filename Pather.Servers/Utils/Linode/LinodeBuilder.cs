@@ -42,7 +42,7 @@ namespace Pather.Servers.Utils.Linode
                 {
                     Images[imageListResponse.LABEL] = imageListResponse.IMAGEID;
                 }
-                serverLogger.LogInformation("Linode Images:", Images);
+                serverLogger.LogDebug("Linode Images:", Images);
                 deferred.Resolve();
             });
             return deferred.Promise;

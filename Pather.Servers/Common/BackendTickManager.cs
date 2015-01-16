@@ -18,7 +18,7 @@ namespace Pather.Servers.Common
         }
         public override void LockstepForced(long lockStepTickNumber)
         {
-            serverLogger.LogInformation("Force Lockstep", lockStepTickNumber);
+            serverLogger.LogDebug("Force Lockstep", lockStepTickNumber);
         }
 
         public void Init(Action sendPing, Action onTickManagerReady)
