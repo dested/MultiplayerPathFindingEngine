@@ -67,9 +67,9 @@ namespace GameLogic.Client
             context.Restore();
         }
 
-        public void ClickLocation(double x, double y)
+        public bool ClickLocation(double x, double y)
         {
-            ((LogicClientGame)clientGame).ClickLocation(x, y);
+            return ((LogicClientGame)clientGame).ClickLocation(x, y);
         }
 
         public string BlendColors(string c0, string c1, double p)

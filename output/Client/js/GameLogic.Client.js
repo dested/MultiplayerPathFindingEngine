@@ -3,6 +3,7 @@
 	var $asm = {};
 	global.GameLogic = global.GameLogic || {};
 	global.GameLogic.Client = global.GameLogic.Client || {};
+	global.GameLogic.Client.Tests = global.GameLogic.Client.Tests || {};
 	ss.initAssembly($asm, 'GameLogic.Client');
 	////////////////////////////////////////////////////////////////////////////////
 	// GameLogic.Client.Program
@@ -60,6 +61,38 @@
 	};
 	$GameLogic_Client_LogicClientGameView.__typeName = 'GameLogic.Client.LogicClientGameView';
 	global.GameLogic.Client.LogicClientGameView = $GameLogic_Client_LogicClientGameView;
+	////////////////////////////////////////////////////////////////////////////////
+	// GameLogic.Client.Tests.E2ETest
+	var $GameLogic_Client_Tests_E2ETest = function() {
+	};
+	$GameLogic_Client_Tests_E2ETest.__typeName = 'GameLogic.Client.Tests.E2ETest';
+	$GameLogic_Client_Tests_E2ETest.$createUser = function(i) {
+		setTimeout(function() {
+			var receivedCount = 0;
+			var gameClient = new $GameLogic_Client_LogicClientGameView(new $GameLogic_Client_ClientInstantiateLogic());
+			gameClient.clientGameManager.onReady = ss.delegateCombine(gameClient.clientGameManager.onReady, function() {
+				var cl = 0;
+				cl = setInterval(function() {
+					if (++receivedCount < 200) {
+						while (true) {
+							console.log('Moving User ', i, ' again ' + receivedCount);
+							var logicClientGameManager = ss.cast(gameClient.clientGameManager, $GameLogic_Client_LogicClientGameManager);
+							var x = logicClientGameManager.clientGame.myUser.x + (Math.random() * 20 - 10) * Pather.Common.Constants.squareSize;
+							var y = logicClientGameManager.clientGame.myUser.y + (Math.random() * 20 - 10) * Pather.Common.Constants.squareSize;
+							if (logicClientGameManager.clickLocation(x, y)) {
+								break;
+							}
+						}
+					}
+					else {
+						clearTimeout(cl);
+						console.log('Done ' + receivedCount);
+					}
+				}, 1000 + ss.Int32.trunc(Math.random() * 5000));
+			});
+		}, ss.Int32.trunc(Math.random() * 15000));
+	};
+	global.GameLogic.Client.Tests.E2ETest = $GameLogic_Client_Tests_E2ETest;
 	ss.initClass($GameLogic_Client_$Program, $asm, {});
 	ss.initClass($GameLogic_Client_ClientInstantiateLogic, $asm, {
 		createClientGameManager: function() {
@@ -102,6 +135,7 @@
 						$t1.treeY = Pather.Common.Utils.Utilities.toSquare(y);
 						$t1.lockstepTick = this.tickManager.lockstepTickNumber + 1;
 						$t2.sendClientAction($t1);
+						return true;
 					}
 					break;
 				}
@@ -117,12 +151,14 @@
 						$t3.lockstepTick = this.tickManager.lockstepTickNumber + 1;
 						$t4.sendClientAction($t3);
 					}
+					return true;
 					break;
 				}
 				default: {
 					throw new ss.ArgumentOutOfRangeException();
 				}
 			}
+			return false;
 		},
 		processLogicAction: function(logicAction) {
 			var customLogicAction = logicAction;
@@ -185,7 +221,7 @@
 			context.restore();
 		},
 		clickLocation: function(x, y) {
-			ss.cast(this.clientGame, $GameLogic_Client_LogicClientGame).clickLocation(x, y);
+			return ss.cast(this.clientGame, $GameLogic_Client_LogicClientGame).clickLocation(x, y);
 		},
 		blendColors: function(c0, c1, p) {
 			var f = parseInt(c0.substr(1), 16);
@@ -299,5 +335,62 @@
 			ss.cast(this.clientGameManager, $GameLogic_Client_LogicClientGameManager).draw(this.$contextCollection, interpolatedTime);
 		}
 	}, Pather.Client.ClientGameView);
+	ss.initClass($GameLogic_Client_Tests_E2ETest, $asm, {
+		connect4: function(deferred) {
+			window.window.NoDraw = true;
+			var clients = [];
+			var $t1 = [];
+			$t1.push(Pather.Common.Utils.Point.$ctor(600, 600));
+			$t1.push(Pather.Common.Utils.Point.$ctor(100, 100));
+			$t1.push(Pather.Common.Utils.Point.$ctor(650, 650));
+			$t1.push(Pather.Common.Utils.Point.$ctor(50, 50));
+			var points = $t1;
+			for (var i = 0; i < 4; i++) {
+				var gameClient = { $: new $GameLogic_Client_LogicClientGameView(new $GameLogic_Client_ClientInstantiateLogic()) };
+				var point = { $: points[i] };
+				gameClient.$.clientGameManager.onReady = ss.delegateCombine(gameClient.$.clientGameManager.onReady, ss.mkdel({ gameClient: gameClient, point: point }, function() {
+					setTimeout(ss.mkdel({ gameClient: this.gameClient, point: this.point }, function() {
+						ss.cast(this.gameClient.$.clientGameManager, $GameLogic_Client_LogicClientGameManager).clickLocation(this.point.$.x, this.point.$.y);
+					}), 1000);
+					setInterval(ss.mkdel({ gameClient: this.gameClient, point: this.point }, function() {
+						ss.cast(this.gameClient.$.clientGameManager, $GameLogic_Client_LogicClientGameManager).clickLocation(this.point.$.x, this.point.$.y);
+					}), 10000);
+				}));
+				clients.push(gameClient.$);
+			}
+		},
+		connect5: function(deferred) {
+			window.window.NoDraw = true;
+			var clients = [];
+			var $t1 = [];
+			$t1.push(Pather.Common.Utils.Point.$ctor(600, 600));
+			$t1.push(Pather.Common.Utils.Point.$ctor(25, 25));
+			$t1.push(Pather.Common.Utils.Point.$ctor(650, 650));
+			$t1.push(Pather.Common.Utils.Point.$ctor(200, 200));
+			$t1.push(Pather.Common.Utils.Point.$ctor(50, 50));
+			var points = $t1;
+			for (var i = 0; i < 5; i++) {
+				var gameClient = { $: new $GameLogic_Client_LogicClientGameView(new $GameLogic_Client_ClientInstantiateLogic()) };
+				var point = { $: points[i] };
+				gameClient.$.clientGameManager.onReady = ss.delegateCombine(gameClient.$.clientGameManager.onReady, ss.mkdel({ gameClient: gameClient, point: point }, function() {
+					setTimeout(ss.mkdel({ gameClient: this.gameClient, point: this.point }, function() {
+						ss.cast(this.gameClient.$.clientGameManager, $GameLogic_Client_LogicClientGameManager).clickLocation(this.point.$.x, this.point.$.y);
+					}), 1000 + ss.Int32.trunc(Math.random() * 500));
+					setInterval(ss.mkdel({ gameClient: this.gameClient, point: this.point }, function() {
+						ss.cast(this.gameClient.$.clientGameManager, $GameLogic_Client_LogicClientGameManager).clickLocation(this.point.$.x, this.point.$.y);
+					}), 10000);
+				}));
+				clients.push(gameClient.$);
+			}
+		},
+		slam: function(deferred) {
+			window.window.NoDraw = true;
+			var totalHits = 35;
+			for (var i = 0; i < totalHits; i++) {
+				$GameLogic_Client_Tests_E2ETest.$createUser(i);
+			}
+		}
+	});
+	ss.setMetadata($GameLogic_Client_Tests_E2ETest, { attr: [new Pather.Common.TestFramework.TestClassAttribute(false)], members: [{ attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'Connect4', type: 8, sname: 'connect4', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(true)], name: 'Connect5', type: 8, sname: 'connect5', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }, { attr: [new Pather.Common.TestFramework.TestMethodAttribute(false)], name: 'Slam', type: 8, sname: 'slam', returnType: Object, params: [Pather.Common.Utils.Promises.Deferred] }] });
 	$GameLogic_Client_$Program.$main();
 })();

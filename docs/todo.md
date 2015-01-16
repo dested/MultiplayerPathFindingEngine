@@ -62,15 +62,16 @@ time per messagetype
 
 
 
+replace all settimeout and setintervals with a severlogger safe version
+
 
 
 figure out database
 figure out auth
 make sure projection will always work
     can i determine what the ==gamestate== will look like at lcokstep
-separate server for gamesegment and gateway
-spin up new servers at will programmatically
-proper logging of whats happening
+'/ spin up new servers at will programmatically
+'/ proper logging of whats happening
 proper exception handling
 proper failover for gamesegment/gateway/gameworld/cluster/head
 can i support 1k users

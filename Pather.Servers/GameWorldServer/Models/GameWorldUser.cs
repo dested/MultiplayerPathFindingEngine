@@ -36,7 +36,7 @@ namespace Pather.Servers.GameWorldServer.Models
                 Y = point.Y;
 
                 LockstepMovePoints.Remove(lockstepTickNumber);
-              gameWorld.  ServerLogger.LogError(UserId, X, Y, LockstepMovePoints.Count, lockstepTickNumber);
+                gameWorld.ServerLogger.LogDebug(UserId, X, Y, LockstepMovePoints.Count, lockstepTickNumber);
             }
         }
 

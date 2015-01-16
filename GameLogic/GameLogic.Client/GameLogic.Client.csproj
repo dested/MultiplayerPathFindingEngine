@@ -41,6 +41,7 @@
     <Compile Include="LogicClientGameView.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tests\E2ETests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

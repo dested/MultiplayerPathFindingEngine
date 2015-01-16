@@ -21,14 +21,16 @@ namespace Pather.Common.Utils
         {
             server= server.Substring(0, Math.Min(server.Length, 15)).PadRight(15);
 
-            item = string.Format("{2} {0} - {1}", Utilities.ShortDate(), item, server);
+            item = server + " " + Utilities.ShortDate() + " - " + item;
             List<object> items = new List<object>();
             items.Add(item);
             items.AddRange(data);
             switch (level)
             {
                 case LogLevel.Error:
+                    Global.Console.Log("==ERROR==");
                     Global.Console.Log(items);
+                    Global.Console.Log("==ERROR==");
                     break;
                 case LogLevel.Information:
                     Global.Console.Log(items);

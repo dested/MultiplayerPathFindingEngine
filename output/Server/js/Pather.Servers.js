@@ -85,7 +85,6 @@ global.Pather.Servers.ClusterManager.Tests.ClusterManagerTest = $Pather_Servers_
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.Common.BackEndTickManager
 var $Pather_Servers_Common_BackEndTickManager = function(serverLogger) {
-	this.$serverLogger = null;
 	this.$lastPing = 0;
 	this.$pingSent = null;
 	this.$sendPing = null;
@@ -93,8 +92,7 @@ var $Pather_Servers_Common_BackEndTickManager = function(serverLogger) {
 	this.$hasLockstep = false;
 	this.$hasLatency = false;
 	this.$tickManagerInitialized = false;
-	Pather.Common.Utils.TickManager.call(this);
-	this.$serverLogger = serverLogger;
+	Pather.Common.Utils.TickManager.call(this, serverLogger);
 };
 $Pather_Servers_Common_BackEndTickManager.__typeName = 'Pather.Servers.Common.BackEndTickManager';
 global.Pather.Servers.Common.BackEndTickManager = $Pather_Servers_Common_BackEndTickManager;
@@ -894,7 +892,7 @@ var $Pather_Servers_GatewayServer_GatewayServer = function(pubsub, pushPop, sock
 		this.gatewayPubSub.init();
 		this.backEndTickManager = new $Pather_Servers_Common_BackEndTickManager(this.serverLogger);
 		this.backEndTickManager.init$1(ss.mkdel(this, this.$sendPing), ss.mkdel(this, function() {
-			this.serverLogger.logInformation('Connected To Tick Server', []);
+			this.serverLogger.logDebug('Connected To Tick Server', []);
 			this.$registerGatewayWithCluster();
 			this.$pubsubReady();
 		}));
@@ -2077,11 +2075,9 @@ global.Pather.Servers.TickServer.TickServer = $Pather_Servers_TickServer_TickSer
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.TickServer.TickServerTickManager
 var $Pather_Servers_TickServer_TickServerTickManager = function(serverLogger, tickPubSub) {
-	this.$serverLogger = null;
 	this.tickPubSub = null;
 	this.$forceOnNextTick = false;
-	Pather.Common.Utils.TickManager.call(this);
-	this.$serverLogger = serverLogger;
+	Pather.Common.Utils.TickManager.call(this, serverLogger);
 	this.tickPubSub = tickPubSub;
 	this.onProcessLockstep = ss.delegateCombine(this.onProcessLockstep, ss.mkdel(this, this.$onProcessLockstep));
 };
@@ -2315,7 +2311,7 @@ ss.initClass($Pather_Servers_ServerStarter, $asm, {
 		}
 		catch ($t1) {
 			var exc = ss.Exception.wrap($t1);
-			this.$serverLogger.logError('CRITICAL FAILURE: ', [exc]);
+			this.$serverLogger.logError('CRITICAL FAILURE: ', exc);
 		}
 	},
 	$ready: function(server, arguments1) {
@@ -2375,7 +2371,7 @@ ss.initClass($Pather_Servers_ServerStarter, $asm, {
 				break;
 			}
 			default: {
-				this.$serverLogger.logError('Failed to load: ', [arguments1[2]]);
+				this.$serverLogger.logError$1('Failed to load: ', [arguments1[2]]);
 				break;
 			}
 		}
@@ -2442,7 +2438,7 @@ ss.initClass($Pather_Servers_ClusterManager_ClusterManager, $asm, {
 			$t2.publishToServerManager($t1);
 			this.serverLogger.logInformation('Gateway Server Created!', [createGatewayMessage.gatewayId]);
 		})).error(ss.mkdel(this, function(a) {
-			this.serverLogger.logError('Gateway Server Creation Failed!', []);
+			this.serverLogger.logError$1('Gateway Server Creation Failed!', []);
 		}));
 		var arguments1 = ['', 'gateway', createGatewayMessage.gatewayId, createGatewayMessage.port.toString()];
 		this.$startApp(arguments1, './outgw.log');
@@ -2457,7 +2453,7 @@ ss.initClass($Pather_Servers_ClusterManager_ClusterManager, $asm, {
 			$t2.publishToServerManager($t1);
 			this.serverLogger.logInformation('Game Segment Server Created!', [createGameSegmentMessage.gameSegmentId]);
 		})).error(ss.mkdel(this, function(a) {
-			this.serverLogger.logError('Game Segment Server Creation Failed!', []);
+			this.serverLogger.logError$1('Game Segment Server Creation Failed!', []);
 		}));
 		this.$count++;
 		var arguments1 = ['', 'gamesegment', createGameSegmentMessage.gameSegmentId];
@@ -2512,7 +2508,7 @@ ss.initClass($Pather_Servers_ClusterManager_ClusterManagerPubSub, $asm, {
 ss.initClass($Pather_Servers_ClusterManager_Tests_ClusterManagerTest, $asm, {});
 ss.initClass($Pather_Servers_Common_BackEndTickManager, $asm, {
 	lockstepForced: function(lockStepTickNumber) {
-		this.$serverLogger.logDebug('Force Lockstep', [lockStepTickNumber]);
+		this.serverLogger.logDebug('Force Lockstep', [lockStepTickNumber]);
 	},
 	init$1: function(sendPing, onTickManagerReady) {
 		this.$sendPing = sendPing;
@@ -2526,7 +2522,7 @@ ss.initClass($Pather_Servers_Common_BackEndTickManager, $asm, {
 	},
 	onPongReceived: function() {
 		if (ss.isNullOrUndefined(this.$pingSent)) {
-			this.$serverLogger.logError('Tried to send pong, but already completed ping cycle', []);
+			this.serverLogger.logError$1('Tried to send pong, but already completed ping cycle', []);
 			return;
 		}
 		var cur = (new Date()).getTime();
@@ -2557,7 +2553,7 @@ ss.initClass($Pather_Servers_Common_BackEndTickManager, $asm, {
 	},
 	setServerLatency: function(latency) {
 		if (this.currentServerLatency !== latency) {
-			this.$serverLogger.logDebug('Severy latency is ', [latency, 'ms']);
+			this.serverLogger.logDebug('Severy latency is ', [latency, 'ms']);
 		}
 		Pather.Common.Utils.TickManager.prototype.setServerLatency.call(this, latency);
 		this.$hasLatency = true;
@@ -2622,14 +2618,36 @@ ss.initClass($Pather_Servers_Common_PubSub_PubSub, $asm, {
 		}));
 		this.$subClient.on('ready', ss.mkdel(this, function() {
 			this.$sready = true;
+			if (deferred.promise.isRejected || deferred.promise.isResolved) {
+				if (ss.isValue(this.serverLogger)) {
+					this.serverLogger.logError$1('Forced reconnect of redis', []);
+				}
+				return;
+			}
 			if (this.$sready && this.$pready) {
 				deferred.resolve();
 			}
 		}));
 		this.$pubClient.on('ready', ss.mkdel(this, function() {
 			this.$pready = true;
+			if (deferred.promise.isRejected || deferred.promise.isResolved) {
+				if (ss.isValue(this.serverLogger)) {
+					this.serverLogger.logError$1('Forced reconnect of redis', []);
+				}
+				return;
+			}
 			if (this.$sready && this.$pready) {
 				deferred.resolve();
+			}
+		}));
+		this.$pubClient.on('error', ss.mkdel(this, function(err) {
+			if (ss.isValue(this.serverLogger)) {
+				this.serverLogger.logError$1('Error ' + err, []);
+			}
+		}));
+		this.$subClient.on('error', ss.mkdel(this, function(err1) {
+			if (ss.isValue(this.serverLogger)) {
+				this.serverLogger.logError$1('Error ' + err1, []);
 			}
 		}));
 		setInterval(this.$flush.bind(this), 10);
@@ -2693,7 +2711,7 @@ ss.initClass($Pather_Servers_Common_PubSub_PubSub, $asm, {
 		catch ($t2) {
 			var e = ss.Exception.wrap($t2);
 			if (ss.isValue(this.serverLogger)) {
-				this.serverLogger.logError('Exception', [e, e.get_stack(), channel, message]);
+				this.serverLogger.logError$1('Exception', [e, e.get_stack(), channel, message]);
 			}
 		}
 	},
@@ -2799,24 +2817,29 @@ ss.initClass($Pather_Servers_Common_ServerLogging_ServerLogger, $asm, {
 	},
 	logDebug: function(item, jsonContent) {
 		Pather.Common.Utils.Logger.log(this.$serverType + this.$serverName, item, jsonContent, 'debugInformation');
-		this.$pubsub.publish($Pather_Servers_Common_PubSub_PubSubChannels.serverLogger(this.$serverType), { serverType: this.$serverType, serverName: this.$serverName, message: item, content: jsonContent, logLevel: 'debugInformation', time: new Date() });
+		//            pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, item, jsonContent, LogLevel.DebugInformation, DateTime.Now));
 	},
 	logKeepAlive: function() {
 		this.$pubsub.publish($Pather_Servers_Common_PubSub_PubSubChannels.serverLogger(this.$serverType), { serverType: this.$serverType, serverName: this.$serverName, message: null, content: null, logLevel: 'keepAlive', time: new Date() });
 	},
-	logError: function(item, jsonContent) {
+	logError$1: function(item, jsonContent) {
 		Pather.Common.Utils.Logger.log(this.$serverType + this.$serverName, item, jsonContent, 'error');
 		this.$pubsub.publish($Pather_Servers_Common_PubSub_PubSubChannels.serverLogger(this.$serverType), { serverType: this.$serverType, serverName: this.$serverName, message: item, content: jsonContent, logLevel: 'error', time: new Date() });
 	},
+	logError: function(item, ex) {
+		var m = [ex.get_message(), ex.get_stack(), ex.get_innerException()];
+		Pather.Common.Utils.Logger.log(this.$serverType + this.$serverName, item, m, 'error');
+		this.$pubsub.publish($Pather_Servers_Common_PubSub_PubSubChannels.serverLogger(this.$serverType), { serverType: this.$serverType, serverName: this.$serverName, message: item, content: m, logLevel: 'error', time: new Date() });
+	},
 	logTransport: function(item, jsonContent) {
 		Pather.Common.Utils.Logger.log(this.$serverType + this.$serverName, item, jsonContent, 'transportInfo');
-		this.$pubsub.publish($Pather_Servers_Common_PubSub_PubSubChannels.serverLogger(this.$serverType), { serverType: this.$serverType, serverName: this.$serverName, message: item, content: jsonContent, logLevel: 'transportInfo', time: new Date() });
+		//            pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, item, jsonContent, LogLevel.TransportInfo, DateTime.Now));
 	},
 	logData: function(item, jsonContent) {
 		Pather.Common.Utils.Logger.log(this.$serverType + this.$serverName, item, jsonContent, 'dataInfo');
-		this.$pubsub.publish($Pather_Servers_Common_PubSub_PubSubChannels.serverLogger(this.$serverType), { serverType: this.$serverType, serverName: this.$serverName, message: item, content: jsonContent, logLevel: 'dataInfo', time: new Date() });
+		//            pubsub.Publish(PubSubChannels.ServerLogger(ServerType), new ServerLogMessage(ServerType, ServerName, item, jsonContent, LogLevel.DataInfo, DateTime.Now));
 	}
-});
+}, null, [Pather.Common.Utils.IServerLogger]);
 ss.initClass($Pather_Servers_Common_ServerLogging_ServerLogListener, $asm, {
 	subscribe: function(channel, callback) {
 		this.$pubsub.subscribe($Pather_Servers_Common_PubSub_PubSubChannels.serverLogger(channel), function(content) {
@@ -2844,7 +2867,7 @@ ss.initClass($Pather_Servers_Common_SocketManager_SocketIOManager, $asm, {
 		}
 		catch ($t1) {
 			var e = ss.Exception.wrap($t1);
-			serverLogger.logError('Socket Error', [e]);
+			serverLogger.logError('Socket Error', e);
 		}
 	},
 	connections: function(action) {
@@ -2949,7 +2972,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_GameSegmentPubSub, $asm, {
 			}) && gameSegmentPubSubMessage1.response) {
 				var possibleMessageReqRes = gameSegmentPubSubMessage1;
 				if (!this.deferredMessages.containsKey(possibleMessageReqRes.messageId)) {
-					this.$serverLogger.logError('Received message that I didnt ask for.', [message1]);
+					this.$serverLogger.logError$1('Received message that I didnt ask for.', [message1]);
 					return;
 				}
 				this.deferredMessages.get_item(possibleMessageReqRes.messageId).resolve(gameSegmentPubSubMessage1);
@@ -3214,7 +3237,11 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGame, $asm, {
 			}
 			serverGameUser.oldNeighbors = null;
 			if (added.length > 0 || removed.length > 0) {
-				this.serverLogger.logDebug('Neighbors! ', [added, removed]);
+				this.serverLogger.logDebug('Neighbors! ', [Pather.Common.Utils.EnumerableExtensions.select(added, function(a) {
+					return a.entityId;
+				}), Pather.Common.Utils.EnumerableExtensions.select(removed, function(a1) {
+					return a1.entityId;
+				})]);
 				var lockstepTickToRun = { $: this.tickManager.lockstepTickNumber + 1 };
 				this.serverLogger.logDebug('lockstep ', [lockstepTickToRun.$]);
 				var $t10 = this.gameManager;
@@ -3223,22 +3250,22 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGame, $asm, {
 				$t7.push(serverGameUser.entityId);
 				$t6.users = $t7;
 				var $t8 = Pather.Common.Models.Common.Actions.ClientActions.UpdateNeighborsClientAction.$ctor();
-				$t8.removed = Pather.Common.Utils.EnumerableExtensions.select(removed, function(a) {
-					return a.entityId;
+				$t8.removed = Pather.Common.Utils.EnumerableExtensions.select(removed, function(a2) {
+					return a2.entityId;
 				});
 				$t8.entityId = serverGameUser.entityId;
-				$t8.added = Pather.Common.Utils.EnumerableExtensions.select(added, ss.mkdel({ lockstepTickToRun: lockstepTickToRun, $this: this }, function(a1) {
-					var inProgressActions = Pather.Common.Utils.EnumerableExtensions.where$1(a1.inProgressActions, ss.mkdel({ lockstepTickToRun: this.lockstepTickToRun }, function(action) {
+				$t8.added = Pather.Common.Utils.EnumerableExtensions.select(added, ss.mkdel({ lockstepTickToRun: lockstepTickToRun, $this: this }, function(a3) {
+					var inProgressActions = Pather.Common.Utils.EnumerableExtensions.where$1(a3.inProgressActions, ss.mkdel({ lockstepTickToRun: this.lockstepTickToRun }, function(action) {
 						return action.endingLockStepTicking > this.lockstepTickToRun.$;
 					}));
-					this.$this.serverLogger.logDebug('In progress actions: ', [inProgressActions, a1.entityId]);
+					this.$this.serverLogger.logDebug('In progress actions: ', [inProgressActions, a3.entityId]);
 					var point;
-					this.$this.serverLogger.logDebug('xy ', [a1.x, a1.y]);
+					this.$this.serverLogger.logDebug('xy ', [a3.x, a3.y]);
 					this.$this.serverLogger.logDebug('count ', [inProgressActions.length]);
-					point = a1.getPositionAtLockstep(this.lockstepTickToRun.$);
+					point = a3.getPositionAtLockstep(this.lockstepTickToRun.$);
 					this.$this.serverLogger.logDebug('xy ', [point.x, point.y]);
 					var $t9 = Pather.Common.Models.Common.UpdatedNeighbor.$ctor();
-					$t9.userId = a1.entityId;
+					$t9.userId = a3.entityId;
 					$t9.inProgressClientActions = inProgressActions;
 					$t9.x = point.x;
 					$t9.y = point.y;
@@ -3430,7 +3457,7 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameManager, $asm, {
 		}
 	},
 	$onMessageTransferGameUser: function(message) {
-		this.serverLogger.logInformation('Transfered users', [message, this.$serverGame.activeEntities.list]);
+		this.serverLogger.logInformation('Transfered users', [message.userId]);
 		var user = ss.cast(this.$serverGame.activeEntities.get_item(message.userId), $Pather_Servers_GameSegmentServer_ServerGameUser);
 		user.gameSegment.userLeft(user.entityId);
 		this.myGameSegment.userJoin(user);
@@ -3467,8 +3494,8 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameManager, $asm, {
 	},
 	$onMessageGameSegmentAction: function(message) {
 		if (!this.myGameSegment.users.contains$1(message.userId)) {
-			this.serverLogger.logError('This aint my user! ' + message.userId, []);
-			throw new ss.Exception('This aint my user! ' + message.userId);
+			this.serverLogger.logError$1('This aint my user! ' + message.userId, []);
+			return;
 		}
 		this.$serverGame.serverProcessGameSegmentAction(this.myGameSegment.users.get_item(message.userId), message.action);
 	},
@@ -3777,7 +3804,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 		var deferred = Pather.Common.Utils.Promises.Q.defer();
 		var gwUser = this.users.get_item(dbUser.userId);
 		if (ss.isNullOrUndefined(gwUser)) {
-			this.serverLogger.logError('IDK WHO THIS USER IS', [dbUser]);
+			this.serverLogger.logError$1('IDK WHO THIS USER IS', [dbUser.token, dbUser.userId]);
 			deferred.reject();
 			//                throw new Exception("IDK WHO THIS USER IS");
 		}
@@ -3790,7 +3817,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 			promises.push(gwUser.gameSegment.removeUserFromGameSegment(gwUser));
 			Pather.Common.Utils.Promises.Q.all$2(promises).then(ss.mkdel(this, function() {
 				this.users.remove(gwUser);
-				this.serverLogger.logError('User left', [gwUser.userId]);
+				this.serverLogger.logInformation('User left', [gwUser.userId]);
 				deferred.resolve();
 			}));
 		}
@@ -3903,7 +3930,6 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 	},
 	reorganize: function() {
 		if (this.$needToReorganize.length > 0) {
-			debugger;
 			var reorg = Math.min(this.$needToReorganize.length, Pather.Common.Constants.numberOfReorganizedPlayersPerSession);
 			this.serverLogger.logDebug('Reorganizing ', [reorg, 'Users']);
 			for (var i = reorg - 1; i >= 0; i--) {
@@ -3939,7 +3965,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorld, $asm, {
 		switch (gameWorldActionGameSegment.action.gameWorldActionType) {
 			case 'moveEntity': {
 				var moveEntity = gameWorldActionGameSegment.action;
-				this.serverLogger.logDebug('Move entity:', [moveEntity]);
+				this.serverLogger.logData('Move entity:', [moveEntity.lockstepMovePoints]);
 				var user = this.users.get_item(moveEntity.entityId);
 				user.setLockstepMovePoints(moveEntity.lockstepMovePoints);
 				break;
@@ -3966,7 +3992,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldPubSub, $asm, {
 			}) && gameWorldPubSubMessage.response) {
 				var possibleMessageReqRes = gameWorldPubSubMessage;
 				if (!this.$deferredMessages.containsKey(possibleMessageReqRes.messageId)) {
-					this.serverLogger.logError('Received message that I didnt ask for.', [message]);
+					this.serverLogger.logError$1('Received message that I didnt ask for.', [message]);
 					throw new ss.Exception('Received message that I didnt ask for.');
 				}
 				this.$deferredMessages.get_item(possibleMessageReqRes.messageId).resolve(gameWorldPubSubMessage);
@@ -4029,7 +4055,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 		this.gameWorld = this.$instantiateLogic.createGameWorld(this.$gameWorldPubSub, this.backEndTickManager, this.serverLogger);
 		this.gameWorld.init();
 		this.backEndTickManager.init$1(ss.mkdel(this, this.$sendPing), ss.mkdel(this, function() {
-			this.serverLogger.logInformation('Connected To Tick Server', []);
+			this.serverLogger.logDebug('Connected To Tick Server', []);
 			setInterval(ss.mkdel(this, this.$flushPreAddedUsers), 200);
 		}));
 		this.backEndTickManager.startPing();
@@ -4049,7 +4075,7 @@ ss.initClass($Pather_Servers_GameWorldServer_GameWorldServer, $asm, {
 				var gameSegment = { $: items.$[0].item1.gameSegment };
 				gameSegment.$.addUsersToSegment(items.$).then(ss.mkdel({ items: items, gameSegment: gameSegment, $this: this }, function(users) {
 					if (users.length === 0) {
-						this.$this.serverLogger.logError('No users to resolve adding to segment', [this.items.$]);
+						this.$this.serverLogger.logError$1('No users to resolve adding to segment', [this.items.$]);
 						return;
 					}
 					var promises = Pather.Common.Utils.EnumerableExtensions.selectMany(Pather.Common.Utils.EnumerableExtensions.where$1(this.$this.gameWorld.gameSegments.list, ss.mkdel({ gameSegment: this.gameSegment }, function(seg) {
@@ -4415,7 +4441,7 @@ ss.initClass($Pather_Servers_GameWorldServer_Models_GameWorldUser, $asm, {
 			this.x = point.x;
 			this.y = point.y;
 			delete this.lockstepMovePoints[lockstepTickNumber];
-			this.$gameWorld.serverLogger.logError(this.userId, [this.x, this.y, ss.getKeyCount(this.lockstepMovePoints), lockstepTickNumber]);
+			this.$gameWorld.serverLogger.logDebug(this.userId, [this.x, this.y, ss.getKeyCount(this.lockstepMovePoints), lockstepTickNumber]);
 		}
 	},
 	setLockstepMovePoints: function(lockstepMovePoints) {
@@ -4500,18 +4526,18 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 	$processLockStep: function(lockstepTickNumber) {
 		if (ss.keyExists(this.$reorgUserAtLockstep, lockstepTickNumber)) {
 			var reorgsThisTick = this.$reorgUserAtLockstep[lockstepTickNumber];
-			this.serverLogger.logInformation('Reorg!', [reorgsThisTick]);
+			this.serverLogger.logDebug('Reorg!', [reorgsThisTick]);
 			for (var $t1 = 0; $t1 < reorgsThisTick.length; $t1++) {
 				var reorganizeUserMessage = reorgsThisTick[$t1];
 				var gatewayUser = this.$users.get_item(reorganizeUserMessage.userId);
 				if (ss.isNullOrUndefined(gatewayUser)) {
-					this.serverLogger.logError('Tried to reorganize user who already left', [reorganizeUserMessage.userId]);
+					this.serverLogger.logError$1('Tried to reorganize user who already left', [reorganizeUserMessage.userId]);
 					continue;
 				}
-				this.serverLogger.logInformation('Old GS:', [gatewayUser.gameSegmentId, 'New GS:', reorganizeUserMessage.newGameSegmentId]);
+				this.serverLogger.logDebug('Old GS:', [gatewayUser.gameSegmentId, 'New GS:', reorganizeUserMessage.newGameSegmentId]);
 				gatewayUser.gameSegmentId = reorganizeUserMessage.newGameSegmentId;
 				gatewayUser.betweenReorgs = false;
-				this.serverLogger.logInformation('Queued Messages:', [gatewayUser.queuedMessagesBetweenReorg]);
+				this.serverLogger.logDebug('Queued Messages:', [gatewayUser.queuedMessagesBetweenReorg.length]);
 				for (var $t2 = 0; $t2 < gatewayUser.queuedMessagesBetweenReorg.length; $t2++) {
 					var gameSegmentAction = gatewayUser.queuedMessagesBetweenReorg[$t2];
 					var $t4 = this.gatewayPubSub;
@@ -4574,7 +4600,7 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 				var userJoinedMessage = message;
 				gatewayUser = this.$users.get_item(userJoinedMessage.userId);
 				if (ss.isNullOrUndefined(gatewayUser)) {
-					this.serverLogger.logError('User succsfully joined, but doesnt exist anymore', [userJoinedMessage.userId, userJoinedMessage.gameSegmentId]);
+					this.serverLogger.logError$1('User succsfully joined, but doesnt exist anymore', [userJoinedMessage.userId, userJoinedMessage.gameSegmentId]);
 					var $t2 = this.gatewayPubSub;
 					var $t1 = Pather.Common.Models.GameWorld.Gateway.UserLeft_Gateway_GameWorld_PubSub_Message.$ctor();
 					$t1.userId = userJoinedMessage.userId;
@@ -4620,7 +4646,7 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 			}
 			case 'reorganizeUser': {
 				var reorgUserMessage = message;
-				this.serverLogger.logInformation('Trying to reorg', [reorgUserMessage]);
+				this.serverLogger.logInformation('Trying to reorg', [reorgUserMessage.userId, reorgUserMessage.newGameSegmentId, reorgUserMessage.switchAtLockstepNumber]);
 				var user = this.$users.get_item(reorgUserMessage.userId);
 				user.betweenReorgs = true;
 				user.reorgAtLockstep = reorgUserMessage.switchAtLockstepNumber;
@@ -4642,7 +4668,7 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 			gatewayUser = this.$users.get_item(userToSendTo);
 			if (ss.isNullOrUndefined(gatewayUser)) {
 				//todo find out why user does not exist yet
-				this.serverLogger.logError('User does not exist yet, storing actions', [userToSendTo]);
+				this.serverLogger.logError$1('User does not exist yet, storing actions', [userToSendTo]);
 				if (!ss.keyExists(this.$cachedUserActions, userToSendTo)) {
 					this.$cachedUserActions[userToSendTo] = [];
 				}
@@ -4709,7 +4735,7 @@ ss.initClass($Pather_Servers_GatewayServer_GatewayServer, $asm, {
 			case 'gameSegmentAction': {
 				var gameSegmentActionMessage = message;
 				if (user.betweenReorgs) {
-					this.serverLogger.logInformation('Adding to reorg queue:', [user.userId, gameSegmentActionMessage.gameSegmentAction]);
+					this.serverLogger.logInformation('Adding message to reorg queue:', [user.userId]);
 					gameSegmentActionMessage.gameSegmentAction.lockstepTick = user.reorgAtLockstep + 1;
 					user.queuedMessagesBetweenReorg.push(gameSegmentActionMessage.gameSegmentAction);
 				}
@@ -4827,7 +4853,7 @@ ss.initClass($Pather_Servers_HeadServer_HeadPubSub, $asm, {
 			}) && headPubSubMessage.response) {
 				var possibleMessageReqRes = headPubSubMessage;
 				if (!this.$deferredMessages.containsKey(possibleMessageReqRes.messageId)) {
-					this.serverLogger.logError('Received message that I didnt ask for.', [message]);
+					this.serverLogger.logError$1('Received message that I didnt ask for.', [message]);
 					throw new ss.Exception('Received message that I didnt ask for.');
 				}
 				this.$deferredMessages.get_item(possibleMessageReqRes.messageId).resolve(headPubSubMessage);
@@ -4906,7 +4932,7 @@ ss.initClass($Pather_Servers_HeadServer_HeadServer, $asm, {
 			this.$isCurrentlySpawning++;
 			if (this.$isCurrentlySpawning === 10) {
 				this.$isCurrentlySpawning = 0;
-				this.serverLogger.logError('Failed to create a new gateway.', []);
+				this.serverLogger.logError$1('Failed to create a new gateway.', []);
 			}
 		}
 	},
@@ -5284,7 +5310,7 @@ ss.initClass($Pather_Servers_ServerManager_ServerManager, $asm, {
 				deferred.resolve($t2);
 				this.serverLogger.logInformation('Spawn Success', []);
 			})).error(ss.mkdel(this, function(a) {
-				this.serverLogger.logError('Spawn Fail', []);
+				this.serverLogger.logError$1('Spawn Fail', []);
 			}));
 			this.$startApp(['', application, applicationId], './outcluster.log');
 		}
@@ -5329,7 +5355,7 @@ ss.initClass($Pather_Servers_ServerManager_ServerManagerPubSub, $asm, {
 			}) && serverManagerPubSubMessage.response) {
 				var possibleMessageReqRes = serverManagerPubSubMessage;
 				if (!this.$deferredMessages.containsKey(possibleMessageReqRes.messageId)) {
-					this.serverLogger.logError('Received message that I didnt ask for.', [message]);
+					this.serverLogger.logError$1('Received message that I didnt ask for.', [message]);
 					throw new ss.Exception('Received message that I didnt ask for.');
 				}
 				this.$deferredMessages.get_item(possibleMessageReqRes.messageId).resolve(serverManagerPubSubMessage);
@@ -5427,12 +5453,12 @@ ss.initClass($Pather_Servers_TickServer_TickServer, $asm, {
 });
 ss.initClass($Pather_Servers_TickServer_TickServerTickManager, $asm, {
 	lockstepForced: function(lockStepTickNumber) {
-		this.$serverLogger.logDebug('Force Lockstep', [lockStepTickNumber]);
+		this.serverLogger.logDebug('Force Lockstep', [lockStepTickNumber]);
 	},
 	$onProcessLockstep: function(lockstepTickNumber) {
 		if (lockstepTickNumber % 15 === 0 || this.$forceOnNextTick) {
 			this.$forceOnNextTick = false;
-			this.$serverLogger.logData('Pushed Lockstep Tick', [lockstepTickNumber]);
+			this.serverLogger.logData('Pushed Lockstep Tick', [lockstepTickNumber]);
 			this.tickPubSub.publishToAllGameSegments(Pather.Common.Models.GameSegment.TickSync_GameSegment_PubSub_AllMessage.$ctor(lockstepTickNumber));
 			this.tickPubSub.publishToAllGateways(Pather.Common.Models.Gateway.PubSub.TickSync_Tick_Gateway_PubSub_AllMessage.$ctor(lockstepTickNumber));
 			this.tickPubSub.publishToGameWorld(Pather.Common.Models.GameWorld.Tick.TickSync_Tick_GameWorld_PubSub_Message.$ctor(lockstepTickNumber));
@@ -5497,7 +5523,7 @@ ss.initClass($Pather_Servers_Utils_Linode_LinodeBuilder, $asm, {
 		})).then(function(res7) {
 			deferred.resolve(instance);
 		}).error(ss.mkdel(this, function(err) {
-			this.$serverLogger.logError('Linode', [err]);
+			this.$serverLogger.logError$1('Linode', [err]);
 			deferred.reject(err);
 		}));
 		return deferred.promise;

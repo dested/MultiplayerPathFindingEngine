@@ -2167,6 +2167,12 @@
 	};
 	global.Pather.Common.Utils.IntPoint = $Pather_Common_Utils_IntPoint;
 	////////////////////////////////////////////////////////////////////////////////
+	// Pather.Common.Utils.IServerLogger
+	var $Pather_Common_Utils_IServerLogger = function() {
+	};
+	$Pather_Common_Utils_IServerLogger.__typeName = 'Pather.Common.Utils.IServerLogger';
+	global.Pather.Common.Utils.IServerLogger = $Pather_Common_Utils_IServerLogger;
+	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Utils.Lerper
 	var $Pather_Common_Utils_Lerper = function() {
 	};
@@ -2198,13 +2204,15 @@
 	};
 	$Pather_Common_Utils_Logger.log = function(server, item, data, level) {
 		server = ss.padRightString(server.substr(0, Math.min(server.length, 15)), 15);
-		item = ss.formatString('{2} {0} - {1}', $Pather_Common_Utils_Utilities.shortDate(), item, server);
+		item = server + ' ' + $Pather_Common_Utils_Utilities.shortDate() + ' - ' + item;
 		var items = [];
 		items.push(item);
 		ss.arrayAddRange(items, data);
 		switch (level) {
 			case 'error': {
+				console.log('==ERROR==');
 				console.log.apply(null, items);
+				console.log('==ERROR==');
 				break;
 			}
 			case 'information': {
@@ -2253,11 +2261,13 @@
 	global.Pather.Common.Utils.Point = $Pather_Common_Utils_Point;
 	////////////////////////////////////////////////////////////////////////////////
 	// Pather.Common.Utils.TickManager
-	var $Pather_Common_Utils_TickManager = function() {
+	var $Pather_Common_Utils_TickManager = function(serverLogger) {
+		this.serverLogger = null;
 		this.lockstepTickNumber = 0;
 		this.onProcessLockstep = null;
 		this.currentLockstepTime = 0;
 		this.currentServerLatency = 0;
+		this.serverLogger = serverLogger;
 	};
 	$Pather_Common_Utils_TickManager.__typeName = 'Pather.Common.Utils.TickManager';
 	global.Pather.Common.Utils.TickManager = $Pather_Common_Utils_TickManager;
@@ -2914,6 +2924,7 @@
 	ss.initClass($Pather_Common_Utils_AnimationStep, $asm, {}, $Pather_Common_Utils_Point);
 	ss.initClass($Pather_Common_Utils_EnumerableExtensions, $asm, {});
 	ss.initClass($Pather_Common_Utils_IntPoint, $asm, {});
+	ss.initInterface($Pather_Common_Utils_IServerLogger, $asm, { logInformation: null, logDebug: null, logKeepAlive: null, logError$1: null, logError: null, logTransport: null, logData: null });
 	ss.initClass($Pather_Common_Utils_Lerper, $asm, {});
 	ss.initClass($Pather_Common_Utils_Logger, $asm, {});
 	ss.initEnum($Pather_Common_Utils_LogLevel, $asm, { error: 'error', debugInformation: 'debugInformation', information: 'information', transportInfo: 'transportInfo', dataInfo: 'dataInfo', keepAlive: 'keepAlive' }, true);
@@ -2959,9 +2970,19 @@
 		},
 		processLockstep: function(lockstepTickNumber) {
 			if (!ss.staticEquals(this.onProcessLockstep, null)) {
-				this.onProcessLockstep(lockstepTickNumber);
+				try {
+					this.onProcessLockstep(lockstepTickNumber);
+				}
+				catch ($t1) {
+					var ex = ss.Exception.wrap($t1);
+					if (ss.isValue(this.serverLogger)) {
+						this.serverLogger.logError('Error on lockstep', ex);
+					}
+					else {
+						$Pather_Common_Utils_Logger.log('Client', 'Error on lockstep', [ex.get_message(), ex.get_stack(), ex.get_innerException()], 'error');
+					}
+				}
 			}
-			//            Global.Console.Log("Lockstep", LockstepTickNumber, new DateTime().GetTime());
 			//            ServerLogger.LogInformation("Lockstep", LockstepTickNumber, new DateTime().GetTime());
 		}
 	});

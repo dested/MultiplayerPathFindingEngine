@@ -53,7 +53,7 @@ namespace Pather.Servers.GatewayServer
                 BackEndTickManager = new BackEndTickManager(ServerLogger);
                 BackEndTickManager.Init(SendPing, () =>
                 {
-                    ServerLogger.LogInformation("Connected To Tick Server");
+                    ServerLogger.LogDebug("Connected To Tick Server");
                     registerGatewayWithCluster();
                     pubsubReady();
                 });
@@ -68,7 +68,7 @@ namespace Pather.Servers.GatewayServer
             if (reorgUserAtLockstep.ContainsKey(lockstepTickNumber))
             {
                 var reorgsThisTick = reorgUserAtLockstep[lockstepTickNumber];
-                ServerLogger.LogInformation("Reorg!", reorgsThisTick);
+                ServerLogger.LogDebug("Reorg!", reorgsThisTick);
 
                 foreach (var reorganizeUserMessage in reorgsThisTick)
                 {
@@ -78,11 +78,11 @@ namespace Pather.Servers.GatewayServer
                         ServerLogger.LogError("Tried to reorganize user who already left", reorganizeUserMessage.UserId);
                         continue;
                     }
-                    ServerLogger.LogInformation("Old GS:", gatewayUser.GameSegmentId, "New GS:", reorganizeUserMessage.NewGameSegmentId);
+                    ServerLogger.LogDebug("Old GS:", gatewayUser.GameSegmentId, "New GS:", reorganizeUserMessage.NewGameSegmentId);
 
                     gatewayUser.GameSegmentId = reorganizeUserMessage.NewGameSegmentId;
                     gatewayUser.BetweenReorgs = false;
-                    ServerLogger.LogInformation("Queued Messages:", gatewayUser.QueuedMessagesBetweenReorg);
+                    ServerLogger.LogDebug("Queued Messages:", gatewayUser.QueuedMessagesBetweenReorg.Count);
 
                     foreach (var gameSegmentAction in gatewayUser.QueuedMessagesBetweenReorg)
                     {
@@ -204,7 +204,7 @@ namespace Pather.Servers.GatewayServer
                     break;
                 case Gateway_PubSub_MessageType.ReorganizeUser:
                     var reorgUserMessage = (ReorganizeUser_GameWorld_Gateway_PubSub_Message)message;
-                    ServerLogger.LogInformation("Trying to reorg", reorgUserMessage);
+                    ServerLogger.LogInformation("Trying to reorg", reorgUserMessage.UserId,reorgUserMessage.NewGameSegmentId,reorgUserMessage.SwitchAtLockstepNumber);
                     var user = Users[reorgUserMessage.UserId];
                     user.BetweenReorgs = true;
                     user.ReorgAtLockstep = reorgUserMessage.SwitchAtLockstepNumber;
@@ -313,7 +313,7 @@ namespace Pather.Servers.GatewayServer
 
                     if (user.BetweenReorgs)
                     {
-                        ServerLogger.LogInformation("Adding to reorg queue:", user.UserId, gameSegmentActionMessage.GameSegmentAction);
+                        ServerLogger.LogInformation("Adding message to reorg queue:", user.UserId);
                         gameSegmentActionMessage.GameSegmentAction.LockstepTick = user.ReorgAtLockstep + 1;
                         user.QueuedMessagesBetweenReorg.Add(gameSegmentActionMessage.GameSegmentAction);
                     }

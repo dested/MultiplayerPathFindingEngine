@@ -79,7 +79,7 @@ namespace Pather.Servers.GameWorldServer
 
             if (gwUser == null)
             {
-                ServerLogger.LogError("IDK WHO THIS USER IS", dbUser);
+                ServerLogger.LogError("IDK WHO THIS USER IS", dbUser.Token,dbUser.UserId);
                 deferred.Reject();
                 //                throw new Exception("IDK WHO THIS USER IS");
             }
@@ -97,7 +97,7 @@ namespace Pather.Servers.GameWorldServer
                     .Then(() =>
                     {
                         Users.Remove(gwUser);
-                        ServerLogger.LogError("User left", gwUser.UserId);
+                        ServerLogger.LogInformation("User left", gwUser.UserId);
                         deferred.Resolve();
                     });
             }
@@ -199,7 +199,6 @@ namespace Pather.Servers.GameWorldServer
         {
             if (needToReorganize.Count > 0)
             {
-                Debug.Break();
                 var reorg = Math.Min(needToReorganize.Count, Constants.NumberOfReorganizedPlayersPerSession);
                 ServerLogger.LogDebug("Reorganizing ", reorg, "Users");
                 for (var i = reorg - 1; i >= 0; i--)
@@ -241,7 +240,7 @@ namespace Pather.Servers.GameWorldServer
             {
                 case GameWorldActionType.MoveEntity:
                     var moveEntity = (MoveEntity_GameWorldAction)gameWorldActionGameSegment.Action;
-                    ServerLogger.LogDebug("Move entity:", moveEntity);
+                    ServerLogger.LogData("Move entity:", moveEntity.LockstepMovePoints);
                     var user = Users[moveEntity.EntityId];
                     user.SetLockstepMovePoints(moveEntity.LockstepMovePoints);
                     break;

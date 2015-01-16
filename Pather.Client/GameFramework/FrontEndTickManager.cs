@@ -14,7 +14,7 @@ namespace Pather.Client.GameFramework
             Global.Console.Log("Force Lockstep", lockStepTickNumber);
         }
 
-        public FrontEndTickManager()
+        public FrontEndTickManager() : base(null)
         {
         }
 

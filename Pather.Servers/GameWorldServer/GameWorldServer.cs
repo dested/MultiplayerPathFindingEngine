@@ -85,7 +85,7 @@ namespace Pather.Servers.GameWorldServer
             GameWorld.Init();
             BackEndTickManager.Init(sendPing, () =>
             {
-                ServerLogger.LogInformation("Connected To Tick Server");
+                ServerLogger.LogDebug("Connected To Tick Server");
 
                 Global.SetInterval(flushPreAddedUsers, 200);
             });

@@ -18,16 +18,19 @@ namespace Pather.Common.Libraries.NodeJS
         }
 
         [ScriptName("on")]
+        [IncludeGenericArguments(false)]
         public void On<T>(string channel, Action<T> callback)
         {
         }
 
         [ScriptName("on")]
+        [IncludeGenericArguments(false)]
         public void On<T, T2>(string channel, Action<T, T2> callback)
         {
         }
 
         [ScriptName("on")]
+        [IncludeGenericArguments(false)]
         public void On<T, T2, T3>(string channel, Action<T, T2, T3> callback)
         {
         }

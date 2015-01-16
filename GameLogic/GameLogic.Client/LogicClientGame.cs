@@ -43,7 +43,7 @@ namespace GameLogic.Client
         }
 
 
-        public void ClickLocation(double x, double y)
+        public bool ClickLocation(double x, double y)
         {
 
             var clickSquareX = Utilities.ToSquare(x);
@@ -70,6 +70,7 @@ namespace GameLogic.Client
                             TreeY = Utilities.ToSquare(y),
                             LockstepTick = tickManager.LockstepTickNumber + 1
                         });
+                        return true;
                     }
                     break;
                 case LogicGridItemType.Wall:
@@ -85,10 +86,12 @@ namespace GameLogic.Client
                             LockstepTick = tickManager.LockstepTickNumber + 1
                         });
                     }
+                        return true;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+            return false;
         }
 
         public override void ProcessLogicAction(LogicAction_ClientAction logicAction)

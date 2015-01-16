@@ -90,7 +90,6 @@
 		this.$clientInstantiateLogic = null;
 		this.networkManager = null;
 		this.frontEndTickManager = null;
-		this.myUser = null;
 		this.onReady = null;
 		this.clientGame = null;
 		this.$clientInstantiateLogic = clientInstantiateLogic;
@@ -125,7 +124,7 @@
 		this.$hasLockstep = false;
 		this.$hasLatency = false;
 		this.$tickManagerInitialized = false;
-		Pather.Common.Utils.TickManager.call(this);
+		Pather.Common.Utils.TickManager.call(this, null);
 	};
 	$Pather_Client_GameFramework_FrontEndTickManager.__typeName = 'Pather.Client.GameFramework.FrontEndTickManager';
 	global.Pather.Client.GameFramework.FrontEndTickManager = $Pather_Client_GameFramework_FrontEndTickManager;

@@ -14,7 +14,6 @@ namespace Pather.Client.GameFramework
         private   IClientInstantiateLogic clientInstantiateLogic;
         public NetworkManager NetworkManager;
         public FrontEndTickManager FrontEndTickManager;
-        public ClientGameUser MyUser;
         public Action OnReady;
         public ClientGame clientGame;
 

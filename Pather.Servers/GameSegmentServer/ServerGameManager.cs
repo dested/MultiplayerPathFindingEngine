@@ -230,7 +230,7 @@ namespace Pather.Servers.GameSegmentServer
 
         private void onMessageTransferGameUser(TransferUser_GameSegment_GameSegment_PubSub_Message message)
         {
-            ServerLogger.LogInformation("Transfered users",message, serverGame.ActiveEntities.List);
+            ServerLogger.LogInformation("Transfered users",message.UserId);
             var user = ((ServerGameUser) serverGame.ActiveEntities[message.UserId]);
             user.GameSegment.UserLeft(user.EntityId);
             MyGameSegment.UserJoin(user);
@@ -280,7 +280,7 @@ namespace Pather.Servers.GameSegmentServer
             if (!MyGameSegment.Users.Contains(message.UserId))
             {
                 ServerLogger.LogError("This aint my user! " + message.UserId);
-                throw new Exception("This aint my user! " + message.UserId);
+                return;
             }
 
             serverGame.ServerProcessGameSegmentAction(MyGameSegment.Users[message.UserId], message.Action);

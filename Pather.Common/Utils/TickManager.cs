@@ -7,8 +7,11 @@ namespace Pather.Common.Utils
 {
     public abstract class TickManager
     {
-        public TickManager()
+        public IServerLogger ServerLogger;
+
+        public TickManager(IServerLogger serverLogger)
         {
+            ServerLogger = serverLogger;
         }
 
         public long LockstepTickNumber;
@@ -81,11 +84,33 @@ namespace Pather.Common.Utils
         {
             if (OnProcessLockstep != null)
             {
-                OnProcessLockstep(lockstepTickNumber);
+                try
+                {
+                    OnProcessLockstep(lockstepTickNumber);
+                }
+                catch (Exception ex)
+                {
+                    if (ServerLogger != null)
+                        ServerLogger.LogError("Error on lockstep", ex);
+                    else
+                    {
+                        Logger.Log("Client", "Error on lockstep", new object[] {ex.Message,ex.Stack,ex.InnerException}, LogLevel.Error);
+                    }
+                }
+
             }
-            //            Global.Console.Log("Lockstep", LockstepTickNumber, new DateTime().GetTime());
-            //            ServerLogger.LogInformation("Lockstep", LockstepTickNumber, new DateTime().GetTime());
+//            ServerLogger.LogInformation("Lockstep", LockstepTickNumber, new DateTime().GetTime());
         }
+    }
+    public interface IServerLogger
+    {
+        void LogInformation(string item, params object[] jsonContent);
+        void LogDebug(string item, params object[] jsonContent);
+        void LogKeepAlive();
+        void LogError(string item, params object[] jsonContent);
+        void LogError(string item, Exception ex);
+        void LogTransport(string item, params object[] jsonContent);
+        void LogData(string item, params object[] jsonContent);
     }
 
 }

@@ -36,9 +36,9 @@ namespace Pather.Servers.Common.PubSub
             redis.DebugMode = false;
             subClient = redis.CreateClient(port, ConnectionConstants.RedisIP);
             pubClient = redis.CreateClient(port, ConnectionConstants.RedisIP);
-            
-            subClient.On("subscribe", (string channel, int count) =>{if (ServerLogger!=null) ServerLogger.LogDebug("subscribed: " + channel + " " + count);});
-            subClient.On("unsubscribe", (string channel, int count) =>{ if (ServerLogger != null) ServerLogger.LogDebug("unsubscribed: " + channel + " " + count); });
+
+            subClient.On("subscribe", (string channel, int count) => { if (ServerLogger != null) ServerLogger.LogDebug("subscribed: " + channel + " " + count); });
+            subClient.On("unsubscribe", (string channel, int count) => { if (ServerLogger != null) ServerLogger.LogDebug("unsubscribed: " + channel + " " + count); });
 
             subClient.On("message",
                 (string channel, string messageString) =>
@@ -49,6 +49,15 @@ namespace Pather.Servers.Common.PubSub
                 () =>
                 {
                     sready = true;
+                    if (deferred.Promise.IsRejected || deferred.Promise.IsResolved)
+                    {
+                        if (ServerLogger != null)
+                            ServerLogger.LogError("Forced reconnect of redis");
+
+                        return;
+
+                    }
+
                     if (sready && pready)
                         deferred.Resolve();
                 });
@@ -56,9 +65,26 @@ namespace Pather.Servers.Common.PubSub
                 () =>
                 {
                     pready = true;
+                    if (deferred.Promise.IsRejected || deferred.Promise.IsResolved)
+                    {
+                        if (ServerLogger != null)
+                            ServerLogger.LogError("Forced reconnect of redis");
+                        return;
+                    }
                     if (sready && pready)
                         deferred.Resolve();
                 });
+            pubClient.On<Exception>("error", (err) =>
+            {
+                if (ServerLogger != null)
+                    ServerLogger.LogError("Error " + err);
+            });
+            subClient.On<Exception>("error", (err) =>
+            {
+                if (ServerLogger != null)
+                    ServerLogger.LogError("Error " + err);
+            });
+
 
 
             Global.SetInterval(NoDelegateFlush(), 10);
@@ -103,8 +129,8 @@ namespace Pather.Servers.Common.PubSub
             }
             if (count > 70)
             {
-                if (ServerLogger!=null)
-                ServerLogger.LogInformation("Flushing Pubsub with over 70 items", count);
+                if (ServerLogger != null)
+                    ServerLogger.LogInformation("Flushing Pubsub with over 70 items", count);
             }
             channelCache.Clear();
         }
@@ -123,7 +149,7 @@ namespace Pather.Servers.Common.PubSub
                 {
                     if (Utilities.HasField<PubSub_Message_Collection>(message, a => a.MessageCollection))
                     {
-                        var messages = (PubSub_Message_Collection) message;
+                        var messages = (PubSub_Message_Collection)message;
 
                         foreach (var m in messages.MessageCollection)
                         {

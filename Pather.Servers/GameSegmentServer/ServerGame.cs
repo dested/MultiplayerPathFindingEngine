@@ -307,7 +307,8 @@ namespace Pather.Servers.GameSegmentServer
                 serverGameUser.OldNeighbors = null;
                 if (added.Count > 0 || removed.Count > 0)
                 {
-                    ServerLogger.LogDebug("Neighbors! ", added, removed);
+                    ServerLogger.LogDebug("Neighbors! ", added.Select(a => a.EntityId), removed.Select(a => a.EntityId));
+
                     var lockstepTickToRun = tickManager.LockstepTickNumber + 1;
                     ServerLogger.LogDebug("lockstep ", lockstepTickToRun);
 
