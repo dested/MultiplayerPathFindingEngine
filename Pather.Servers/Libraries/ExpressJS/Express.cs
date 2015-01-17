@@ -22,5 +22,9 @@ namespace Pather.Servers.Libraries.ExpressJS
         public void Use(object plugin)
         {
         }
+
+        public void Post(string url, Action<ExpressRequest, ExpressResponse> callback)
+        {
+        }
     }
 }

@@ -45,6 +45,8 @@ ignore ping/lockstep/keepalive in pubsub
 
 '/ change gamesegmentcluster to new pubsub model
 
+look into sending buffer through redis 
+look into send buffer through socketio
 
 look into jump point path finding
 

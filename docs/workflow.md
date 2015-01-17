@@ -16,6 +16,16 @@ user hits gateway with player token
 
 
 
+user sends username and password to auth endpoint in header
+
+auth checks username pass
+	checks against a table with just username passwordHash and Id
+auth returns access token 
+
+
+
+
+
 
 '/ game server sends ready to gateway
 '/ gateway sends ready to user
