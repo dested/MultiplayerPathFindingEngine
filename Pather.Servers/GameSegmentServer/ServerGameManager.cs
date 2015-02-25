@@ -84,13 +84,12 @@ namespace Pather.Servers.GameSegmentServer
 
             foreach (var initialGameUser in message.AllUsers)
             {
-                var user = new ServerGameUser(serverGame, initialGameUser.UserId)
-                {
-                    GameSegment = AllGameSegments[initialGameUser.GameSegmentId],
-                    GatewayId = initialGameUser.GatewayId,
-                    X = initialGameUser.X,
-                    Y = initialGameUser.Y,
-                };
+                
+                var user = (ServerGameUser)serverGame.CreateGameUser(initialGameUser.UserId);
+                user.GameSegment = AllGameSegments[initialGameUser.GameSegmentId];
+                user.GatewayId = initialGameUser.GatewayId;
+                user.X = initialGameUser.X;
+                user.Y = initialGameUser.Y;
 
                 serverGame.AddEntity(user);
                 user.GameSegment.UserJoin(user);

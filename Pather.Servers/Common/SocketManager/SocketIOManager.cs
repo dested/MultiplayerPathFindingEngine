@@ -25,7 +25,12 @@ namespace Pather.Servers.Common.SocketManager
 
 
                 var networkIPs = ServerHelper.GetNetworkIPs();
-                var currentIP = networkIPs[0] + ":" + port;
+                var networkIP = networkIPs[0];
+                if (networkIP == null)
+                {
+                    networkIP = "127.0.0.1";
+                }
+                var currentIP = networkIP + ":" + port;
                 URL = string.Format("http://{0}", currentIP);
 
                 serverLogger.LogInformation("Socket Server URL", URL);
