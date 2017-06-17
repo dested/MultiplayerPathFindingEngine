@@ -36,7 +36,7 @@ namespace Pather.Servers.ServerManager
             ServerLogger = new ServerLogger("ServerManager");
 
 
-            Q.All(pubSub.Init(ServerLogger), pushPop.Init(ServerLogger), linodeBuilder.Init(ServerLogger)).Then(() => ready(pubSub));
+            Q.All(pubSub.Init(ServerLogger), pushPop.Init(ServerLogger)/*, linodeBuilder.Init(ServerLogger)*/).Then(() => ready(pubSub));
         }
 
 
@@ -108,6 +108,7 @@ namespace Pather.Servers.ServerManager
                     Port = NextGatewayPort()
                 }).Then(response =>
                 {
+
                     gatewayCluster.GatewayServers.Add(new GatewayServer());
                     serverManagerPubSub.PublishToHead(new CreateGateway_Response_ServerManager_Head_PubSub_ReqRes_Message()
                     {

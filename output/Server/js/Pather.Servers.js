@@ -44,6 +44,15 @@ global.Pather.Servers.ServerStarter = $Pather_Servers_ServerStarter;
 var $Pather_Servers_AuthServer_AuthServer = function() {
 	this.serverLogger = null;
 	this.serverLogger = new $Pather_Servers_Common_ServerLogging_ServerLogger('Auth', '');
+	var app = require('express')();
+	app.post('/auth', function(req, res) {
+	});
+	if (Pather.Common.ConnectionConstants.get_production()) {
+		app.listen(3222, Pather.Common.ConnectionConstants.mainDomain);
+	}
+	else {
+		app.listen(3222);
+	}
 };
 $Pather_Servers_AuthServer_AuthServer.__typeName = 'Pather.Servers.AuthServer.AuthServer';
 global.Pather.Servers.AuthServer.AuthServer = $Pather_Servers_AuthServer_AuthServer;
@@ -276,6 +285,9 @@ global.Pather.Servers.Common.ServerLogging.ServerLogListener = $Pather_Servers_C
 var $Pather_Servers_Common_ServerLogging_ServerLogMessage = function() {
 };
 $Pather_Servers_Common_ServerLogging_ServerLogMessage.__typeName = 'Pather.Servers.Common.ServerLogging.ServerLogMessage';
+$Pather_Servers_Common_ServerLogging_ServerLogMessage.isInstanceOfType = function() {
+	return true;
+};
 global.Pather.Servers.Common.ServerLogging.ServerLogMessage = $Pather_Servers_Common_ServerLogging_ServerLogMessage;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.Common.SocketManager.ISocket
@@ -340,6 +352,9 @@ $Pather_Servers_Database_DBUser.$ctor = function() {
 	$this.x = 0;
 	$this.y = 0;
 	return $this;
+};
+$Pather_Servers_Database_DBUser.isInstanceOfType = function() {
+	return true;
 };
 global.Pather.Servers.Database.DBUser = $Pather_Servers_Database_DBUser;
 ////////////////////////////////////////////////////////////////////////////////
@@ -475,12 +490,18 @@ $Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessage.$ctor = function(
 	$this.type = null;
 	return $this;
 };
+$Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessage.isInstanceOfType = function() {
+	return true;
+};
 global.Pather.Servers.GameSegmentServer.Logger.GameSegmentLogMessage = $Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessage;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameSegmentServer.Logger.GameSegmentLogMessageContent
 var $Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessageContent = function() {
 };
 $Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessageContent.__typeName = 'Pather.Servers.GameSegmentServer.Logger.GameSegmentLogMessageContent';
+$Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessageContent.isInstanceOfType = function() {
+	return true;
+};
 global.Pather.Servers.GameSegmentServer.Logger.GameSegmentLogMessageContent = $Pather_Servers_GameSegmentServer_Logger_GameSegmentLogMessageContent;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameSegmentServer.Logger.GameSegmentLogMessageType
@@ -523,12 +544,18 @@ $Pather_Servers_GameSegmentServer_Logger_HistogramLogMessage.$ctor = function() 
 	$this.type = null;
 	return $this;
 };
+$Pather_Servers_GameSegmentServer_Logger_HistogramLogMessage.isInstanceOfType = function() {
+	return true;
+};
 global.Pather.Servers.GameSegmentServer.Logger.HistogramLogMessage = $Pather_Servers_GameSegmentServer_Logger_HistogramLogMessage;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameSegmentServer.Logger.HistogramLogMessageContent
 var $Pather_Servers_GameSegmentServer_Logger_HistogramLogMessageContent = function() {
 };
 $Pather_Servers_GameSegmentServer_Logger_HistogramLogMessageContent.__typeName = 'Pather.Servers.GameSegmentServer.Logger.HistogramLogMessageContent';
+$Pather_Servers_GameSegmentServer_Logger_HistogramLogMessageContent.isInstanceOfType = function() {
+	return true;
+};
 global.Pather.Servers.GameSegmentServer.Logger.HistogramLogMessageContent = $Pather_Servers_GameSegmentServer_Logger_HistogramLogMessageContent;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameSegmentServer.Logger.HistogramLogMessageType
@@ -549,6 +576,9 @@ $Pather_Servers_GameSegmentServer_Logger_KeepAlive_GameSegmentLogMessage.$ctor =
 	$this.type = 'keepAlive';
 	return $this;
 };
+$Pather_Servers_GameSegmentServer_Logger_KeepAlive_GameSegmentLogMessage.isInstanceOfType = function() {
+	return true;
+};
 global.Pather.Servers.GameSegmentServer.Logger.KeepAlive_GameSegmentLogMessage = $Pather_Servers_GameSegmentServer_Logger_KeepAlive_GameSegmentLogMessage;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameSegmentServer.Logger.KeepAlive_HistogramLogMessage
@@ -562,6 +592,9 @@ $Pather_Servers_GameSegmentServer_Logger_KeepAlive_HistogramLogMessage.$ctor = f
 	var $this = $Pather_Servers_GameSegmentServer_Logger_HistogramLogMessage.$ctor();
 	$this.type = 'keepAlive';
 	return $this;
+};
+$Pather_Servers_GameSegmentServer_Logger_KeepAlive_HistogramLogMessage.isInstanceOfType = function() {
+	return true;
 };
 global.Pather.Servers.GameSegmentServer.Logger.KeepAlive_HistogramLogMessage = $Pather_Servers_GameSegmentServer_Logger_KeepAlive_HistogramLogMessage;
 ////////////////////////////////////////////////////////////////////////////////
@@ -577,6 +610,9 @@ $Pather_Servers_GameSegmentServer_Logger_LogDistribution_HistogramLogMessage.$ct
 	$this.distribution = null;
 	$this.type = 'logDistribution';
 	return $this;
+};
+$Pather_Servers_GameSegmentServer_Logger_LogDistribution_HistogramLogMessage.isInstanceOfType = function() {
+	return true;
 };
 global.Pather.Servers.GameSegmentServer.Logger.LogDistribution_HistogramLogMessage = $Pather_Servers_GameSegmentServer_Logger_LogDistribution_HistogramLogMessage;
 ////////////////////////////////////////////////////////////////////////////////
@@ -595,6 +631,9 @@ $Pather_Servers_GameSegmentServer_Logger_TellUserMoved_GameSegmentLogMessage.$ct
 	$this.neighbors = null;
 	$this.type = 'tellUserMoved';
 	return $this;
+};
+$Pather_Servers_GameSegmentServer_Logger_TellUserMoved_GameSegmentLogMessage.isInstanceOfType = function() {
+	return true;
 };
 global.Pather.Servers.GameSegmentServer.Logger.TellUserMoved_GameSegmentLogMessage = $Pather_Servers_GameSegmentServer_Logger_TellUserMoved_GameSegmentLogMessage;
 ////////////////////////////////////////////////////////////////////////////////
@@ -615,6 +654,9 @@ $Pather_Servers_GameSegmentServer_Logger_UserJoined_GameSegmentLogMessage.$ctor 
 	$this.type = 'userJoined';
 	return $this;
 };
+$Pather_Servers_GameSegmentServer_Logger_UserJoined_GameSegmentLogMessage.isInstanceOfType = function() {
+	return true;
+};
 global.Pather.Servers.GameSegmentServer.Logger.UserJoined_GameSegmentLogMessage = $Pather_Servers_GameSegmentServer_Logger_UserJoined_GameSegmentLogMessage;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GameSegmentServer.Logger.UserLeft_GameSegmentLogMessage
@@ -630,6 +672,9 @@ $Pather_Servers_GameSegmentServer_Logger_UserLeft_GameSegmentLogMessage.$ctor = 
 	$this.isMine = false;
 	$this.type = 'userLeft';
 	return $this;
+};
+$Pather_Servers_GameSegmentServer_Logger_UserLeft_GameSegmentLogMessage.isInstanceOfType = function() {
+	return true;
 };
 global.Pather.Servers.GameSegmentServer.Logger.UserLeft_GameSegmentLogMessage = $Pather_Servers_GameSegmentServer_Logger_UserLeft_GameSegmentLogMessage;
 ////////////////////////////////////////////////////////////////////////////////
@@ -648,6 +693,9 @@ $Pather_Servers_GameSegmentServer_Logger_UserMoved_GameSegmentLogMessage.$ctor =
 	$this.neighbors = null;
 	$this.type = 'userMoved';
 	return $this;
+};
+$Pather_Servers_GameSegmentServer_Logger_UserMoved_GameSegmentLogMessage.isInstanceOfType = function() {
+	return true;
 };
 global.Pather.Servers.GameSegmentServer.Logger.UserMoved_GameSegmentLogMessage = $Pather_Servers_GameSegmentServer_Logger_UserMoved_GameSegmentLogMessage;
 ////////////////////////////////////////////////////////////////////////////////
@@ -850,6 +898,9 @@ $Pather_Servers_GatewayServer_$GatewayUser.$ctor = function() {
 	$this.reorgAtLockstep = 0;
 	$this.queuedMessagesBetweenReorg = [];
 	return $this;
+};
+$Pather_Servers_GatewayServer_$GatewayUser.isInstanceOfType = function() {
+	return true;
 };
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.GatewayServer.GatewayPubSub
@@ -2028,7 +2079,7 @@ var $Pather_Servers_ServerManager_ServerManager = function(pubSub, pushPop) {
 	this.$gatewayClusters = [];
 	this.$linodeBuilder = new $Pather_Servers_Utils_Linode_LinodeBuilder();
 	this.serverLogger = new $Pather_Servers_Common_ServerLogging_ServerLogger('ServerManager', '');
-	Pather.Common.Utils.Promises.Q.all([pubSub.init(this.serverLogger, 6379), pushPop.init(this.serverLogger), this.$linodeBuilder.init(this.serverLogger)]).then(ss.mkdel(this, function() {
+	Pather.Common.Utils.Promises.Q.all([pubSub.init(this.serverLogger, 6379), pushPop.init(this.serverLogger)]).then(ss.mkdel(this, function() {
 		this.$ready(pubSub);
 	}));
 };
@@ -2154,6 +2205,9 @@ $Pather_Servers_Utils_Linode_ServerInstance.$ctor = function() {
 	$this.mainDiskId = 0;
 	return $this;
 };
+$Pather_Servers_Utils_Linode_ServerInstance.isInstanceOfType = function() {
+	return true;
+};
 global.Pather.Servers.Utils.Linode.ServerInstance = $Pather_Servers_Utils_Linode_ServerInstance;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.Utils.Linode.ResponseModels.CreateInstanceResponse
@@ -2167,6 +2221,9 @@ $Pather_Servers_Utils_Linode_ResponseModels_CreateInstanceResponse.$ctor = funct
 	var $this = {};
 	$this.LinodeID = null;
 	return $this;
+};
+$Pather_Servers_Utils_Linode_ResponseModels_CreateInstanceResponse.isInstanceOfType = function() {
+	return true;
 };
 global.Pather.Servers.Utils.Linode.ResponseModels.CreateInstanceResponse = $Pather_Servers_Utils_Linode_ResponseModels_CreateInstanceResponse;
 ////////////////////////////////////////////////////////////////////////////////
@@ -2192,6 +2249,9 @@ $Pather_Servers_Utils_Linode_ResponseModels_ImageListResponse.$ctor = function()
 	$this.TYPE = null;
 	return $this;
 };
+$Pather_Servers_Utils_Linode_ResponseModels_ImageListResponse.isInstanceOfType = function() {
+	return true;
+};
 global.Pather.Servers.Utils.Linode.ResponseModels.ImageListResponse = $Pather_Servers_Utils_Linode_ResponseModels_ImageListResponse;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.Utils.Linode.ResponseModels.LinodeConfigCreate
@@ -2205,6 +2265,9 @@ $Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate.$ctor = function(
 	var $this = {};
 	$this.ConfigID = 0;
 	return $this;
+};
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate.isInstanceOfType = function() {
+	return true;
 };
 global.Pather.Servers.Utils.Linode.ResponseModels.LinodeConfigCreate = $Pather_Servers_Utils_Linode_ResponseModels_LinodeConfigCreate;
 ////////////////////////////////////////////////////////////////////////////////
@@ -2221,6 +2284,9 @@ $Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateFromImageResponse.$c
 	$this.DISKID = 0;
 	return $this;
 };
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateFromImageResponse.isInstanceOfType = function() {
+	return true;
+};
 global.Pather.Servers.Utils.Linode.ResponseModels.LinodeDiskCreateFromImageResponse = $Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateFromImageResponse;
 ////////////////////////////////////////////////////////////////////////////////
 // Pather.Servers.Utils.Linode.ResponseModels.LinodeDiskCreateResponse
@@ -2235,6 +2301,9 @@ $Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse.$ctor = fun
 	$this.JobID = 0;
 	$this.DiskID = 0;
 	return $this;
+};
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse.isInstanceOfType = function() {
+	return true;
 };
 global.Pather.Servers.Utils.Linode.ResponseModels.LinodeDiskCreateResponse = $Pather_Servers_Utils_Linode_ResponseModels_LinodeDiskCreateResponse;
 ////////////////////////////////////////////////////////////////////////////////
@@ -2253,6 +2322,9 @@ $Pather_Servers_Utils_Linode_ResponseModels_LinodeIPListResponse.$ctor = functio
 	$this.RDNS_NAME = null;
 	$this.IPADDRESSID = 0;
 	return $this;
+};
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeIPListResponse.isInstanceOfType = function() {
+	return true;
 };
 global.Pather.Servers.Utils.Linode.ResponseModels.LinodeIPListResponse = $Pather_Servers_Utils_Linode_ResponseModels_LinodeIPListResponse;
 ////////////////////////////////////////////////////////////////////////////////
@@ -2276,6 +2348,9 @@ $Pather_Servers_Utils_Linode_ResponseModels_LinodeJobListResponse.$ctor = functi
 	$this.JOBID = 0;
 	$this.HOST_SUCCESS = false;
 	return $this;
+};
+$Pather_Servers_Utils_Linode_ResponseModels_LinodeJobListResponse.isInstanceOfType = function() {
+	return true;
 };
 global.Pather.Servers.Utils.Linode.ResponseModels.LinodeJobListResponse = $Pather_Servers_Utils_Linode_ResponseModels_LinodeJobListResponse;
 ss.initClass($Pather_Servers_ServerStarter, $asm, {
@@ -2860,7 +2935,11 @@ ss.initClass($Pather_Servers_Common_SocketManager_SocketIOManager, $asm, {
 			});
 			this.$io = socketio.listen(app);
 			var networkIPs = $Pather_Servers_Utils_ServerHelper.getNetworkIPs();
-			var currentIP = networkIPs[0] + ':' + port;
+			var networkIP = networkIPs[0];
+			if (ss.isNullOrUndefined(networkIP)) {
+				networkIP = '127.0.0.1';
+			}
+			var currentIP = networkIP + ':' + port;
 			this.set_URL(ss.formatString('http://{0}', currentIP));
 			serverLogger.logInformation('Socket Server URL', [this.get_URL()]);
 			app.listen(port);
@@ -3312,12 +3391,11 @@ ss.initClass($Pather_Servers_GameSegmentServer_ServerGameManager, $asm, {
 		}
 		for (var $t2 = 0; $t2 < message.allUsers.length; $t2++) {
 			var initialGameUser = message.allUsers[$t2];
-			var $t3 = new $Pather_Servers_GameSegmentServer_ServerGameUser(this.$serverGame, initialGameUser.userId);
-			$t3.gameSegment = this.allGameSegments.get_item(initialGameUser.gameSegmentId);
-			$t3.gatewayId = initialGameUser.gatewayId;
-			$t3.x = initialGameUser.x;
-			$t3.y = initialGameUser.y;
-			var user = $t3;
+			var user = ss.cast(this.$serverGame.createGameUser(initialGameUser.userId), $Pather_Servers_GameSegmentServer_ServerGameUser);
+			user.gameSegment = this.allGameSegments.get_item(initialGameUser.gameSegmentId);
+			user.gatewayId = initialGameUser.gatewayId;
+			user.x = initialGameUser.x;
+			user.y = initialGameUser.y;
 			this.$serverGame.addEntity(user);
 			user.gameSegment.userJoin(user);
 		}

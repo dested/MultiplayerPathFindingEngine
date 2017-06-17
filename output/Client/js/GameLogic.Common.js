@@ -17,6 +17,9 @@
 		$this.logicActionType = 0;
 		return $this;
 	};
+	$GameLogic_Common_CustomLogicAction_ClientAction.isInstanceOfType = function() {
+		return true;
+	};
 	global.GameLogic.Common.CustomLogicAction_ClientAction = $GameLogic_Common_CustomLogicAction_ClientAction;
 	////////////////////////////////////////////////////////////////////////////////
 	// GameLogic.Common.CustomLogicAction_GameSegmentAction
@@ -33,6 +36,9 @@
 		$this.gameSegmentActionType = 'logicAction';
 		return $this;
 	};
+	$GameLogic_Common_CustomLogicAction_GameSegmentAction.isInstanceOfType = function() {
+		return true;
+	};
 	global.GameLogic.Common.CustomLogicAction_GameSegmentAction = $GameLogic_Common_CustomLogicAction_GameSegmentAction;
 	////////////////////////////////////////////////////////////////////////////////
 	// GameLogic.Common.CustomLogicAction_GameWorldAction
@@ -46,6 +52,9 @@
 		var $this = Pather.Common.Models.Common.Actions.GameWorldAction.LogicAction_GameWorldAction.$ctor();
 		$this.logicActionType = 0;
 		return $this;
+	};
+	$GameLogic_Common_CustomLogicAction_GameWorldAction.isInstanceOfType = function() {
+		return true;
 	};
 	global.GameLogic.Common.CustomLogicAction_GameWorldAction = $GameLogic_Common_CustomLogicAction_GameWorldAction;
 	////////////////////////////////////////////////////////////////////////////////
@@ -61,6 +70,9 @@
 		$this.logicActionType = 0;
 		return $this;
 	};
+	$GameLogic_Common_CustomLogicAction_NeighborGameSegmentAction.isInstanceOfType = function() {
+		return true;
+	};
 	global.GameLogic.Common.CustomLogicAction_NeighborGameSegmentAction = $GameLogic_Common_CustomLogicAction_NeighborGameSegmentAction;
 	////////////////////////////////////////////////////////////////////////////////
 	// GameLogic.Common.CustomLogicAction_TellGameSegmentAction
@@ -74,6 +86,9 @@
 		var $this = Pather.Common.Models.Common.Actions.TellGameSegmentAction.LogicAction_TellGameSegmentAction.$ctor();
 		$this.logicActionType = 0;
 		return $this;
+	};
+	$GameLogic_Common_CustomLogicAction_TellGameSegmentAction.isInstanceOfType = function() {
+		return true;
 	};
 	global.GameLogic.Common.CustomLogicAction_TellGameSegmentAction = $GameLogic_Common_CustomLogicAction_TellGameSegmentAction;
 	////////////////////////////////////////////////////////////////////////////////
@@ -91,6 +106,9 @@
 		$this.logicActionType = 0;
 		return $this;
 	};
+	$GameLogic_Common_CutTree_CustomLogicAction_ClientAction.isInstanceOfType = function() {
+		return true;
+	};
 	global.GameLogic.Common.CutTree_CustomLogicAction_ClientAction = $GameLogic_Common_CutTree_CustomLogicAction_ClientAction;
 	////////////////////////////////////////////////////////////////////////////////
 	// GameLogic.Common.CutTree_CustomLogicAction_GameSegmentAction
@@ -106,6 +124,9 @@
 		$this.treeY = 0;
 		$this.logicActionType = 0;
 		return $this;
+	};
+	$GameLogic_Common_CutTree_CustomLogicAction_GameSegmentAction.isInstanceOfType = function() {
+		return true;
 	};
 	global.GameLogic.Common.CutTree_CustomLogicAction_GameSegmentAction = $GameLogic_Common_CutTree_CustomLogicAction_GameSegmentAction;
 	////////////////////////////////////////////////////////////////////////////////
@@ -123,6 +144,9 @@
 		$this.logicActionType = 0;
 		return $this;
 	};
+	$GameLogic_Common_CutTree_CustomLogicAction_GameWorldAction.isInstanceOfType = function() {
+		return true;
+	};
 	global.GameLogic.Common.CutTree_CustomLogicAction_GameWorldAction = $GameLogic_Common_CutTree_CustomLogicAction_GameWorldAction;
 	////////////////////////////////////////////////////////////////////////////////
 	// GameLogic.Common.CutTree_CustomLogicAction_NeighborGameSegmentAction
@@ -139,6 +163,9 @@
 		$this.logicActionType = 0;
 		return $this;
 	};
+	$GameLogic_Common_CutTree_CustomLogicAction_NeighborGameSegmentAction.isInstanceOfType = function() {
+		return true;
+	};
 	global.GameLogic.Common.CutTree_CustomLogicAction_NeighborGameSegmentAction = $GameLogic_Common_CutTree_CustomLogicAction_NeighborGameSegmentAction;
 	////////////////////////////////////////////////////////////////////////////////
 	// GameLogic.Common.CutTree_CustomLogicAction_TellGameSegmentAction
@@ -154,6 +181,9 @@
 		$this.treeY = 0;
 		$this.logicActionType = 0;
 		return $this;
+	};
+	$GameLogic_Common_CutTree_CustomLogicAction_TellGameSegmentAction.isInstanceOfType = function() {
+		return true;
 	};
 	global.GameLogic.Common.CutTree_CustomLogicAction_TellGameSegmentAction = $GameLogic_Common_CutTree_CustomLogicAction_TellGameSegmentAction;
 	////////////////////////////////////////////////////////////////////////////////
@@ -199,6 +229,9 @@
 		$this.type = type;
 		$this.value = value;
 		return $this;
+	};
+	$GameLogic_Common_LogicGridItem.isInstanceOfType = function() {
+		return true;
 	};
 	global.GameLogic.Common.LogicGridItem = $GameLogic_Common_LogicGridItem;
 	////////////////////////////////////////////////////////////////////////////////

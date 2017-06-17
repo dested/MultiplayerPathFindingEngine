@@ -8,6 +8,7 @@ namespace Pather.Common
         {
             get
             {
+                return false;
                 dynamic production = ((dynamic)Window.Instance).Production;
                 return production;
             }
